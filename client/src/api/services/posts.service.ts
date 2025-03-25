@@ -7,7 +7,7 @@ export class PostService {
   // Store base URL as a static private property
   private static baseUrl = `${import.meta.env.VITE_API_URL}/posts`;
 
-  // Create a new post (static method)
+  // Create a new post
   public static async createPost(postData: any): Promise<ApiResponse<any>> {
     try {
       console.log("post data:", postData);
@@ -24,7 +24,7 @@ export class PostService {
     }
   }
 
-  // Fetch all posts (static method)
+  // Fetch all posts
   public static async getPosts(
     page: number = 1,
     limit: number = 10
@@ -43,7 +43,7 @@ export class PostService {
     }
   }
 
-  // Fetch a single post by ID (static method)
+  // Fetch a single post by ID
   public static async getPostById(postId: number): Promise<ApiResponse<any>> {
     try {
       const response = await axios.get(`${this.baseUrl}/${postId}`);
@@ -54,4 +54,15 @@ export class PostService {
     }
   }
 
+  // Delete a single post by ID
+  public static async deletPost(id: number): Promise<ApiResponse<any>> {
+    try {
+      const response = await axios.delete(`${this.baseUrl}/${id}`);
+      console.log("responsedata:", response.data);
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching post:", error);
+      throw error;
+    }
+  }
 }

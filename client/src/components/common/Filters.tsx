@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface FilterConfig {
-  type: "select" | "date";
+  type: "select" | "date" | "input";
   placeholder?: string;
-  options?: string[];
+  options?: { label: string; value: string }[];
   value: any;
   onChange: (value: any) => void;
   className?: string;
+  inputType?: string;
 }
 
 import { X } from "lucide-react";
 import DatePicker from "./DatePicker";
 import CustomSelect from "./Select";
+import { Input } from "../ui/input";
 
 interface FiltersProps {
   filters: FilterConfig[];
@@ -19,7 +21,7 @@ interface FiltersProps {
 
 const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
   return (
-    <div className="flex-col w-full flex sm:flex-row gap-3 h-[50px] my-8">
+    <div className="flex-col w-full flex sm:flex-row gap-3 h-[50px] my-4">
       {filters.map((filter, index) => {
         if (filter.type === "select") {
           return (
@@ -39,6 +41,17 @@ const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
               className={`h-full border-0 bg-[#F6F6F9] sm:w-[320px] text-xs sm:text-sm font-semibold rounded-[12px] ${filter.className}`}
               selected={filter.value}
               onChange={(date) => filter.onChange(date ?? null)}
+            />
+          );
+        } else if (filter.type === "input") {
+          return (
+            <Input
+              key={index}
+              type={filter.inputType || "text"}
+              placeholder={filter.placeholder}
+              value={filter.value || ""}
+              onChange={(e) => filter.onChange(e.target.value)}
+              className={`bg-[#F6F6F9] border-0 sm:w-[320px] text-xs sm:text-sm font-semibold rounded-[12px] px-3 text-slate-500 ${filter.className} h-full`}
             />
           );
         }

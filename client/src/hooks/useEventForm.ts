@@ -65,7 +65,7 @@ interface RecognitionFormValues {
   title: string;
   recognitionList: {
     employeeId: string;
-    projectId: string;
+    projectName: string;
   }[];
 }
 
@@ -133,7 +133,7 @@ export const useEventForm = (initialFormType = "1") => {
             recognitionList: [
                 {
                 employeeId: "",
-                projectId: ""
+                projectName: ""
                 }
             ]
             };
@@ -197,7 +197,7 @@ export const useEventForm = (initialFormType = "1") => {
                     employeeId: Yup.string()
                     .trim()
                     .required('Employee name is required'),
-                    projectId: Yup.string()
+                    projectName: Yup.string()
                     .trim()
                     .required('Project name is required')
                 })
@@ -303,12 +303,11 @@ export const useEventForm = (initialFormType = "1") => {
         console.log("CurrentUserId", currentUserId)
         
         const recognitionDtos: CreateRecognitionDto[] = recognition.recognitionList.map(item => {
-            const projectId = validateNumericId(item.projectId, 'Project ID');
             const employeeId = validateNumericId(item.employeeId, 'Employee ID');
             
             return {
             message: recognition.title,
-            projectId,
+            project: item.projectName,
             recognizedById: currentUserId,
             recognizedEmployeeId: employeeId,
             };

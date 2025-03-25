@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const SkillsSelector = ({
   value,
@@ -32,19 +31,26 @@ const SkillsSelector = ({
   ];
 
   const handleSkillToggle = (skill: string) => {
+    const trimmedSkill = skill.trim();
     const currentSkills = new Set(value);
-    if (currentSkills.has(skill)) {
-      currentSkills.delete(skill);
+
+    if (currentSkills.has(trimmedSkill)) {
+      currentSkills.delete(trimmedSkill);
     } else {
-      currentSkills.add(skill);
+      currentSkills.add(trimmedSkill);
     }
-    onChange(Array.from(currentSkills));
+
+    onChange(Array.from(currentSkills).filter((s) => s.trim() !== ""));
   };
 
   const handleAddCustomSkill = () => {
     const trimmedSkill = customSkill.trim();
     if (trimmedSkill && !value.includes(trimmedSkill)) {
-      onChange([...value, trimmedSkill]);
+      const updatedSkills = [...value, trimmedSkill].filter(
+        (skill) => skill.trim() !== ""
+      );
+
+      onChange(updatedSkills);
       setCustomSkill("");
     }
   };
@@ -52,7 +58,7 @@ const SkillsSelector = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full py-6 px-4 ">
+        <Button variant="outline" className="w-full py-6 px-4">
           {value.length > 0
             ? `${value.length} skill(s) selected`
             : "Select Skills"}
@@ -68,12 +74,10 @@ const SkillsSelector = ({
               <div
                 key={skill}
                 onClick={() => handleSkillToggle(skill)}
-                className={`${value.includes(skill) ? "bg-purpleaccent2" : ""} flex items-center space-x-2 p-2 rounded-[8px] justify-between w-full`}
+                className={`${value.includes(skill) ? "bg-purpleaccent2" : ""} 
+                flex items-center space-x-2 p-2 rounded-[8px] justify-between w-full`}
               >
-                <label
-                  htmlFor={`skill-${skill}`}
-                  className="text-sm font-medium"
-                >
+                <label className="text-sm font-medium">
                   {skill.toUpperCase()}
                 </label>
               </div>
@@ -126,6 +130,5 @@ const SkillsSelector = ({
     </Popover>
   );
 };
-
 
 export default SkillsSelector;

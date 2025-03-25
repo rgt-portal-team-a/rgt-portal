@@ -45,7 +45,7 @@ export const SideFormModal = <T extends FormikValues>({
     <div
       className="fixed inset-0  backdrop-blur-xs  flex items-start justify-end"
       style={{
-        zIndex: 170,
+        zIndex: 1010,
         backdropFilter: "blur(4px)",
         WebkitBackdropFilter: "blur(4px)",
       }}
