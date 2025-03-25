@@ -8,7 +8,7 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  ECR_REGISTRY:
+  ECR_REGISTRY: 330858616968.dkr.ecr.ap-south-1.amazonaws.com
 
 jobs:
   build-and-push-ecr:
