@@ -6,6 +6,10 @@ RUN apt-get update && apt-get install -y curl && \
   curl -LsSf https://astral.sh/uv/install.sh | sh && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Ensure uv is available in PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+
 WORKDIR /app
 
 # Copy only requirements to leverage Docker cache
