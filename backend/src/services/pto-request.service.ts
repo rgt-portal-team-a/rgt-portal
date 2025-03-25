@@ -191,9 +191,10 @@ export class PtoRequestService {
           relations: ["user"],
         });
 
-        if (approver?.user) {
-          await this.notificationService.createNotification(NotificationTemplates.ptoRequestStatusUpdate(updatedPtoRequest, approver.user));
-        }
+        // TO BE FIXED
+        // if (approver?.user) {
+        //   await this.notificationService.createNotification(NotificationTemplates.ptoRequestStatusUpdate(updatedPtoRequest, approver.user));
+        // }
       }
     }
 
