@@ -23,10 +23,13 @@ export const BaseLayout = () => {
     isDepartmentsError,
     refetchDepartments,
     departmentsError,
+    isEmployeesLoading,
+    isEmployeesError,
+    refetchEmployees,
+    employeesError,
   } = useInitializeSharedData();
   const { unreadCount } = useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Employee[]>([]);
@@ -66,7 +69,7 @@ export const BaseLayout = () => {
     debouncedFetchSearchResults(query);
   };
 
-  if (isDepartmentsLoading) {
+  if (isDepartmentsLoading || isEmployeesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner label="Fetching Shared Data..." size={32} />;
@@ -81,6 +84,18 @@ export const BaseLayout = () => {
           title="Error Loading Shared Data"
           error={departmentsError}
           refetchFn={refetchDepartments}
+        />
+      </div>
+    );
+  }
+
+  if (isEmployeesError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ErrorMessage
+          title="Error Loading Shared Data"
+          error={employeesError}
+          refetchFn={refetchEmployees}
         />
       </div>
     );
@@ -189,6 +204,7 @@ export const BaseLayout = () => {
           style={{
             scrollbarWidth: "none" /* Firefox */,
             msOverflowStyle: "none" /* IE and Edge */,
+            // scale: "85%"
           }}
         >
           <Outlet />

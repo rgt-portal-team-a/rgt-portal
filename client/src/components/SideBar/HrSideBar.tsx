@@ -31,18 +31,28 @@ export const HrSideBar = () => {
         { label: "Employee Time Off", path: "emp-time-off" },
       ],
     },
-    { icon: ProfileAdd2, 
-      label: 'Recruitment',
+    {
+      icon: ProfileAdd2,
+      label: "Recruitment",
       labelClassName: "ml-3",
-      path: '/hr/recruitment',
+      path: "/hr/recruitment",
       items: [
-        { label: 'FullTime', path: '/hr/recruitment/employee' },
-        { label: 'NSS', path: '/hr/recruitment/nss' }
-      ] 
+        { label: "FullTime", path: "/hr/recruitment/employee" },
+        { label: "NSS", path: "/hr/recruitment/nss" },
+      ],
     },
     { icon: MessageIcon, label: "Messages", path: "messages" },
     { icon: CalendarIcon, label: "Events", path: "events" },
-    { icon: ChartIcon, label: "Reports", path: "reports" },
+    // { icon: ChartIcon, label: "Reports", path: "reports" },
+    {
+      icon: ChartIcon,
+      label: "Reports",
+      path: "/reports",
+      items: [
+        { label: "Regular Report", path: "/hr/reports/regularreport" },
+        { label: "Advanced Report", path: "/hr/reports/advancedreport" },
+      ],
+    },
   ];
 
   return (

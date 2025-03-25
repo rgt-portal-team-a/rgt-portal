@@ -21,111 +21,9 @@ import EmployeesTableSkeleton from "@/components/Hr/Employees/EmployeesTableSkel
 type ViewMode = "table" | "grid";
 
 export const ManageEmployees: React.FC = () => {
-const [viewMode, setViewMode] = useState<ViewMode>("table");
-const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
-const [visibleColumns, setVisibleColumns] = useState([
-  "name",
-  "email",
-  "phoneNumber",
-  "birthday",
-  "startDate",
-  "department",
-  "onLeave",
-  // "actions",
-]);
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
 
-const [columnSearchTerm, setColumnSearchTerm] = useState("");
-const [searchByField, setSearchByField] = useState<string[]>([]);
-const [searchTerm, setSearchTerm] = useState("");
-const [gridSearchTerm, setGridSearchTerm] = useState("");
-const [searchFieldSearchTerm, setSearchFieldSearchTerm] = useState("");
-
-// Employee Data Fetching
-const {
-  data: employees,
-  isLoading: isEmployeesLoading,
-  isError: isEmployeesError,
-  error,
-  refetch,
-} = useAllEmployees({}, {});
-
-
-// Column Configuration
-const allColumns = [
-  { key: "name", header: "Employee Name" },
-  { key: "email", header: "Email" },
-  { key: "phoneNumber", header: "Phone Number" },
-  { key: "birthday", header: "Birth Date" },
-  { key: "age", header: "Age" },
-  { key: "city", header: "City" },
-  { key: "homeAddress", header: "Home Address" },
-  { key: "region", header: "Region" },
-  { key: "country", header: "Country" },
-  { key: "startDate", header: "Start Date" },
-  { key: "endDate", header: "End Date" },
-  { key: "seniority", header: "Seniority" },
-  { key: "skills", header: "Skills" },
-  { key: "ftpt", header: "FT/PT" },
-  { key: "department", header: "Department" },
-  { key: "seniorTeamLead", header: "Team Leader" },
-  { key: "juniorTeamLead", header: "Jr. Team Leader" },
-  { key: "agency", header: "Agency" },
-  { key: "invoiceReceived", header: "Got Invoice" },
-  { key: "paid", header: "Paid" },
-  { key: "onLeave", header: "On Leave" },
-  // { key: "actions", header: "Action" },
-];
-
-// Memoized filtered employees for grid view
-const filteredEmployees = useMemo(() => {
-  if (!employees || employees.length === 0) return [];
-
-  return employees.filter((employee) => {
-    const fullName =
-      `${employee.firstName || ""} ${employee.lastName || ""}`.toLowerCase();
-    return fullName.includes(gridSearchTerm.toLowerCase());
-  });
-}, [employees, gridSearchTerm]);
-
-const toggleArrayState = useCallback(
-  <T,>(setState: React.Dispatch<React.SetStateAction<T[]>>, item: T) => {
-    setState((prev) =>
-      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
-    );
-  },
-  []
-);
-
-// Column Visibility Methods
-const hideAllColumns = useCallback(() => {
-  setVisibleColumns(["name"]);
-}, []);
-
-const showAllColumns = useCallback(() => {
-  setVisibleColumns(allColumns.map((col) => col.key));
-}, [allColumns]);
-
-const toggleColumnVisibility = useCallback(
-  (columnKey: string) => {
-    toggleArrayState(setVisibleColumns, columnKey);
-  },
-  [toggleArrayState]
-);
-
-const toggleSearchByField = useCallback(
-  (fieldKey: string) => {
-    toggleArrayState(setSearchByField, fieldKey);
-  },
-  [toggleArrayState]
-);
-
-const resetSearchByField = useCallback(() => {
-  setSearchByField(allColumns.map((col) => col.key));
-}, [allColumns]);
-
-const resetColumns = useCallback(() => {
-  const defaultColumns = [
+  const [visibleColumns, setVisibleColumns] = useState([
     "name",
     "email",
     "phoneNumber",
@@ -133,82 +31,244 @@ const resetColumns = useCallback(() => {
     "startDate",
     "department",
     "onLeave",
-    "actions",
-  ];
-  setVisibleColumns(defaultColumns);
-}, []);
+  ]);
+  const [searchByField, setSearchByField] = useState<string[]>([]);
 
-// Filtered Options with Memoization
-const filteredColumnOptions = useMemo(
-  () =>
-    allColumns.filter((col) =>
-      col.header.toLowerCase().includes(columnSearchTerm.toLowerCase())
-    ),
-  [allColumns, columnSearchTerm]
-);
+  const stableSearchByField = useMemo(() => searchByField, [searchByField]);
+  const stableVisibleColumns = useMemo(() => visibleColumns, [visibleColumns]);
 
-const filteredSearchByFieldOptions = useMemo(
-  () =>
-    allColumns.filter((col) =>
-      col.header.toLowerCase().includes(searchFieldSearchTerm.toLowerCase())
-    ),
-  [allColumns, searchFieldSearchTerm]
-);
+  const [columnSearchTerm, setColumnSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [gridSearchTerm, setGridSearchTerm] = useState("");
+  const [searchFieldSearchTerm, setSearchFieldSearchTerm] = useState("");
 
-// Render Methods
-const renderEmployeeContent = () => {
-  if (isEmployeesLoading) {
-    return viewMode === "table" ? (
-      <EmployeesTableSkeleton />
-    ) : (
-      <EmployeeCardSkeleton />
-    );
-  }
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+  }, []);
 
-  if (isEmployeesError) {
-    return (
-      <div className="p-6">
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Error loading Employees data</AlertTitle>
-          <AlertDescription>
-            {error instanceof Error
-              ? error.message
-              : "Failed to load data. Please try again."}
-          </AlertDescription>
-        </Alert>
-        <Button onClick={() => refetch()} variant="outline" className="mt-4">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Try Again
-        </Button>
-      </div>
-    );
-  }
-
-  if (!employees || employees.length === 0) {
-    return <NoEmployeesPage />;
-  }
-
-  return viewMode === "table" ? (
-    <EmployeeManagementTable
-      columnsToShow={visibleColumns}
-      searchByField={searchByField}
-      searchTerm={searchTerm}
-    />
-  ) : (
-    <div className="flex flex-col gap-4">
-      {/* Employee Cards Grid */}
-      <div className="flex flex-wrap gap-4">
-        {filteredEmployees.map((employee) => (
-          <EmployeeCard key={employee.id} employee={employee} />
-        ))}
-      </div>
-    </div>
+  // Employee Data Fetching - with staleTime to prevent unnecessary refetches
+  const {
+    data: employees,
+    isLoading: isEmployeesLoading,
+    isError: isEmployeesError,
+    error,
+    refetch,
+  } = useAllEmployees(
+    {},
+    {
+      gcTime: 10 * 60 * 1000, 
+    }
   );
-};
+
+  // Column Configuration
+  const allColumns = [
+    { key: "name", header: "Employee Name" },
+    { key: "email", header: "Email" },
+    { key: "phoneNumber", header: "Phone Number" },
+    { key: "birthday", header: "Birth Date" },
+    { key: "age", header: "Age" },
+    { key: "city", header: "City" },
+    { key: "homeAddress", header: "Home Address" },
+    { key: "region", header: "Region" },
+    { key: "country", header: "Country" },
+    { key: "startDate", header: "Start Date" },
+    { key: "endDate", header: "End Date" },
+    { key: "seniority", header: "Seniority" },
+    { key: "skills", header: "Skills" },
+    { key: "ftpt", header: "FT/PT" },
+    { key: "department", header: "Department" },
+    { key: "seniorTeamLead", header: "Team Leader" },
+    { key: "juniorTeamLead", header: "Jr. Team Leader" },
+    { key: "agency", header: "Agency" },
+    { key: "invoiceReceived", header: "Got Invoice" },
+    { key: "paid", header: "Paid" },
+    { key: "onLeave", header: "On Leave" },
+  ];
+
+  const filteredEmployees = useMemo(() => {
+    if (!employees || employees.length === 0) return [];
+    return employees.filter((employee) => {
+      const fullName = `${employee.firstName || ""} ${
+        employee.lastName || ""
+      }`.toLowerCase();
+      return fullName.includes(gridSearchTerm.toLowerCase());
+    });
+  }, [employees, gridSearchTerm]);
+
+  const toggleArrayState = useCallback(
+    <T,>(setState: React.Dispatch<React.SetStateAction<T[]>>, item: T) => {
+      setState((prev) =>
+        prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+      );
+    },
+    []
+  );
+
+  // Column Visibility Methods
+  const hideAllColumns = useCallback(() => {
+    setVisibleColumns(["name"]);
+  }, []);
+
+  const showAllColumns = useCallback(() => {
+    setVisibleColumns(allColumns.map((col) => col.key));
+  }, [allColumns]);
+
+  const toggleColumnVisibility = useCallback(
+    (columnKey: string) => {
+      toggleArrayState(setVisibleColumns, columnKey);
+    },
+    [toggleArrayState]
+  );
+
+  const toggleSearchByField = useCallback(
+    (fieldKey: string) => {
+      toggleArrayState(setSearchByField, fieldKey);
+    },
+    [toggleArrayState]
+  );
+
+  const resetSearchByField = useCallback(() => {
+    setSearchByField(allColumns.map((col) => col.key));
+  }, [allColumns]);
+
+  const resetColumns = useCallback(() => {
+    const defaultColumns = [
+      "name",
+      "email",
+      "phoneNumber",
+      "birthday",
+      "startDate",
+      "department",
+      "onLeave",
+    ];
+    setVisibleColumns(defaultColumns);
+  }, []);
+
+  // Filtered Options with Memoization
+  const filteredColumnOptions = useMemo(
+    () =>
+      allColumns.filter((col) =>
+        col.header.toLowerCase().includes(columnSearchTerm.toLowerCase())
+      ),
+    [allColumns, columnSearchTerm]
+  );
+
+  const filteredSearchByFieldOptions = useMemo(
+    () =>
+      allColumns.filter((col) =>
+        col.header.toLowerCase().includes(searchFieldSearchTerm.toLowerCase())
+      ),
+    [allColumns, searchFieldSearchTerm]
+  );
+
+  const ViewModeToggle = React.memo(
+    ({
+      viewMode,
+      onViewModeChange,
+    }: {
+      viewMode: ViewMode;
+      onViewModeChange: (mode: ViewMode) => void;
+    }) => {
+      return (
+        <div className="flex h-10 items-center rounded-lg bg-gray-300">
+          <div
+            className={`p-2 rounded-lg cursor-pointer ${
+              viewMode === "table" ? "bg-purple-400" : ""
+            }`}
+            onClick={() => onViewModeChange("table")}
+          >
+            <HamburgerMenu />
+          </div>
+          <div
+            className={`p-2 rounded-lg cursor-pointer ${
+              viewMode === "grid" ? "bg-purple-400" : ""
+            }`}
+            onClick={() => onViewModeChange("grid")}
+          >
+            <GridIcon />
+          </div>
+        </div>
+      );
+    }
+  );
+
+  // Render Methods
+  const renderEmployeeContent = useCallback(() => {
+    if (isEmployeesLoading) {
+      return viewMode === "table" ? (
+        <EmployeesTableSkeleton />
+      ) : (
+        <EmployeeCardSkeleton />
+      );
+    }
+
+    if (isEmployeesError) {
+      return (
+        <div className="p-6">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Error loading Employees data</AlertTitle>
+            <AlertDescription>
+              {error instanceof Error
+                ? error.message
+                : "Failed to load data. Please try again."}
+            </AlertDescription>
+          </Alert>
+          <Button onClick={() => refetch()} variant="outline" className="mt-4">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Try Again
+          </Button>
+        </div>
+      );
+    }
+
+    if (!employees || employees.length === 0) {
+      return <NoEmployeesPage />;
+    }
+
+    return viewMode === "table" ? (
+      <EmployeeManagementTable
+        key="employee-table"
+        employeeData={employees}
+        columnsToShow={stableVisibleColumns}
+        searchByField={stableSearchByField}
+        searchTerm={searchTerm}
+      />
+    ) : (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-4">
+          {filteredEmployees.map((employee) => (
+            <EmployeeCard key={employee.id} employee={employee} />
+          ))}
+        </div>
+      </div>
+    );
+  }, [
+    isEmployeesLoading,
+    isEmployeesError,
+    employees,
+    viewMode,
+    visibleColumns,
+    searchByField,
+    searchTerm,
+    filteredEmployees,
+  ]);
+
+
+   const memoizedRenderEmployeeContent = useMemo(() => {
+     return renderEmployeeContent();
+   }, [
+     isEmployeesLoading,
+     isEmployeesError,
+     employees,
+     viewMode,
+     visibleColumns,
+     searchByField,
+     searchTerm,
+     gridSearchTerm,
+   ]);
 
   return (
-    <>
     <div className="flex flex-col gap-[15px] pt-[10px] h-full">
       <section className="h-[62px] flex justify-between w-full items-center py-1">
         <div className="flex flex-col h-full">
@@ -219,8 +279,6 @@ const renderEmployeeContent = () => {
         </div>
 
         <div className="md:flex md:flex-row gap-4 items-center h-full flex-col">
-
-
           {/* Search Input */}
           {viewMode === "table" ? (
             <>
@@ -392,31 +450,17 @@ const renderEmployeeContent = () => {
           )}
 
           {/* View Mode Toggle */}
-          <div className="flex h-10 items-center rounded-lg bg-gray-300">
-            <div
-              className={`p-2 rounded-lg cursor-pointer ${
-                viewMode === "table" ? "bg-purple-400" : ""
-              }`}
-              onClick={() => setViewMode("table")}
-            >
-              <HamburgerMenu />
-            </div>
-            <div
-              className={`p-2 rounded-lg cursor-pointer ${
-                viewMode === "grid" ? "bg-purple-400" : ""
-              }`}
-              onClick={() => setViewMode("grid")}
-            >
-              <GridIcon />
-            </div>
-          </div>
+          <ViewModeToggle
+            viewMode={viewMode}
+            onViewModeChange={handleViewModeChange}
+          />
         </div>
       </section>
 
-      <div className="flex flex-col h-full">{renderEmployeeContent()}</div>
+      <div className="flex flex-col h-full">
+        {memoizedRenderEmployeeContent}
+      </div>
     </div>
-
-    </>
   );
 };
 

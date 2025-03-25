@@ -1,7 +1,7 @@
 import { Employee } from "./employee";
 
 export interface Department{
-  id: string;
+  id: number;
   name: string;
   description: string;
   managerId: number;

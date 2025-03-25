@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { ChevronDown, Dot } from "lucide-react";
+import { IconTypes } from "@/assets/icons/types";
 
 interface Item {
   path: string;

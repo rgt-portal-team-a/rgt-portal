@@ -1,6 +1,5 @@
 import { usePoll } from "@/hooks/use-poll";
 import AvtrBlock from "./AvtrBlock";
-import { MoreVertical } from "lucide-react";
 import PostSkeleton from "./common/PostSkeleton";
 
 const PollUI = ({ pollId }: { pollId: number }) => {
@@ -23,7 +22,7 @@ const PollUI = ({ pollId }: { pollId: number }) => {
           lastName={poll.createdBy.lastName}
           profileImage={poll.createdBy.user.profileImage}
         />
-        <MoreVertical className="text-[#CBD5E1] hover:text-[#8d949c] transition-colors duration-300 ease-in cursor-pointer" />
+        {/* <MoreVertical className="text-[#CBD5E1] hover:text-[#8d949c] transition-colors duration-300 ease-in cursor-pointer" /> */}
       </section>
       <section className="pt-3 space-y-3">
         <p className="text-sm">{poll?.description}</p>
@@ -42,8 +41,7 @@ const PollUI = ({ pollId }: { pollId: number }) => {
                   !poll.hasVoted
                     ? "cursor-pointer hover:bg-gray-50"
                     : "cursor-default"
-                }`}
-              >
+                }`}>
                 {/* Progress bar background */}
                 <div
                   style={{ width: `${option.percentage}%` }}
