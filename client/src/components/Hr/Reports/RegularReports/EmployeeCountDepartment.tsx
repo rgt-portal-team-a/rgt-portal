@@ -32,7 +32,7 @@ const EmployeeCountDepartment = () => {
             <XAxis type="number" />
             <YAxis dataKey="department" type="category" />
             <Tooltip />
-            <Bar dataKey="count" fill="#9c27b0" />
+            <Bar dataKey="count" fill="#9333ea" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
