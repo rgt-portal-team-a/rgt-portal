@@ -1,0 +1,1596 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Documentation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+      :root {
+        --primary: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --secondary: #6b7280;
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --background: #f8fafc;
+        --text: #1f2937;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.6;
+        color: var(--text);
+        background: var(--background);
+      }
+
+      .sidebar {
+        position: fixed;
+        width: 280px;
+        height: 100vh;
+        background: white;
+        border-right: 1px solid #e5e7eb;
+        padding: 2rem;
+        overflow-y: auto;
+      }
+
+      .sidebar h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--primary-dark);
+      }
+
+      .sidebar h3 {
+        font-weight: 500;
+        margin-bottom: 2rem;
+        color: var(--primary-dark);
+      }
+
+      .nav-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .nav-group-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+      }
+
+      .nav-item {
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        color: var(--text);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s;
+      }
+
+      .nav-item:hover {
+        background: #f3f4f6;
+        color: var(--primary);
+      }
+
+      .content {
+        margin-left: 280px;
+        padding: 2rem 3rem;
+        max-width: 1200px;
+      }
+
+      .section {
+        margin-bottom: 3rem;
+        background: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .endpoint {
+        margin-bottom: 2rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+
+      .endpoint-header {
+        padding: 1rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .method {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.25rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .method.get {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .method.post {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .method.put {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .method.delete {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .endpoint-body {
+        padding: 1rem;
+      }
+
+      .endpoint-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .endpoint-section h4 {
+        font-size: 0.875rem;
+        color: var(--secondary);
+        margin-bottom: 0.5rem;
+      }
+
+      code {
+        font-family: ui-monospace, monospace;
+        font-size: 0.875rem;
+      }
+
+      .auth-tag {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .role-tag {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        background: #e0e7ff;
+        color: #3730a3;
+        margin-right: 0.5rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        text-align: left;
+      }
+
+      th {
+        background: #f9fafb;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <h1>RGT PORTAL</h1>
+      <h3>API Documentation</h3>
+
+      <nav>
+        <div class="nav-group">
+          <div class="nav-group-title">Getting Started</div>
+          <a href="#overview" class="nav-item">Overview</a>
+          <a href="#authentication" class="nav-item">Authentication</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">Endpoints</div>
+          <a href="#auth-endpoints" class="nav-item">Auth Endpoints</a>
+          <a href="#post-endpoints" class="nav-item">Post Endpoints</a>
+          <a href="#interaction-endpoints" class="nav-item">Interaction Endpoints</a>
+          <a href="#department-endpoints" class="nav-item"> Department Endpoints</a>
+          <a href="#pto-endpoints" class="nav-item">PTO Endpoints</a>
+          <a href="#recognition-endpoints" class="nav-item">Recognition Endpoints</a>
+          <a href="#recruitment-endpoints" class="nav-item">Recruitment Endpoints</a>
+          <a href="#system-endpoints" class="nav-item">System Endpoints</a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="content">
+      <section id="overview" class="section">
+        <h2>Overview</h2>
+        <p>
+          This API provides a comprehensive set of endpoints for managing posts, user authentication, and post interactions in a social platform. The
+          API uses OAuth 2.0 for authentication and supports various user roles with different permissions.
+        </p>
+
+        <h3>Base Configuration</h3>
+        <ul>
+          <li>Base URL: <code>/api</code></li>
+          <li>Request body size limit: 50MB</li>
+          <li>Supported formats: JSON</li>
+        </ul>
+
+        <h3>Response Format</h3>
+        <pre><code class="language-json">{
+  "success": boolean,
+  "data": any,
+  "message": string?,
+  "metadata": {
+    "page": number?,
+    "totalPages": number?,
+    "total": number?
+  }
+}</code></pre>
+      </section>
+
+      <section id="authentication" class="section">
+        <h2>Authentication</h2>
+        <p>The API uses Google OAuth 2.0 for authentication. All authenticated endpoints require a valid session token.</p>
+
+        <h3>User Roles</h3>
+        <div style="margin-top: 1rem">
+          <span class="role-tag">ADMIN</span>
+          <span class="role-tag">MANAGER</span>
+          <span class="role-tag">HR</span>
+          <span class="role-tag">MODERATOR</span>
+          <span class="role-tag">EMPLOYEE</span>
+        </div>
+      </section>
+
+      <section id="auth-endpoints" class="section">
+        <h2>Auth Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/auth/google</code>
+          </div>
+          <div class="endpoint-body">
+            <p>Initiates Google OAuth 2.0 authentication flow.</p>
+            <div class="endpoint-section">
+              <h4>Scope</h4>
+              <code>["profile", "email"]</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/auth/google/callback</code>
+          </div>
+          <div class="endpoint-body">
+            <p>Google OAuth callback endpoint.</p>
+            <div class="endpoint-section">
+              <h4>Redirects</h4>
+              <ul>
+                <li>Success: <code>${CLIENT_URL}/dashboard</code></li>
+                <li>Failure: <code>${CLIENT_URL}/login</code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/auth/logout</code>
+          </div>
+          <div class="endpoint-body">
+            <p>Logs out the current user and invalidates their session.</p>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <p>Redirects to: <code>/</code></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="post-endpoints" class="section">
+        <h2>Post Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/posts</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves a paginated list of posts with interactions.</p>
+            <div class="endpoint-section">
+              <h4>Query Parameters</h4>
+              <table>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Type</th>
+                  <th>Default</th>
+                  <th>Description</th>
+                </tr>
+                <tr>
+                  <td>page</td>
+                  <td>number</td>
+                  <td>1</td>
+                  <td>Page number</td>
+                </tr>
+                <tr>
+                  <td>limit</td>
+                  <td>number</td>
+                  <td>10</td>
+                  <td>Items per page</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/posts</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Creates a new post.</p>
+            <div class="endpoint-section">
+              <h4>Required Roles</h4>
+              <div>
+                <span class="role-tag">HR</span>
+                <span class="role-tag">MANAGER</span>
+                <span class="role-tag">ADMIN</span>
+              </div>
+            </div>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "title": "string",
+  "content": "string",
+  "image": "string?" // optional
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/posts/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves a specific post by ID.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method put">PUT</span>
+            <code>/api/posts/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Updates an existing post.</p>
+            <div class="endpoint-section">
+              <h4>Required Roles</h4>
+              <div>
+                <span class="role-tag">MODERATOR</span>
+                <span class="role-tag">ADMIN</span>
+                <span class="role-tag">Post Author</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="interaction-endpoints" class="section">
+        <h2>Interaction Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/posts/:postId/comments</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Creates a comment on a post.</p>
+            <div class="endpoint-section">
+              <h4>Required Roles</h4>
+              <div>
+                <span class="role-tag">EMPLOYEE</span>
+                <span class="role-tag">MANAGER</span>
+                <span class="role-tag">ADMIN</span>
+              </div>
+            </div>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "content": "string"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/posts/:postId/reactions</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Toggles a reaction on a post.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "emoji": "string"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/posts/:postId/likes</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Toggles a like on a post.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+                      "isLike": boolean
+                    }</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/posts/:id/stats</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves statistics for a specific post.</p>
+            <div class="endpoint-section">
+              <h4>Required Roles</h4>
+              <div>
+                <span class="role-tag">MANAGER</span>
+                <span class="role-tag">ADMIN</span>
+              </div>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response Format</h4>
+              <pre><code class="language-json">{
+                      "success": true,
+                      "data": {
+                        "likes": number,
+                        "comments": number,
+                        "reactions": {
+                          "emoji": number
+                        }
+                      }
+                    }</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="department-endpoints" class="section">
+        <h2>Department Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/departments</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves all departments.</p>
+            <div class="endpoint-section">
+              <h4>Query Parameters</h4>
+              <ul>
+                <li><code>includeEmployees</code> - Set to "true" to include employee data</li>
+              </ul>
+            </div>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Any authenticated user</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Engineering",
+      "description": "Software development and infrastructure",
+      "managerId": 5,
+      "manager": {
+        "id": 5,
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "email": "jane.smith@example.com"
+      },
+      "employees": [...]
+    }
+  ],
+  "message": "Departments retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/departments/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves a specific department by ID.</p>
+            <div class="endpoint-section">
+              <h4>Query Parameters</h4>
+              <ul>
+                <li><code>includeEmployees</code> - Set to "true" to include employee data</li>
+              </ul>
+            </div>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Any authenticated user</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Engineering",
+    "description": "Software development and infrastructure",
+    "managerId": 5,
+    "manager": {
+      "id": 5,
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "jane.smith@example.com"
+    }
+  },
+  "message": "Department retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/departments</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Admin, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Creates a new department.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "name": "string",
+  "description": "string?",
+  "managerId": number
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Admin, HR</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "Marketing",
+    "description": "Brand and marketing operations",
+    "managerId": 8
+  },
+  "message": "Department created successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method put">PUT</span>
+            <code>/api/departments/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Admin, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Updates an existing department.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "name": "string?",
+  "description": "string?",
+  "managerId": number?
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Admin, HR</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 2,
+    "name": "Customer Support",
+    "description": "Updated description for customer support team",
+    "managerId": 12
+  },
+  "message": "Department updated successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/departments/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Admin</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Deletes a specific department by ID.</p>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Admin only</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "message": "Department deleted successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/departments/:id/stats</code>
+            <span class="auth-tag">No Authentication Required</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves statistics for a specific department.</p>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>No authentication required</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "employeeCount": 15,
+    "averageSalary": 85000,
+    "seniorityDistribution": {
+      "junior": 5,
+      "mid": 7,
+      "senior": 3
+    }
+  },
+  "message": "Department statistics retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/departments/manager/:managerId</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves departments managed by a specific manager.</p>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Any authenticated user</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": [
+    {
+      "id": 4,
+      "name": "Product Management",
+      "description": "Product strategy and roadmap planning",
+      "managerId": 9
+    },
+    {
+      "id": 7,
+      "name": "Design",
+      "description": "UI/UX design team",
+      "managerId": 9
+    }
+  ],
+  "message": "Manager's departments retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/departments/transfer-employees</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Admin, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Transfers all employees from one department to another.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "fromDepartmentId": number,
+  "toDepartmentId": number
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Admin, HR</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "message": "Employees transferred successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/departments/:id/employees</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Admin, HR, Manager</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Adds an employee to a department.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "employeeId": number
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Admin, HR, Manager</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 2,
+    "name": "Finance",
+    "description": "Financial operations and accounting",
+    "managerId": 15,
+    "employees": [
+      {
+        "id": 23,
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com"
+      },
+      // other employees...
+    ]
+  },
+  "message": "Employee added to department successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/departments/:id/employees/bulk</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Admin, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Adds multiple employees to a department.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "employeeIds": number[]
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Admin, HR</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 6,
+    "name": "Sales",
+    "description": "Sales and business development",
+    "managerId": 18,
+    "employees": [
+      // List of employees including newly added ones
+    ]
+  },
+  "message": "Employees added to department successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/departments/:id/employees/:employeeId</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Admin, HR, Manager</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Removes an employee from a department.</p>
+            <div class="endpoint-section">
+              <h4>Roles</h4>
+              <p>Admin, HR, Manager</p>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "Marketing",
+    "description": "Brand and marketing operations",
+    "managerId": 8,
+    "employees": [
+      // List of remaining employees
+    ]
+  },
+  "message": "Employee removed from department successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pto-endpoints" class="section">
+        <h2>PTO Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/pto/my-requests</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves the logged-in employee's PTO requests.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/pto</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Creates a new PTO request.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "startDate": "YYYY-MM-DD",
+  "endDate": "YYYY-MM-DD",
+  "type": "string",
+  "comments": "string?"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/pto/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves a specific PTO request by ID.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method put">PUT</span>
+            <code>/api/pto/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Updates an existing PTO request.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "status": "string",
+  "comments": "string?"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/pto/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Deletes a specific PTO request by ID.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/pto/summary</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves the days off summary for the logged-in employee.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/pto/pending-approvals</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves pending PTO approvals for the logged-in approver.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/pto/employee/:employeeId</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves PTO requests for a specific employee by ID.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/pto/summary/:employeeId</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves the days off summary for a specific employee by ID.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/pto/all</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves all PTO requests.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="recognition-endpoints" class="section">
+        <h2>Recognition Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/recognition</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves all employee recognitions.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/recognition/employee/:employeeId</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves recognitions for a specific employee by ID.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/recognition/category/:category</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves recognitions by category.</p>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/recognition</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Creates a new recognition.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "recognizedById": number,
+  "recognizedEmployeeId": number,
+  "projectId": number?,
+  "category": "string?",
+  "message": "string"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/recognition/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Deletes a specific recognition by ID.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="recruitment-endpoints" class="section">
+        <h2>Recruitment Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/recruitment</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: ADMIN, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves a paginated list of all recruitment records.</p>
+            <div class="endpoint-section">
+              <h4>Query Parameters</h4>
+              <pre><code class="language-json">{
+  "page": "number?",
+  "limit": "number?",
+  "relations": "string?",
+  "name": "string?",
+  "email": "string?",
+  "status": "RecruitmentStatus?",
+  "type": "string?",
+  "assignee": "string?",
+  "position": "string?",
+  "source": "string?",
+  "location": "string?",
+  "dateFrom": "YYYY-MM-DD?",
+  "dateTo": "YYYY-MM-DD?",
+  "createdFrom": "YYYY-MM-DD?",
+  "createdTo": "YYYY-MM-DD?"
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "currentStatus": "CV_REVIEW",
+        "position": "Software Engineer",
+        "createdAt": "2025-02-28T10:00:00.000Z"
+      }
+    ],
+    "meta": {
+      "totalItems": 15,
+      "itemCount": 10,
+      "itemsPerPage": 10,
+      "totalPages": 2,
+      "currentPage": 1
+    }
+  },
+  "message": "Recruitments retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/recruitment/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: ADMIN, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves a specific recruitment record by ID.</p>
+            <div class="endpoint-section">
+              <h4>Query Parameters</h4>
+              <pre><code class="language-json">{
+  "relations": "string?" // default: "createdBy,employee,emergencyContacts"
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phoneNumber": "+1234567890",
+    "type": "EMPLOYEE",
+    "currentStatus": "CV_REVIEW",
+    "position": "Software Engineer",
+    "createdBy": {
+      "id": 1,
+      "name": "HR Admin"
+    },
+    "emergencyContacts": [
+      {
+        "name": "Jane Doe",
+        "relationship": "SPOUSE",
+        "phoneNumber": "+0987654321"
+      }
+    ]
+  },
+  "message": "Recruitment retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method post">POST</span>
+            <code>/api/recruitment</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: HR, ADMIN</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Creates a new recruitment record.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "name": "string",
+  "date": "YYYY-MM-DD?",
+  "email": "string",
+  "phoneNumber": "string?",
+  "cvPath": "string?",
+  "photoUrl": "string?",
+  "type": "RecruitmentType?",
+  "currentStatus": "RecruitmentStatus?",
+  "statusDueDate": "YYYY-MM-DD?",
+  "assignee": "string?",
+  "location": "string?",
+  "firstPriority": "string?",
+  "secondPriority": "string?",
+  "university": "string?",
+  "position": "string?",
+  "source": "string?",
+  "notes": "string?",
+  "emergencyContacts": [
+    {
+      "name": "string",
+      "relationship": "RelationshipType",
+      "phoneNumber": "string",
+      "address": "string?"
+    }
+  ]
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "currentStatus": "CV_REVIEW",
+    "createdAt": "2025-03-02T10:00:00.000Z",
+    "updatedAt": "2025-03-02T10:00:00.000Z"
+  },
+  "message": "Recruitment created successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method put">PUT</span>
+            <code>/api/recruitment/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: HR, ADMIN</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Updates an existing recruitment record.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "name": "string?",
+  "date": "YYYY-MM-DD?",
+  "email": "string?",
+  "phoneNumber": "string?",
+  "type": "RecruitmentType?",
+  "assignee": "string?",
+  "location": "string?",
+  "firstPriority": "string?",
+  "secondPriority": "string?",
+  "university": "string?",
+  "position": "string?",
+  "source": "string?",
+  "notes": "string?",
+  "emergencyContacts": [
+    {
+      "name": "string",
+      "relationship": "RelationshipType",
+      "phoneNumber": "string",
+      "address": "string?"
+    }
+  ]
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "updatedAt": "2025-03-02T11:30:00.000Z"
+  },
+  "message": "Recruitment updated successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method patch">PATCH</span>
+            <code>/api/recruitment/:id/status</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: HR, ADMIN</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Updates the status of a recruitment record.</p>
+            <div class="endpoint-section">
+              <h4>Request Body</h4>
+              <pre><code class="language-json">{
+  "status": "RecruitmentStatus",
+  "failStage": "FailStage?",
+  "failReason": "string?"
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "currentStatus": "PHONE_INTERVIEW",
+    "updatedAt": "2025-03-02T12:00:00.000Z"
+  },
+  "message": "Recruitment status updated successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method delete">DELETE</span>
+            <code>/api/recruitment/:id</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: HR, ADMIN</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Deletes a specific recruitment record by ID.</p>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "message": "Recruitment deleted successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/recruitment/statistics/summary</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: ADMIN, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves recruitment statistics summary.</p>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "totalRecruitments": 125,
+    "byStatus": {
+      "CV_REVIEW": 25,
+      "PHONE_INTERVIEW": 15,
+      "ONSITE_INTERVIEW": 10,
+      "HIRED": 40,
+      "NOT_HIRED": 35
+    },
+    "bySource": {
+      "LinkedIn": 50,
+      "Referral": 30,
+      "Website": 25,
+      "JobBoard": 20
+    },
+    "monthlyHires": [
+      { "month": "Jan", "count": 5 },
+      { "month": "Feb", "count": 8 },
+      { "month": "Mar", "count": 6 }
+    ]
+  },
+  "message": "Recruitment statistics retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/api/recruitment/due-dates/upcoming</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: ADMIN, HR</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Retrieves upcoming due dates for recruitment actions.</p>
+            <div class="endpoint-section">
+              <h4>Query Parameters</h4>
+              <pre><code class="language-json">{
+  "days": "number?" // default: 7
+}</code></pre>
+            </div>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "currentStatus": "PHONE_INTERVIEW",
+      "statusDueDate": "2025-03-05T00:00:00.000Z",
+      "assignee": "HR Manager",
+      "position": "Software Engineer"
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "currentStatus": "ONSITE_INTERVIEW",
+      "statusDueDate": "2025-03-07T00:00:00.000Z",
+      "assignee": "Tech Lead",
+      "position": "UX Designer"
+    }
+  ],
+  "message": "Upcoming due date recruitments retrieved successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method patch">PATCH</span>
+            <code>/api/recruitment/:id/notify</code>
+            <span class="auth-tag">Requires Authentication</span>
+            <span class="role-tag">Roles: HR, ADMIN</span>
+          </div>
+          <div class="endpoint-body">
+            <p>Marks a recruitment record as notified.</p>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "notified": true,
+    "updatedAt": "2025-03-02T15:45:00.000Z"
+  },
+  "message": "Recruitment marked as notified successfully"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="system-endpoints" class="section">
+        <h2>System Endpoints</h2>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method get">GET</span>
+            <code>/health</code>
+          </div>
+          <div class="endpoint-body">
+            <p>Checks the health status of the API server.</p>
+            <div class="endpoint-section">
+              <h4>Response</h4>
+              <pre><code class="language-json">{
+                      "status": "OK"
+                    }</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="error-handling" class="section">
+        <h2>Error Handling</h2>
+        <p>The API uses standard HTTP status codes and returns detailed error messages in a consistent format.</p>
+
+        <div class="endpoint-section">
+          <h4>Error Response Format</h4>
+          <pre><code class="language-json">{
+                      "success": false,
+                      "message": "Error description",
+                      "error": "Detailed error message or validation errors"
+                    }</code></pre>
+        </div>
+
+        <h3>Common Status Codes</h3>
+        <table>
+          <tr>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Common Scenarios</th>
+          </tr>
+          <tr>
+            <td>200</td>
+            <td>OK</td>
+            <td>Request succeeded</td>
+          </tr>
+          <tr>
+            <td>201</td>
+            <td>Created</td>
+            <td>Resource created successfully</td>
+          </tr>
+          <tr>
+            <td>400</td>
+            <td>Bad Request</td>
+            <td>Invalid request body or parameters</td>
+          </tr>
+          <tr>
+            <td>401</td>
+            <td>Unauthorized</td>
+            <td>Missing or invalid authentication</td>
+          </tr>
+          <tr>
+            <td>403</td>
+            <td>Forbidden</td>
+            <td>Insufficient permissions</td>
+          </tr>
+          <tr>
+            <td>404</td>
+            <td>Not Found</td>
+            <td>Resource not found</td>
+          </tr>
+          <tr>
+            <td>500</td>
+            <td>Internal Server Error</td>
+            <td>Server-side error</td>
+          </tr>
+        </table>
+      </section>
+
+      <section id="rate-limiting" class="section">
+        <h2>Rate Limiting</h2>
+        <p>The API implements rate limiting to ensure fair usage and system stability. Rate limits are applied on a per-user basis.</p>
+
+        <div class="endpoint-section">
+          <h4>Rate Limit Headers</h4>
+          <table>
+            <tr>
+              <th>Header</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td>X-RateLimit-Limit</td>
+              <td>Maximum requests per window</td>
+            </tr>
+            <tr>
+              <td>X-RateLimit-Remaining</td>
+              <td>Remaining requests in current window</td>
+            </tr>
+            <tr>
+              <td>X-RateLimit-Reset</td>
+              <td>Time when the rate limit resets</td>
+            </tr>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Highlight code blocks
+      Prism.highlightAll();
+
+      // Smooth scroll for navigation
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

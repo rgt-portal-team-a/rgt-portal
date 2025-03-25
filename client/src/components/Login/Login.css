@@ -1,0 +1,5 @@
+button[data-pending="true"], 
+button[data-pending="true"] * {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}

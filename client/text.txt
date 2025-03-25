@@ -1,0 +1,294 @@
+digraph G {
+    rankdir=LR;
+    splines=ortho;
+    nodesep=1.2;  
+    ranksep=1.5;  
+    
+    node [shape=box, style="filled,rounded", fillcolor=lightblue, fontname="Arial", fontsize=11];
+    edge [fontname="Arial", fontsize=10, arrowhead=normal, arrowtail=none, len=2.0];  // Increased edge length
+    
+    // Entity nodes (kept exactly the same as original)
+    User [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>User</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">username: string</td></tr>
+        <tr><td align="left">profileImage: string</td></tr>
+        <tr><td align="left">email: string</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+        <tr><td align="left">updatedAt: datetime</td></tr>
+        <tr><td align="left" port="role_id">FK role_id: number</td></tr>
+    </table>>];
+    
+    Role [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Role</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">name: string</td></tr>
+        <tr><td align="left">description: string</td></tr>
+    </table>>];
+    
+    Employee [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Employee</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">firstName: string</td></tr>
+        <tr><td align="left">lastName: string</td></tr>
+        <tr><td align="left">phone: string</td></tr>
+        <tr><td align="left">position: string</td></tr>
+        <tr><td align="left">hireDate: date</td></tr>
+        <tr><td align="left">sickDaysBalance: number</td></tr>
+        <tr><td align="left">annualDaysOff: number</td></tr>
+        <tr><td align="left">vacationDaysBalance: number</td></tr>
+        <tr><td align="left">contactDetails: json</td></tr>
+        <tr><td align="left" port="user_id">FK user_id: number</td></tr>
+        <tr><td align="left" port="department_id">FK department_id: number</td></tr>
+    </table>>];
+    
+    Department [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Department</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">name: string</td></tr>
+        <tr><td align="left">description: string</td></tr>
+        <tr><td align="left" port="manager_id">FK manager_id: number</td></tr>
+    </table>>];
+    
+    AttendanceRecord [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>AttendanceRecord</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+        <tr><td align="left">checkIn: datetime</td></tr>
+        <tr><td align="left">checkOut: datetime</td></tr>
+        <tr><td align="left">status: string</td></tr>
+    </table>>];
+    
+    PtoRequest [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>PtoRequest</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+        <tr><td align="left">startDate: date</td></tr>
+        <tr><td align="left">endDate: date</td></tr>
+        <tr><td align="left">status: string</td></tr>
+        <tr><td align="left">type: string</td></tr>
+        <tr><td align="left">comments: string</td></tr>
+        <tr><td align="left" port="approver_id">FK approver_id: number</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+    </table>>];
+    
+    Project [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Project</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="lead_id">FK lead_id: number</td></tr>
+        <tr><td align="left">name: string</td></tr>
+        <tr><td align="left">description: string</td></tr>
+        <tr><td align="left">startDate: date</td></tr>
+        <tr><td align="left">endDate: date</td></tr>
+        <tr><td align="left">status: string</td></tr>
+    </table>>];
+    
+    ProjectAssignment [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>ProjectAssignment</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="project_id">FK project_id: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+        <tr><td align="left">assignedDate: date</td></tr>
+        <tr><td align="left">role: string</td></tr>
+    </table>>];
+    
+    Event [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Event</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">title: string</td></tr>
+        <tr><td align="left">description: string</td></tr>
+        <tr><td align="left">startTime: datetime</td></tr>
+        <tr><td align="left">endTime: datetime</td></tr>
+        <tr><td align="left">type: string</td></tr>
+        <tr><td align="left">location: string</td></tr>
+        <tr><td align="left" port="organizer_id">FK organizer_id: number</td></tr>
+    </table>>];
+    
+    EventParticipant [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>EventParticipant</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="event_id">FK event_id: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+        <tr><td align="left">status: string</td></tr>
+    </table>>];
+    
+    Post [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Post</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">title: string</td></tr>
+        <tr><td align="left">content: string</td></tr>
+        <tr><td align="left">image: string</td></tr>
+        <tr><td align="left" port="author_id">FK author_id: number</td></tr>
+        <tr><td align="left">publishDate: datetime</td></tr>
+        <tr><td align="left">isActive: boolean</td></tr>
+    </table>>];
+    
+    PostLike [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>PostLike</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="post_id">FK post_id: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+        <tr><td align="left">isLike: boolean</td></tr>
+    </table>>];
+    
+    PostReaction [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>PostReaction</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="post_id">FK post_id: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+        <tr><td align="left">emoji: string</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+    </table>>];
+    
+    PostComment [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>PostComment</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="post_id">FK post_id: number</td></tr>
+        <tr><td align="left" port="author_id">FK author_id: number</td></tr>
+        <tr><td align="left">content: string</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+    </table>>];
+    
+    Poll [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Poll</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">description: string</td></tr>
+        <tr><td align="left">status: enum</td></tr>
+        <tr><td align="left">type: enum</td></tr>
+        <tr><td align="left" port="created_by_id">FK created_by_id: number</td></tr>
+        <tr><td align="left">startDate: datetime</td></tr>
+        <tr><td align="left">endDate: datetime</td></tr>
+        <tr><td align="left">isAnonymous: boolean</td></tr>
+        <tr><td align="left">allowComments: boolean</td></tr>
+        <tr><td align="left">metadata: json</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+        <tr><td align="left">updatedAt: datetime</td></tr>
+    </table>>];
+    
+    PollOption [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>PollOption</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="poll_id">FK poll_id: number</td></tr>
+        <tr><td align="left">text: string</td></tr>
+        <tr><td align="left">metadata: json</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+        <tr><td align="left">updatedAt: datetime</td></tr>
+    </table>>];
+    
+    PollVote [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>PollVote</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="poll_id">FK poll_id: number</td></tr>
+        <tr><td align="left" port="option_id">FK option_id: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+        <tr><td align="left">comment: string</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+    </table>>];
+    
+    EmployeeRecognition [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>EmployeeRecognition</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left" port="recognized_by_id">FK recognized_by_id: number</td></tr>
+        <tr><td align="left" port="recognized_employee_id">FK recognized_employee_id: number</td></tr>
+        <tr><td align="left" port="project_id">FK project_id: number</td></tr>
+        <tr><td align="left">category: string</td></tr>
+        <tr><td align="left">message: string</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+    </table>>];
+    
+    Recruitment [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>Recruitment</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">name: string</td></tr>
+        <tr><td align="left">photoUrl: string</td></tr>
+        <tr><td align="left">date: date</td></tr>
+        <tr><td align="left">email: string</td></tr>
+        <tr><td align="left">phoneNumber: string</td></tr>
+        <tr><td align="left">cvPath: string</td></tr>
+        <tr><td align="left">type: enum</td></tr>
+        <tr><td align="left">currentStatus: enum</td></tr>
+        <tr><td align="left">statusDueDate: date</td></tr>
+        <tr><td align="left">assignee: string</td></tr>
+        <tr><td align="left">notified: boolean</td></tr>
+        <tr><td align="left">location: string</td></tr>
+        <tr><td align="left">firstPriority: string</td></tr>
+        <tr><td align="left">secondPriority: string</td></tr>
+        <tr><td align="left">university: string</td></tr>
+        <tr><td align="left">position: string</td></tr>
+        <tr><td align="left">source: string</td></tr>
+        <tr><td align="left">failStage: enum</td></tr>
+        <tr><td align="left">failReason: string</td></tr>
+        <tr><td align="left">notes: string</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+        <tr><td align="left">updatedAt: datetime</td></tr>
+        <tr><td align="left" port="created_by">FK created_by: number</td></tr>
+        <tr><td align="left" port="employee_id">FK employee_id: number</td></tr>
+    </table>>];
+    
+    EmergencyContact [label=<<table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="#4472C4" port="header"><font color="white"><b>EmergencyContact</b></font></td></tr>
+        <tr><td align="left" port="id">PK id: number</td></tr>
+        <tr><td align="left">firstName: string</td></tr>
+        <tr><td align="left">lastName: string</td></tr>
+        <tr><td align="left">phoneNumber: string</td></tr>
+        <tr><td align="left">relationship: enum</td></tr>
+        <tr><td align="left">isPrimary: boolean</td></tr>
+        <tr><td align="left">createdAt: datetime</td></tr>
+        <tr><td align="left">updatedAt: datetime</td></tr>
+        <tr><td align="left" port="recruitment_id">FK recruitment_id: number</td></tr>
+    </table>>];
+
+    
+    // Entity Relationships with Enhanced Spacing
+    User:role_id -> Role:id [label="belongs to", dir=back, arrowtail=crow, constraint=true, style="thick", len=2.0];
+    User:id -> Employee:user_id [label="has", dir=back, arrowtail=none, constraint=true, len=2.0];
+    
+    Employee:department_id -> Department:id [label="belongs to", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Department:manager_id -> Employee:id [label="managed by", dir=back, arrowtail=none, constraint=true, len=2.0];
+    
+    Employee:id -> PtoRequest:employee_id [label="requests", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Employee:id -> PtoRequest:approver_id [label="approves", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Employee:id -> ProjectAssignment:employee_id [label="assigned to", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Project:id -> ProjectAssignment:project_id [label="has", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Project:lead_id -> Employee:id [label="led by", dir=back, arrowtail=none, constraint=true, len=2.0];
+    
+    Employee:id -> Post:author_id [label="authors", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Post:id -> PostLike:post_id [label="receives", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Post:id -> PostReaction:post_id [label="receives", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Post:id -> PostComment:post_id [label="has", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Employee:id -> PostLike:employee_id [label="likes", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Employee:id -> PostReaction:employee_id [label="reacts to", dir=back, arrowtail=crow, constraint=true,len=2.0];
+    Employee:id -> PostComment:author_id [label="comments on", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Employee:id -> Event:organizer_id [label="organizes", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Event:id -> EventParticipant:event_id [label="has", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Employee:id -> EventParticipant:employee_id [label="participates in", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Employee:id -> AttendanceRecord:employee_id [label="has", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Employee:id -> EmployeeRecognition:recognized_by_id [label="gives", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Employee:id -> EmployeeRecognition:recognized_employee_id [label="receives", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Project:id -> EmployeeRecognition:project_id [label="context for", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Employee:id -> Poll:created_by_id [label="creates", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Poll:id -> PollOption:poll_id [label="has", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Poll:id -> PollVote:poll_id [label="receives", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    PollOption:id -> PollVote:option_id [label="selected in", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Employee:id -> PollVote:employee_id [label="votes on", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    Recruitment:id -> EmergencyContact:recruitment_id [label="has", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    Recruitment:employee_id -> Employee:id [label="becomes", dir=back, arrowtail=none, constraint=true, len=2.0];
+    User:id -> Recruitment:created_by [label="creates", dir=back, arrowtail=crow, constraint=true, len=2.0];
+    
+    // Rank constraints for better layout
+    { rank=same; User; Role; }
+    { rank=same; Employee; Department; AttendanceRecord; }
+    { rank=same; Post; PostComment; PostLike; PostReaction; }
+    { rank=same; Poll; PollOption; PollVote; }
+    { rank=same; Event; EventParticipant; }
+    { rank=same; Project; ProjectAssignment; EmployeeRecognition; }
+    { rank=same; Recruitment; EmergencyContact; }
+}

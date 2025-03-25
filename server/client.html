@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Fixed Client</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Socket.IO Test</h1>
+    <div>Status: <span id="status">Disconnected</span></div>
+    <div>Transport: <span id="transport">None</span></div>
+    <div>
+        <button id="connect">Connect</button>
+        <button id="disconnect" disabled>Disconnect</button>
+        <button id="send" disabled>Send Test Message</button>
+    </div>
+    <div>
+        <h3>Logs:</h3>
+        <pre id="logs" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></pre>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const transportEl = document.getElementById('transport');
+        const logsEl = document.getElementById('logs');
+        const connectBtn = document.getElementById('connect');
+        const disconnectBtn = document.getElementById('disconnect');
+        const sendBtn = document.getElementById('send');
+        
+        let socket;
+        
+        function log(message) {
+            const time = new Date().toISOString();
+            logsEl.innerHTML += `[${time}] ${message}\n`;
+            logsEl.scrollTop = logsEl.scrollHeight;
+            console.log(message);
+        }
+        
+        connectBtn.addEventListener('click', () => {
+            if (socket) return;
+            
+            statusEl.textContent = 'Connecting...';
+            log('Attempting connection...');
+            
+            // Create socket with explicit transport config
+            socket = io('http://localhost:8000', {
+                transports: ['websocket', 'polling'],
+                upgrade: true,
+                forceNew: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                timeout: 20000
+            });
+            
+            // Also try the test namespace
+            const testSocket = io('http://localhost:8000/test', {
+                transports: ['websocket', 'polling']
+            });
+            
+            testSocket.on('connect', () => {
+                log(`Test namespace connected with ID: ${testSocket.id}`);
+            });
+            
+            testSocket.on('test-welcome', (data) => {
+                log(`Test namespace welcome: ${JSON.stringify(data)}`);
+            });
+            
+            // Connection events
+            socket.on('connect', () => {
+                statusEl.textContent = `Connected (ID: ${socket.id})`;
+                transportEl.textContent = socket.io.engine.transport.name;
+                log(`Connected with ID: ${socket.id}`);
+                log(`Using transport: ${socket.io.engine.transport.name}`);
+                
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendBtn.disabled = false;
+            });
+            
+            socket.on('connect_error', (error) => {
+                statusEl.textContent = `Error: ${error.message}`;
+                log(`Connection error: ${error.message}`);
+            });
+            
+            socket.io.on('upgrade', (transport) => {
+                transportEl.textContent = transport.name;
+                log(`Transport upgraded to: ${transport.name}`);
+            });
+            
+            socket.on('welcome', (data) => {
+                log(`Welcome message: ${JSON.stringify(data)}`);
+            });
+            
+            socket.on('disconnect', (reason) => {
+                statusEl.textContent = `Disconnected: ${reason}`;
+                log(`Disconnected: ${reason}`);
+                
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                sendBtn.disabled = true;
+            });
+        });
+        
+        disconnectBtn.addEventListener('click', () => {
+            if (!socket) return;
+            log('Disconnecting...');
+            socket.disconnect();
+            socket = null;
+        });
+        
+        sendBtn.addEventListener('click', () => {
+            if (!socket || !socket.connected) return;
+            const testMessage = { text: 'Hello from client!', time: Date.now() };
+            log(`Sending: ${JSON.stringify(testMessage)}`);
+            socket.emit('test-message', testMessage);
+        });
+    </script>
+</body>
+</html>

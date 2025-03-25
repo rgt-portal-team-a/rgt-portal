@@ -1,0 +1,397 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { DataTable } from "@/components/common/DataTable";
+import DatePicker from "@/components/common/DatePicker";
+import Filters, { FilterConfig } from "@/components/common/Filters";
+import SuccessCard from "@/components/common/SuccessCard";
+import { SideFormModal } from "@/components/common/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SideModal } from "@/components/ui/side-dialog";
+import { timeOffTableColumns } from "@/constants";
+import { useRequestPto } from "@/hooks/usePtoRequests";
+import { PtoLeave } from "@/types/PTOS";
+import { Field, FieldInputProps, FormikHelpers } from "formik";
+import { useState } from "react";
+import * as Yup from "yup";
+
+export default function TimeOff() {
+  const [appRej, setAppRej] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeletePTO, setIsDeletePTO] = useState(false);
+  const [selectedPtoId, setSelectedPtoId] = useState<number | undefined>(
+    undefined
+  );
+  const [selectedType, setSelectedType] = useState<string>("All Types");
+  const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const {
+    createPto,
+    ptoData,
+    isPtoLoading,
+    isPtoDeleting,
+    deletePto,
+    isLoading,
+  } = useRequestPto();
+
+  const formattedPtoData = ptoData?.map((item) => ({
+    ...item,
+    status: (item.status ?? "").toUpperCase(),
+    type: item.type.toUpperCase(),
+    total: `${Math.ceil(
+      (new Date(item.endDate as Date).getTime() -
+        new Date(item.startDate as Date).getTime()) /
+        (1000 * 60 * 60 * 24)
+    )} days`,
+  }));
+
+  const initialFormValues = {
+    type: "vacation",
+    reason: "",
+    startDate: new Date(),
+    endDate: new Date(),
+  };
+
+  const ptoFormSchema = Yup.object({
+    type: Yup.string()
+      .oneOf(["vacation", "sick"], "Invalid leave type")
+      .required("Leave type is required"),
+    reason: Yup.string()
+      .max(50, "reason must be at most 50 characters")
+      .required("reason is required"),
+    startDate: Yup.date()
+      .required("From date is required")
+      .typeError("Invalid date"),
+    endDate: Yup.date()
+      .required("To date is required")
+      .min(Yup.ref("startDate"), "To date must be after From date")
+      .typeError("Invalid date"),
+  });
+
+  const handleFormSubmit = async (
+    values: typeof initialFormValues,
+    { setSubmitting }: FormikHelpers<typeof initialFormValues>
+  ) => {
+    try {
+      await createPto(values as PtoLeave);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error creating PTO:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCheckNow = () => {
+    console.log("...checking");
+    setIsSuccess(false);
+  };
+
+  const viewPtoData = ptoData?.find((item) => item.id === selectedPtoId);
+
+  const filteredPtoData = formattedPtoData?.filter((item) => {
+    // Filter by type
+    const typeMatch =
+      selectedType === "All Types" ||
+      item.type.toLowerCase() === selectedType.toLowerCase();
+
+    // Filter by status
+    const statusMatch =
+      selectedStatus === "All Statuses" ||
+      item.status.toLowerCase() === selectedStatus.toLowerCase();
+
+    // Filter by date
+    const dateMatch =
+      !selectedDate ||
+      (item.startDate &&
+        new Date(item.startDate) <= selectedDate &&
+        item.endDate &&
+        new Date(item.endDate) >= selectedDate);
+
+    return typeMatch && statusMatch && dateMatch;
+  });
+
+  const handleResetFilters = () => {
+    setSelectedType("All Types");
+    setSelectedStatus("All Statuses");
+    setSelectedDate(null);
+  };
+
+  const filters: FilterConfig[] = [
+    {
+      type: "select",
+      options: ["All Types", "Vacation", "Sick"],
+      value: selectedType,
+      onChange: setSelectedType,
+    },
+    {
+      type: "select",
+      options: ["All Statuses", "Pending", "Approved", "Declined"],
+      value: selectedStatus,
+      onChange: setSelectedStatus,
+    },
+    {
+      type: "date",
+      placeholder: "Select a date",
+      value: selectedDate,
+      onChange: setSelectedDate,
+    },
+  ];
+
+  return (
+    <main className="px-4">
+      <div className="bg-white p-4 rounded-md">
+        <header className="flex sm:flex-row flex-col justify-between sm:items-center">
+          <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
+            Request Time List
+          </h1>
+          <Button
+            className="bg-[#6418C3] hover:bg-purple-800 cursor-pointer text-white font-medium text-sm py-6 transition-colors duration-300 ease-in"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <img src="/Add.svg" alt="add" />
+            <p className="hidden sm:block">Add New Request</p>
+          </Button>
+        </header>
+
+        <Filters filters={filters} onReset={handleResetFilters} />
+
+        <DataTable
+          columns={timeOffTableColumns}
+          data={filteredPtoData || []}
+          actionBool={true}
+          actionObj={[
+            {
+              name: "view",
+              action: (rowData) => {
+                setAppRej(!appRej);
+                setSelectedPtoId(rowData);
+              },
+            },
+            {
+              name: "delete",
+              action: () => setIsDeletePTO(true),
+            },
+          ]}
+          showDelete={isDeletePTO}
+          setShowDelete={setIsDeletePTO}
+          isDeleteLoading={isPtoDeleting}
+          onDelete={deletePto}
+          loading={isLoading}
+        />
+      </div>
+
+      {/* modal for a new Time off request */}
+      {isModalOpen && (
+        <SideFormModal
+          onSubmit={handleFormSubmit}
+          title="Add New Time Off"
+          validationSchema={ptoFormSchema}
+          initialFormValues={initialFormValues}
+          backFn={() => setIsModalOpen(false)}
+          back={true}
+          isSubmitting={isPtoLoading}
+          submitBtnText="Create"
+          buttonClassName="px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpink rounded-md hover:bg-pink-500"
+        >
+          <Field name="type">
+            {({
+              field,
+              form: { touched, errors },
+            }: {
+              field: FieldInputProps<string>;
+              form: any;
+            }) => (
+              <div className="pb-1">
+                <label className="block text-xs font-medium pb-1 text-[#737276]">
+                  Leave Type
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center text-[#737276] text-xs font-medium">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="vacation"
+                      checked={field.value === "vacation"}
+                      className="mr-2"
+                    />
+                    Vacation
+                  </label>
+                  <label className="flex items-center text-[#737276] text-xs font-medium">
+                    <input
+                      type="radio"
+                      {...field}
+                      value="sick"
+                      checked={field.value === "sick"}
+                      className="mr-2"
+                    />
+                    Sick
+                  </label>
+                </div>
+                {touched.type && errors.type && (
+                  <div className="text-red-500 text-xs mt-1">{errors.type}</div>
+                )}
+              </div>
+            )}
+          </Field>
+
+          <div className="flex w-full gap-4 pt-2">
+            <Field name="startDate">
+              {({
+                field,
+                form: { setFieldValue, touched, errors },
+              }: {
+                field: FieldInputProps<Date>;
+                form: any;
+              }) => (
+                <div className="flex flex-col w-full">
+                  <label className="font-medium text-xs text-[#737276]">
+                    From
+                  </label>
+                  <DatePicker
+                    placeholder="From"
+                    value={field.value}
+                    onChange={(val) => setFieldValue("startDate", val)}
+                  />
+                  {touched.startDate && errors.startDate && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {errors.startDate}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Field>
+
+            <Field name="endDate">
+              {({
+                field,
+                form: { setFieldValue, touched, errors },
+              }: {
+                field: FieldInputProps<Date>;
+                form: any;
+              }) => (
+                <div className="flex flex-col w-full">
+                  <label className="font-medium text-xs text-[#737276]">
+                    To
+                  </label>
+                  <DatePicker
+                    placeholder="To"
+                    value={field.value}
+                    onChange={(val) => setFieldValue("endDate", val)}
+                  />
+                  {touched.endDate && errors.endDate && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {errors.endDate}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Field>
+          </div>
+
+          <Field name="reason">
+            {({
+              field,
+              form: { touched, errors },
+            }: {
+              field: FieldInputProps<string>;
+              form: any;
+            }) => (
+              <div className="pt-5">
+                <label className="block text-xs font-medium pb-1 text-[#737276]">
+                  reason
+                </label>
+                <textarea
+                  {...field}
+                  className={`w-full px-3 py-2 border rounded-md resize-none bg-[#F6F6F9] ${
+                    touched.reason && errors.reason ? "border-red-500" : ""
+                  }`}
+                  rows={3}
+                  placeholder="Provide your reason"
+                  maxLength={50}
+                />
+                {touched.reason && errors.reason && (
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.reason}
+                  </div>
+                )}
+              </div>
+            )}
+          </Field>
+        </SideFormModal>
+      )}
+
+      {/* modal for viewing old request */}
+
+      <SideModal
+        title="Approve or Reject Request"
+        onOpenChange={() => setAppRej(false)}
+        isOpen={appRej}
+        className="w-1/2 md:w-[30%]"
+      >
+        {viewPtoData && (
+          <>
+            <section className="flex gap-2">
+              <div>
+                <label className="text-slate-500 font-semibold text-sm">
+                  From
+                </label>
+                <Input
+                  value={
+                    viewPtoData.startDate
+                      ? new Date(viewPtoData.startDate).toDateString()
+                      : ""
+                  }
+                  className="shadow-none border-0 py-[22px] rounded-md bg-[#F6F6F9] text-slate-500 font-medium text-base"
+                  disabled
+                />
+              </div>
+
+              <div>
+                <label className="text-slate-500 font-semibold text-sm">
+                  To
+                </label>
+                <Input
+                  value={
+                    viewPtoData.endDate
+                      ? new Date(viewPtoData.endDate).toDateString()
+                      : ""
+                  }
+                  className="shadow-none border-0 py-[22px] rounded-md bg-[#F6F6F9] text-slate-500 font-medium text-base"
+                  disabled
+                />
+              </div>
+            </section>
+            <section className="space-y-5 pt-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-slate-500 font-semibold text-sm">
+                  Reason
+                </label>
+                <textarea
+                  className="resize-none bg-[#F6F6F9] p-2 text-slate-500 font-medium text-base rounded-md"
+                  value={viewPtoData.reason}
+                  disabled
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-slate-500 font-semibold text-sm">
+                  HR reason
+                </label>
+                <textarea
+                  className="resize-none bg-[#F6F6F9] p-2 text-slate-500 font-medium text-base rounded-md"
+                  value={viewPtoData.statusReason}
+                  disabled
+                />
+              </div>
+            </section>
+          </>
+        )}
+      </SideModal>
+
+      {/* Success modal for timeoff creation */}
+      {isSuccess && <SuccessCard handleClick={handleCheckNow} />}
+    </main>
+  );
+}
