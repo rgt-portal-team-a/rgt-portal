@@ -5,26 +5,18 @@ import {
   FormikHelpers,
   FormikProps,
   FormikValues,
-} from 'formik';
+} from "formik";
 import { ClassNameValue } from "tailwind-merge";
 import * as Yup from "yup";
 
-
-
 import { Button } from "@/components/ui/button";
-import { Loader } from 'lucide-react';
-
-
-
-
+import { Loader } from "lucide-react";
 
 // Ensure Yup is imported for validation
 
-
-
 interface ISideFormModal<T extends FormikValues> {
   title: string;
-  validationSchema?: Yup.ObjectSchema<any, Yup.AnyObject, any, ''>;
+  validationSchema?: Yup.ObjectSchema<any, Yup.AnyObject, any, "">;
   initialFormValues: T;
   buttonClassName?: ClassNameValue;
   formClassName?: string;
@@ -49,7 +41,7 @@ export const SideFormModal = <T extends FormikValues>({
   onSubmit,
   submitBtnText = "Create",
   isSubmitting,
-  back ,
+  back,
   backFn,
 }: ISideFormModal<T>) => {
   return (
@@ -77,39 +69,43 @@ export const SideFormModal = <T extends FormikValues>({
           }}
         >
           {(formikProps) => (
-          <FormikForm
-            className="flex flex-col justify-start h-full"
-          >
-            {/* Form fields container */}
-            <div className={`flex-grow ${formClassName}`}>
-              {typeof children === 'function' ? children(formikProps) : children}
-            </div>
+            <FormikForm className="flex flex-col justify-start h-full">
+              {/* Form fields container */}
+              <div className={`flex-grow ${formClassName}`}>
+                {typeof children === "function"
+                  ? children(formikProps)
+                  : children}
+              </div>
 
-            {/* Buttons */}
-            <div className=" flex w-full mt-4 h-14 gap-[20px]">
-              {/* Cancel Button */}
-              <Button onClick={backFn} key={"Cancel"} variant="outline" className="w-1/2 h-full rounded-[12px] border-red-500 text-red-500 hover:bg-red-100">
-                Cancel
-              </Button>
+              {/* Buttons */}
+              <div className=" flex w-full mt-4 h-14 gap-[20px]">
+                {/* Cancel Button */}
+                <Button
+                  onClick={backFn}
+                  key={"Cancel"}
+                  variant="outline"
+                  className="w-1/2 h-full rounded-[12px] border-red-500 text-red-500 hover:bg-red-100"
+                >
+                  Cancel
+                </Button>
 
-                  {/* Create Button */}
-                  <Button
-                    type={"submit"}
-                    key={"Create"}
-                    disabled={formikProps.isSubmitting || isSubmitting}
-                    className={`w-1/2 h-full rounded-[12px] bg-rgtpink  text-white cursor-pointer
+                {/* Create Button */}
+                <Button
+                  type={"submit"}
+                  key={"Create"}
+                  disabled={formikProps.isSubmitting || isSubmitting}
+                  className={`w-1/2 h-full rounded-[12px] bg-rgtpink  text-white cursor-pointer
                     ${isSubmitting ? "opacity-45" : "hover:bg-pink-500"} ${
-                      buttonClassName || ""
-                    }`}
-                  >
-                    {isSubmitting ? (
-                      <Loader className="animate-spin" size={20} />
-                    ) : (
-                      submitBtnText
-                    )}
-                  </Button>
-                </div>
-            
+                    buttonClassName || ""
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <Loader className="animate-spin" size={20} />
+                  ) : (
+                    submitBtnText
+                  )}
+                </Button>
+              </div>
             </FormikForm>
           )}
         </Formik>

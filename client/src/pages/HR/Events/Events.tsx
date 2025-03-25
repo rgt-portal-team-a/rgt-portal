@@ -77,7 +77,11 @@ const Events = () => {
         </section>
 
         <section className="flex sm:flex-col md:flex-row gap-4  pb-5">
-          <div className="flex justify-center w-[30%] overflow-y-scroll  h-[680px]">
+          <div className="flex justify-center w-[30%] overflow-y-scroll  h-[680px]" 
+            style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            }}>
             <div className="pt-5 space-y-3 h-fit order-2 bg-white rounded-t-2xl w-full">
               <div className="px-4 flex items-center justify-between pb-4">
                 <p className="text-[#706D8A] font-[700] text-2xl">

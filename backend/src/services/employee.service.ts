@@ -28,7 +28,7 @@ export class EmployeeService {
   async findById(id: number): Promise<Employee | null> {
     return this.employeeRepository.findOne({
       where: { id },
-      relations: ["department", "user", "projectAssignments", "givenRecognitions", "receivedRecognitions"],
+      relations: ["department", "user", "user.role", "projectAssignments", "givenRecognitions", "receivedRecognitions"],
     });
   }
 
@@ -78,6 +78,18 @@ export class EmployeeService {
         if (role) {
           user.role = role;
           await this.userRepository.save(user);
+        }
+      }
+    }
+
+    if (updateData.departmentId) {
+      const employee = await this.findById(id);
+      if (employee) {
+        const department = await this.departmentService.findById(updateData.departmentId);
+        if (department) {
+          employee.department = department;
+          employee.departmentId = department.id;
+          await this.employeeRepository.save(employee);
         }
       }
     }

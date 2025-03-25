@@ -41,6 +41,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
       slidesToScroll: 1,
       nextArrow: <SampleNextArrow />,
       prevArrow: <SamplePrevArrow />,
+      // height: "100%",
       customPaging: () => (
         <div className="w-[10px] h-[10px] bg-white rounded-full transition-all absolute -top-7 duration-300 ease-in-out hover:bg-gray-400"></div>
       ),
@@ -49,32 +50,28 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
     return (
       <Slider
         {...settings}
-        className="hidden sm:block h-full  rounded-[30px] w-full "
+        className="hidden h-full sm:block rounded-[30px] w-full overflow-clip  lg:w-full"
       >
         {images.map((item, index) => (
-          <div key={index}>
-            <Media url={item} className="h-[440px] hidden sm:block" />
+          <div key={index} className="h-full w-full bg-slate-200">
+            <Media url={item} className="h-[444px] hidden sm:block" />
           </div>
         ))}
       </Slider>
     );
   };
 
+  console.log("comments:", comments);
+
   if (!isOpen) return null;
   return (
     <div
-      className="fixed inset-0  backdrop-blur-xs bg-opacity-50 bg-black/10 flex justify-center items-center py-15"
-      style={{
-        zIndex: "100",
-        backdropFilter: "blur(4px)",
-        WebkitBackdropFilter: "blur(4px)",
-      }}
+      className="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex justify-center items-center py-15"
+      style={{ zIndex: "100" }}
     >
-      <div className="bg-white rounded-[30px] p-4 relative flex justify-center gap-3 h-[80%] w-[90%] md:w-[80%] lg:w-[1027px]">
-        <div className="max-w-[300px] md:max-w-[500px] hidden sm:flex ">
-          {renderMedia()}
-        </div>
-        <div className="h-full  flex-1 space-y-1">
+      <div className="bg-white rounded-[30px] p-4 relative flex justify-center gap-3 h-[444px] w-[90%] md:w-[80%] lg:w-[1027px] border-2 border-gray-200 ">
+        <div className="w-1/2 hidden sm:flex h-full ">{renderMedia()}</div>
+        <div className="h-full flex flex-col justify-between sm:w-1/2 space-y-1 ">
           <div className="flex w-full justify-end">
             <button
               onClick={onClose}
@@ -84,7 +81,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
             </button>
           </div>
 
-          <div className="flex flex-col justify-between">
+          <div className="flexx   flex-col justify-between">
             <div
               className="space-y-4  py-2 border-b h-[250px] overflow-y-scroll"
               style={{
@@ -94,7 +91,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
             >
               {comments.length > 0 ? (
                 comments.map((comment, index) => (
-                  <Comments key={index} {...comment} />
+                  <Comments key={index} comment={comment} postId={postId} />
                 ))
               ) : (
                 <div className="flex items-center justify-center h-full">
@@ -110,8 +107,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
                 onComments={onComments}
                 showText={false}
               />
-              <div className="">
-                <p className="text-sm font-medium">Liked by</p>
+              <div className="flex items-end">
                 <CommentBlck postId={postId} user={currentUser} />
               </div>
             </section>

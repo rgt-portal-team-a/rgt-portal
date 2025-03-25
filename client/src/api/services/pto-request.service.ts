@@ -1,3 +1,4 @@
+import { PtoStatusType } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
 import { PtoLeave } from "@/types/PTOS";
 import axios from "axios";
 
@@ -20,6 +21,30 @@ export class PtoRequestService {
       return response.data;
     } catch (error) {
       console.error("Error posting pto data", error);
+      throw error;
+    }
+  }
+
+  static async updatePtoRequest(
+    ptoUpdate: {
+      status: PtoStatusType;
+      statusReason?: string;
+      departmentId: number;
+    },
+    ptoId: number
+  ): Promise<PtoLeave | undefined> {
+    try {
+      const response = await axios.put(`${API_URL}/${ptoId}`, ptoUpdate);
+
+      if (!response.data.success) {
+        throw new Error(
+          response.data.message || "Failed to update PTO request"
+        );
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error("Error updating PTO request", error);
       throw error;
     }
   }
@@ -71,7 +96,7 @@ export class PtoRequestService {
       if (!response.data.success) {
         throw new Error(response.data.message || "All PTO fetch unsuccessful");
       }
-      return response.data.data;
+      return response.data.data.reverse();
     } catch (error) {
       console.log("Error fetching all ptos:", error);
       throw error;
@@ -82,18 +107,21 @@ export class PtoRequestService {
     departmentId: string
   ): Promise<PtoLeave[] | undefined> {
     try {
-      const response = await axios.get(`${API_URL}/department/${departmentId}`, {
-        params: {
-          departmentId,
-        },
-      });
+      const response = await axios.get(
+        `${API_URL}/department/${departmentId}`,
+        {
+          params: {
+            departmentId,
+          },
+        }
+      );
       console.log("response departement:", response.data);
       if (!response.data.success) {
         throw new Error(
           response.data.message || "Department Pto failed to fetch"
         );
       }
-      return response.data.data;
+      return response.data.data.reverse();
     } catch (error) {
       console.log("Error fetching department ptos:", error);
       throw error;

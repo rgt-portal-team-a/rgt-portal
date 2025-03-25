@@ -14,7 +14,7 @@ const Media: React.FC<{
 
   return (
     <section
-      className={`flex justify-center object-contain w-full ${className}`}
+      className={`flex justify-center object-cover w-full ${className}`}
     >
       {url && !mediaError ? (
         isVideo ? (

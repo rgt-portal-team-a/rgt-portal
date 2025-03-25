@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
+// import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { useCreateDepartment } from "@/api/query-hooks/department.hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
@@ -49,9 +49,9 @@ export const AllDepartments = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredDepartments, setFilteredDepartments] = useState<any[]>([]);
-  const { departments } = useSelector((state: RootState) => state.sharedState);
+  const { departments, employees: users } = useSelector((state: RootState) => state.sharedState);
   const createDepartmentMutation = useCreateDepartment();
-  const { data: users } = useAllEmployees({});
+  // const { data: users } = useAllEmployees({});
 
   useEffect(() => {
     if (!departments || departments.length <= 0) {
