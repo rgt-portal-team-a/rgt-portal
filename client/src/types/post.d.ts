@@ -28,11 +28,18 @@ interface IPost {
     employeeId: number;
     isLike: boolean;
   }[];
-  // reactionCounts:
+}
+
+interface CommentLike {
+  commentId: number;
+  replyId: number;
+  employeeId: number;
+  createdAt: Date;
 }
 
 interface IComment {
   id?: number;
+  commentId?: number;
   content: string;
   createdAt: Date;
   author: {
@@ -41,14 +48,16 @@ interface IComment {
     lastName: string;
     profileImage: string;
   };
-  // likes: (comment as any).likes || [],
-  // reactions: (comment as any).reactions || [],
+  // isLiked?: boolean;
+  likes?: CommentLike[];
+  // onLike?: (val: number) => void;
+  isCommentLoading?: boolean;
+  commentReplies?: IComment[];
 }
 
 interface IStats {
   commentsCount: number;
   likesCount: number;
   disLikesCount: number;
-  comments:IComment[]
-  // reactionsByEmoji: object;
+  comments: IComment[];
 }

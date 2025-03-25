@@ -56,10 +56,7 @@ const EventForm = memo(
     const [popoverOpenStates, setPopoverOpenStates] = useState<PopoverStates>(
       {}
     );
-    const [projectPopoverOpenStates, setProjectPopoverOpenStates] =
-      useState<PopoverStates>({});
     const [hasOpened, setHasOpened] = useState(false);
-    const [hasOpenedProject, setHasOpenedProject] = useState(false);
 
     const handlePopoverOpenChange = useCallback(
       (index: number, open: boolean) => {
@@ -71,15 +68,7 @@ const EventForm = memo(
       []
     );
 
-    const handleProjectPopoverOpenChange = useCallback(
-      (index: number, open: boolean) => {
-        setProjectPopoverOpenStates((prevStates) => ({
-          ...prevStates,
-          [index]: open,
-        }));
-      },
-      []
-    );
+
 
     const renderEventTypeFields = useCallback(
       (selectedSpecialEventType: string) => {
@@ -727,7 +716,7 @@ const EventForm = memo(
                               </Field>
 
                               <Field
-                                name={`recognitionList.${index}.projectId`}
+                                name={`recognitionList.${index}.projectName`}
                               >
                                 {({
                                   field,
@@ -744,61 +733,22 @@ const EventForm = memo(
                                 }) => {
                                   const projectError =
                                     touched.recognitionList?.[index]
-                                      ?.projectId &&
-                                    errors.recognitionList?.[index]?.projectId;
+                                      ?.projectName &&
+                                    errors.recognitionList?.[index]?.projectName;
 
                                   return (
                                     <div className="w-full">
-                                      <Popover
-                                        open={
-                                          projectPopoverOpenStates[index] ||
-                                          false
-                                        }
-                                        onOpenChange={(open) =>
-                                          handleProjectPopoverOpenChange(
-                                            index,
-                                            open
-                                          )
-                                        }
-                                      >
-                                        <PopoverTrigger asChild>
                                           <div className="relative">
                                             <Input
                                               {...field}
-                                              id={`recognitionList.${index}.projectId`}
-                                              value={
-                                                values.recognitionList[index]
-                                                  .projectId
-                                                  ? projects.find(
-                                                      (p) =>
-                                                        p.id ===
-                                                        values.recognitionList[
-                                                          index
-                                                        ].projectId
-                                                    )?.name
-                                                  : ""
-                                              }
-                                              onClick={() => {
-                                                handleProjectPopoverOpenChange(
-                                                  index,
-                                                  true
-                                                );
-                                                setHasOpenedProject(true);
-                                              }}
-                                              placeholder="Select project"
+                                              id={`recognitionList.${index}.projectName`}
+                                              value={values.recognitionList[index].projectName??""}
+                                              placeholder="Name of project"
                                               className={`w-full bg-gray-100 placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-rgtpurpleaccent3 py-6 px-4 ${
                                                 projectError
                                                   ? "border-red-500"
                                                   : ""
                                               }`}
-                                              onBlur={() => {
-                                                if (!hasOpenedProject) {
-                                                  setFieldTouched(
-                                                    `recognitionList.${index}.projectId`,
-                                                    true
-                                                  );
-                                                }
-                                              }}
                                             />
                                             {projectError && (
                                               <div className="text-red-500 text-sm mt-1">
@@ -806,60 +756,6 @@ const EventForm = memo(
                                               </div>
                                             )}
                                           </div>
-                                        </PopoverTrigger>
-                                        <PopoverContent
-                                          className="w-[370px] p-0 z-[2000]"
-                                          align="start"
-                                        >
-                                          <Command>
-                                            <CommandInput placeholder="Search projects..." />
-                                            <CommandList>
-                                              <CommandEmpty>
-                                                No projects found.
-                                              </CommandEmpty>
-                                              <CommandGroup>
-                                                {projects.length > 0 ? (
-                                                  projects.map((project) => (
-                                                    <CommandItem
-                                                      key={project.id}
-                                                      value={project.name}
-                                                      onSelect={() => {
-                                                        setFieldValue(
-                                                          `recognitionList.${index}.projectId`,
-                                                          project.id
-                                                        );
-                                                        handleProjectPopoverOpenChange(
-                                                          index,
-                                                          false
-                                                        );
-                                                      }}
-                                                    >
-                                                      <div className="flex justify-between w-full py-[13px]">
-                                                        <div className="flex gap-2 items-center">
-                                                          <span className="flex">
-                                                            {project.name}
-                                                          </span>
-                                                        </div>
-                                                        <span className="text-muted-foreground text-sm">
-                                                          {project.status}
-                                                        </span>
-                                                      </div>
-                                                    </CommandItem>
-                                                  ))
-                                                ) : (
-                                                  <div className="flex justify-between w-full py-[13px]">
-                                                    <div className="flex gap-2 items-center">
-                                                      <span className="flex">
-                                                        No Projects To Show
-                                                      </span>
-                                                    </div>
-                                                  </div>
-                                                )}
-                                              </CommandGroup>
-                                            </CommandList>
-                                          </Command>
-                                        </PopoverContent>
-                                      </Popover>
                                     </div>
                                   );
                                 }}
@@ -885,7 +781,7 @@ const EventForm = memo(
                           type="button"
                           variant="link"
                           onClick={() =>
-                            push({ employeeId: "", projectId: "" })
+                            push({ employeeId: "", projectName: "" })
                           }
                           className="text-rgtpurpleaccent2 text-sm py-2 items-center justify-start hover:underline"
                         >
@@ -904,9 +800,7 @@ const EventForm = memo(
       },
       [
         handlePopoverOpenChange,
-        handleProjectPopoverOpenChange,
         popoverOpenStates,
-        projectPopoverOpenStates,
         selectedSpecialEventType,
         setSelectedEmployee,
         setSelectedSpecialEventType,

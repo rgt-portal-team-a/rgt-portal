@@ -4,16 +4,16 @@ const ToTop = () => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth", // Smooth scroll to the top
+      behavior: "smooth",
     });
   };
 
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-5 left-5 bg-white text-white p-3 rounded-full shadow-lg hover:bg-slate-100 transition-all duration-300 ease-in-out cursor-pointer"
+      className="absolute bottom-6 bg-white text-white p-3 rounded-full shadow-lg hover:bg-slate-100 transition-all duration-300 ease-in-out cursor-pointer border z-50"
     >
-      <ArrowIcon className="rotate-180" /> {/* Use an arrow-up icon */}
+      <ArrowIcon className="rotate-180" />
     </button>
   );
 };

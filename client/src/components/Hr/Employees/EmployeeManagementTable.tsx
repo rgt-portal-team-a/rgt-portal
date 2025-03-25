@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Column, ActionObject } from "@/types/tables";
 import { DataTable } from '@/components/common/DataTable';
 import StepProgress from "@/components/common/StepProgress";
@@ -8,12 +8,12 @@ import {EditEmployeeForm} from './EditEmployeeForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
-  useAllEmployees,
-  useUpdateEmployee
+  useUpdateEmployeeAgency
 } from "@/api/query-hooks/employee.hooks";
 import { Employee, EmployeeType } from "@/types/employee"; 
 import {Link} from "react-router-dom"
 import {TeamLeadToggle} from "./TeamLeadToggle";
+import {AgencyCheckboxToggle} from "./AgencyCheckboxToggle";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
    full_time: "FT",
@@ -26,6 +26,7 @@ const employeeTypeLabels: Record<EmployeeType, string> = {
 
 
 interface EmployeeManagementTableProps {
+  employeeData: Employee[];
   columnsToShow?: string[];
   searchByField?: string[];
   searchTerm?: string;
@@ -35,6 +36,7 @@ interface EmployeeManagementTableProps {
 
 
 const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({ 
+  employeeData,
   columnsToShow,
   searchByField = [], 
   searchTerm = "" 
@@ -54,21 +56,30 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
   const itemsPerPage = 5;
 
-  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedData = filteredEmployees.slice(startIndex, endIndex);
+
+  const paginationData = useMemo(() => {
+    const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filteredEmployees.slice(startIndex, endIndex);
+
+    return {
+      totalPages,
+      paginatedData,
+      currentPage,
+      itemsPerPage,
+      totalItems: filteredEmployees.length,
+    };
+  }, [filteredEmployees, currentPage, itemsPerPage]);
 
 
 
-
-  const {
-    data: employeeData,
-  } = useAllEmployees({}, {});
-
-  // Get unique departments from data
-  const departments = Array.from(new Set(employeeData?.map(emp => emp.department?.name || "N/A")))
-    .map((dept, index) => ({ id: index + 1, name: dept }));
+  const departments = useMemo(() => {
+    if (!employees) return [];
+    return Array.from(
+      new Set(employees.map((emp) => emp.department?.name || "N/A"))
+    ).map((dept, index) => ({ id: index + 1, name: dept }));
+  }, [employees]);
 
   // Reset filter function
   const resetFilter = () => {
@@ -80,114 +91,132 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   };
 
   // Calculate seniority based on hireDate
-  const calculateSeniority = (date: Date | null): string => {
+  const calculateSeniority = useCallback((date: Date | null): string => {
     if (!date) return "N/A";
     const now = new Date();
     const diffInYears = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24 * 365));
     return `${diffInYears} years`;
-  };
+  }, []);
 
   // Determine if an employee is on leave
-  const isOnLeave = (leaveType: string | null | undefined): boolean => {
+  const isOnLeave = useCallback((leaveType: string | null | undefined): boolean => {
     return !!leaveType;
-  };
+  }, []);
 
 
-  const getEmployeeFieldValue = (
-  employee: Employee | null | undefined, 
-  field: string
-): string => {
-  // Early guard clauses
-  if (!employee) return '';
+  const getEmployeeFieldValue = useCallback((employee: Employee | null | undefined, field: string): string => {
+      // Early guard clauses
+      if (!employee) return "";
 
-  const fieldMappings: Record<string, (emp: Employee) => string> = {
-    'name': (emp) => `${emp.firstName || ''} ${emp.lastName || ''}`.trim(),
-    'email': (emp) => emp.user?.email || '',
-    'phoneNumber': (emp) => emp.phone || '',
-    'birthday': (emp) => emp.birthDate?.toISOString().split('T')[0] || '',
-    'age': (emp) => emp.birthDate 
-      ? calculateAge(emp.birthDate).toString()
-      : '',
-    'city': (emp) => emp.contactDetails?.city || '',
-    'homeAddress': (emp) => emp.contactDetails?.address || '',
-    'region': (emp) => emp.contactDetails?.region || '',
-    'country': (emp) => emp.contactDetails?.country || '',
-    'startDate': (emp) => emp.hireDate?.toISOString().split('T')[0] || '',
-    'endDate': (emp) => emp.endDate?.toISOString().split('T')[0] || '',
-    'seniority': (emp) => calculateSeniority(emp.hireDate),
-    'skills': (emp) => emp.skills?.join(', ') || '',
-    'ftpt': (emp) => employeeTypeLabels[emp.employeeType as EmployeeType] || '',
-    'department': (emp) => emp.department?.name || '',
-    'agency': (emp) => emp.agency?.name || '',
-    'onLeave': (emp) => isOnLeave(emp.leaveType) ? 'On Leave' : 'Active'
-  };
+      const fieldMappings: Record<string, (emp: Employee) => string> = {
+        name: (emp) => `${emp.firstName || ""} ${emp.lastName || ""}`.trim(),
+        email: (emp) => emp.user?.email || "",
+        phoneNumber: (emp) => emp.phone || "",
+        birthday: (emp) => emp.birthDate?.toISOString().split("T")[0] || "",
+        age: (emp) =>
+          emp.birthDate ? calculateAge(emp.birthDate).toString() : "",
+        city: (emp) => emp.contactDetails?.city || "",
+        homeAddress: (emp) => emp.contactDetails?.address || "",
+        region: (emp) => emp.contactDetails?.region || "",
+        country: (emp) => emp.contactDetails?.country || "",
+        startDate: (emp) => emp.hireDate?.toISOString().split("T")[0] || "",
+        endDate: (emp) => emp.endDate?.toISOString().split("T")[0] || "",
+        seniority: (emp) => calculateSeniority(emp.hireDate),
+        skills: (emp) => emp.skills?.join(", ") || "",
+        ftpt: (emp) => employeeTypeLabels[emp.employeeType as EmployeeType] || "",
+        department: (emp) => emp.department?.name || "",
+        agency: (emp) => emp.agency?.name || "",
+        onLeave: (emp) => (isOnLeave(emp.leaveType) ? "On Leave" : "Active"),
+      };
 
-  // Precise age calculation function
-  function calculateAge(birthDate: Date): number {
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDifference < 0 || 
-        (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
-    return age;
-  }
+      // Precise age calculation function
+      function calculateAge(birthDate: Date): number {
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDifference = today.getMonth() - birthDate.getMonth();
 
-  // Safe field mapping retrieval
-  if (fieldMappings[field]) {
-    return fieldMappings[field](employee);
-  }
+        if (
+          monthDifference < 0 ||
+          (monthDifference === 0 && today.getDate() < birthDate.getDate())
+        ) {
+          age--;
+        }
 
-  // Type-safe fallback with optional chaining
-  try {
-    const value = (employee as any)[field];
-    return value != null ? String(value) : '';
-  } catch {
-    console.warn(`Unhandled field: ${field}`);
-    return '';
-  }
-};
+        return age;
+      }
+
+      // Safe field mapping retrieval
+      if (fieldMappings[field]) {
+        return fieldMappings[field](employee);
+      }
+
+      // Type-safe fallback with optional chaining
+      try {
+        const value = (employee as any)[field];
+        return value != null ? String(value) : "";
+      } catch {
+        console.warn(`Unhandled field: ${field}`);
+        return "";
+      }
+  }, [calculateSeniority, isOnLeave]);
 
 
-  // Filter and paginate data
   useEffect(() => {
-    let result = [...employees];
-
-    if (filter.department !== "All Departments") {
-      result = result.filter(emp => emp.department?.name === filter.department);
+    if (!employees) {
+      setFilteredEmployees([]);
+      return;
     }
 
-    if (filter.employmentType !== "All Types") {
-      result = result.filter(emp => emp.employeeType === filter.employmentType);
-    }
+    // Apply filters
+    let result = employees.filter((employee) => {
+      // Department filter
+      if (
+        filter.department !== "All Departments" &&
+        employee.department?.name !== filter.department
+      ) {
+        return false;
+      }
 
-    if (filter.onLeave !== "All Employees") {
-      const isOnLeaveFilter = filter.onLeave === "On Leave";
-      result = result.filter(emp => isOnLeave(emp.leaveType) === isOnLeaveFilter);
-    }
+      // Employment type filter
+      if (
+        filter.employmentType !== "All Types" &&
+        employee.employeeType !== filter.employmentType
+      ) {
+        return false;
+      }
 
-    if (searchTerm && searchByField.length > 0) {
-      const searchLower = searchTerm.toLowerCase();
-      result = result.filter(emp => 
-        searchByField.some(field => {
-          const value = getEmployeeFieldValue(emp, field);
+      // Leave status filter
+      if (filter.onLeave !== "All Employees") {
+        const onLeaveStatus = isOnLeave(employee.leaveType);
+        if (
+          (filter.onLeave === "On Leave" && !onLeaveStatus) ||
+          (filter.onLeave === "Not On Leave" && onLeaveStatus)
+        ) {
+          return false;
+        }
+      }
+
+      // Search term filter
+      if (searchTerm && searchByField.length > 0) {
+        const searchLower = searchTerm.toLowerCase();
+        return searchByField.some((field) => {
+          const value = getEmployeeFieldValue(employee, field);
           return String(value).toLowerCase().includes(searchLower);
-        })
-      );
-    }
+        });
+      }
+
+      return true;
+    });
 
     setFilteredEmployees(result);
-  }, [filter, employees, searchTerm, searchByField]);
+  }, [filter, employees, searchTerm, searchByField, getEmployeeFieldValue]);
 
   // Load employee data
   useEffect(() => {
-    if (employeeData) {
-      setLoading(true);
-      setEmployees(employeeData);
-      setFilteredEmployees(employeeData);
+    if (employeeData.length > 0) {
+      const newEmployees = [...employeeData];
+      setEmployees(newEmployees);
+      setFilteredEmployees(newEmployees);
       setLoading(false);
     }
   }, [employeeData]);
@@ -334,13 +363,11 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       header: "Got Invoice",
       render: (row) => (
         <div className="flex justify-center">
-          {row.agency?.invoiceReceived ? (
-            <div className="w-6 h-6 rounded-md bg-green-500 flex items-center justify-center">
-              <Check className="text-white" size={16} />
-            </div>
-          ) : (
-            <div className="w-6 h-6 rounded-md bg-gray-300"></div>
-          )}
+          <AgencyCheckboxToggle
+            employee={row as Employee}
+            checked={row.agency?.invoiceReceived || false}
+            type="invoiceReceived"
+          />
         </div>
       ),
     },
@@ -349,13 +376,11 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       header: "Paid",
       render: (row) => (
         <div className="flex justify-center">
-          {row.agency?.paid ? (
-            <div className="w-6 h-6 rounded-md bg-green-500 flex items-center justify-center">
-              <Check className="text-white" size={16} />
-            </div>
-          ) : (
-            <div className="w-6 h-6 rounded-md bg-gray-300"></div>
-          )}
+          <AgencyCheckboxToggle
+            employee={row as Employee}
+            checked={row.agency?.paid || false}
+            type="paid"
+          />
         </div>
       ),
     },
@@ -405,7 +430,9 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     <div className="p-6 bg-white rounded-lg shadow-sm">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-medium text-gray-700">Employee Management</h1>
+          <h1 className="text-2xl font-medium text-gray-700">
+            Employee Management
+          </h1>
         </div>
 
         {/* Filter Section */}
@@ -414,7 +441,9 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
             {/* Department Filter */}
             <Select
               value={filter.department}
-              onValueChange={(value) => setFilter(prev => ({ ...prev, department: value }))}
+              onValueChange={(value) =>
+                setFilter((prev) => ({ ...prev, department: value }))
+              }
             >
               <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
                 <SelectValue placeholder="All Departments" />
@@ -432,7 +461,9 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
             {/* Employment Type Filter */}
             <Select
               value={filter.employmentType}
-              onValueChange={(value) => setFilter(prev => ({ ...prev, employmentType: value }))}
+              onValueChange={(value) =>
+                setFilter((prev) => ({ ...prev, employmentType: value }))
+              }
             >
               <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
                 <SelectValue placeholder="All Types" />
@@ -449,7 +480,9 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
             {/* On Leave Filter */}
             <Select
               value={filter.onLeave}
-              onValueChange={(value) => setFilter(prev => ({ ...prev, onLeave: value }))}
+              onValueChange={(value) =>
+                setFilter((prev) => ({ ...prev, onLeave: value }))
+              }
             >
               <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
                 <SelectValue placeholder="All Employees" />
@@ -479,10 +512,10 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       ) : (
         <div className="overflow-x-auto">
           <DataTable
-            columns={visibleColumnsData} 
-            data={paginatedData} 
+            columns={visibleColumnsData}
+            data={paginationData.paginatedData}
             dividers={false}
-            actionBool={true} 
+            actionBool={true}
             actionObj={actionObj}
           />
         </div>
@@ -490,20 +523,20 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
       {/* Step Progress (Pagination) */}
       {!loading && (
-        <StepProgress 
-          currentPage={currentPage} 
-          setCurrentPage={setCurrentPage} 
-          totalPages={totalPages}
+        <StepProgress
+          currentPage={paginationData.currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={paginationData.totalPages}
         />
       )}
 
       {selectedEmployeeId && (
-        <EditEmployeeForm 
+        <EditEmployeeForm
           employeeId={selectedEmployeeId}
           isOpen={isEditModalOpen}
           onClose={() => {
-            setSelectedEmployeeId(null)
-            setIsEditModalOpen(false)
+            setSelectedEmployeeId(null);
+            setIsEditModalOpen(false);
           }}
         />
       )}

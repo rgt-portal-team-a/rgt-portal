@@ -17,6 +17,7 @@ export interface DataTableProps {
   setShowDelete?: React.Dispatch<React.SetStateAction<boolean>>;
   isDeleteLoading?: boolean;
   loading?: boolean; // for initial loading of the table data
+  skeleton?: "default" | "employee";
 }
 
 export interface ActionObject {

@@ -505,7 +505,7 @@ const CreatePost = () => {
                   </label>
                   <CustomSelect
                     placeholder="Choose poll type"
-                    options={["Single Choice", "Multiple Choice"]}
+                    options={[{label:"Single Choice", value:"single_choice"}, {label:"Multiple Choice", value:"multiple_choice"}]}
                     value={
                       pollInfo.type === "single_choice"
                         ? "single choice"

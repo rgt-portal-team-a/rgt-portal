@@ -15,7 +15,7 @@ interface PtoLeave {
   createdAt?: Date;
   status?: string;
   statusReason?: string;
-  department_id?: string;
+  departmentId?: number;
   employee?: Employee;
   approver?: Employee;
 }
