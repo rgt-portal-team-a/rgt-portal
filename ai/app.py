@@ -84,7 +84,7 @@ async def upload_cv(file: UploadFile = File(...)):
             status_code=500, detail=f"Error processing request: {str(e)}")
 
 
-@app.post("/predict", response_model=PredictionResponse)
+@app.post("/predict-attrition", response_model=PredictionResponse)
 def predict(employee: EmployeeData):
     try:
         # Get prediction
@@ -103,7 +103,7 @@ def predict(employee: EmployeeData):
 #         raise HTTPException(status_code=500, detail=str(e))
     
 
-@app.post("/match-job")
+@app.post("/predict-match")
 def match_job(request: JobRequest):
     try:
         best_job = match_jobs_to_applicant(
@@ -114,57 +114,57 @@ def match_job(request: JobRequest):
 
 
 
-@app.post("/analyze", response_model=AnalysisResponse)         
-async def analyze_nsp_data(file: UploadFile = File(..., description="Excel file containing NSP data")):
-    try:
-        # Read the uploaded Excel file
-        content = await file.read()
+# @app.post("/analyze-", response_model=AnalysisResponse)         
+# async def analyze_nsp_data(file: UploadFile = File(..., description="Excel file containing NSP data")):
+#     try:
+#         # Read the uploaded Excel file
+#         content = await file.read()
         
-        # Load data into pandas DataFrame
-        try:
-            df = pd.read_excel(
-                io.BytesIO(content),
-                dtype={'Phone number': str}  # Ensure Phone number is read as string
-            )
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Invalid Excel file: {str(e)}")
+#         # Load data into pandas DataFrame
+#         try:
+#             df = pd.read_excel(
+#                 io.BytesIO(content),
+#                 dtype={'Phone number': str}  # Ensure Phone number is read as string
+#             )
+#         except Exception as e:
+#             raise HTTPException(status_code=400, detail=f"Invalid Excel file: {str(e)}")
         
-        # Create analyzer
-        analyzer = NSPAnalyzer(df)
+#         # Create analyzer
+#         analyzer = NSPAnalyzer(df)
         
-        # Analyze data
-        subject_outcomes = analyzer.analyze_hiring_success()
+#         # Analyze data
+#         subject_outcomes = analyzer.analyze_hiring_success()
         
-        # Get overall stats
-        overall_stats = analyzer.get_overall_stats()
+#         # Get overall stats
+#         overall_stats = analyzer.get_overall_stats()
         
-        # Create visualizer
-        visualizer = NSPVisualizer(analyzer.df)
+#         # Create visualizer
+#         visualizer = NSPVisualizer(analyzer.df)
         
-        # Generate visualizations
-        success_rates_chart = visualizer.visualize_subject_success_rates()
-        retention_chart = visualizer.visualize_retention_comparison()
+#         # Generate visualizations
+#         success_rates_chart = visualizer.visualize_subject_success_rates()
+#         retention_chart = visualizer.visualize_retention_comparison()
         
-        # Generate recommendations
-        recommendations = generate_recommendations(subject_outcomes, GROQ_API_KEY)
+#         # Generate recommendations
+#         recommendations = generate_recommendations(subject_outcomes, GROQ_API_KEY)
         
-        # Generate report
-        report_markdown = generate_report(subject_outcomes, recommendations)
+#         # Generate report
+#         report_markdown = generate_report(subject_outcomes, recommendations)
         
-        # Convert subject_outcomes DataFrame to list of dicts
-        subject_outcomes_list = subject_outcomes.to_dict(orient='records')
+#         # Convert subject_outcomes DataFrame to list of dicts
+#         subject_outcomes_list = subject_outcomes.to_dict(orient='records')
         
-        return AnalysisResponse(
-            subject_outcomes=subject_outcomes_list,
-            overall_stats=overall_stats,
-            success_rates_chart=success_rates_chart,
-            retention_chart=retention_chart,
-            recommendations=recommendations,
-            report_markdown=report_markdown
-        )
+#         return AnalysisResponse(
+#             subject_outcomes=subject_outcomes_list,
+#             overall_stats=overall_stats,
+#             success_rates_chart=success_rates_chart,
+#             retention_chart=retention_chart,
+#             recommendations=recommendations,
+#             report_markdown=report_markdown
+#         )
         
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
 
@@ -224,38 +224,38 @@ async def generate_full_report(file: UploadFile = File(..., description="Excel f
 
 
 
-# @app.post("/predict-hiring-score/", response_model=ApplicantPrediction)
-# async def predict_applicant(applicant_data: ApplicantData):
-#     """Predict applicant score and stage using provided data"""
-#     from cv_screening.model_utils import model
+@app.post("/predict-hiring-score/", response_model=ApplicantPrediction)
+async def predict_applicant(applicant_data: ApplicantData):
+    """Predict applicant score and stage using provided data"""
+    from cv_screening.model_utils import model
     
-#     if model is None:
-#         raise HTTPException(
-#             status_code=503, detail="Model not loaded. Please try again later.")
+    if model is None:
+        raise HTTPException(
+            status_code=503, detail="Model not loaded. Please try again later.")
 
-#     try:
-#         # Create CV text from applicant data
-#         cv_text = create_cv_text(applicant_data)
+    try:
+        # Create CV text from applicant data
+        cv_text = create_cv_text(applicant_data)
 
-#         # Make prediction
-#         score, stage, stage_confidences_data = predict_applicant_score(applicant_data, cv_text)
+        # Make prediction
+        score, stage, stage_confidences_data = predict_applicant_score(applicant_data, cv_text)
         
-#         # Create stage confidences objects
-#         stage_confidences = [
-#             StageConfidence(stage=conf["stage"], confidence=conf["confidence"])
-#             for conf in stage_confidences_data
-#         ]
+        # Create stage confidences objects
+        stage_confidences = [
+            StageConfidence(stage=conf["stage"], confidence=conf["confidence"])
+            for conf in stage_confidences_data
+        ]
 
-#         return ApplicantPrediction(
-#             position=applicant_data.position,
-#             score=score,
-#             predicted_stage=stage,
-#             stage_confidences=stage_confidences
-#         )
+        return ApplicantPrediction(
+            position=applicant_data.position,
+            score=score,
+            predicted_stage=stage,
+            stage_confidences=stage_confidences
+        )
 
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=500, detail=f"Prediction error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Prediction error: {str(e)}")
 
  
 if __name__ == "__main__":
