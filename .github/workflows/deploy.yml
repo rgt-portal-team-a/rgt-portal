@@ -29,8 +29,8 @@ jobs:
           - service: backend
             dockerfile: ./backend/Dockerfile
             ecr_repo: rgt-portal-team-a/backend
-          - service: client
-            dockerfile: ./client/Dockerfile
+          - service: frontend
+            dockerfile: ./frontend/Dockerfile
             ecr_repo: rgt-portal-team-a/frontend
 
     steps:
