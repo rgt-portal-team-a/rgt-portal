@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [ai, backend, frontend]
+        service: [ai, backend, client]
         include:
           - service: ai
             dockerfile: ./ai/Dockerfile
@@ -29,7 +29,7 @@ jobs:
           - service: backend
             dockerfile: ./backend/Dockerfile
             ecr_repo: rgt-portal-team-a/backend
-          - service: frontend
+          - service: client
             dockerfile: ./client/Dockerfile
             ecr_repo: rgt-portal-team-a/frontend
 
