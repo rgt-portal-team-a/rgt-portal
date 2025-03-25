@@ -20,7 +20,7 @@ FROM python:3.12-slim AS runtime
 WORKDIR /app
 
 # Copy installed dependencies from builder
-COPY --from=builder /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application files
