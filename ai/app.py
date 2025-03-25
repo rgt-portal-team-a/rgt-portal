@@ -1,23 +1,23 @@
-from fastapi import FastAPI, HTTPException,UploadFile, File,Body
+from fastapi import FastAPI, HTTPException, UploadFile, File, Body
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
 import os
 import markdown
-from typing import Dict,Any ,Optional
+from typing import Dict, Any, Optional
 import tempfile
 from pydantic import BaseModel
 from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
 from smart_match.predict import match_jobs_to_applicant, df
 from datetime import datetime
 from nsp_retention.nsp_analyzer import NSPAnalyzer, NSPVisualizer, generate_recommendations, generate_report
-from nsp_retention.nsp_models import (    
+from nsp_retention.nsp_models import (
     RecommendationRequest, RecommendationResponse, ReportResponse,
     AnalysisResponse, )
 
 
 from cv_screening.schemas import StageConfidence, ApplicantData, ApplicantPrediction
-from cv_screening.model_utils import initialize_models,predict_applicant_score
+from cv_screening.model_utils import initialize_models, predict_applicant_score
 from cv_screening.cv_processor import process_cv, create_cv_text
 
 # Initialize FastAPI app
@@ -40,20 +40,65 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class Profile(BaseModel):
+    current_title: str
+    current_company: str
+    total_years_in_tech: int
+    highest_degree: str
+    program: str
+    school: str
+    graduation_year: str
+    technical_skills: str
+    programming_languages: str
+    tools_and_technologies: str
+    soft_skills: str
+    industries: str
+    certifications: Optional[str] = None
+    key_projects: str
+    recent_achievements: str
+
+
 class JobRequest(BaseModel):
-    profile: str
+    profile: Profile
     applied_position: str  # New field for the applied job position
+
+
+def format_profile(profile: Profile) -> str:
+    profile_str = f"""
+    Current Title: {profile.current_title}
+    Current Company: {profile.current_company}
+    Experience: {profile.total_years_in_tech} years in tech
+    Education: {profile.highest_degree} in {profile.program} from {profile.school} ({profile.graduation_year})
+    
+    Technical Skills: {profile.technical_skills}
+    Programming Languages: {profile.programming_languages}
+    Tools & Technologies: {profile.tools_and_technologies}
+    
+    Soft Skills: {profile.soft_skills}
+    Industries: {profile.industries}
+    
+    Key Projects: {profile.key_projects}
+    Recent Achievements: {profile.recent_achievements}
+    """
+    if profile.certifications:
+        profile_str += f"\nCertifications: {profile.certifications}"
+
+    return profile_str
 
 
 # Root endpoint
 @app.get("/")
 def read_root():
-    return {"message": "RGT API Project"}   
+    return {"message": "RGT API Project"}
 # Health check endpoint
+
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy",  "timestamp": datetime.now().isoformat()}
 # Prediction endpoint
+
 
 @app.post("/upload-cv/")
 async def upload_cv(file: UploadFile = File(...)):
@@ -92,7 +137,7 @@ def predict(employee: EmployeeData):
         return prediction
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 # @app.post("/match-job")
 # def match_job(request: JobRequest):
 #     try:
@@ -101,59 +146,68 @@ def predict(employee: EmployeeData):
 #         return best_job
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
-    
+
 
 @app.post("/match-job")
 def match_job(request: JobRequest):
     try:
+        # Convert the structured profile to the string format expected by the matching function
+        profile_str = format_profile(request.profile)
+
+        # Call the matching function
         best_job = match_jobs_to_applicant(
-            request.profile, request.applied_position, df)
+            profile_str,
+            request.applied_position,
+            df
+        )
         return best_job
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-@app.post("/analyze", response_model=AnalysisResponse)         
+@app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_nsp_data(file: UploadFile = File(..., description="Excel file containing NSP data")):
     try:
         # Read the uploaded Excel file
         content = await file.read()
-        
+
         # Load data into pandas DataFrame
         try:
             df = pd.read_excel(
                 io.BytesIO(content),
-                dtype={'Phone number': str}  # Ensure Phone number is read as string
+                # Ensure Phone number is read as string
+                dtype={'Phone number': str}
             )
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Invalid Excel file: {str(e)}")
-        
+            raise HTTPException(
+                status_code=400, detail=f"Invalid Excel file: {str(e)}")
+
         # Create analyzer
         analyzer = NSPAnalyzer(df)
-        
+
         # Analyze data
         subject_outcomes = analyzer.analyze_hiring_success()
-        
+
         # Get overall stats
         overall_stats = analyzer.get_overall_stats()
-        
+
         # Create visualizer
         visualizer = NSPVisualizer(analyzer.df)
-        
+
         # Generate visualizations
         success_rates_chart = visualizer.visualize_subject_success_rates()
         retention_chart = visualizer.visualize_retention_comparison()
-        
+
         # Generate recommendations
-        recommendations = generate_recommendations(subject_outcomes, GROQ_API_KEY)
-        
+        recommendations = generate_recommendations(
+            subject_outcomes, GROQ_API_KEY)
+
         # Generate report
         report_markdown = generate_report(subject_outcomes, recommendations)
-        
+
         # Convert subject_outcomes DataFrame to list of dicts
         subject_outcomes_list = subject_outcomes.to_dict(orient='records')
-        
+
         return AnalysisResponse(
             subject_outcomes=subject_outcomes_list,
             overall_stats=overall_stats,
@@ -162,73 +216,69 @@ async def analyze_nsp_data(file: UploadFile = File(..., description="Excel file 
             recommendations=recommendations,
             report_markdown=report_markdown
         )
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-# @app.post("/recommendations", response_model=RecommendationResponse) 
+# @app.post("/recommendations", response_model=RecommendationResponse)
 # async def get_recommendations(request: RecommendationRequest = Body(..., description="Subject metrics data")):
 #     try:
 #         # Convert to DataFrame
 #         subject_data = pd.DataFrame(request.subject_data)
-        
+
 #         # Generate recommendations
 #         recommendations = generate_recommendations(subject_data, GROQ_API_KEY, request.top_n)
-        
+
 #         return RecommendationResponse(recommendations=recommendations)
-        
+
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
 # # Endpoint to generate full report
 
 
-
-@app.post("/report",response_model=ReportResponse)
+@app.post("/report", response_model=ReportResponse)
 async def generate_full_report(file: UploadFile = File(..., description="Excel file containing NSP data")):
     try:
         # Read the uploaded Excel file
         content = await file.read()
-        
+
         # Load data into pandas DataFrame
         df = pd.read_excel(
             io.BytesIO(content),
             dtype={'Phone number': str}
         )
-        
+
         # Create analyzer
         analyzer = NSPAnalyzer(df)
-        
+
         # Analyze data
         subject_outcomes = analyzer.analyze_hiring_success()
-        
+
         # Generate recommendations
-        recommendations = generate_recommendations(subject_outcomes, GROQ_API_KEY)
-        
+        recommendations = generate_recommendations(
+            subject_outcomes, GROQ_API_KEY)
+
         # Generate report in markdown
         report_markdown = generate_report(subject_outcomes, recommendations)
-        
+
         # # Convert markdown to HTML
         report_html = markdown.markdown(report_markdown)
-        
+
         return ReportResponse(
             report_markdown=report_markdown,
             report_html=report_html
         )
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
- 
-
 
 
 # @app.post("/predict-hiring-score/", response_model=ApplicantPrediction)
 # async def predict_applicant(applicant_data: ApplicantData):
 #     """Predict applicant score and stage using provided data"""
 #     from cv_screening.model_utils import model
-    
+
 #     if model is None:
 #         raise HTTPException(
 #             status_code=503, detail="Model not loaded. Please try again later.")
@@ -239,7 +289,7 @@ async def generate_full_report(file: UploadFile = File(..., description="Excel f
 
 #         # Make prediction
 #         score, stage, stage_confidences_data = predict_applicant_score(applicant_data, cv_text)
-        
+
 #         # Create stage confidences objects
 #         stage_confidences = [
 #             StageConfidence(stage=conf["stage"], confidence=conf["confidence"])
@@ -257,7 +307,7 @@ async def generate_full_report(file: UploadFile = File(..., description="Excel f
 #         raise HTTPException(
 #             status_code=500, detail=f"Prediction error: {str(e)}")
 
- 
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000,)
