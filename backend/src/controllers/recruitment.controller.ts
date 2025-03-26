@@ -98,6 +98,30 @@ export class RecruitmentController {
     }
   };
 
+  public createBatchRecruitment = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = (req.user as any).id;
+      const recruitmentData: CreateRecruitmentDto[] = req.body;
+
+      const recruitments = await this.recruitmentService.createBatch(recruitmentData, userId);
+
+      const response: ApiResponse<typeof recruitments> = {
+        success: true,
+        data: recruitments,
+        message: "Recruitments created successfully",
+      };
+
+      res.status(201).json(response);
+    } catch (error: any) {
+      this.logger.error("Error creating batch recruitment:", error);
+      res.status(error.message.includes("not found") ? 404 : 500).json({
+        success: false,
+        message: "Failed to create batch recruitment",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  };
+
   public createRecruitment = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;

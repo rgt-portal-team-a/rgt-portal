@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --project tsconfig.build.json && vite build",
+    "start": "vite preview",
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -34,7 +35,6 @@
     "@tiptap/pm": "^2.11.5",
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
-    "@types/recharts": "^1.8.29",
     "@xyflow/react": "^12.4.4",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",

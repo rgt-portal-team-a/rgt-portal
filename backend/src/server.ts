@@ -20,10 +20,12 @@ import {
   rootRoutes,
   fileUploaderRoutes,
   recruitmentRoutes,
+  recruitmentReportRoutes,
   projectRoutes,
   departmentRoutes,
   userRoutes,
   notificationRoutes,
+  aiRoutes,
 } from "./routes";
 import { SocketService } from "@/services/notifications/socket.service";
 import { Server as SocketIOServer } from "socket.io";
@@ -78,10 +80,12 @@ app.use("/api/event", eventRoutes);
 app.use("/api/polls", pollRoutes);
 app.use("/api/file", fileUploaderRoutes);
 app.use("/api/recruitment", recruitmentRoutes);
+app.use("/api/reports", recruitmentReportRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/user/auth", userRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/ai", aiRoutes);
 
 // UNCAUGHT EXCEPTIONS & UNHANDLED REJECTIONS
 process.on("uncaughtException", (error) => {
