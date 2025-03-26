@@ -8,7 +8,7 @@ interface ApiClientConfig extends AxiosRequestConfig {
 }
 
 export const createApiClient = (
-  baseURL: string = import.meta.env.VITE_BASE_URL
+  baseURL: string = import.meta.env.VITE_NODE_ENV === "development" ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_BASE_URL
 ): AxiosInstance => {
   const config: ApiClientConfig = {
     baseURL,

@@ -3,7 +3,11 @@ import { PaginatedResponse } from "../types";
 import { Agency, Employee, UpdateEmployeeInterface } from "@/types/employee";
 
 const employeeApiClient = createApiClient(
-  `${import.meta.env.VITE_API_URL}/employees`
+  `${
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_API_URL
+      : import.meta.env.VITE_API_URL
+  }/employees`
 );
 
 export const employeeService = {

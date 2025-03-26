@@ -2,7 +2,11 @@ import { PtoStatusType } from "@/components/Hr/Employees/EmployeeTimeOffManageme
 import { PtoLeave } from "@/types/PTOS";
 import axios from "axios";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/leave`;
+const API_URL = `${
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_API_URL
+}/leave`;
 
 export class PtoRequestService {
   static async createPtoRequest(
