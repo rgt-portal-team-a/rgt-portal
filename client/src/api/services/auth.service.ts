@@ -15,6 +15,9 @@ export interface LoginResponse {
 export const authService = {
   initiateGoogleAuth: (): Promise<void> => {
     return new Promise((resolve) => {
+      console.log("node env: ", import.meta.env.VITE_NODE_ENV);
+      console.log("base url: ", import.meta.env.VITE_BASE_URL);
+      console.log("dev base url: ", import.meta.env.VITE_DEV_BASE_URL);
       setTimeout(() => {
         window.location.href = `${
           import.meta.env.VITE_NODE_ENV === "development"
