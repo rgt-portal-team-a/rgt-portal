@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { useCurrentUser } from "@/api/query-hooks/auth.hooks";
 import { LOGOUT, SETCURRENTUSER } from "@/state/authState/authSlice";
-import LoadingSpinner from "@/components/common/LoadingSpinner"
-import {User} from "@/types/authUser"
-// import {useNavigate} from "react-router-dom"
+import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { User } from "@/types/authUser";
+import { authService } from "@/api/services/auth.service";
+import { toast } from "@/hooks/use-toast";
 
 // Define proper types for the context
 interface AuthContextType {
@@ -13,7 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   error: Error | null;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 // Create context with a default value matching the type
@@ -25,7 +26,6 @@ type AuthProviderProps = PropsWithChildren;
 
 const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const dispatch = useDispatch();
-  //   const navigate = useNavigate();
   const { currentUser } = useSelector((state: RootState) => state.authState);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -37,20 +37,21 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     try {
       // Call your logout API here if needed
-      // await authService.logout();
+      await authService.logout();
 
       // Update Redux state
-      //   dispatch(SETCURRENTUSER({ currentUser: null }));
+      dispatch(SETCURRENTUSER({ currentUser: null }));
       dispatch(LOGOUT());
-      //   navigate("/login", {replace: true})
 
       // Optionally clear any tokens from localStorage
-      //   localStorage.removeItem("token");
-
-      // Invalidate queries if needed
-      // queryClient.invalidateQueries(["user"]);
+      localStorage.removeItem("token");
     } catch (error) {
       setError(error instanceof Error ? error : new Error("Failed to logout"));
+      toast({
+        title: "Error",
+        description: "Failed to Log out of portal",
+        variant: "destructive",
+      });
     }
   };
 

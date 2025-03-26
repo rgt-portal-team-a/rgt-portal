@@ -1,4 +1,4 @@
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, Loader } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { HrSideBar } from "@/components/SideBar/HrSideBar";
 import { SideBar } from "@/components/SideBar/SideBar";
@@ -15,6 +15,9 @@ import { employeeService } from "@/api/services/employee.service";
 import { debounce } from "lodash";
 import { useMemo } from "react";
 import ErrorMessage from "@/components/common/ErrorMessage";
+import CalendarIcon2 from "@/assets/icons/CalendarIcon2";
+import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
+import MobileBottomBar from "@/components/SideBar/MobileBottomBar";
 
 export const BaseLayout = () => {
   const { currentUser: user } = useAuthContextProvider();
@@ -34,6 +37,7 @@ export const BaseLayout = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Employee[]>([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
   const navigate = useNavigate();
   const debouncedFetchSearchResults = useMemo(
     () =>
@@ -45,16 +49,24 @@ export const BaseLayout = () => {
         }
 
         try {
+          setLoadingSearch(true);
           const results = await employeeService.getAllEmployees(query);
           console.log("search results:", results);
           setSearchResults(results);
         } catch (error) {
           console.error("Failed to fetch search results:", error);
           setSearchResults([]);
+        } finally {
+          setLoadingSearch(false);
         }
       }, 500),
     []
   );
+  const [showCalendar, setShowCalendar] = useState(false);
+  const handleCalendarShow = () => {
+    setShowCalendar(!showCalendar);
+    console.log("calendar show?:", showCalendar);
+  };
 
   useEffect(() => {
     return () => {
@@ -115,65 +127,90 @@ export const BaseLayout = () => {
         </div>
 
         <div className="flex w-full justify-end gap-3">
-          {/* Center section with search */}
-          <div className="relative w-[30%]">
-            <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search employees..."
-              className="pl-10 py-5 bg-gray-50 border-none outline-none shadow-none"
-              value={searchQuery}
-              onChange={handleOnChange}
-              onFocus={() => setIsDropdownVisible(!!searchQuery)}
-              onBlur={(e) => {
-                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                  setIsDropdownVisible(false);
-                }
-              }}
-            />
-            {/* Dropdown for search results */}
-            {isDropdownVisible && (
-              <div
-                className="absolute top-16 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg"
-                style={{ zIndex: 100 }}
-              >
-                {searchResults.length > 0 ? (
-                  searchResults.map((employee) => (
-                    <div
-                      key={employee.id}
-                      className="p-2 hover:bg-gray-100 cursor-pointer text-sm text-slate-500 font-semibold text-wrap block"
-                      onClick={() => setIsDropdownVisible(false)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setIsDropdownVisible(false);
-                        navigate(`/emp/${employee.id}`);
-                      }}
-                    >
-                      {employee.firstName} {employee.lastName} -{" "}
-                      {employee.user?.email}
+          <div className="relative md:hidden w-full flex justify-end gap-6">
+            {/* Center section with search */}
+            <div className="relative w-[400px]">
+              <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search employees..."
+                className="pl-10 py-5 bg-gray-50 border-none outline-none shadow-none"
+                value={searchQuery}
+                onChange={handleOnChange}
+                onFocus={() => setIsDropdownVisible(!!searchQuery)}
+                onBlur={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setIsDropdownVisible(false);
+                  }
+                }}
+              />
+              {/* Dropdown for search results */}
+              {isDropdownVisible && (
+                <div
+                  className="absolute top-16 left-0 w-[250px] sm:w-full bg-white border border-gray-200 rounded-lg shadow-lg"
+                  style={{ zIndex: 100 }}
+                >
+                  {loadingSearch ? (
+                    <div className="flex w-full p-2 items-center justify-center">
+                      <Loader className="animate-spin text-rgtpurple" />
                     </div>
-                  ))
-                ) : (
-                  <div className="p-2 text-gray-500">No employees found</div>
+                  ) : searchResults.length > 0 ? (
+                    searchResults.map((employee) => (
+                      <div
+                        key={employee.id}
+                        className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer text-sm text-slate-500 font-semibold text-wrap block"
+                        onClick={() => setIsDropdownVisible(false)}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setIsDropdownVisible(false);
+                          navigate(`/emp/${employee.id}`);
+                        }}
+                      >
+                        {employee.firstName} {employee.lastName} -{" "}
+                        {employee.user?.email}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2 text-gray-500">No employees found</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Right section with notification */}
+            <div className="flex items-center">
+              <button
+                className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
+                onClick={() => setNotificationsOpen(true)}
+                aria-label="Notifications"
+              >
+                <Bell className="h-5 w-5 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
                 )}
+              </button>
+            </div>
+            <div
+              className="md:hidden flex justify-center items-center md:h-[60px] w-[60px] rounded-[16px] bg-[#F6F6F9] cursor-pointer hover:bg-slate-200 transition-all duration-300 ease-in"
+              onClick={handleCalendarShow}
+            >
+              <CalendarIcon2 />
+            </div>
+            {showCalendar && (
+              <div className="absolute right-0 top-10">
+                <div
+                  className="h-[620px] pb-3 overflow-auto border-gray-400 border- shadow-lg shadow-gray-600 rounded-2xl"
+                  style={{
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                  }}
+                >
+                  <Upcoming_SpecialCard />
+                </div>
               </div>
             )}
-          </div>
-
-          {/* Right section with notification */}
-          <div className="flex items-center">
-            <button
-              className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
-              onClick={() => setNotificationsOpen(true)}
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5 text-gray-600" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
-            </button>
           </div>
         </div>
       </header>
@@ -200,7 +237,7 @@ export const BaseLayout = () => {
         </div>
 
         <div
-          className="pt-[78px] flex-1 h-screen overflow-y-auto"
+          className="pt-[78px] flex-1 h-screen overflow-y-auto relative"
           style={{
             scrollbarWidth: "none" /* Firefox */,
             msOverflowStyle: "none" /* IE and Edge */,
@@ -209,6 +246,7 @@ export const BaseLayout = () => {
         >
           <Outlet />
         </div>
+        <MobileBottomBar />
       </div>
       <NotificationContainer
         isOpen={notificationsOpen}

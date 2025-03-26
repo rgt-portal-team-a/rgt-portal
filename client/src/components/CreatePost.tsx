@@ -364,7 +364,7 @@ const CreatePost = () => {
     createPollMutation.isPending;
 
   return (
-    <main className="flex-col flex space-y-1">
+    <main className="flex-col flex space-y-1 bg-white px-2 py-4 rounded-b-2xl">
       <div className="relative flex items-start gap-1">
         <Avatar>
           <AvatarImage src={user?.profileImage} alt="Avatar" />
@@ -505,12 +505,15 @@ const CreatePost = () => {
                   </label>
                   <CustomSelect
                     placeholder="Choose poll type"
-                    options={[{label:"Single Choice", value:"single_choice"}, {label:"Multiple Choice", value:"multiple_choice"}]}
+                    options={[
+                      { label: "Single Choice", value: "single_choice" },
+                      { label: "Multiple Choice", value: "multiple_choice" },
+                    ]}
                     value={
                       pollInfo.type === "single_choice"
-                        ? "single choice"
+                        ? "single_choice"
                         : pollInfo.type === "multiple_choice"
-                        ? "multiple choice"
+                        ? "multiple_choice"
                         : ""
                     }
                     className="w-fit h-full"
@@ -518,7 +521,7 @@ const CreatePost = () => {
                       setPollInfo({
                         ...pollInfo,
                         type:
-                          value === "single choice"
+                          value === "single_choice"
                             ? "single_choice"
                             : "multiple_choice",
                       })

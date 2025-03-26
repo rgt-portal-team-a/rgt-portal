@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Avtr from "../Avtr";
 import { ChevronDown } from "lucide-react";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
@@ -10,12 +10,23 @@ import DepartmentsIcon from "@/assets/icons/DepartmentsIcon";
 import UserIcon from "@/assets/icons/UserIcon";
 import LogoutIcon from "@/assets/icons/LogoutIcon";
 import WithRole from "@/common/WithRole";
+import ConfirmCancelModal from "../common/ConfirmCancelModal";
 
 export const SideBar = () => {
-  const { currentUser: user } = useAuthContextProvider();
+  const { currentUser: user, logout } = useAuthContextProvider();
   const [showProfile, setShowProfile] = useState(false);
   const [showTimeOffDropdown, setShowTimeOffDropdown] = useState(false);
+  const [showLogoutModal, setLogoutModal] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await logout();
+    setLoggingOut(false);
+    navigate("/", { replace: true });
+  };
 
   const navItems = [
     { icon: FeedIcon, label: "Feed", path: "feed" },
@@ -44,7 +55,7 @@ export const SideBar = () => {
   };
 
   return (
-    <section className="space-y-3 flex flex-col items-center h-full">
+    <section className="space-y-3 flex flex-col items-center h-full overflow-y-auto overflow-x-hidden">
       {(location.pathname === "/emp/feed" ||
         location.pathname === "/hr/feed") && (
         <header className="md:flex flex-col items-start hidden">
@@ -56,7 +67,7 @@ export const SideBar = () => {
           </p>
         </header>
       )}
-      <div className="bg-white rounded-[30px] flex flex-col items-center py-[31px] ">
+      <div className="bg-white rounded-[30px] flex flex-col items-center py-[31px] w-full max-w-[280px]">
         <div className="space-y-3">
           <div className="flex relative bg-[#452667] text-white justify-start items-center px-4 md:p-[16px] space-x-2 md:space-x-4 rounded-[16px] md:w-[240px] h-[72px]">
             <Avtr
@@ -82,21 +93,21 @@ export const SideBar = () => {
             </div>
             {/* Dropdown Menu */}
             {showProfile && (
-              <div className="absolute top-[45px] right-0 bg-white border border-gray-200 rounded-lg shadow-lg h-[100px] z-10">
-                <div className="py-2 px-2 flex flex-col font-semibold">
+              <div
+                className="absolute top-[45px] right-0  mx-2 bg-white border border-gray-200 rounded-lg shadow-lg  w-fit"
+                style={{ zIndex: 1010 }}
+              >
+                <div className="flex flex-col items-center font-semibold">
                   <NavLink
                     to="/profile"
-                    className="  py-2 text-sm text-[#706D8A] md:hover:bg-gray-100 flex items-center border-b"
+                    className=" py-2 px-2  text-sm text-[#706D8A] md:hover:bg-gray-100 rounded-t-lg flex items-center border-b"
                   >
                     <UserIcon size={24} className="" />
                     <p className="hidden md:block">Profile</p>
                   </NavLink>
                   <button
-                    onClick={() => {
-                      // Handle logout logic here
-                      console.log("Logout clicked");
-                    }}
-                    className="flex cursor-pointer items-center w-full text-left py-2 text-sm text-[#EF4444] md:hover:bg-gray-100 "
+                    onClick={() => setLogoutModal(true)}
+                    className="flex cursor-pointer items-center  text-left py-2 px-2  text-sm text-[#EF4444]  rounded-b-lg  md:hover:bg-gray-100 "
                   >
                     <LogoutIcon size={24} />
                     <p className="hidden md:block">Logout</p>
@@ -182,6 +193,28 @@ export const SideBar = () => {
           ))}
         </nav>
       </div>
+
+      {/* Logging out modal */}
+      <ConfirmCancelModal
+        isOpen={showLogoutModal}
+        onCancel={() => setLogoutModal(false)}
+        onSubmit={handleLogout}
+        submitText="Logout"
+        onOpenChange={() => setLogoutModal(false)}
+        isSubmitting={loggingOut}
+      >
+        <div className="flex justify-center flex-col items-center gap-1">
+          <div className="rounded-full p-2 w-fit bg-red-50">
+            <div className="rounded-full px-[10px] py-[8px] bg-red-100 w-fit flex justify-center">
+              <LogoutIcon size={25} />
+            </div>
+          </div>
+          <header className="text-lg font-semibold">Logging Out?</header>
+          <p className="w-64 text-center font-medium text-slate-500 text-sm">
+            Are you sure you want to log out? We're going to miss you
+          </p>
+        </div>
+      </ConfirmCancelModal>
     </section>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { MoreHorizontalIcon } from "lucide-react";
+import { X } from "lucide-react";
 import Comments from "../Feed/Comments";
 import FeedActions from "../feedActions";
 import NoComments from "@/assets/icons/NoComments";
@@ -77,7 +77,8 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
             >
-              <MoreHorizontalIcon className="" />
+              {/* <MoreHorizontalIcon className="" /> */}
+              <X className="cursor-pointer" />
             </button>
           </div>
 

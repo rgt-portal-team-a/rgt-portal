@@ -161,21 +161,23 @@ export default function TimeOff() {
   ];
 
   return (
-    <main className="px-4">
-      <div className="bg-white p-4 rounded-md">
+    <main className="sm:px-4">
+      <div className="bg-white p-4 rounded-md overflow-auto">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List
           </h1>
           <Button
             className="bg-[#6418C3] hover:bg-purple-800 cursor-pointer text-white font-medium text-sm py-6 transition-colors duration-300 ease-in"
-            onClick={() => setIsModalOpen(true)}>
+            onClick={() => setIsModalOpen(true)}
+          >
             <img src="/Add.svg" alt="add" />
             <p className="hidden sm:block">Add New Request</p>
           </Button>
         </header>
 
         <Filters filters={filters} onReset={handleResetFilters} />
+
         <div className="max-h-[430px] overflow-auto">
           <DataTable
             columns={timeOffTableColumns}
@@ -214,7 +216,8 @@ export default function TimeOff() {
           back={true}
           isSubmitting={isPtoLoading}
           submitBtnText="Create"
-          buttonClassName="px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpink rounded-md hover:bg-pink-500">
+          buttonClassName="px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpink rounded-md hover:bg-pink-500"
+        >
           <Field name="type">
             {({
               field,
@@ -350,7 +353,8 @@ export default function TimeOff() {
         isOpen={appRej}
         showCloseButton={false}
         className="w-1/2 md:w-[4
-        0%] px-4">
+        0%] px-4"
+      >
         {viewPtoData && (
           <>
             <section className="flex gap-2">
