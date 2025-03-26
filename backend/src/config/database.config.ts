@@ -26,6 +26,7 @@ import {
   Notification,
   CommentReply,
   CommentLike,
+  JobMatchResult,
 } from "../entities";
 
 dotenv.config();
@@ -63,9 +64,10 @@ export const databaseConfig: DataSourceOptions = {
     NotificationPreference,
     CommentReply,
     CommentLike,
+    JobMatchResult,
   ],
   migrations: ["src/migrations/**/*.ts"],
-  // synchronize: process.env.NODE_ENV !== "production",
+  // synchronize: process.env.NODE_ENV !== "production",   
   synchronize: false,
   // logging: process.env.NODE_ENV !== "production",
 };
