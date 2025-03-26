@@ -6,7 +6,7 @@ import os
 import markdown
 from typing import Dict,Any ,Optional
 import tempfile
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
 from smart_match.predict import match_jobs_to_applicant, df
 from datetime import datetime
@@ -14,6 +14,8 @@ from nsp_retention.nsp_analyzer import NSPAnalyzer, NSPVisualizer, generate_reco
 from nsp_retention.nsp_models import (    
     RecommendationRequest, RecommendationResponse, ReportResponse,
     AnalysisResponse, )
+
+from typing import List, Any, Optional
 from cv_screening.schemas import StageConfidence, ApplicantData, ApplicantPrediction
 from cv_screening.model_utils import initialize_models,predict_applicant_score
 from cv_screening.cv_processor import process_cv, create_cv_text
@@ -41,8 +43,19 @@ app.add_middleware(
 class JobRequest(BaseModel):
     profile: str
     applied_position: str  # New field for the applied job position
-
-
+    
+class NSPDataDirectInput(BaseModel):
+    """Model for direct NSP data input"""
+    records: List[Dict[str, Any]] = Field(
+        ...,
+        description="List of NSP records with Program and Current status",
+        example=[
+            {"programOfStudy": "Computer Science", "currentStatus": "Hired"},
+            {"programOfStudy": "Information Technology", "currentStatus": "Not Hired"},
+            {"programOfStudy": "Computer Engineering", "currentStatus": "Offered Bootcamp"}
+        ]
+    )    
+    
 # Root endpoint
 @app.get("/")
 def read_root():
@@ -91,7 +104,7 @@ def predict(employee: EmployeeData):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    
+
 
 @app.post("/predict-match")
 def match_job(request: JobRequest):
@@ -104,43 +117,49 @@ def match_job(request: JobRequest):
 
 
 
-
-@app.post("/report",response_model=ReportResponse)
-async def generate_full_report(file: UploadFile = File(..., description="Excel file containing NSP data")):
+@app.post("/report", response_model=ReportResponse)
+async def generate_full_report(input_data: NSPDataDirectInput):
+    """
+    Generate a full report based on NSP data provided directly in the request.
+    
+    Accepts data in the format:
+    {
+        "records": [
+            {"programOfStudy": "Computer Science", "currentStatus": "Hired"},
+            {"programOfStudy": "Information Technology", "currentStatus": "Not Hired"},
+            {"programOfStudy": "Computer Engineering", "currentStatus": "Offered Bootcamp"},
+            ...
+        ]
+    }
+    """
     try:
-        # Read the uploaded Excel file
-        content = await file.read()
-        
-        # Load data into pandas DataFrame
-        df = pd.read_excel(
-            io.BytesIO(content),
-            dtype={'Phone number': str}
-        )
+        # Convert input data to DataFrame
+        report_df = pd.DataFrame(input_data.records)
         
         # Create analyzer
-        analyzer = NSPAnalyzer(df)
-        
+        analyzer = NSPAnalyzer(report_df)
+
         # Analyze data
         subject_outcomes = analyzer.analyze_hiring_success()
-        
-        # Generate recommendations
+
+        # Generate recommendations asynchronously
         recommendations = generate_recommendations(subject_outcomes, GROQ_API_KEY)
-        
-        # Generate report in markdown
+
+        # Generate report in markdown (plain text)
         report_markdown = generate_report(subject_outcomes, recommendations)
-        
-        # # Convert markdown to HTML
-        report_html = markdown.markdown(report_markdown)
-        
+
+        # Return plain text report (without converting to HTML)
         return ReportResponse(
             report_markdown=report_markdown,
-            report_html=report_html
+            report_html=report_markdown  # or simply return the plain text in both fields
         )
-        
+
     except Exception as e:
+        import traceback
+        error_detail = f"{str(e)}\n{traceback.format_exc()}"
+        print(error_detail)  # This will appear in your server logs
         raise HTTPException(status_code=500, detail=str(e))
 
- 
 
  
 if __name__ == "__main__":
