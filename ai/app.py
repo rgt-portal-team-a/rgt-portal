@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
 import os
+from dotenv import load_dotenv
 import markdown
 from typing import Dict, Any, Optional
 import tempfile
@@ -16,8 +17,6 @@ from nsp_retention.nsp_models import (
     AnalysisResponse, )
 
 from typing import List, Any, Optional
-from cv_screening.schemas import StageConfidence, ApplicantData, ApplicantPrediction
-from cv_screening.model_utils import initialize_models, predict_applicant_score
 from cv_screening.cv_processor import process_cv, create_cv_text
 
 # Initialize FastAPI app
@@ -26,9 +25,11 @@ app = FastAPI(
     description="AI APIs for RGT Portal",
     version="1.0.0"
 )
+# Load environment variables from .env file
+load_dotenv()
 
-# Set Groq API key - in production, use environment variables
-GROQ_API_KEY = "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"
+# Get the API key
+api_key = os.getenv("GROQ_API_KEY")
 
 analysis_cache = {}
 # Add CORS middleware
@@ -62,6 +63,29 @@ class Profile(BaseModel):
 class JobRequest(BaseModel):
     profile: Profile
     applied_position: str
+
+
+def format_profile(profile: Profile) -> str:
+    profile_str = f"""
+    Current Title: {profile.currentTitle}
+    Current Company: {profile.currentCompany}
+    Experience: {profile.totalYearsInTech} years in tech
+    Education: {profile.highestDegree} in {profile.highestDegree} from {profile.university} ({profile.graduationYear})
+    
+    Technical Skills: {profile.technicalSkills}
+    Programming Languages: {profile.programmingLanguages}
+    Tools & Technologies: {profile.toolsAndTechnologies}
+    
+    Soft Skills: {profile.softSkills}
+    Industries: {profile.industries}
+    
+    Key Projects: {profile.keyProjects}
+    Recent Achievements: {profile.recentAchievements}
+    """
+    if profile.certifications:
+        profile_str += f"\nCertifications: {profile.certifications}"
+
+    return profile_str
 
 
 class NSPDataDirectInput(BaseModel):
@@ -176,7 +200,7 @@ async def generate_full_report(input_data: NSPDataDirectInput):
 
         # Generate recommendations asynchronously
         recommendations = generate_recommendations(
-            subject_outcomes, GROQ_API_KEY)
+            subject_outcomes, api_key)
 
         # Generate report in markdown (plain text)
         report_markdown = generate_report(subject_outcomes, recommendations)
