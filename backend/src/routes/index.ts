@@ -12,3 +12,4 @@ export { default as fileUploaderRoutes } from "./file-uploader.route";
 export { default as projectRoutes } from "./project.route";
 export { default as userRoutes } from "./user.route";
 export { default as notificationRoutes } from "./notification.route";
+export { default as aiRoutes } from "./ai-routes";
