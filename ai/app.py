@@ -61,7 +61,7 @@ class Profile(BaseModel):
 
 class JobRequest(BaseModel):
     profile: Profile
-    applied_position: str  # New field for the applied job position
+    applied_position: str
 
 
 class NSPDataDirectInput(BaseModel):
