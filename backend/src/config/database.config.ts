@@ -67,7 +67,7 @@ export const databaseConfig: DataSourceOptions = {
     JobMatchResult,
   ],
   migrations: ["src/migrations/**/*.ts"],
-  // synchronize: process.env.NODE_ENV !== "production",   
-  synchronize: false,
+  synchronize: process.env.NODE_ENV !== "development",   
+  // synchronize: false,
   // logging: process.env.NODE_ENV !== "production",
 };
