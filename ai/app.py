@@ -95,7 +95,7 @@ async def upload_cv(file: UploadFile = File(...)):
             status_code=500, detail=f"Error processing request: {str(e)}")
 
 
-@app.post("/predict", response_model=PredictionResponse)
+@app.post("/predict-attrition", response_model=PredictionResponse)
 def predict(employee: EmployeeData):
     try:
         # Get prediction
@@ -106,7 +106,7 @@ def predict(employee: EmployeeData):
     
 
 
-@app.post("/match-job")
+@app.post("/predict-match")
 def match_job(request: JobRequest):
     try:
         best_job = match_jobs_to_applicant(
