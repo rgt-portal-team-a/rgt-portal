@@ -19,7 +19,8 @@ from typing import List, Any, Optional
 from cv_screening.schemas import StageConfidence, ApplicantData, ApplicantPrediction
 from cv_screening.model_utils import initialize_models,predict_applicant_score
 from cv_screening.cv_processor import process_cv, create_cv_text
-
+from dotenv import load_dotenv
+load_dotenv()
 # Initialize FastAPI app
 app = FastAPI(
     title="RGT API Project",
@@ -28,7 +29,7 @@ app = FastAPI(
 )
 
 # Set Groq API key - in production, use environment variables
-GROQ_API_KEY = "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"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 analysis_cache = {}
 # Add CORS middleware
