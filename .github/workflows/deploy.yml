@@ -13,6 +13,7 @@ env:
 jobs:
   build-and-push-ecr:
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       packages: write
       contents: write
@@ -74,7 +75,6 @@ jobs:
 
       - name: Build and Push Docker Image to ECR
         uses: docker/build-push-action@v6
-        continue-on-error: true
         with:
           context: ./${{ matrix.service }}
           file: ${{ matrix.dockerfile }}
