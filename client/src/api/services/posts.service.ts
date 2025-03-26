@@ -5,7 +5,11 @@ import { ApiResponse } from "../types";
 
 export class PostService {
   // Store base URL as a static private property
-  private static baseUrl = `${import.meta.env.VITE_API_URL}/posts`;
+  private static baseUrl = `${
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_API_URL
+      : import.meta.env.VITE_API_URL
+  }/posts`;
 
   // Create a new post
   public static async createPost(postData: any): Promise<ApiResponse<any>> {

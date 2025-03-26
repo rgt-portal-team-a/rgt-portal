@@ -16,7 +16,7 @@ const NotFoundPage = () => {
         onClick={() => navigate("/")}
         className="bg-blue-500 hover:bg-blue-600 text-white"
       >
-        Go to Homepage
+        Go to Login Page
       </Button>
     </div>
   );

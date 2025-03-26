@@ -3,7 +3,11 @@ import { ApiResponse } from "../types";
 import { CreatePollDto, Poll } from "@/types/polls";
 
 export class PollService {
-  private static baseUrl = `${import.meta.env.VITE_API_URL}/polls`;
+  private static baseUrl = `${
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_API_URL
+      : import.meta.env.VITE_API_URL
+  }/polls`;
 
   // Create a new poll
   public static async createPoll(

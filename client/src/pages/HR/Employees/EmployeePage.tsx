@@ -439,7 +439,7 @@ const CustomNode: React.FC<NodeProps<Node<NodeData, string>>> = ({
   );
 };
 
-const JunctionNodeRight = ({ }: { data?: string }) => (
+const JunctionNodeRight = () => (
   <div
     style={{
       width: 10,
@@ -453,7 +453,7 @@ const JunctionNodeRight = ({ }: { data?: string }) => (
     <Handle type="source" position={Position.Right} id="right" />
   </div>
 );
-const JunctionNodeLeft = ({  }: { data?: string }) => (
+const JunctionNodeLeft = () => (
   <div
     style={{
       width: 10,

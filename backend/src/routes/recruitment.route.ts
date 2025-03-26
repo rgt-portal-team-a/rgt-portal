@@ -60,4 +60,12 @@ recruitmentRouter.patch(
   recruitmentController.markAsNotified,
 );
 
+recruitmentRouter.post(
+  "/batch",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRoleOrApiKey([Roles.HR, Roles.ADMIN]),
+  recruitmentController.createBatchRecruitment,
+);
+
+
 export default recruitmentRouter;
