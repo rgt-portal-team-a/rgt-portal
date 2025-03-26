@@ -42,21 +42,21 @@ app.add_middleware(
 
 
 class Profile(BaseModel):
-    current_title: str
-    current_company: str
-    total_years_in_tech: int
-    highest_degree: str
-    program: str
-    school: str
-    graduation_year: str
-    technical_skills: str
-    programming_languages: str
-    tools_and_technologies: str
-    soft_skills: str
+    currentTitle: str
+    currentCompany: str
+    totalYearsInTech: int
+    highestDegree: str
+    programOfStudy: str
+    university: str
+    graduationYear: str
+    technicalSkills: str
+    programmingLanguages: str
+    toolsAndTechnologies: str
+    softSkills: str
     industries: str
     certifications: Optional[str] = None
-    key_projects: str
-    recent_achievements: str
+    keyProjects: str
+    recentAchievements: str
 
 
 class JobRequest(BaseModel):
