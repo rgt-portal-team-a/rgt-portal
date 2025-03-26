@@ -42,7 +42,7 @@ class NSPAnalyzer:
         """Analyze hiring success rates by subject specialization"""
         # Clean up data
         self.df['Program'] = self.df['Program'].fillna('Unknown')
-        self.df['Current status'] = self.df['Current status'].fillna('Unknown')
+        self.df['currentStatus'] = self.df['Current status'].fillna('Unknown')
         
         # Standardize programs
         self.standardize_programs()
@@ -251,9 +251,8 @@ class NSPVisualizer:
         img_str = base64.b64encode(buf.read()).decode('utf-8')
         return img_str
 
-
 def generate_recommendations(subject_data: pd.DataFrame, api_key: str, top_n: int = 3) -> List[str]:
-    """Generate recommendations using LangChain and Groq"""
+    """Generate recommendations using LangChain and Groq synchronously"""
     # Handle empty data
     if subject_data.empty or len(subject_data) < top_n:
         return ["Not enough data to generate recommendations."]
@@ -279,7 +278,7 @@ def generate_recommendations(subject_data: pd.DataFrame, api_key: str, top_n: in
             api_key=api_key
         )
         
-        # Use the chain-style invocation
+        # Invoke synchronously
         response = llm.invoke(prompt)
         
         # Get the response content
@@ -295,6 +294,7 @@ def generate_recommendations(subject_data: pd.DataFrame, api_key: str, top_n: in
         return recommendations
     except Exception as e:
         return [f"Error generating recommendations: {str(e)}"]
+
 
 
 def generate_report(subject_outcomes: pd.DataFrame, recommendations: List[str]) -> str:
