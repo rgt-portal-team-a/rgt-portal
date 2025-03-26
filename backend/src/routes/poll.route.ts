@@ -15,7 +15,7 @@ pollRouter.get("/:id", authMiddleware.isAuthenticated, pollController.getPollByI
 pollRouter.post(
   "/",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.ADMIN, Roles.HR, Roles.MANAGER, Roles.MODERATOR]),
+  authMiddleware.hasRole([Roles.ADMIN, Roles.HR, Roles.MANAGER, Roles.MODERATOR, Roles.MARKETER]),
   pollController.createPoll,
 );
 
@@ -55,7 +55,7 @@ pollRouter.get("/:id/stats", authMiddleware.isAuthenticated, pollController.getP
 
 pollRouter.get("/department/:departmentId", authMiddleware.isAuthenticated, pollController.getAllPolls);
 
-pollRouter.put("/:id/status", authMiddleware.isAuthenticated, authMiddleware.hasRole([Roles.ADMIN, Roles.HR]), pollController.updatePoll);
+pollRouter.put("/:id/status", authMiddleware.isAuthenticated, authMiddleware.hasRole([Roles.ADMIN, Roles.HR, Roles.MARKETER]), pollController.updatePoll);
 
 // pollRouter.post("/:id/options", authMiddleware.isAuthenticated, pollController.addPollOption);
 

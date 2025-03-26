@@ -13,12 +13,12 @@ postRouter.get("/", authMiddleware.isAuthenticated, postController.getPosts);
 
 postRouter.get("/:id", authMiddleware.isAuthenticated, postController.getPostById);
 
-postRouter.post("/", authMiddleware.isAuthenticated, authMiddleware.hasRole([Roles.HR, Roles.MANAGER, Roles.ADMIN]), postController.createPost);
+postRouter.post("/", authMiddleware.isAuthenticated, authMiddleware.hasRole([Roles.HR, Roles.MANAGER, Roles.ADMIN, Roles.MARKETER]), postController.createPost);
 
 postRouter.put(
   "/:id",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRoleOrIsAuthor([Roles.MODERATOR, Roles.ADMIN], async (req) => {
+  authMiddleware.hasRoleOrIsAuthor([Roles.MODERATOR, Roles.HR, Roles.MANAGER, Roles.ADMIN, Roles.MARKETER], async (req) => {
     const post = await postController.findPostById(parseInt(req.params.id));
     return post?.authorId || -1;
   }),
@@ -29,7 +29,7 @@ postRouter.delete(
   "/:id",
   authMiddleware.isAuthenticated,
   (req, res, next) => {
-    const allowedRoles = [Roles.MODERATOR, Roles.ADMIN];
+    const allowedRoles = [Roles.MODERATOR, Roles.HR, Roles.MANAGER, Roles.ADMIN, Roles.MARKETER];
     if (authMiddleware.hasRole(allowedRoles)(req, res, () => true)) {
       return next();
     }
