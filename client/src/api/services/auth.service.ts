@@ -16,7 +16,11 @@ export const authService = {
   initiateGoogleAuth: (): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        window.location.href = `${import.meta.env.VITE_BASE_URL}/auth/google`;
+        window.location.href = `${
+          import.meta.env.VITE_NODE_ENV === "development"
+            ? import.meta.env.VITE_DEV_BASE_URL
+            : import.meta.env.VITE_BASE_URL
+        }/auth/google`;
         resolve();
       }, 50);
     });
