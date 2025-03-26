@@ -116,7 +116,7 @@ function App() {
             />
             <Route
               path={`manageemployees/employee/:id`}
-              element={<EmployeePage />}
+              element={<EmployeePage/>}
             />
 
             <Route path="feed" element={<Feed />} />
