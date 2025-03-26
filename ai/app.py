@@ -1,23 +1,23 @@
-from fastapi import FastAPI, HTTPException,UploadFile, File,Body
+from fastapi import FastAPI, HTTPException, UploadFile, File, Body
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
 import os
 import markdown
-from typing import Dict,Any ,Optional
+from typing import Dict, Any, Optional
 import tempfile
 from pydantic import BaseModel, Field
 from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
 from smart_match.predict import match_jobs_to_applicant, df
 from datetime import datetime
 from nsp_retention.nsp_analyzer import NSPAnalyzer, NSPVisualizer, generate_recommendations, generate_report
-from nsp_retention.nsp_models import (    
+from nsp_retention.nsp_models import (
     RecommendationRequest, RecommendationResponse, ReportResponse,
     AnalysisResponse, )
 
 from typing import List, Any, Optional
 from cv_screening.schemas import StageConfidence, ApplicantData, ApplicantPrediction
-from cv_screening.model_utils import initialize_models,predict_applicant_score
+from cv_screening.model_utils import initialize_models, predict_applicant_score
 from cv_screening.cv_processor import process_cv, create_cv_text
 
 # Initialize FastAPI app
@@ -40,10 +40,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class Profile(BaseModel):
+    currentTitle: str
+    currentCompany: str
+    totalYearsInTech: int
+    highestDegree: str
+    programOfStudy: str
+    university: str
+    graduationYear: str
+    technicalSkills: str
+    programmingLanguages: str
+    toolsAndTechnologies: str
+    softSkills: str
+    industries: str
+    certifications: Optional[str] = None
+    keyProjects: str
+    recentAchievements: str
+
+
 class JobRequest(BaseModel):
-    profile: str
-    applied_position: str  # New field for the applied job position
-    
+    profile: Profile
+    applied_position: str
+
+
 class NSPDataDirectInput(BaseModel):
     """Model for direct NSP data input"""
     records: List[Dict[str, Any]] = Field(
@@ -51,20 +71,27 @@ class NSPDataDirectInput(BaseModel):
         description="List of NSP records with Program and Current status",
         example=[
             {"programOfStudy": "Computer Science", "currentStatus": "Hired"},
-            {"programOfStudy": "Information Technology", "currentStatus": "Not Hired"},
-            {"programOfStudy": "Computer Engineering", "currentStatus": "Offered Bootcamp"}
+            {"programOfStudy": "Information Technology",
+                "currentStatus": "Not Hired"},
+            {"programOfStudy": "Computer Engineering",
+                "currentStatus": "Offered Bootcamp"}
         ]
-    )    
-    
+    )
+
 # Root endpoint
+
+
 @app.get("/")
 def read_root():
-    return {"message": "RGT API Project"}   
+    return {"message": "RGT API Project"}
 # Health check endpoint
+
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy",  "timestamp": datetime.now().isoformat()}
 # Prediction endpoint
+
 
 @app.post("/upload-cv/")
 async def upload_cv(file: UploadFile = File(...)):
@@ -103,25 +130,30 @@ def predict(employee: EmployeeData):
         return prediction
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
 
 
 @app.post("/predict-match")
 def match_job(request: JobRequest):
     try:
+        # Convert the structured profile to the string format expected by the matching function
+        profile_str = format_profile(request.profile)
+
+        # Call the matching function
         best_job = match_jobs_to_applicant(
-            request.profile, request.applied_position, df)
+            profile_str,
+            request.applied_position,
+            df
+        )
         return best_job
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @app.post("/report", response_model=ReportResponse)
 async def generate_full_report(input_data: NSPDataDirectInput):
     """
     Generate a full report based on NSP data provided directly in the request.
-    
+
     Accepts data in the format:
     {
         "records": [
@@ -135,7 +167,7 @@ async def generate_full_report(input_data: NSPDataDirectInput):
     try:
         # Convert input data to DataFrame
         report_df = pd.DataFrame(input_data.records)
-        
+
         # Create analyzer
         analyzer = NSPAnalyzer(report_df)
 
@@ -143,7 +175,8 @@ async def generate_full_report(input_data: NSPDataDirectInput):
         subject_outcomes = analyzer.analyze_hiring_success()
 
         # Generate recommendations asynchronously
-        recommendations = generate_recommendations(subject_outcomes, GROQ_API_KEY)
+        recommendations = generate_recommendations(
+            subject_outcomes, GROQ_API_KEY)
 
         # Generate report in markdown (plain text)
         report_markdown = generate_report(subject_outcomes, recommendations)
@@ -161,7 +194,6 @@ async def generate_full_report(input_data: NSPDataDirectInput):
         raise HTTPException(status_code=500, detail=str(e))
 
 
- 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000,)
