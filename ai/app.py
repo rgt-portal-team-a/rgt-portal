@@ -14,8 +14,6 @@ from nsp_retention.nsp_analyzer import NSPAnalyzer, NSPVisualizer, generate_reco
 from nsp_retention.nsp_models import (    
     RecommendationRequest, RecommendationResponse, ReportResponse,
     AnalysisResponse, )
-
-
 from cv_screening.schemas import StageConfidence, ApplicantData, ApplicantPrediction
 from cv_screening.model_utils import initialize_models,predict_applicant_score
 from cv_screening.cv_processor import process_cv, create_cv_text
@@ -93,14 +91,6 @@ def predict(employee: EmployeeData):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-# @app.post("/match-job")
-# def match_job(request: JobRequest):
-#     try:
-#         best_job = match_jobs_to_applicant(
-#             request.profile, request.applied_position, df)
-#         return best_job
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
     
 
 @app.post("/predict-match")
@@ -112,76 +102,6 @@ def match_job(request: JobRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
-# @app.post("/analyze-", response_model=AnalysisResponse)         
-# async def analyze_nsp_data(file: UploadFile = File(..., description="Excel file containing NSP data")):
-#     try:
-#         # Read the uploaded Excel file
-#         content = await file.read()
-        
-#         # Load data into pandas DataFrame
-#         try:
-#             df = pd.read_excel(
-#                 io.BytesIO(content),
-#                 dtype={'Phone number': str}  # Ensure Phone number is read as string
-#             )
-#         except Exception as e:
-#             raise HTTPException(status_code=400, detail=f"Invalid Excel file: {str(e)}")
-        
-#         # Create analyzer
-#         analyzer = NSPAnalyzer(df)
-        
-#         # Analyze data
-#         subject_outcomes = analyzer.analyze_hiring_success()
-        
-#         # Get overall stats
-#         overall_stats = analyzer.get_overall_stats()
-        
-#         # Create visualizer
-#         visualizer = NSPVisualizer(analyzer.df)
-        
-#         # Generate visualizations
-#         success_rates_chart = visualizer.visualize_subject_success_rates()
-#         retention_chart = visualizer.visualize_retention_comparison()
-        
-#         # Generate recommendations
-#         recommendations = generate_recommendations(subject_outcomes, GROQ_API_KEY)
-        
-#         # Generate report
-#         report_markdown = generate_report(subject_outcomes, recommendations)
-        
-#         # Convert subject_outcomes DataFrame to list of dicts
-#         subject_outcomes_list = subject_outcomes.to_dict(orient='records')
-        
-#         return AnalysisResponse(
-#             subject_outcomes=subject_outcomes_list,
-#             overall_stats=overall_stats,
-#             success_rates_chart=success_rates_chart,
-#             retention_chart=retention_chart,
-#             recommendations=recommendations,
-#             report_markdown=report_markdown
-#         )
-        
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-# @app.post("/recommendations", response_model=RecommendationResponse) 
-# async def get_recommendations(request: RecommendationRequest = Body(..., description="Subject metrics data")):
-#     try:
-#         # Convert to DataFrame
-#         subject_data = pd.DataFrame(request.subject_data)
-        
-#         # Generate recommendations
-#         recommendations = generate_recommendations(subject_data, GROQ_API_KEY, request.top_n)
-        
-#         return RecommendationResponse(recommendations=recommendations)
-        
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-# # Endpoint to generate full report
 
 
 
@@ -221,41 +141,6 @@ async def generate_full_report(file: UploadFile = File(..., description="Excel f
         raise HTTPException(status_code=500, detail=str(e))
 
  
-
-
-
-@app.post("/predict-hiring-score/", response_model=ApplicantPrediction)
-async def predict_applicant(applicant_data: ApplicantData):
-    """Predict applicant score and stage using provided data"""
-    from cv_screening.model_utils import model
-    
-    if model is None:
-        raise HTTPException(
-            status_code=503, detail="Model not loaded. Please try again later.")
-
-    try:
-        # Create CV text from applicant data
-        cv_text = create_cv_text(applicant_data)
-
-        # Make prediction
-        score, stage, stage_confidences_data = predict_applicant_score(applicant_data, cv_text)
-        
-        # Create stage confidences objects
-        stage_confidences = [
-            StageConfidence(stage=conf["stage"], confidence=conf["confidence"])
-            for conf in stage_confidences_data
-        ]
-
-        return ApplicantPrediction(
-            position=applicant_data.position,
-            score=score,
-            predicted_stage=stage,
-            stage_confidences=stage_confidences
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Prediction error: {str(e)}")
 
  
 if __name__ == "__main__":
