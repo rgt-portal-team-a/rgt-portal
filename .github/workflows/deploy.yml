@@ -32,7 +32,7 @@ jobs:
             ecr_repo: rgt-portal-team-a/backend
           - service: client
             dockerfile: ./client/Dockerfile
-            ecr_repo: rgt-portal-team-a/frontend
+            ecr_repo: rgt-portal-team-a/client
 
     steps:
       - name: Checkout Code
