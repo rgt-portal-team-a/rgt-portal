@@ -12,7 +12,7 @@ const HomeOfficeHeadCount: React.FC = () => {
     useGetHeadcountByWorkType();
 
   const totalHeadcount =
-    data?.headCountData?.reduce((sum, item) => sum + Number(item.count), 0) ||
+    data?.headcountData?.reduce((sum, item) => sum + Number(item.count), 0) ||
     0;
 
   // Render Loading State
@@ -70,7 +70,7 @@ const HomeOfficeHeadCount: React.FC = () => {
   }
 
   // Render Empty State
-  if (!data || !data.headCountData || data.headCountData.length === 0) {
+  if (!data || !data.headcountData || data.headcountData.length === 0) {
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -123,7 +123,7 @@ const HomeOfficeHeadCount: React.FC = () => {
         <ResponsiveContainer width="100%" height={200}>
           <PieChart>
             <Pie
-              data={data.headCountData}
+              data={data.headcountData}
               cx="50%"
               cy="50%"
               innerRadius={50}
@@ -137,7 +137,7 @@ const HomeOfficeHeadCount: React.FC = () => {
                 })
               }
             >
-              {data.headCountData.map((entry, index) => (
+              {data.headcountData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
@@ -158,14 +158,14 @@ const HomeOfficeHeadCount: React.FC = () => {
 
         {/* Legend */}
         <div className="flex justify-center mt-4 space-x-4">
-          {data.headCountData.map((item, index) => (
+          {data.headcountData.map((item, index) => (
             <div key={index} className="flex items-center">
               <div
                 className="w-3 h-3 mr-2 rounded-full"
                 style={{ backgroundColor: item.color }}
               ></div>
               <span className="text-xs">
-                {item.type}:{" "}
+                {item.workType}:{" "}
                 {((Number(item.count) / totalHeadcount) * 100).toFixed(0)}%
               </span>
             </div>

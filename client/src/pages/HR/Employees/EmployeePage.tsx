@@ -24,8 +24,11 @@ import ProfileHeader from "@/components/Hr/EmployeePage/ProfileHeader";
 import ProfileTabs from "@/components/Hr/EmployeePage/ProfileTabs";
 import DetailsView from "@/components/Hr/EmployeePage/DetailsView";
 import ActivityView from "@/components/Hr/EmployeePage/ActivityView";
+import {useParams} from "react-router-dom"
+import { useEmployeeDetails } from "@/api/query-hooks/employee.hooks";
 
 const EmployeePage: React.FC = () => {
+  const { id } = useParams();
   const [activeTab, setActiveTab] = useState<"details" | "activity">("details");
   const [nodes, _setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -69,6 +72,8 @@ const EmployeePage: React.FC = () => {
       return;
     }
   };
+
+
 
   return (
     <div className="bg-slate-100 min-h-screen w-full p-4">

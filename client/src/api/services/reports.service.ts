@@ -4,6 +4,8 @@ import {
   SourceHireSuccessRateInterface,
   DropoutRateInterface,
   HeadcountByWorkTypeInterface,
+  HiringLadderInterface,
+  EmployeeCountByDepartmentInterface,
 } from "@/types/ai";
 import { ApiResponse } from "../types";
 
@@ -40,7 +42,22 @@ export const regularReportsService = {
   getHeadcountByWorkType: async (): Promise<HeadcountByWorkTypeInterface> => {
     const response = await reportApiClient.get<
       ApiResponse<HeadcountByWorkTypeInterface>
-    >("/headcount-worktype");
+    >("/employee-headcount-worktype");
     return response.data.data;
   },
+
+  getHiringLadder: async (): Promise<HiringLadderInterface> => {
+    const response = await reportApiClient.get<
+      ApiResponse<HiringLadderInterface>
+    >("/hiring-ladder");
+    return response.data.data;
+  },
+
+  getEmployeeCountByDepartment:
+    async (): Promise<EmployeeCountByDepartmentInterface> => {
+      const response = await reportApiClient.get<
+        ApiResponse<EmployeeCountByDepartmentInterface>
+      >("/employee-count-department");
+      return response.data.data;
+    },
 };
