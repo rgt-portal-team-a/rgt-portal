@@ -3,7 +3,7 @@ uvicorn
 pandas
 pydantic
 requests
-scikit-learn
+scikit-learn==1.6.1
 python-multipart
 pandas
 scipy

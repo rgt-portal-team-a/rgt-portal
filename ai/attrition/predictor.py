@@ -1,8 +1,11 @@
 import pickle
 import pandas as pd
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+
 # Model for input data validation
+
+
 class EmployeeData(BaseModel):
     age: int
     region: str
@@ -10,12 +13,25 @@ class EmployeeData(BaseModel):
     skills: List[str]
     department: str
     duration: float  # Duration in months (decimal value * 10)
+
+    @validator('work_mode')
+    def validate_work_mode(cls, v, values):
+        """Automatically set work_mode to Remote if region is not Greater Accra"""
+        if 'region' in values and values['region'].lower() != "greater accra":
+            return "Remote"
+        return v
+
 # Model for prediction response
+
+
 class PredictionResponse(BaseModel):
     attrition_probability: float
     risk_level: str
     assessment: str
+
 # Load the model
+
+
 def load_model():
     try:
         with open('attrition/best_tuned_model.pkl', 'rb') as file:
@@ -24,10 +40,14 @@ def load_model():
     except Exception as e:
         print(f"Error loading model: {e}")
         return None
+
 # Preprocess the input data
+
+
 def preprocess_data(employee: EmployeeData):
     # Convert skills list to comma-separated string
     skills_str = ",".join(employee.skills) if employee.skills else "None"
+
     # Create DataFrame from input data
     input_data = pd.DataFrame({
         'age': [employee.age],
@@ -38,16 +58,22 @@ def preprocess_data(employee: EmployeeData):
         'duration': [employee.duration]
     })
     return input_data
+
 # Make prediction
+
+
 def predict_attrition(employee: EmployeeData) -> PredictionResponse:
     # Load model
     model = load_model()
     if not model:
         raise Exception("Model could not be loaded")
+
     # Preprocess data
     input_data = preprocess_data(employee)
+
     # Get prediction probability
-    probability = int( float(model.predict_proba(input_data)[0][1]) * 100)
+    probability = int(float(model.predict_proba(input_data)[0][1]) * 100)
+
     # Determine risk level and assessment
     if probability >= 75:
         risk_level = "High Risk"
@@ -58,6 +84,7 @@ def predict_attrition(employee: EmployeeData) -> PredictionResponse:
     else:
         risk_level = "Low Risk"
         assessment = "This employee has a low probability of leaving in the near future."
+
     # Return prediction results
     return PredictionResponse(
         attrition_probability=probability,
