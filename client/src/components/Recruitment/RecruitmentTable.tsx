@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { RecruitmentType } from "@/lib/enums";
 import { debounce } from "lodash";
+import { Recruitment } from "@/types/recruitment";
 
 interface Column {
   key: string;
