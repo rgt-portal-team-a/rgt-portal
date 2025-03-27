@@ -4,7 +4,7 @@ import numpy as np
 import os
 from datetime import datetime
 from typing import List, Dict, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Define class labels
 CLASS_LABELS = {
@@ -18,7 +18,7 @@ CLASS_LABELS = {
     7: 'Position on Hold'
 }
 
-# Position and Source Mappings (from your data)
+# Position and Source Mappings
 POSITION_MAPPING = {
     'AI': 0, 'Admin': 1, 'Android Developer': 2, 'Android developer': 3,
     'Angular': 4, 'Angular + Node': 5, 'Backend Developer': 6, 'Blockchain': 7,
@@ -45,26 +45,31 @@ SOURCE_MAPPING = {
 
 
 class RawApplicantData(BaseModel):
-    source: str
-    position: str
-    status_due_date: str  # Format: "YYYY-MM-DD"
-    application_date: str  # Format: "YYYY-MM-DD"
-    updated_at: str       # Format: "YYYY-MM-DD HH:MM:SS"
-    phone_number: Optional[str] = None
-    email: Optional[str] = None
-    has_applied_before: bool
+    source: str = Field(..., description="Source of the application")
+    position: str = Field(..., description="Job position applied for")
+    statusDueDate: str = Field(
+        ..., description="Status due date in YYYY-MM-DD format", alias="statusDueDate")
+    date: str = Field(...,
+                      description="Application date in YYYY-MM-DD format", alias="date")
+    updatedAt: str = Field(
+        ..., description="Last update timestamp in YYYY-MM-DD HH:MM:SS format", alias="updatedAt")
+    phoneNumber: Optional[str] = Field(
+        None, description="Applicant's phone number", alias="phoneNumber")
+    email: Optional[str] = Field(None, description="Applicant's email address")
+    hasAppliedBefore: bool = Field(
+        ..., description="Has the applicant applied before", alias="hasAppliedBefore")
 
     class Config:
         json_schema_extra = {
             "example": {
                 "source": "LinkedIn",
                 "position": "Software Engineer",
-                "status_due_date": "2023-12-31",
-                "application_date": "2023-12-15",
-                "updated_at": "2023-12-20 14:30:00",
-                "phone_number": "+1234567890",
+                "statusDueDate": "2023-12-31",
+                "date": "2023-12-15",
+                "updatedAt": "2023-12-20 14:30:00",
+                "phoneNumber": "+1234567890",
                 "email": "applicant@example.com",
-                "has_applied_before": True
+                "hasAppliedBefore": True
             }
         }
 
@@ -88,8 +93,8 @@ class ProcessedApplicantData(BaseModel):
 
 class PredictionResult(BaseModel):
     predicted_stage: str
-    probability: float  # As percentage (0-100)
-    # Removed all_probabilities for simplicity
+    probability: float = Field(...,
+                               description="Prediction probability as percentage (0-100)")
 
 
 class DropoffPredictor:
@@ -110,32 +115,27 @@ class DropoffPredictor:
             raise RuntimeError(f"Failed to load model: {str(e)}")
 
     def _encode_source(self, source: str) -> int:
-        """Convert source string to encoded value using predefined mapping"""
-        return SOURCE_MAPPING.get(source, -1)  # Return -1 for unknown sources
+        return SOURCE_MAPPING.get(source, -1)
 
     def _encode_position(self, position: str) -> int:
-        """Convert position string to encoded value using predefined mapping"""
-        return POSITION_MAPPING.get(position, -1)  # Return -1 for unknown positions
+        return POSITION_MAPPING.get(position, -1)
 
     def _preprocess_raw_data(self, raw_data: List[RawApplicantData]) -> List[ProcessedApplicantData]:
         processed_list = []
 
         for item in raw_data:
-            # Parse dates
             try:
-                app_date = datetime.strptime(item.application_date, "%Y-%m-%d")
+                app_date = datetime.strptime(item.date, "%Y-%m-%d")
                 status_due_date = datetime.strptime(
-                    item.status_due_date, "%Y-%m-%d")
+                    item.statusDueDate, "%Y-%m-%d")
                 updated_at = datetime.strptime(
-                    item.updated_at, "%Y-%m-%d %H:%M:%S")
+                    item.updatedAt, "%Y-%m-%d %H:%M:%S")
             except ValueError as e:
                 raise ValueError(f"Invalid date format: {str(e)}")
 
-            # Calculate time differences
             days_to_status_due = (status_due_date - app_date).days
             days_to_decision = (updated_at - app_date).days
 
-            # Process features using the predefined mappings
             processed = {
                 "source": self._encode_source(item.source),
                 "clean_Position": self._encode_position(item.position),
@@ -148,8 +148,8 @@ class DropoffPredictor:
                 "status_due_date_Timestamp": int(status_due_date.timestamp()),
                 "updated_Timestamp": int(updated_at.timestamp()),
                 "days_to_decision": days_to_decision,
-                "has_phone_number": 1 if item.phone_number else 0,
-                "has_applied_before": 1 if item.has_applied_before else 0,
+                "has_phone_number": 1 if item.phoneNumber else 0,
+                "has_applied_before": 1 if item.hasAppliedBefore else 0,
                 "has_email": 1 if item.email else 0
             }
             processed_list.append(ProcessedApplicantData(**processed))
@@ -157,21 +157,14 @@ class DropoffPredictor:
         return processed_list
 
     def preprocess_input(self, input_data: List[ProcessedApplicantData]) -> pd.DataFrame:
-        """Convert processed data to DataFrame"""
         data_dicts = [item.dict() for item in input_data]
         return pd.DataFrame(data_dicts)[self.feature_order]
 
     def predict_from_raw(self, raw_data: List[RawApplicantData]) -> List[PredictionResult]:
-        """Make predictions from raw data"""
         processed_data = self._preprocess_raw_data(raw_data)
         return self._make_predictions(processed_data)
 
-    def predict_from_processed(self, processed_data: List[ProcessedApplicantData]) -> List[PredictionResult]:
-        """Make predictions from already processed data"""
-        return self._make_predictions(processed_data)
-
     def _make_predictions(self, processed_data: List[ProcessedApplicantData]) -> List[PredictionResult]:
-        """Internal prediction logic"""
         if not self.model:
             raise RuntimeError("Model not loaded")
 
@@ -184,11 +177,10 @@ class DropoffPredictor:
 
         probabilities = self.model.predict_proba(input_df)
 
-        results = []
-        for pred, prob in zip(predictions, probabilities):
-            max_prob_index = np.argmax(prob)
-            results.append(PredictionResult(
-                predicted_stage=CLASS_LABELS[max_prob_index],
-                probability=round(float(prob[max_prob_index]) * 100, 2)
-            ))
-        return results
+        return [
+            PredictionResult(
+                predicted_stage=CLASS_LABELS[np.argmax(prob)],
+                probability=round(float(np.max(prob)) * 100, 2)
+            )
+            for prob in probabilities
+        ]
