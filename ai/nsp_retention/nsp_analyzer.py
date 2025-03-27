@@ -33,7 +33,7 @@ class NSPAnalyzer:
         }
         
         # Apply mapping where exact matches exist
-        self.df['Standardized Program'] = self.df['Program'].apply(
+        self.df['Standardized Program'] = self.df['programOfStudy'].apply(
             lambda x: next((v for k, v in program_mapping.items() if k.lower() in x.lower()), x)
             if isinstance(x, str) else "Unknown"
         )
@@ -41,8 +41,8 @@ class NSPAnalyzer:
     def analyze_hiring_success(self):
         """Analyze hiring success rates by subject specialization"""
         # Clean up data
-        self.df['Program'] = self.df['Program'].fillna('Unknown')
-        self.df['Current status'] = self.df['Current status'].fillna('Unknown')
+        self.df['programOfStudy'] = self.df['programOfStudy'].fillna('Unknown')
+        self.df['currentStatus'] = self.df['currentStatus'].fillna('Unknown')
         
         # Standardize programs
         self.standardize_programs()
@@ -55,9 +55,9 @@ class NSPAnalyzer:
         
         for program, group in grouped:
             total_candidates = len(group)
-            hired = len(group[group['Current status'] == 'Hired'])
-            not_hired = len(group[group['Current status'] == 'Not Hired'])
-            offered_bootcamp = len(group[group['Current status'] == 'Offered Bootcamp'])
+            hired = len(group[group['currentStatus'] == 'Hired'])
+            not_hired = len(group[group['currentStatus'] == 'Not Hired'])
+            offered_bootcamp = len(group[group['currentStatus'] == 'Offered Bootcamp'])
             
             # Calculate success rates
             hire_rate = (hired / total_candidates * 100) if total_candidates > 0 else 0
@@ -122,7 +122,7 @@ class NSPVisualizer:
                 continue
                 
             total = len(group)
-            hired = len(group[group['Current status'] == 'Hired'])
+            hired = len(group[group['currentStatus'] == 'Hired'])
             hire_rate = (hired / total * 100) if total > 0 else 0
             
             program_stats.append({
@@ -198,7 +198,7 @@ class NSPVisualizer:
                 continue
                 
             # Count each outcome
-            outcomes = group['Current status'].value_counts().to_dict()
+            outcomes = group['currentStatus'].value_counts().to_dict()
             total = len(group)
             
             # Calculate percentages
@@ -251,9 +251,8 @@ class NSPVisualizer:
         img_str = base64.b64encode(buf.read()).decode('utf-8')
         return img_str
 
-
 def generate_recommendations(subject_data: pd.DataFrame, api_key: str, top_n: int = 3) -> List[str]:
-    """Generate recommendations using LangChain and Groq"""
+    """Generate recommendations using LangChain and Groq synchronously"""
     # Handle empty data
     if subject_data.empty or len(subject_data) < top_n:
         return ["Not enough data to generate recommendations."]
@@ -279,7 +278,7 @@ def generate_recommendations(subject_data: pd.DataFrame, api_key: str, top_n: in
             api_key=api_key
         )
         
-        # Use the chain-style invocation
+        # Invoke synchronously
         response = llm.invoke(prompt)
         
         # Get the response content
@@ -295,6 +294,7 @@ def generate_recommendations(subject_data: pd.DataFrame, api_key: str, top_n: in
         return recommendations
     except Exception as e:
         return [f"Error generating recommendations: {str(e)}"]
+
 
 
 def generate_report(subject_outcomes: pd.DataFrame, recommendations: List[str]) -> str:

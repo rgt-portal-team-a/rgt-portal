@@ -1,0 +1,49 @@
+services:
+  backend:
+    image: 330858616968.dkr.ecr.ap-south-1.amazonaws.com/rgt-portal-team-a/backend:backend
+    ports:
+      - 8080:8000
+    logging:
+      driver: 'awslogs'
+      options:
+        awslogs-region: 'ap-south-1'
+        awslogs-group: rgt-portal-team-a
+        awslogs-stream: backend
+    restart: always
+    env_file:
+      - .env
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  client:
+    image: 330858616968.dkr.ecr.ap-south-1.amazonaws.com/rgt-portal-team-a/client:client
+    ports:
+      - 3000:8080
+    logging:
+      driver: 'awslogs'
+      options:
+        awslogs-region: 'ap-south-1'
+        awslogs-group: rgt-portal-team-a
+        awslogs-stream: client
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    restart: always
+
+  ai:
+    image: 330858616968.dkr.ecr.ap-south-1.amazonaws.com/rgt-portal-team-a/ai:latest
+    ports:
+      - 8000:8000
+    logging:
+      driver: 'awslogs'
+      options:
+        awslogs-region: 'ap-south-1'
+        awslogs-group: rgt-portal-team-a
+        awslogs-stream: ai
+    env_file:
+      - .env
+    restart: always
