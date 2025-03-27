@@ -106,65 +106,67 @@ def extract_cv_info(text):
 
     chain = LLMChain(llm=llm, prompt=prompt)
 
-    result = None  # Initialize result variable
+    max_retries = 2  # Maximum number of retries
+    for attempt in range(max_retries):
+        try:
+            # Get response from Groq
+            result = chain.run(cv_text=text)
 
-    try:
-        # Get response from Groq
-        result = chain.run(cv_text=text)
+            # Try to extract JSON from the result if there's extra text
+            json_match = re.search(r'({.*})', result, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1)
+                cv_data = json.loads(json_str)
+            else:
+                # If no JSON pattern found, try to parse the whole result
+                cv_data = json.loads(result)
 
-        # Try to extract JSON from the result if there's extra text
-        json_match = re.search(r'({.*})', result, re.DOTALL)
-        if json_match:
-            json_str = json_match.group(1)
-            cv_data = json.loads(json_str)
-        else:
-            # If no JSON pattern found, try to parse the whole result
-            cv_data = json.loads(result)
+            # Return extracted information in the format expected by the rest of the application
+            return {
+                'name': cv_data.get('full_name', 'Not specified'),
+                'email': cv_data.get('email', 'Not specified'),
+                'phoneNumber': cv_data.get('phone', 'Not specified'),
+                'location': cv_data.get('location', 'Not specified'),
+                'currentTitle': cv_data.get('current_title', 'Not specified'),
+                'currentCompany': cv_data.get('current_company', 'Not specified'),
+                'totalYearsInTech': cv_data.get('total_years_in_tech', 'Not specified'),
+                'highestDegree': cv_data.get('highest_degree', 'Not specified'),
+                'programOfStudy': cv_data.get('program', 'Not specified'),
+                'university': cv_data.get('school', 'Not specified'),
+                'graduationYear': cv_data.get('graduation_year', 'Not specified'),
+                'technicalSkills': cv_data.get('technical_skills', 'Not specified').split(","),
+                'programmingLanguages': cv_data.get('programming_languages', 'Not specified').split(","),
+                'toolsAndTechnologies': cv_data.get('tools_and_technologies', 'Not specified').split(","),
+                'softSkills': cv_data.get('soft_skills', 'Not specified').split(","),
+                'industries': cv_data.get('industries', 'Not specified').split(","),
+                'certifications': cv_data.get('certifications', 'Not specified').split(","),
+                'keyProjects': cv_data.get('key_projects', 'Not specified').split(","),
+                'recentAchievements': cv_data.get('recent_achievements', 'Not specified').split(",")
+            }
 
-        # Return extracted information in the format expected by the rest of the application
-        return {
-            'name': cv_data.get('full_name', 'Not specified'),
-            'email': cv_data.get('email', 'Not specified'),
-            'phone': cv_data.get('phone', 'Not specified'),
-            'location': cv_data.get('location', 'Not specified'),
-            'current_title': cv_data.get('current_title', 'Not specified'),
-            'current_company': cv_data.get('current_company', 'Not specified'),
-            'total_years_in_tech': cv_data.get('total_years_in_tech', 'Not specified'),
-            'highest_degree': cv_data.get('highest_degree', 'Not specified'),
-            'program': cv_data.get('program', 'Not specified'),
-            'school': cv_data.get('school', 'Not specified'),
-            'graduation_year': cv_data.get('graduation_year', 'Not specified'),
-            'technical_skills': cv_data.get('technical_skills', 'Not specified'),
-            'programming_languages': cv_data.get('programming_languages', 'Not specified'),
-            'tools_and_technologies': cv_data.get('tools_and_technologies', 'Not specified'),
-            'soft_skills': cv_data.get('soft_skills', 'Not specified'),
-            'industries': cv_data.get('industries', 'Not specified'),
-            'certifications': cv_data.get('certifications', 'Not specified'),
-            'key_projects': cv_data.get('key_projects', 'Not specified'),
-            'recent_achievements': cv_data.get('recent_achievements', 'Not specified')
-        }
-
-    except Exception as e:
-        print(f"Error extracting information: {str(e)}")
-        if result is not None:
-            print(f"Raw response: {result}")
-        return {
-            'name': None,
-            'email': None,
-            'phone': None,
-            'location': None
-        }
+        except json.JSONDecodeError:
+            print(
+                "Error: Failed to decode JSON from the response. Please check the CV format.")
+            return {"error": "Invalid CV format."}
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {str(e)}")
+            if attempt == max_retries - 1:
+                return {"error": "An unexpected error occurred during CV extraction after multiple attempts."}
 
 
 def process_cv(file_path):
     """Process the CV file and return extracted information"""
+    if not os.path.isfile(file_path):
+        return {"error": "The specified file does not exist."}
     try:
         text = extract_text_from_file(file_path)
         cv_info = extract_cv_info(text)
         return cv_info
+    except ValueError as ve:
+        return {"error": str(ve)}
     except Exception as e:
         print(f"Error processing CV: {str(e)}")
-        return {"error": str(e)}
+        return {"error": "An unexpected error occurred while processing the CV."}
 
 
 def create_cv_text(applicant_data):

@@ -15,6 +15,7 @@ jobs:
   build-and-push-ecr:
     runs-on: ubuntu-latest
     continue-on-error: true
+    timeout-minutes: 45
     permissions:
       packages: write
       contents: write
@@ -65,14 +66,14 @@ jobs:
             ${{ github.sha }}
             ${{ matrix.service }}
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.ref }}-${{ github.sha }}-${{ matrix.service }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-${{ github.ref }}
-            ${{ runner.os }}-buildx
+      # - name: Cache Docker layers
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: /tmp/.buildx-cache
+      #     key: ${{ runner.os }}-buildx-${{ github.ref }}-${{ github.sha }}-${{ matrix.service }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-${{ github.ref }}
+      #       ${{ runner.os }}-buildx
 
       - name: Build and Push Docker Image to ECR
         uses: docker/build-push-action@v6
@@ -82,8 +83,8 @@ jobs:
           push: true
           builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ matrix.service }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          # cache-from: type=local,src=/tmp/.buildx-cache
+          # cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@0.29.0
