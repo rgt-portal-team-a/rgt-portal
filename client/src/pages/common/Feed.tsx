@@ -80,16 +80,9 @@ const Feed = () => {
   );
 
   return (
-    <main
-      className={`flex flex-col md:flex-row h-full md:space-x-[17px] pb-5 justify-end relative`}
-    >
-      <div
-        className="space-y-[18px] flex-1 overflow-y-auto"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
+    <main className={`flex w-full h-full pb-3`}>
+      {/* main screen */}
+      <div className="flex flex-col h-full flex-1 min-w-0">
         <Recognition
           recognitions={
             Array.isArray(recognitions?.data) ? recognitions?.data : []
@@ -97,44 +90,52 @@ const Feed = () => {
           isRecLoading={recsLoading}
         />
 
-        {/* Posts section */}
-        <section className="space-y-7">
-          <WithRole
-            roles={["hr", "marketer", "admin"]}
-            userRole={user?.role.name as string}
-          >
-            <CreatePost />
-          </WithRole>
+        <div
+          className="space-y-[18px] h-[80%] flex-1 overflow-y-auto mt-4"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
+          {/* Posts section */}
+          <section className="space-y-7 bg-white rounded-2xl">
+            <WithRole
+              roles={["hr", "marketer", "admin", "manager"]}
+              userRole={user?.role.name as string}
+            >
+              <CreatePost />
+            </WithRole>
 
-          <div className="space-y-3">
-            <header className="font-semibold text-lg text-[#706D8A] ">
-              For you
-            </header>
-            <div className="space-y-5">
-              {mergedFeed.length > 0 ? (
-                mergedFeed.map((item) => (
-                  <React.Fragment key={item.id}>
-                    {item.feedType === "post" ? (
-                      <Post post={item} postId={item.id} />
-                    ) : item.feedType === "poll" ? (
-                      <PollUI pollId={item.id} />
-                    ) : (
-                      <div>No post or poll data available</div>
-                    )}
-                  </React.Fragment>
-                ))
-              ) : (
-                <div className="flex w-full bg-slate-200 h-96 text-rgtpurple font-semibold justify-center items-center">
-                  <p>No posts available</p>
-                </div>
-              )}
+            <div className="space-y-3">
+              {/* <header className="font-semibold text-sm  px-4 bg-rgtpurple text-white w-fit rounded-xl shadow-md">
+                For you
+              </header> */}
+              <div className="space-y-5">
+                {mergedFeed.length > 0 ? (
+                  mergedFeed.map((item) => (
+                    <React.Fragment key={item.id}>
+                      {item.feedType === "post" ? (
+                        <Post post={item} postId={item.id} />
+                      ) : item.feedType === "poll" ? (
+                        <PollUI pollId={item.id} />
+                      ) : (
+                        <div>No post or poll data available</div>
+                      )}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <div className="flex w-full bg-slate-200 h-96 text-rgtpurple font-semibold justify-center items-center">
+                    <p>No posts available</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
-
+      {/* calendar */}
       <section
-        className="hidden custom1:flex space-y-10 w-[380px] overflow-y-auto "
+        className="hidden custom1:flex flex-col w-[380px] pl-4 h-full overflow-auto"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -144,29 +145,6 @@ const Feed = () => {
           <p className="font-bold text-lg text-[#706D8A] px-4 w-full">
             Upcoming Events
           </p>
-          {/* <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            initialFocus
-            modifiers={{
-              today: new Date(),
-            }}
-            modifiersClassNames={{
-              today: date ? "" : "bg-[#F8C74F] text-white",
-            }}
-            classNames={{
-              day_selected:
-                "bg-[#F8C74F] text-white hover:bg-[#F8C74F] focus:bg-[#F8C74F] rounded-full",
-              month: "flex flex-col space-y-3 flex-grow",
-              day: "w-8 h-8 font-medium rounded-full",
-              head_cell:
-                "w-8 flex-grow text-[#B5BEC6] font-semibold uppercase text-[10px]",
-              cell: "flex items-center justify-center flex-grow text-sm",
-            }}
-            className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-[348px] h-full"
-          /> */}
-
           <EnhancedCalendar
             events={processedEvents}
             selected={selectedDate}

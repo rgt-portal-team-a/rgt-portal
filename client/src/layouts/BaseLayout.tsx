@@ -9,7 +9,7 @@ import { useInitializeSharedData } from "@/hooks/useInitializeSharedData";
 import { useNotifications } from "@/api/query-hooks/notification";
 import { NotificationContainer } from "@/components/common/NotificationsContainer";
 import WithRole from "@/common/WithRole";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Employee } from "@/types/employee";
 import { employeeService } from "@/api/services/employee.service";
 import { debounce } from "lodash";
@@ -18,6 +18,13 @@ import ErrorMessage from "@/components/common/ErrorMessage";
 import CalendarIcon2 from "@/assets/icons/CalendarIcon2";
 import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
 import MobileBottomBar from "@/components/SideBar/MobileBottomBar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from "@/components/common/dropdown-menu";
 
 export const BaseLayout = () => {
   const { currentUser: user } = useAuthContextProvider();
@@ -42,7 +49,6 @@ export const BaseLayout = () => {
   const debouncedFetchSearchResults = useMemo(
     () =>
       debounce(async (query: string) => {
-        console.log("query:", query);
         if (!query) {
           setSearchResults([]);
           return;
@@ -51,7 +57,6 @@ export const BaseLayout = () => {
         try {
           setLoadingSearch(true);
           const results = await employeeService.getAllEmployees(query);
-          console.log("search results:", results);
           setSearchResults(results);
         } catch (error) {
           console.error("Failed to fetch search results:", error);
@@ -63,9 +68,9 @@ export const BaseLayout = () => {
     []
   );
   const [showCalendar, setShowCalendar] = useState(false);
+  const calendarRef = useRef<HTMLDivElement>(null);
   const handleCalendarShow = () => {
     setShowCalendar(!showCalendar);
-    console.log("calendar show?:", showCalendar);
   };
 
   useEffect(() => {
@@ -73,6 +78,24 @@ export const BaseLayout = () => {
       debouncedFetchSearchResults.cancel();
     };
   }, [debouncedFetchSearchResults]);
+
+  // outside click handler for calendar
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target as Node) &&
+        showCalendar
+      ) {
+        setShowCalendar(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCalendar]);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -124,10 +147,55 @@ export const BaseLayout = () => {
           <div className="">
             <img src="/RgtPortalLogo.svg" className="w-24" />
           </div>
+          {/* Mobile profile dropdown (shown only on small screens) */}
+          {/* <WithRole roles={["hr"]} userRole={user?.role.name as string}>
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 focus:outline-none">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.profileImage} />
+                      <AvatarFallback>
+                        {user?.employee.firstName}
+                        {user?.employee.lastName}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <span className="font-medium">
+                      Hello, {user?.username}!
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => navigate("/profile")}
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => navigate("/settings")}
+                  >
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-500"
+                    onClick={() => {
+                      // Add your logout logic here
+                    }}
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </WithRole> */}
         </div>
 
         <div className="flex w-full justify-end gap-3">
-          <div className="relative md:hidden w-full flex justify-end gap-6">
+          <div className="relative w-full flex justify-end gap-6">
             {/* Center section with search */}
             <div className="relative w-[400px]">
               <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
@@ -199,9 +267,9 @@ export const BaseLayout = () => {
               <CalendarIcon2 />
             </div>
             {showCalendar && (
-              <div className="absolute right-0 top-10">
+              <div className="absolute -right-3 top-10" ref={calendarRef}>
                 <div
-                  className="h-[620px] pb-3 overflow-auto border-gray-400 border- shadow-lg shadow-gray-600 rounded-2xl"
+                  className="h-[620px] w-[300px] pb-3 overflow-auto border-gray-400 border- shadow-lg shadow-gray-600 rounded-2xl"
                   style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",

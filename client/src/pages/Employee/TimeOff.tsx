@@ -276,6 +276,7 @@ export default function TimeOff() {
                     placeholder="From"
                     value={field.value}
                     onChange={(val) => setFieldValue("startDate", val)}
+                    
                   />
                   {touched.startDate && errors.startDate && (
                     <div className="text-red-500 text-xs mt-1">

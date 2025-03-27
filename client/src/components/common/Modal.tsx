@@ -38,19 +38,18 @@ export const SideFormModal = <T extends FormikValues>({
   onSubmit,
   submitBtnText = "Create",
   isSubmitting,
-  back,
+  // back,
   backFn,
 }: ISideFormModal<T>) => {
   return (
     <div
-      className="fixed inset-0  backdrop-blur-xs  flex items-start justify-end"
+      className="fixed inset-0 backdrop-blur-xs bg-black/50 flex items-start justify-end"
       style={{
         zIndex: 1010,
-        backdropFilter: "blur(4px)",
-        WebkitBackdropFilter: "blur(4px)",
       }}
+      onClick={backFn}
     >
-      {back && (
+      {/* {back && (
         <div className="relative h-screen flex flex-col justify-center p-5">
           <img
             src="/Down 2.svg"
@@ -58,7 +57,7 @@ export const SideFormModal = <T extends FormikValues>({
             onClick={backFn}
           />
         </div>
-      )}
+      )} */}
       <div className="bg-white shadow-lg  max-w-md w-full p-6 h-screen flex flex-col">
         <h2 className="text-xl font-semibold mb-4 text-[#706D8A]">{title}</h2>
 
@@ -94,7 +93,9 @@ export const SideFormModal = <T extends FormikValues>({
                     type={"submit"}
                     key={"Create"}
                     disabled={
-                      formikProps.isSubmitting || isSubmitting || !formikProps.isValid
+                      formikProps.isSubmitting ||
+                      isSubmitting ||
+                      !formikProps.isValid
                     }
                     className={`w-1/2 h-full rounded-[12px] bg-rgtpink  text-white cursor-pointer
                     ${isSubmitting ? "opacity-45" : "hover:bg-pink-500"}`}

@@ -1,6 +1,5 @@
-import { Notification, NotificationPreference } from "@/types/notifications";
+import { Notification, NotificationChannel, NotificationPreference, NotificationPreferenceUpdateDto, NotificationType } from "@/types/notifications";
 import defaultApiClient from "../axios";
-
 
 export const notificationApi = {
   getNotifications: async (): Promise<Notification[]> => {
@@ -9,24 +8,28 @@ export const notificationApi = {
   },
 
   getUnreadCount: async (): Promise<number> => {
-    const response = await defaultApiClient.get(`/api/notifications/unread-count`);
+    const response = await defaultApiClient.get(
+      `/api/notifications/unread-count`
+    );
     return response.data.count;
   },
 
   markAsRead: async (notificationId: string): Promise<Notification> => {
     const response = await defaultApiClient.put(
-        `/api/notifications/${notificationId}/read`
-    )
+      `/api/notifications/${notificationId}/read`
+    );
     return response.data.notification;
   },
 
   markAllAsRead: async (): Promise<void> => {
-      const response = await defaultApiClient.put(`/api/notifications/all/read`);
-      return response.data;
+    const response = await defaultApiClient.put(`/api/notifications/all/read`);
+    return response.data;
   },
 
   getPreferences: async (): Promise<NotificationPreference[]> => {
-    const response = await defaultApiClient.get(`/api/notifications/preferences`);
+    const response = await defaultApiClient.get(
+      `/api/notifications/preferences`
+    );
     return response.data.preferences;
   },
 
@@ -34,9 +37,17 @@ export const notificationApi = {
     preference: Partial<NotificationPreference>
   ): Promise<NotificationPreference> => {
     const response = await defaultApiClient.put(
-        `/api/notifications/preferences/${preference.id}`,
-        preference
+      `/api/notifications/preferences`,
+      preference
     );
     return response.data.preference;
+  },
+
+  getDefaultPreferences: (): NotificationPreferenceUpdateDto[] => {
+    return Object.values(NotificationType).map((type) => ({
+      notificationType: type,
+      channel: NotificationChannel.BOTH,
+      enabled: true,
+    }));
   },
 };

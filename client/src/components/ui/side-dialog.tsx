@@ -82,7 +82,7 @@ export const SideModal = ({
       <Dialog.Portal>
         {showOverlay && (
           <Dialog.Overlay
-            className={`fixed inset-0 backdrop-blur-xs transition-opacity duration-300 ease-in-out ${overlayClassName} ${
+            className={`fixed inset-0 backdrop-blur-xs bg-black/50 transition-opacity duration-300 ease-in-out ${overlayClassName} ${
               isOpen ? "opacity-100" : "opacity-0"
             }`}
             style={{

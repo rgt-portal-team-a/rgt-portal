@@ -171,7 +171,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
             "w-8 flex-grow text-[#B5BEC6] font-semibold uppercase text-[10px]",
           cell: "flex items-center justify-center flex-grow text-sm relative",
         }}
-        className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-[348px] h-full relative"
+        className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-full md:w-[348px] h-full relative"
         components={{
           Day: ({ date }) => {
             const dateKey = format(date, "yyyy-MM-dd");

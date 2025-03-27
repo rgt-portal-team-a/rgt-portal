@@ -122,7 +122,7 @@ const Post: React.FC<IFeed> = ({ post }) => {
     return <PostSkeleton />;
   }
 
-  console.log("StatsComments:", stats.comments);
+  // console.log("StatsComments:", stats.comments);
 
   return (
     <div className="flex flex-col p-4 rounded-lg shadow-md w-full bg-white">
@@ -218,7 +218,7 @@ const Post: React.FC<IFeed> = ({ post }) => {
       {/* Render the Media Modal */}
       {isMediaModalOpen && selectedMediaUrl && (
         <div
-          className="fixed inset-0 flex items-center justify-center backdrop-blur-sm"
+          className="fixed inset-0 flex items-center bg-black/50 justify-center backdrop-blur-sm"
           onClick={closeMediaModal}
           style={{ zIndex: 1200 }}
         >
@@ -244,7 +244,7 @@ const Post: React.FC<IFeed> = ({ post }) => {
             )}
             <div className="w-full flex justify-center pt-4">
               <button
-                className="text-lg font-semibold text-black cursor-pointer transition-colors duration-300 ease-in"
+                className="text-lg font-semibold text-white cursor-pointer transition-colors duration-300 ease-in"
                 onClick={closeMediaModal}
               >
                 Close

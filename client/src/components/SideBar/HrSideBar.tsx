@@ -1,12 +1,12 @@
 import { NavDropdown } from "./NavDropdown";
 import { NavLink } from "react-router-dom";
-import FeedIcon from "@/assets/icons/FeedIcon"
-import MessageIcon from "@/assets/icons/MessageIcon"
-import TimeIcon from "@/assets/icons/TimeIcon"
-import CalendarIcon from "@/assets/icons/CalendarIcon"
-import ChartIcon from "@/assets/icons/ChartIcon"
-import EmployeesIcon from "@/assets/icons/EmployeesIcon"
-import ProfileAdd2 from "@/assets/icons/ProfileAdd2"
+import FeedIcon from "@/assets/icons/FeedIcon";
+import MessageIcon from "@/assets/icons/MessageIcon";
+import TimeIcon from "@/assets/icons/TimeIcon";
+import CalendarIcon from "@/assets/icons/CalendarIcon";
+import ChartIcon from "@/assets/icons/ChartIcon";
+import EmployeesIcon from "@/assets/icons/EmployeesIcon";
+import ProfileAdd2 from "@/assets/icons/ProfileAdd2";
 
 export const HrSideBar = () => {
   const navItems = [
@@ -17,8 +17,16 @@ export const HrSideBar = () => {
       labelClassName: "ml-4",
       path: "/employees",
       items: [
-        { label: "Manage Employees", path: "manageemployees" },
-        { label: "All Departments", path: "alldepartments" },
+        {
+          label: "Manage Employees",
+          path: "manageemployees",
+          icon: EmployeesIcon,
+        },
+        {
+          label: "All Departments",
+          path: "alldepartments",
+          icon: EmployeesIcon,
+        },
       ],
     },
     {
@@ -27,8 +35,8 @@ export const HrSideBar = () => {
       labelClassName: "ml-4",
       path: "/time-off",
       items: [
-        { label: "My Time Off", path: "time-off" },
-        { label: "Employee Time Off", path: "emp-time-off" },
+        { label: "My Time Off", path: "time-off", icon: TimeIcon },
+        { label: "Employee Time Off", path: "emp-time-off", icon: TimeIcon },
       ],
     },
     {
@@ -37,8 +45,12 @@ export const HrSideBar = () => {
       labelClassName: "ml-3",
       path: "/hr/recruitment",
       items: [
-        { label: "FullTime", path: "/hr/recruitment/employee" },
-        { label: "NSS", path: "/hr/recruitment/nss" },
+        {
+          label: "FullTime",
+          path: "/hr/recruitment/employee",
+          icon: ProfileAdd2,
+        },
+        { label: "NSS", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
       ],
     },
     { icon: MessageIcon, label: "Messages", path: "messages" },
@@ -49,14 +61,22 @@ export const HrSideBar = () => {
       label: "Reports",
       path: "/reports",
       items: [
-        { label: "Regular Report", path: "/hr/reports/regularreport" },
-        { label: "Advanced Report", path: "/hr/reports/advancedreport" },
+        {
+          label: "Regular Report",
+          path: "/hr/reports/regularreport",
+          icon: ChartIcon,
+        },
+        {
+          label: "Advanced Report",
+          path: "/hr/reports/advancedreport",
+          icon: ChartIcon,
+        },
       ],
     },
   ];
 
   return (
-    <nav className="w-[280px] rounded-4xl h-fit text-center bg-white flex-col hidden md:flex">
+    <nav className="md:w-[280px] rounded-4xl h-fit text-center bg-white flex-col hidden sm:flex">
       <NavLink
         to="/hr/dashboard"
         end={true}
@@ -70,9 +90,9 @@ export const HrSideBar = () => {
             }`}
       >
         {({ isActive }) => (
-          <>
-            <span>HR Dashboard</span>
-            <div className="relative ml-2 w-6 h-6">
+          <div className="flex items-center justify-center gap-2">
+            <span className="hidden md:block">HR Dashboard</span>
+            <div className="relative w-6 h-6">
               <img
                 src="/Dashboard3.svg"
                 className={`absolute inset-0 w-full h-full transition-opacity duration-300 
@@ -84,7 +104,7 @@ export const HrSideBar = () => {
                     ${isActive ? "opacity-100" : "opacity-0"}`}
               />
             </div>
-          </>
+          </div>
         )}
       </NavLink>
       <div className=" pb-2.5 w-full text-center flex flex-col gap-3">
@@ -105,11 +125,7 @@ export const HrSideBar = () => {
               className={({ isActive }) => `
             relative flex items-center gap-3 px-4 py-2.5 
             transition-colors duration-200 
-            ${
-              isActive
-                ? " text-purple-600 font-bold"
-                : " hover:bg-gray-50"
-            }
+            ${isActive ? " text-purple-600 font-bold" : " hover:bg-gray-50"}
             `}
             >
               {({ isActive }) => (
@@ -121,7 +137,9 @@ export const HrSideBar = () => {
                   />
                   {/* <img src={item.icon} className="h-6 w-6 mr-4" /> */}
                   {isActive ? <item.icon color="#9810fa" /> : <item.icon />}
-                  <span className="text-sm font-medium ml-4">{item.label}</span>
+                  <span className="text-sm font-medium ml-4 hidden md:block">
+                    {item.label}
+                  </span>
                 </>
               )}
             </NavLink>

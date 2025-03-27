@@ -46,7 +46,7 @@ export const SideFormModal = <T extends FormikValues>({
 }: ISideFormModal<T>) => {
   return (
     <div
-      className="fixed inset-0  backdrop-blur-xs  flex items-start justify-end"
+      className="fixed inset-0  backdrop-blur-xs bg-black/50  flex items-start justify-end"
       style={{ zIndex: 170 }}
     >
       {back && (

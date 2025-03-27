@@ -47,7 +47,7 @@ const Upcoming_SpecialCard = () => {
   return (
     <>
       <section
-        className="custom1:flex space-y-10 w-[380px] overflow-y-auto "
+        className="custom1:flex space-y-10 w-full md:w-[380px] overflow-y-auto "
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -99,7 +99,7 @@ const Upcoming_SpecialCard = () => {
               </p>
               <ArrowIcon className="hover:bg-slate-200 rounded-full transition-all duration-300 ease-in rotate-360 cursor-pointer" />
             </div>
-            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 ">
+            <div className="flex flex-col md:grid grid-cols-2 gap-3 ">
               {announcements.length > 0 ? (
                 announcements.map((announcement) => (
                   <AnnouncementCard

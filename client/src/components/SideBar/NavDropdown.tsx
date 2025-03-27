@@ -6,6 +6,7 @@ import { IconTypes } from "@/assets/icons/types";
 interface Item {
   path: string;
   label: string;
+  icon: React.FC<IconTypes>;
 }
 
 interface INavDropdown {
@@ -16,11 +17,15 @@ interface INavDropdown {
   iconClassName?: string;
   labelClassName?: string;
   itemlabelClassName?: string;
+  activeBgClr: string;
+  activeTxtClr: string;
 }
 
 export const NavDropdown = ({
   items,
   icon,
+  activeBgClr,
+  activeTxtClr,
   label = "Select an option",
   className = "",
   labelClassName = "",
@@ -33,16 +38,18 @@ export const NavDropdown = ({
 
   useEffect(() => {
     const currentPath = location.pathname.toLowerCase();
-    
-    const isAnyChildActive = items.some(item => {
-      const itemPath = item.path.toLowerCase().replace(/^\/|\/$/g, '');
-      
-      return currentPath === `/${itemPath}` || 
-             currentPath === itemPath || 
-             currentPath.startsWith(`/${itemPath}/`) ||
-             (currentPath.endsWith(`/${itemPath}`) && currentPath.includes(itemPath));
+
+    const isAnyChildActive = items.some((item) => {
+      const itemPath = item.path.toLowerCase().replace(/^\/|\/$/g, "");
+
+      return (
+        currentPath === `/${itemPath}` ||
+        currentPath === itemPath ||
+        currentPath.startsWith(`/${itemPath}/`) ||
+        (currentPath.endsWith(`/${itemPath}`) && currentPath.includes(itemPath))
+      );
     });
-    
+
     setHasActiveChild(isAnyChildActive);
   }, [location, items]);
 
@@ -51,31 +58,45 @@ export const NavDropdown = ({
   };
 
   return (
-    <div className={`relative w-full ${className}`}>
-      <div 
+    <div className={`relative w-full py-2 ${className}`}>
+      <div
         onClick={toggleDropdown}
-        className="relative flex items-center gap-3 px-4 py-2.5 transition-colors duration-200 cursor-pointer justify-between"
+        className={`relative flex items-center gap-3 transition-colors duration-200 cursor-pointer text-slate-500 ${
+          hasActiveChild ? "text-[#E328AF]" : "hover:bg-gray-100"
+        }`}
       >
         {/* Left accent bar - shows when any child is active */}
         <span
-          className={`absolute left-0 top-0 h-full w-[5px] rounded-r-xl transition-all
-          ${hasActiveChild ? "bg-purple-600" : "bg-transparent"}`}
+          className={`h-[30px] w-[5px] rounded-r-xl transition-all
+              ${hasActiveChild ? `${activeBgClr}` : "bg-transparent"}`}
         />
-        
-        <div className="flex items-center gap-3">
-          {hasActiveChild ? <IconComponent color="#9810fa" /> : <IconComponent />}
-          <span className={`text-sm ${labelClassName} ${hasActiveChild ? "text-purple-600 " : ""}`}>{label}</span>
+        <div className="w-fit flex">
+          <div className="flex items-center gap-3">
+            {hasActiveChild ? (
+              <IconComponent color="#ea5e9c" size={24} />
+            ) : (
+              <IconComponent size={24} />
+            )}
+            <span
+              className={`hidden md:block text-base font-semibold ${labelClassName} ${
+                hasActiveChild ? activeTxtClr : ""
+              }`}
+            >
+              {label}
+            </span>
+          </div>
         </div>
-        
+
         <ChevronDown
-          className={`h-5 w-5 transition-transform duration-200 ${
+          className={`transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
-          }`}
+          } ${hasActiveChild ? activeTxtClr : ""}`}
+          size={24}
         />
       </div>
 
       <div
-        className={`overflow-hidden w-full transition-all duration-500 ease-in-out
+        className={`absolute overflow-hidden w-full transition-all duration-500 ease-in-out
           ${isOpen ? "max-h-96" : "max-h-0"}`}
       >
         <div
@@ -92,18 +113,17 @@ export const NavDropdown = ({
                 key={index}
                 to={item.path}
                 className={({ isActive }) => `
-                  flex items-center gap-3 px-4 py-2.5 rounded-lg
+                  flex items-center md:gap-3 px-4 py-1 rounded-lg
                   transition-all duration-300 font-medium
-                  ${
-                    isActive
-                      ? " text-purple-600"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }
+                  ${isActive ? activeTxtClr : "text-gray-600 hover:bg-gray-50"}
                 `}
                 // onClick={() => setIsOpen(false)}
               >
-                <Dot className="h-6 w-6 transition-all ease-in-out duration-300" />
-                <p className={itemlabelClassName}>{item.label}</p>
+                <Dot className=" h-6 w-6 transition-all ease-in-out duration-300" />
+                <p className={`hidden md:block ${itemlabelClassName}`}>
+                  {item.label}
+                </p>
+                <div className="md:hidden">{<item.icon size={18} />}</div>
               </NavLink>
             ))}
           </div>
