@@ -57,6 +57,8 @@ const authMiddleware = new AuthMiddleware();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
+
+
 // MIDDLEWARE
 app.use(cors(_cors));
 app.use(session(_session));
