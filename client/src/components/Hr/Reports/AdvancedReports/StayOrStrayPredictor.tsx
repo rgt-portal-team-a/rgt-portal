@@ -13,7 +13,6 @@ import {
 import { LineChart, Line } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
 import { RefreshCw, Loader2, AlertCircle } from "lucide-react";
-import { debounce } from "lodash";
 import { Employee, WorkType } from "@/types/employee";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";

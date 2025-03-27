@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState,useEffect, useCallback, memo } from "react";
 import { Field, FieldArray, FieldInputProps } from "formik";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Plus, Trash } from "lucide-react";
@@ -57,6 +57,8 @@ const EventForm = memo(
       {}
     );
     const [hasOpened, setHasOpened] = useState(false);
+    const [hasEmployeePopoverOpened, setEmployeePopoverHasOpened] = useState(false);
+    const [employeePopoverOpen, setEmployeePopoverOpen] = useState(false);
 
     const handlePopoverOpenChange = useCallback(
       (index: number, open: boolean) => {
@@ -67,6 +69,8 @@ const EventForm = memo(
       },
       []
     );
+
+
 
 
 
@@ -158,7 +162,11 @@ const EventForm = memo(
                             onSelect={(date) => {
                               form.setFieldValue(field.name, date);
                             }}
-                            disabled={(date) => date < new Date("1900-01-01")}
+                            disabled={(date: Date) =>
+                              date < new Date() &&
+                              date.setHours(0, 0, 0, 0) <
+                                new Date().setHours(0, 0, 0, 0)
+                            }
                             initialFocus
                           />
                         </PopoverContent>
@@ -180,50 +188,63 @@ const EventForm = memo(
                 <Field name="employeeId">
                   {({
                     field,
-                    form: { values, touched, errors, setFieldValue },
+                    form: { values, touched, errors, setFieldValue, setFieldTouched },
                   }: {
                     field: FieldInputProps<string>;
                     form: any;
                   }) => {
-                    console.log("Form Value For employeeId", values.employeeId);
+
                     return (
                       <div className="flex flex-col space-y-2">
-                        <label
-                          htmlFor="employeeId"
-                          className="text-sm font-semibold text-gray-700 mb-1 block"
-                        >
+                        <label className="text-sm font-semibold text-gray-700 mb-1 block">
                           Employee
                         </label>
-                        <Popover open={open} onOpenChange={setOpen}>
+                        <Popover
+                          open={employeePopoverOpen || false}
+                          onOpenChange={(open) => {
+                            setEmployeePopoverOpen(open);
+                          }}
+                        >
                           <PopoverTrigger asChild>
-                            <div className="relative">
-                              <Input
-                                id="employeeId"
-                                value={
-                                  selectedEmployee
-                                    ? `${selectedEmployee.firstName} ${selectedEmployee.lastName}`
-                                    : ""
+                            <Button
+                              variant="outline"
+                              className={`w-full justify-start text-left font-normal py-6 px-4 bg-gray-100 ${
+                                touched.employeeId && errors.employeeId
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                setEmployeePopoverOpen(open);
+                                setEmployeePopoverHasOpened(true);
+                              }}
+                              onBlur={() => {
+                                if (!hasOpened) {
+                                  setFieldTouched(
+                                    field.name,
+                                    true
+                                  );
                                 }
-                                onChange={(_e) => {
-                                  setOpen(true);
-                                }}
-                                onClick={() => setOpen(true)}
-                                placeholder="Select employee"
-                                className={`w-full bg-gray-100 placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-rgtpurpleaccent3 py-6 px-4 ${
-                                  touched.employeeId && errors.employeeId
-                                    ? "border-red-500"
-                                    : ""
-                                }`}
-                              />
-                              {touched.employeeId && errors.employeeId && (
-                                <div className="text-red-500 text-sm mt-1">
-                                  {errors.employeeId}
-                                </div>
-                              )}
-                            </div>
+                              }}
+                            >
+                              {values.employeeId ? `${
+                                                      users.find(
+                                                        (u) =>
+                                                          u.id ===
+                                                          values.employeeId
+                                                      )?.firstName
+                                                    } ${
+                                                      users.find(
+                                                        (u) =>
+                                                          u.id ===
+                                                          values.employeeId
+                                                      )?.lastName
+                                                    }`
+                                                  : "Select Employee"
+                                }
+                            </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[370px] p-0 z-[2000]"
+                            className="w-[370px] p-0 z-[2020]"
                             align="start"
                           >
                             <Command>
@@ -240,14 +261,13 @@ const EventForm = memo(
                                           field.name,
                                           employee.id.toString()
                                         );
-                                        setSelectedEmployee(employee);
-                                        setOpen(false);
+                                        setEmployeePopoverOpen(false);
                                       }}
                                     >
                                       <div className="flex justify-between w-full py-[13px]">
                                         <div className="flex gap-2 items-center">
                                           <UserIcon />
-                                          <span className="flex">
+                                          <span>
                                             {employee.firstName}{" "}
                                             {employee.lastName}
                                           </span>
@@ -264,11 +284,15 @@ const EventForm = memo(
                             </Command>
                           </PopoverContent>
                         </Popover>
+                        {touched.employeeId && errors.employeeId && (
+                          <div className="text-red-500 text-sm mt-1">
+                            {errors.employeeId}
+                          </div>
+                        )}
                       </div>
                     );
                   }}
                 </Field>
-
                 <Field name="date">
                   {({
                     field,
@@ -315,8 +339,10 @@ const EventForm = memo(
                             onSelect={(date) => {
                               form.setFieldValue(field.name, date);
                             }}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
+                            disabled={(date: Date) =>
+                              date < new Date() &&
+                              date.setHours(0, 0, 0, 0) <
+                                new Date().setHours(0, 0, 0, 0)
                             }
                             initialFocus
                           />
@@ -337,7 +363,7 @@ const EventForm = memo(
             return <div>No Special Event type Selected</div>;
         }
       },
-      [open, selectedEmployee, setSelectedEmployee, users]
+      [open, selectedEmployee,employeePopoverOpen, setSelectedEmployee, users]
     );
 
     const renderFormFields = useCallback(
@@ -495,6 +521,11 @@ const EventForm = memo(
                               onSelect={(date) => {
                                 form.setFieldValue(field.name, date);
                               }}
+                              disabled={(date: Date) =>
+                                date < new Date() &&
+                                date.setHours(0, 0, 0, 0) <
+                                  new Date().setHours(0, 0, 0, 0)
+                              }
                               initialFocus
                             />
                           </PopoverContent>
@@ -783,7 +814,7 @@ const EventForm = memo(
                           onClick={() =>
                             push({ employeeId: "", projectName: "" })
                           }
-                          className="text-rgtpurpleaccent2 text-sm py-2 items-center justify-start hover:underline"
+                          className="text-purple-500 text-sm py-2 items-center justify-start hover:underline"
                         >
                           <Plus />
                           Add Another
