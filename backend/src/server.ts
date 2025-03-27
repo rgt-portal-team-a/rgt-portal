@@ -35,7 +35,6 @@ import { SchedulerService } from "@/services/scheduler.service";
 const app = express();
 const httpServer = createServer(app);
 
-app.set("trust proxy", true);
 
 export const io: SocketIOServer = require("socket.io")(httpServer, {
   serveClient: true,
@@ -68,6 +67,8 @@ app.use(checkDatabaseConnection);
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// LOG REQUEST CREDETIALS OF CLIENT
 
 // ROUTES
 app.use(rootRoutes);
