@@ -543,7 +543,7 @@ export class RecruitmentService {
         .addSelect("COUNT(employee.id)", "count")
         .groupBy("employee.workType")
         .getRawMany();
-      
+
       // Todo : change the null to hybrid
       headcountData.forEach((item) => {
         if (item.workType === null) {
@@ -557,7 +557,6 @@ export class RecruitmentService {
           color: this.getRandomColor(item.workType),
         })),
       };
-
     } catch (error) {
       this.logger.error("Error fetching employee head count by work type data:", error);
       throw error;
@@ -627,18 +626,18 @@ export class RecruitmentService {
       }
 
       const employeeCountData = await queryBuilder
-        .select("department.name", "department") 
+        .select("department.name", "department")
         .addSelect("COUNT(employee.id)", "count")
         .groupBy("department.name")
         .getRawMany();
-      
+
       // Todo : chage the  null for department to Other
       employeeCountData.forEach((item) => {
         if (item.department === null) {
           item.department = "Not Assigned";
         }
       });
-      
+
       const totalEmployeeCount = await this.employeeRepository.count();
 
       return {
@@ -662,7 +661,7 @@ export class RecruitmentService {
     } catch (error) {
       this.logger.error("Error setting all employees to hybrid:", error);
       throw error;
-    } 
+    }
   }
 
   private getRandomColor(str: string): string {
@@ -673,5 +672,34 @@ export class RecruitmentService {
 
     const hue = hash % 360;
     return `hsl(${hue}, 70%, 50%)`;
+  }
+
+  async getEmployeeHiringTrendsOverTime(startDate?: Date, endDate?: Date): Promise<Array<{ month: string; count: number }>> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      queryBuilder.where("recruitment.currentStatus = :hiredStatus", {
+        hiredStatus: RecruitmentStatus.HIRED,
+      });
+
+      if (startDate && endDate) {
+        queryBuilder.andWhere("recruitment.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const hiringTrendsData = await queryBuilder
+        .select("to_char(recruitment.createdAt, 'YYYY Month')", "month")
+        .addSelect("COUNT(recruitment.id)", "count")
+        .groupBy("month")
+        .orderBy("month")
+        .getRawMany();
+
+      return hiringTrendsData;
+    } catch (error) {
+      this.logger.error("Error fetching employee hiring trends over time data:", error);
+      throw error;
+    }
   }
 }

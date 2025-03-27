@@ -65,4 +65,10 @@ recruitmentReportRouter.post(
   recruitmentReportController.setAllEmployeesToHybrid
 );
 
+// Employee Hiring Trends Over Time
+recruitmentReportRouter.get(
+  "/employee-hiring-trends",
+  recruitmentReportController.getEmployeeHiringTrendsOverTime
+);
+
 export default recruitmentReportRouter; 

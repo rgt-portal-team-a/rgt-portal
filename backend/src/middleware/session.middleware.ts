@@ -9,10 +9,10 @@ export const session = {
   resave: false,
   saveUninitialized: true,
   store: sessionStore,
-  // cookie: {
-  //   maxAge: 72 * 60 * 60 * 1000,
-    // httpOnly: true,
-  //   secure: process.env.NODE_ENV !== "development",
-    // sameSite: "none",
-  // },
+  cookie: {
+    maxAge: 72 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  },
 } as SessionOptions;
