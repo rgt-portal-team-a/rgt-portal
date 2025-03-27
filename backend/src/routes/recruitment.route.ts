@@ -69,3 +69,6 @@ recruitmentRouter.post(
 
 
 export default recruitmentRouter;
+
+
+// localhost:8000/api/recruitment/batch
