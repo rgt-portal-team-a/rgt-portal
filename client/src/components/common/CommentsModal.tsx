@@ -66,7 +66,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
   if (!isOpen) return null;
   return (
     <div
-      className="fixed inset-0 backdrop-blur-xs bg-opacity-50 flex justify-center items-center py-15"
+      className="fixed inset-0 backdrop-blur-xs bg-black/30 flex justify-center items-center py-15"
       style={{ zIndex: "100" }}
     >
       <div className="bg-white rounded-[30px] p-4 relative flex justify-center gap-3 h-[444px] w-[90%] md:w-[80%] lg:w-[1027px] border-2 border-gray-200 ">

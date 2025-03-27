@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Field } from "formik";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,10 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FormField } from "@/types/recruitment";
 
 export const renderField = (
   field: FormField,
-  { values, touched, errors, setFieldValue }: any
+  { values, touched, errors, setFieldValue }: any,
+  additionalProps: Record<string, any> = {}
 ) => {
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -39,11 +42,18 @@ export const renderField = (
               </SelectTrigger>
               <SelectContent className="z-[2000]">
                 <SelectGroup>
-                  {field.options?.map((option, index) => (
-                    <SelectItem key={index} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
+                  {(additionalProps.options || field.options)?.map(
+                    (option: any, index: number) => (
+                      <SelectItem
+                        key={index}
+                        value={
+                          typeof option === "object" ? option.value : option
+                        }
+                      >
+                        {typeof option === "object" ? option.label : option}
+                      </SelectItem>
+                    )
+                  )}
                 </SelectGroup>
               </SelectContent>
             </Select>

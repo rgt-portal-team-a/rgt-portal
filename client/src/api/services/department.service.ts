@@ -1,4 +1,4 @@
-import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, Department, DepartmentQueryParams } from '@/types/department';
+import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, Department, DepartmentQueryParams, UpdateDepartmentDTO } from '@/types/department';
 import { createApiClient } from '../axios';
 import { ApiResponse } from '../types';
 
@@ -17,6 +17,17 @@ export const departmentService = {
   ): Promise<CreateDepartmentDTO> => {
     const response = await departmentApiClient.post<CreateDepartmentDTO>(
       '/',
+      data
+    );
+    return response.data;
+  },
+
+  updateDepartment: async (
+    id: string,
+    data: UpdateDepartmentDTO
+  ): Promise<ApiResponse<Department>> => {
+    const response = await departmentApiClient.put<ApiResponse<Department>>(
+      `/${id}`,
       data
     );
     return response.data;

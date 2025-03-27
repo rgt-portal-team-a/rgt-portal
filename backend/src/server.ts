@@ -20,6 +20,7 @@ import {
   rootRoutes,
   fileUploaderRoutes,
   recruitmentRoutes,
+  recruitmentReportRoutes,
   projectRoutes,
   departmentRoutes,
   userRoutes,
@@ -79,6 +80,7 @@ app.use("/api/event", eventRoutes);
 app.use("/api/polls", pollRoutes);
 app.use("/api/file", fileUploaderRoutes);
 app.use("/api/recruitment", recruitmentRoutes);
+app.use("/api/reports", recruitmentReportRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/user/auth", userRoutes);

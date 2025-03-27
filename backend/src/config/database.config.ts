@@ -68,6 +68,6 @@ export const databaseConfig: DataSourceOptions = {
   ],
   migrations: ["src/migrations/**/*.ts"],
   synchronize: process.env.NODE_ENV !== "development",   
-  // synchronize: false,
+  // synchronize: true,
   // logging: process.env.NODE_ENV !== "production",
 };
