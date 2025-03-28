@@ -17,7 +17,6 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
   name,
   leadName,
   id,
-  includeBgImg,
 }) => {
   const maxVisible = 3;
   const extraCount = employees.length - maxVisible;
@@ -123,7 +122,7 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
         )}
       </div>
 
-      {/* Background Image (Gradient Splash) */}
+      {/* Background Image (Gradient Splash)
       {includeBgImg && (
         <div className="absolute  translate-x-56 top-1/7 h-full w-1/2  pointer-events-none opacity-50 ">
           <img
@@ -131,7 +130,7 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
             style={{ width: "130px", height: "135px" }}
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 };

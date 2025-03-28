@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
 import FeedIcon from "@/assets/icons/FeedIcon";
-// import MessageIcon from "@/assets/icons/MessageIcon"
 import TimeIcon from "@/assets/icons/TimeIcon";
 import CalendarIcon from "@/assets/icons/CalendarIcon";
 import ChartIcon from "@/assets/icons/ChartIcon";
@@ -76,7 +75,7 @@ export const HrSideBar = () => {
   ];
 
   return (
-    <nav className="w-[280px] rounded-2xl pb-4 h-fit text-center bg-white flex-col hidden md:flex">
+    <nav className="md:w-[280px] rounded-4xl h-full text-center bg-white flex-col hidden sm:flex">
       <NavLink
         to="/hr/dashboard"
         end={true}
@@ -114,19 +113,16 @@ export const HrSideBar = () => {
               items={item.items}
               label={item.label}
               icon={item.icon}
-              activeBgClr=""
-              activeTabClr=""
-              activeTxtClr=""
-              className="w-48 "
-              labelClassName={item.labelClassName}
-              itemlabelClassName="ml-6 text-sm"
+              activeBgClr="bg-rgtviolet"
+              activeTxtClr="text-rgtviolet"
+              activeTabClr="#6418c3"
             />
           ) : (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) => `
-            relative flex items-center gap-3 px-4 py-2.5 
+            relative flex items-center gap-3  py-2.5 
             transition-colors duration-200 
             ${isActive ? " text-purple-600 font-bold" : " hover:bg-gray-50"}
             `}
@@ -135,12 +131,16 @@ export const HrSideBar = () => {
                 <>
                   {/* Left accent bar */}
                   <span
-                    className={`absolute left-0 top-0 h-full w-[5px] rounded-r-xl transition-all 
+                    className={`h-[30px] w-[5px] rounded-r-xl transition-all 
                     ${isActive ? "bg-purple-600" : "bg-transparent"}`}
                   />
                   {/* <img src={item.icon} className="h-6 w-6 mr-4" /> */}
-                  {isActive ? <item.icon color="#9810fa" /> : <item.icon />}
-                  <span className="text-sm font-medium ml-4 hidden md:block">
+                  {isActive ? (
+                    <item.icon color="#9810fa" size={26} />
+                  ) : (
+                    <item.icon size={24} color="gray" />
+                  )}
+                  <span className="text-base font-semibold hidden md:block">
                     {item.label}
                   </span>
                 </>

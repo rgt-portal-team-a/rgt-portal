@@ -16,50 +16,23 @@ import { Switch } from "@/components/common/Switch";
 import { NotificationChannel, NotificationType } from "@/types/notifications";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreference";
-// import { useQueryClient } from "@tanstack/react-query";
-// import { toast } from "@/hooks/use-toast";
-// import { Employee } from "@/types/employee";
-// import { User } from "@/types/authUser";
+import { useUpdateUser } from "@/api/query-hooks/auth.hooks";
 
 export function ProfilePage() {
   const { currentUser: user } = useAuthContextProvider();
+  const updateUserMutation = useUpdateUser();
   const { preferences, isLoading, updatePreference, isUpdating } =
     useNotificationPreferences();
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({
-    username: user?.username || "",
+    id: user?.employee.id || "",
+    username: user?.username || 0,
     email: user?.email || "",
     profileImage: user?.profileImage || "",
     firstName: user?.employee?.firstName || "",
     lastName: user?.employee?.lastName || "",
     phone: user?.employee?.phone || "",
   });
-  // const queryClient = useQueryClient();
-
-  // const updateUserMutation = useMutation({
-  //   mutationFn: async (
-  //     updatedData: Partial<User & { employee: Partial<Employee> }>
-  //   ) => {
-  //     if (!user?.id) throw new Error("User not authenticated");
-  //     return await userApi.updateUser(user.id, updatedData);
-  //   },
-  //   onSuccess: (updatedUser) => {
-  //     setCurrentUser(updatedUser);
-  //     queryClient.invalidateQueries({ queryKey: ["user", user?.id] });
-  //     toast({
-  //       title: "Profile updated successfully",
-  //       variant: "default",
-  //     });
-  //     setIsEditing(false);
-  //   },
-  //   onError: (error) => {
-  //     toast({
-  //       title: "Failed to update profile",
-  //       description: error instanceof Error ? error.message : "Unknown error",
-  //       variant: "destructive",
-  //     });
-  //   },
-  // });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -75,18 +48,23 @@ export function ProfilePage() {
     }
   };
 
-  // const handleSave = () => {
-  //   updateUserMutation.mutate({
-  //     username: editedUser.username,
-  //     email: editedUser.email,
-  //     profileImage: editedUser.profileImage,
-  //     employee: {
-  //       firstName: editedUser.firstName,
-  //       lastName: editedUser.lastName,
-  //       phone: editedUser.phone,
-  //     },
-  //   });
-  // };
+  const handleSave = async () => {
+    try {
+      
+      await updateUserMutation.mutateAsync({
+        id: Number(editedUser.id),
+        username: String(editedUser.username),
+        email: editedUser.email,
+        profileImage: editedUser.profileImage,
+        firstName: editedUser.firstName,
+        lastName: editedUser.lastName,
+        phone: editedUser.phone,
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update user:", error);
+    }
+  };
 
   const handleChannelChange = (
     type: NotificationType,
@@ -157,7 +135,7 @@ export function ProfilePage() {
               <Button
                 size="sm"
                 className="text-xs md:text-sm"
-                // onClick={handleSave}
+                onClick={handleSave}
                 // disabled={updateUserMutation.isLoading}
               >
                 <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />

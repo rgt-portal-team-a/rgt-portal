@@ -38,7 +38,7 @@ export const SideFormModal = <T extends FormikValues>({
   onSubmit,
   submitBtnText = "Create",
   isSubmitting,
-  // back,
+  back,
   backFn,
 }: ISideFormModal<T>) => {
   return (
@@ -47,17 +47,16 @@ export const SideFormModal = <T extends FormikValues>({
       style={{
         zIndex: 1010,
       }}
-      onClick={backFn}
     >
-      {/* {back && (
+      {back && (
         <div className="relative h-screen flex flex-col justify-center p-5">
           <img
             src="/Down 2.svg"
-            className="-rotate-90 bg-white p-2 rounded-full shadow-neutral-400 shadow-lg top-10 border hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer"
+            className="-rotate-90 bg-white p-2 rounded-full shadow-black shadow-sm top-10 border hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer"
             onClick={backFn}
           />
         </div>
-      )} */}
+      )}
       <div className="bg-white shadow-lg  max-w-md w-full p-6 h-screen flex flex-col">
         <h2 className="text-xl font-semibold mb-4 text-[#706D8A]">{title}</h2>
 
