@@ -11,7 +11,6 @@ import EmployeeManagementTable from "@/components/Hr/Employees/EmployeeManagemen
 import EmployeeCard from "@/components/Hr/Employees/EmployeeCard";
 import EmployeeCardSkeleton from "@/components/Hr/Employees/EmployeeCardSkeleton";
 import NoEmployeesPage from "@/pages/common/NoEmployeesPage";
-import UserAddIcon from "@/assets/icons/UserAddIcon";
 import HamburgerMenu from "@/assets/icons/HamburgerMenu";
 import GridIcon from "@/assets/icons/GridIcon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

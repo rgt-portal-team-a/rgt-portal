@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SideFormModal } from "@/components/common/Modal";
 import { Field, FieldInputProps, FormikHelpers, FieldProps } from "formik";
