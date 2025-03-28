@@ -54,4 +54,11 @@ aiRouter.get(
   aiController.getAllJobMatchResults.bind(aiController)
 );
 
+aiRouter.get(
+  "/get-program-of-study-hired",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
+  aiController.getProgramOfStudyHired.bind(aiController)
+);
+
 export default aiRouter;

@@ -16,6 +16,7 @@ import { AppDataSource } from "@/database/data-source";
 import { In } from "typeorm";
 import { Readable } from "stream";
 import FormData from "form-data";
+import { RecruitmentStatus, RecruitmentType } from "@/defaults/enum";
 export class AiController {
   private readonly aiEndpoint: string;
   private readonly recruitmentRepository;
@@ -112,7 +113,7 @@ export class AiController {
 
       const response = await axios.post<CvExtractionResponseDto>(`${this.aiEndpoint}/upload-cv`, formData, {
         headers: {
-          ...formData.getHeaders(), 
+          ...formData.getHeaders(),
           Accept: "application/json",
         },
         timeout: 50000,
@@ -163,5 +164,26 @@ export class AiController {
       this.handleError(error, res);
     }
   }
-} 
 
+
+  async getProgramOfStudyHired(req: Request, res: Response): Promise<void> {
+    
+    try {
+      const programOfStudyHired = await this.recruitmentRepository.find({
+        where: { currentStatus: RecruitmentStatus.HIRED, type: RecruitmentType.NSS },
+      });
+
+      const programOfStudy = programOfStudyHired.map((candidate) => candidate.programOfStudy).filter(Boolean);
+      const programOfStudyCount = programOfStudy.reduce<Record<string, number>>((acc, program) => {
+        if (program) {
+          acc[program] = (acc[program] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      res.status(200).json(programOfStudyCount);
+    } catch (error) {
+      this.handleError(error, res);
+    }
+  }
+} 
