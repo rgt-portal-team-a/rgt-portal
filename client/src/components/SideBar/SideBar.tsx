@@ -161,6 +161,7 @@ export const SideBar = () => {
                 className="w-24 h-10"
                 itemlabelClassName="ml-6 text-sm"
                 activeBgClr="bg-rgtpink"
+                activeTabClr=""
                 activeTxtClr="text-rgtpink"
               />
             ) : (

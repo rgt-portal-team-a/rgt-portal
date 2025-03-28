@@ -22,7 +22,7 @@ interface INavDropdown {
   activeTabClr: string;
 }
 
-export const NavDropdown = ({
+const NavDropdown = ({
   items,
   icon,
   activeBgClr,

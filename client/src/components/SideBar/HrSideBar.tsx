@@ -1,4 +1,3 @@
-import { NavDropdown } from "./NavDropdown";
 import { NavLink } from "react-router-dom";
 import FeedIcon from "@/assets/icons/FeedIcon";
 // import MessageIcon from "@/assets/icons/MessageIcon"
@@ -7,6 +6,7 @@ import CalendarIcon from "@/assets/icons/CalendarIcon";
 import ChartIcon from "@/assets/icons/ChartIcon";
 import EmployeesIcon from "@/assets/icons/EmployeesIcon";
 import ProfileAdd2 from "@/assets/icons/ProfileAdd2";
+import NavDropdown from "./NavDropdown";
 
 export const HrSideBar = () => {
   const navItems = [
@@ -17,8 +17,16 @@ export const HrSideBar = () => {
       labelClassName: "ml-4",
       path: "/employees",
       items: [
-        { label: "Manage Employees", path: "manageemployees" },
-        { label: "All Departments", path: "alldepartments" },
+        {
+          label: "Manage Employees",
+          path: "manageemployees",
+          icon: EmployeesIcon,
+        },
+        {
+          label: "All Departments",
+          path: "alldepartments",
+          icon: EmployeesIcon,
+        },
       ],
     },
     {
@@ -53,8 +61,16 @@ export const HrSideBar = () => {
       label: "Reports",
       path: "/reports",
       items: [
-        { label: "Regular Report", path: "/hr/reports/regularreport" },
-        { label: "Advanced Report", path: "/hr/reports/advancedreport" },
+        {
+          label: "Regular Report",
+          path: "/hr/reports/regularreport",
+          icon: ChartIcon,
+        },
+        {
+          label: "Advanced Report",
+          path: "/hr/reports/advancedreport",
+          icon: ChartIcon,
+        },
       ],
     },
   ];
@@ -98,6 +114,9 @@ export const HrSideBar = () => {
               items={item.items}
               label={item.label}
               icon={item.icon}
+              activeBgClr=""
+              activeTabClr=""
+              activeTxtClr=""
               className="w-48 "
               labelClassName={item.labelClassName}
               itemlabelClassName="ml-6 text-sm"
