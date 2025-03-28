@@ -1,4 +1,4 @@
-import { Search, Bell, Loader } from "lucide-react";
+import { Search, Bell, Loader, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { HrSideBar } from "@/components/SideBar/HrSideBar";
 import { SideBar } from "@/components/SideBar/SideBar";
@@ -18,16 +18,12 @@ import ErrorMessage from "@/components/common/ErrorMessage";
 import CalendarIcon2 from "@/assets/icons/CalendarIcon2";
 import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
 import MobileBottomBar from "@/components/SideBar/MobileBottomBar";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/common/dropdown-menu";
+import ProfileIcon from "@/assets/icons/ProfileIcon";
+import LogoutIcon from "@/assets/icons/LogoutIcon";
+import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 
 export const BaseLayout = () => {
-  const { currentUser: user } = useAuthContextProvider();
+  const { currentUser: user, logout } = useAuthContextProvider();
   const {
     isDepartmentsLoading,
     isDepartmentsError,
@@ -67,6 +63,11 @@ export const BaseLayout = () => {
       }, 500),
     []
   );
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [showLogoutModal, setLogoutModal] = useState(false);
+
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
   const handleCalendarShow = () => {
@@ -136,6 +137,13 @@ export const BaseLayout = () => {
     );
   }
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await logout();
+    setLoggingOut(false);
+    navigate("/", { replace: true });
+  };
+
   return (
     <div>
       <header
@@ -147,51 +155,60 @@ export const BaseLayout = () => {
           <div className="">
             <img src="/RgtPortalLogo.svg" className="w-24" />
           </div>
-          {/* Mobile profile dropdown (shown only on small screens) */}
-          {/* <WithRole roles={["hr"]} userRole={user?.role.name as string}>
-            <div className="md:hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 focus:outline-none">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.profileImage} />
-                      <AvatarFallback>
-                        {user?.employee.firstName}
-                        {user?.employee.lastName}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem className="cursor-pointer">
-                    <span className="font-medium">
-                      Hello, {user?.username}!
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => navigate("/profile")}
-                  >
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => navigate("/settings")}
-                  >
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer text-red-500"
-                    onClick={() => {
-                      // Add your logout logic here
-                    }}
-                  >
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
+          {/* Mobile profile dropdown */}
+          <div className="sm:ml-4 md:hidden relative" ref={profileDropdownRef}>
+            <div
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+            >
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                {user?.profileImage ? (
+                  <img
+                    src={user.profileImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm font-medium text-gray-600">
+                    {user?.employee.firstName?.charAt(0)}
+                    {user?.employee.lastName?.charAt(0)}
+                  </span>
+                )}
+              </div>
+              <ChevronDown
+                className={`h-4 w-4 text-gray-600 transition-transform ${
+                  profileDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
             </div>
-          </WithRole> */}
+
+            {profileDropdownOpen && (
+              <div className="absolute right-0 border mt-2 sm:w-32 bg-white rounded-md shadow-lg py-1 z-50">
+                <button
+                  onClick={() => {
+                    navigate("/emp/profile");
+                    setProfileDropdownOpen(false);
+                  }}
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left border-b"
+                >
+                  <ProfileIcon size={24} />
+                  <p className="hidden sm:block">Profile</p>
+                </button>
+                <button
+                  onClick={() => {
+                    // logout();
+                    setProfileDropdownOpen(false);
+                    setLogoutModal(true);
+                  }}
+                  className=" px-4 py-2 items-center text-sm text-gray-700 hover:bg-gray-100 w-full text-left flex"
+                >
+                  <LogoutIcon size={24} />
+                  <p className="hidden sm:block">Logout</p>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex w-full justify-end gap-3">
@@ -320,6 +337,28 @@ export const BaseLayout = () => {
         isOpen={notificationsOpen}
         onOpenChange={setNotificationsOpen}
       />
+
+      {/* Logging out modal */}
+      <ConfirmCancelModal
+        isOpen={showLogoutModal}
+        onCancel={() => setLogoutModal(false)}
+        onSubmit={handleLogout}
+        submitText="Logout"
+        onOpenChange={() => setLogoutModal(false)}
+        isSubmitting={loggingOut}
+      >
+        <div className="flex justify-center flex-col items-center gap-1">
+          <div className="rounded-full p-2 w-fit bg-red-50">
+            <div className="rounded-full px-[10px] py-[8px] bg-red-100 w-fit flex justify-center">
+              <LogoutIcon size={25} />
+            </div>
+          </div>
+          <header className="text-lg font-semibold">Logging Out?</header>
+          <p className="w-64 text-center font-medium text-slate-500 text-sm">
+            Are you sure you want to log out? We're going to miss you
+          </p>
+        </div>
+      </ConfirmCancelModal>
     </div>
   );
 };
