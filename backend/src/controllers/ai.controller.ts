@@ -13,7 +13,9 @@ import { logger } from "@/config/logger.config";
 import { Recruitment } from "@/entities/recruitment.entity";
 import { JobMatchResult } from "@/entities/job-match-result.entity";
 import { AppDataSource } from "@/database/data-source";
-
+import { In } from "typeorm";
+import { Readable } from "stream";
+import FormData from "form-data";
 export class AiController {
   private readonly aiEndpoint: string;
   private readonly recruitmentRepository;
@@ -43,7 +45,6 @@ export class AiController {
     try {
       const { candidate_id }: CandidateMatchRequestDto = req.body;
 
-      // candidate data from recruitment table
       const candidate = await this.recruitmentRepository.findOne({
         where: { id: candidate_id },
       });
@@ -54,7 +55,6 @@ export class AiController {
 
       logger.info(`Predicting job match for candidate ${candidate_id}`);
 
-      // data for AI service
       const requestData = {
         name: candidate.name,
         email: candidate.email,
@@ -102,29 +102,32 @@ export class AiController {
 
       logger.info(`Extracting CV data from file: ${req.file.originalname}`);
 
-      // Create a FormData instance
       const formData = new FormData();
-      // formData.append("file", new Blob([req.file.buffer], { type: req.file.mimetype }), {
-      //   filename: req.file.originalname,
-      // });
+
+      const fileStream = Readable.from(req.file.buffer);
+      formData.append("file", fileStream, {
+        filename: req.file.originalname,
+        contentType: req.file.mimetype,
+      });
 
       const response = await axios.post<CvExtractionResponseDto>(`${this.aiEndpoint}/upload-cv`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data', // Fixed the incorrect closing brace
+          ...formData.getHeaders(), 
+          Accept: "application/json",
         },
         timeout: 50000,
       });
 
       logger.info(`Successfully extracted CV data for candidate ${response.data.candidate_id}`);
-
-      res.status(200).json("CV uploaded successfully: " + response.data);
+      res.status(200).json(response.data);
     } catch (error) {
-      console.log(error);
+      console.error("CV extraction error:", error);
       this.handleError(error, res);
     }
   }
 
   private handleError(error: any, res: Response): void {
+    console.log(error);
     logger.error("AI Service Error:", error);
 
     if (error instanceof BadRequestError) {
@@ -145,4 +148,20 @@ export class AiController {
       });
     }
   }
+
+  //  GET ALL JOB MATCH RESULTS TOGETHER WITH THE CANDIDATE DETAILS
+  async getAllJobMatchResults(req: Request, res: Response): Promise<void> {
+    try {
+      const jobMatchResults = await this.jobMatchResultRepository.find();
+      const candidateIds = jobMatchResults.map((result) => result.candidateId);
+      const candidateDetails = await this.recruitmentRepository.findBy({
+        id: In(candidateIds),
+      });
+
+      res.status(200).json({ jobMatchResults, candidateDetails });
+    } catch (error) {
+      this.handleError(error, res);
+    }
+  }
 } 
+
