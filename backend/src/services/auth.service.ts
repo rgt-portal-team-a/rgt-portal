@@ -288,4 +288,63 @@ export class UserService {
 
     return user;
   }
+
+  async createBatch(userData: CreateUserDto[]): Promise<number[]> {
+    if (!userData || !Array.isArray(userData)) {
+      throw new BadRequestError("Invalid user data provided for batch creation");
+    }
+
+    const uniqueEmails = new Set<string>();
+    const uniqueUsernames = new Set<string>();
+    const filteredUserData = userData.filter((user) => {
+      const isEmailDuplicate = uniqueEmails.has(user.email);
+      const isUsernameDuplicate = uniqueUsernames.has(user.username);
+
+      if (isEmailDuplicate || isUsernameDuplicate) {
+        return false;
+      }
+
+      uniqueEmails.add(user.email);
+      uniqueUsernames.add(user.username);
+      return true;
+    });
+
+    const existingUsers = await this.userRepository.find({
+      where: [...filteredUserData.map((user) => ({ email: user.email })), ...filteredUserData.map((user) => ({ username: user.username }))],
+    });
+
+    const existingEmails = existingUsers.map((user) => user.email);
+    const existingUsernames = existingUsers.map((user) => user.username);
+
+    const uniqueUsers = filteredUserData.filter((user) => !existingEmails.includes(user.email) && !existingUsernames.includes(user.username));
+
+    if (uniqueUsers.length === 0) {
+      logger.warn("No new users to create, all provided emails and usernames are duplicates.");
+      return []; 
+    }
+
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const users = uniqueUsers.map((data) =>
+        this.userRepository.create({
+          username: data.username,
+          email: data.email,
+          profileImage: data.profileImage,
+          role: { id: data.role_id },
+        }),
+      );
+      const savedUsers = await queryRunner.manager.save(users);
+      await queryRunner.commitTransaction();
+      logger.info(`Users created with ids: ${savedUsers?.map((user) => user.id)}`);
+      return savedUsers?.map((user) => user.id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }

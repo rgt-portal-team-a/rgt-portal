@@ -26,4 +26,6 @@ employeeRouter.put("/:id/agency", authMiddleware.hasRole([Roles.HR, Roles.ADMIN]
 employeeRouter.get("/:id", employeeController.getEmployeeById);
 employeeRouter.delete("/:id/department", authMiddleware.hasRole([Roles.HR, Roles.ADMIN, Roles.MANAGER]), employeeController.removeEmployeeFromDepartment);
 
+employeeRouter.post("/batch", authMiddleware.hasRole([Roles.HR, Roles.ADMIN]), employeeController.createBatchEmployee);
+
 export default employeeRouter;

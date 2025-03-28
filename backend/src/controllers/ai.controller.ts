@@ -32,10 +32,7 @@ export class AiController {
   async predictAttrition(req: Request, res: Response): Promise<void> {
     try {
       const requestData: AttritionRequestDto = req.body;
-      const response = await axios.post<AttritionResponseDto>(
-        `${this.aiEndpoint}/predict-attrition`,
-        requestData
-      );
+      const response = await axios.post<AttritionResponseDto>(`${this.aiEndpoint}/predict-attrition`, requestData);
       res.status(200).json(response.data);
     } catch (error) {
       this.handleError(error, res);
@@ -45,10 +42,10 @@ export class AiController {
   async predictMatch(req: Request, res: Response): Promise<void> {
     try {
       const { candidate_id }: CandidateMatchRequestDto = req.body;
-      
+
       // candidate data from recruitment table
       const candidate = await this.recruitmentRepository.findOne({
-        where: { id: candidate_id }
+        where: { id: candidate_id },
       });
 
       if (!candidate) {
@@ -59,31 +56,27 @@ export class AiController {
 
       // data for AI service
       const requestData = {
-
-          name: candidate.name,
-          email: candidate.email,
-          phoneNumber: candidate.phoneNumber,
-          position: candidate.position,
-          currentTitle: candidate.currentTitle,
-          highestDegree: candidate.highestDegree,
-          graduationYear: candidate.graduationYear,
-          technicalSkills: candidate.technicalSkills,
-          programmingLanguages: candidate.programmingLanguages,
-          toolsAndTechnologies: candidate.toolsAndTechnologies,
-          softSkills: candidate.softSkills,
-          industries: candidate.industries,
-          certifications: candidate.certifications,
-          keyProjects: candidate.keyProjects,
-          recentAchievements: candidate.recentAchievements,
-          location: candidate.location,
-          university: candidate.university,
-          programOfStudy: candidate.programOfStudy
+        name: candidate.name,
+        email: candidate.email,
+        phoneNumber: candidate.phoneNumber,
+        position: candidate.position,
+        currentTitle: candidate.currentTitle,
+        highestDegree: candidate.highestDegree,
+        graduationYear: candidate.graduationYear,
+        technicalSkills: candidate.technicalSkills,
+        programmingLanguages: candidate.programmingLanguages,
+        toolsAndTechnologies: candidate.toolsAndTechnologies,
+        softSkills: candidate.softSkills,
+        industries: candidate.industries,
+        certifications: candidate.certifications,
+        keyProjects: candidate.keyProjects,
+        recentAchievements: candidate.recentAchievements,
+        location: candidate.location,
+        university: candidate.university,
+        programOfStudy: candidate.programOfStudy,
       };
 
-      const response = await axios.post<CandidateMatchResponseDto>(
-        `${this.aiEndpoint}/predict-match`,
-        requestData
-      );
+      const response = await axios.post<CandidateMatchResponseDto>(`${this.aiEndpoint}/predict-match`, requestData);
 
       const matchResult = new JobMatchResult();
       matchResult.candidateId = candidate_id;
@@ -109,19 +102,24 @@ export class AiController {
 
       logger.info(`Extracting CV data from file: ${req.file.originalname}`);
 
-      // Call AI service with file buffer
-      const response = await axios.post<CvExtractionResponseDto>(
-        `${this.aiEndpoint}/extract-cv`,
-        {
-          file: req.file.buffer.toString('base64'),
-          file_type: req.file.mimetype
-        }
-      );
+      // Create a FormData instance
+      const formData = new FormData();
+      // formData.append("file", new Blob([req.file.buffer], { type: req.file.mimetype }), {
+      //   filename: req.file.originalname,
+      // });
+
+      const response = await axios.post<CvExtractionResponseDto>(`${this.aiEndpoint}/upload-cv`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Fixed the incorrect closing brace
+        },
+        timeout: 50000,
+      });
 
       logger.info(`Successfully extracted CV data for candidate ${response.data.candidate_id}`);
 
-      res.status(200).json(response.data);
+      res.status(200).json("CV uploaded successfully: " + response.data);
     } catch (error) {
+      console.log(error);
       this.handleError(error, res);
     }
   }
