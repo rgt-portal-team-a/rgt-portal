@@ -178,7 +178,7 @@ export default function TimeOff() {
 
         <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="max-h-[430px] overflow-auto">
+        <div className="max-h-[430px] overflow-auto bg-amber-400">
           <DataTable
             columns={timeOffTableColumns}
             data={filteredPtoData || []}

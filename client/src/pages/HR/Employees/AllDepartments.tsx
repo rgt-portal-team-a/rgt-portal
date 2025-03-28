@@ -48,7 +48,9 @@ export const AllDepartments = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredDepartments, setFilteredDepartments] = useState<any[]>([]);
-  const { departments, employees: users } = useSelector((state: RootState) => state.sharedState);
+  const { departments, employees: users } = useSelector(
+    (state: RootState) => state.sharedState
+  );
   const createDepartmentMutation = useCreateDepartment();
   // const { data: users } = useAllEmployees({});
 
@@ -96,13 +98,13 @@ export const AllDepartments = () => {
     <>
       {/* Main Content */}
       {departments && departments.length > 0 ? (
-        <div className="flex flex-col gap-[15px] pt-[10px] h-full">
-          <section className="h-[62px] flex justify-between w-full items-center py-1 bg-amber-500">
+        <div className="flex flex-col gap-[15px] pt-[10px] h-full overflow-auto">
+          <section className="flex gap-2 flex-col sm:flex-row sm:justify-between w-full sm:items-center py-1">
             <div className="flex flex-col h-full">
               <h1 className="text-xl font-medium text-gray-600">
                 All Departments
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 hidden sm:block">
                 These are all current Departments
               </p>
             </div>
@@ -120,7 +122,7 @@ export const AllDepartments = () => {
               </div> */}
               <Button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-rgtviolet hover:bg-violet-900 rounded-xl h-full"
+                className="bg-rgtviolet hover:bg-violet-900 rounded-xl p-6"
               >
                 Create a New Department
               </Button>
@@ -128,7 +130,7 @@ export const AllDepartments = () => {
           </section>
 
           {filteredDepartments.length > 0 ? (
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-2">
               {filteredDepartments.map((department) => (
                 <DepartmentCard
                   key={department.id}

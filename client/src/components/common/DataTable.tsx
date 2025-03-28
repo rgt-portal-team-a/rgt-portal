@@ -94,7 +94,13 @@ export function DataTable({
     : columns;
 
   return (
-    <div className="w-full h-full overflow-auto">
+    <div
+      className="w-full h-full overflow-auto"
+      style={{
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+      }}
+    >
       {loading ? (
         skeleton == "default" ? (
           <DataTableSkeleton columns={columns} actionBool={actionBool} />
@@ -110,7 +116,8 @@ export function DataTable({
                   key={column.key}
                   className={
                     "border-none text-nowrap text-[#A3A7AA] text-xs py-4 text-left"
-                  }>
+                  }
+                >
                   {column.header}
                 </TableHead>
               ))}
@@ -121,7 +128,8 @@ export function DataTable({
               data.map((row: { [key: string]: any }, rowIndex) => (
                 <TableRow
                   key={rowIndex}
-                  className={`${dividers ? "" : "border-none"}`}>
+                  className={`${dividers ? "" : "border-none"}`}
+                >
                   {tableColumns.map((column) => (
                     <TableCell
                       key={column.key}
@@ -129,13 +137,15 @@ export function DataTable({
                         dividers
                           ? ""
                           : "border-none text-xs font-semibold text-[#898989] text-nowrap py-4"
-                      }`}>
+                      }`}
+                    >
                       <div
                         className={`${
                           typeof column.cellClassName === "function"
                             ? column.cellClassName(row)
                             : column.cellClassName ?? ""
-                        } ${column.render ? "flex gap-2" : ""}`}>
+                        } ${column.render ? "flex gap-2" : ""}`}
+                      >
                         {column.render ? column.render(row) : row[column.key]}
                       </div>
                     </TableCell>
@@ -146,7 +156,8 @@ export function DataTable({
               <TableRow>
                 <TableCell
                   colSpan={tableColumns.length}
-                  className="text-center py-8 text-slate-500 font-semibold text-sm">
+                  className="text-center py-8 text-slate-500 font-semibold text-sm"
+                >
                   <p>No data available</p>
                 </TableCell>
               </TableRow>
@@ -168,7 +179,8 @@ export function DataTable({
           if (setShowDelete) {
             setShowDelete(false);
           }
-        }}>
+        }}
+      >
         <div className="flex flex-col justify-center items-center space-y-2">
           <DeleteRippleIcon />
           <p className="text-lg font-semibold">Delete PTO</p>
