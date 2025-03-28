@@ -19,7 +19,8 @@ export const HRDashboard = () => {
   } = useAllEmployees({}, {});
 
   // const { data: ptoRequestData, isLoading: isPTOLoading } = useGetAllPTOS();
-  const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } = useRequestPto();
+  const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } =
+    useRequestPto();
 
   const metrics: IMetricCard[] = useMemo(() => {
     const hasEmployeeData = employeeData && employeeData.length > 0;
@@ -66,7 +67,7 @@ export const HRDashboard = () => {
         </div>
       </div>
 
-      <section className="flex justify-center h-fit md:right-0 md:top-0 md:w-[30%] overflow-y-auto">
+      <section className="md:flex justify-center h-fit md:right-0 md:top-0 hidden md:w-[30%] overflow-y-auto">
         <QuickActions />
       </section>
     </div>

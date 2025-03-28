@@ -6,8 +6,12 @@ import ChartIcon from "@/assets/icons/ChartIcon";
 import EmployeesIcon from "@/assets/icons/EmployeesIcon";
 import ProfileAdd2 from "@/assets/icons/ProfileAdd2";
 import NavDropdown from "./NavDropdown";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 export const HrSideBar = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const navItems = [
     { icon: FeedIcon, label: "Feed", path: "feed" },
     {
@@ -52,9 +56,7 @@ export const HrSideBar = () => {
         { label: "NSS", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
       ],
     },
-    // { icon: MessageIcon, label: "Messages", path: "messages" },
     { icon: CalendarIcon, label: "Events", path: "events" },
-    // { icon: ChartIcon, label: "Reports", path: "reports" },
     {
       icon: ChartIcon,
       label: "Reports",
@@ -75,80 +77,112 @@ export const HrSideBar = () => {
   ];
 
   return (
-    <nav className="md:w-[280px] rounded-4xl h-full text-center bg-white flex-col hidden sm:flex">
-      <NavLink
-        to="/hr/dashboard"
-        end={true}
-        className={({ isActive }) => `
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        className="sm:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+      >
+        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Sidebar */}
+      <nav
+        className={`
+          fixed sm:relative z-40 md:w-[280px] h-full text-center bg-white flex-col rounded-xl
+          transition-all duration-300 ease-in-out
+          ${mobileMenuOpen ? "left-0" : "-left-full sm:left-0"}
+        `}
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {/* Overlay for mobile */}
+        {mobileMenuOpen && (
+          <div
+            className="sm:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
+        <NavLink
+          to="/hr/dashboard"
+          end={true}
+          className={({ isActive }) => `
             group flex items-center justify-center text-center font-medium text-sm 
             rounded-t-2xl py-4 mb-2 w-full transition-colors ease-in-out duration-400
             ${
               isActive
-                ? "bg-rgtviolet text-white" // Active state styles
-                : "hover:bg-rgtviolet hover:text-white" // Base + hover state
+                ? "bg-rgtviolet text-white"
+                : "hover:bg-rgtviolet hover:text-white"
             }`}
-      >
-        {({ isActive }) => (
-          <div className="flex items-center justify-center gap-2">
-            <span className="hidden md:block">HR Dashboard</span>
-            <div className="relative w-6 h-6">
-              <img
-                src="/Dashboard3.svg"
-                className={`absolute inset-0 w-full h-full transition-opacity duration-300 
-                    ${isActive ? "opacity-0" : "opacity-100"}`}
-              />
-              <img
-                src="/DashboardWhite.svg"
-                className={`absolute inset-0 w-full h-full transition-opacity duration-300
-                    ${isActive ? "opacity-100" : "opacity-0"}`}
-              />
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          {({ isActive }) => (
+            <div className="flex items-center justify-center gap-2">
+              <span>HR Dashboard</span>
+              <div className="relative w-6 h-6">
+                <img
+                  src="/Dashboard3.svg"
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-300 
+                      ${isActive ? "opacity-0" : "opacity-100"}`}
+                />
+                <img
+                  src="/DashboardWhite.svg"
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-300
+                      ${isActive ? "opacity-100" : "opacity-0"}`}
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </NavLink>
-      <div className=" pb-2.5 w-full text-center flex flex-col gap-3">
-        {navItems.map((item) =>
-          item.items ? (
-            <NavDropdown
-              items={item.items}
-              label={item.label}
-              icon={item.icon}
-              activeBgClr="bg-rgtviolet"
-              activeTxtClr="text-rgtviolet"
-              activeTabClr="#6418c3"
-            />
-          ) : (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) => `
-            relative flex items-center gap-3  py-2.5 
-            transition-colors duration-200 
-            ${isActive ? " text-purple-600 font-bold" : " hover:bg-gray-50"}
-            `}
-            >
-              {({ isActive }) => (
-                <>
-                  {/* Left accent bar */}
-                  <span
-                    className={`h-[30px] w-[5px] rounded-r-xl transition-all 
-                    ${isActive ? "bg-purple-600" : "bg-transparent"}`}
-                  />
-                  {/* <img src={item.icon} className="h-6 w-6 mr-4" /> */}
-                  {isActive ? (
-                    <item.icon color="#9810fa" size={26} />
-                  ) : (
-                    <item.icon size={24} color="gray" />
-                  )}
-                  <span className="text-base font-semibold hidden md:block">
-                    {item.label}
-                  </span>
-                </>
-              )}
-            </NavLink>
-          )
-        )}
-      </div>
-    </nav>
+          )}
+        </NavLink>
+
+        <div className="pb-2.5 w-full text-center flex flex-col gap-3 overflow-y-auto h-[calc(100%-60px)]">
+          {navItems.map((item, index) =>
+            item.items ? (
+              <NavDropdown
+                key={index}
+                items={item.items}
+                label={item.label}
+                icon={item.icon}
+                activeBgClr="bg-rgtviolet"
+                activeTxtClr="text-rgtviolet"
+                activeTabClr="#6418c3"
+                onItemClick={() => setMobileMenuOpen(false)}
+              />
+            ) : (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => `
+                  relative flex items-center gap-3 py-2.5 
+                  transition-colors duration-200 
+                  ${isActive ? "text-purple-600 font-bold" : "hover:bg-gray-50"}
+                `}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={`h-[30px] w-[5px] rounded-r-xl transition-all 
+                        ${isActive ? "bg-purple-600" : "bg-transparent"}`}
+                    />
+                    {isActive ? (
+                      <item.icon color="#9810fa" size={26} />
+                    ) : (
+                      <item.icon size={24} color="gray" />
+                    )}
+                    <span className="text-base font-semibold">
+                      {item.label}
+                    </span>
+                  </>
+                )}
+              </NavLink>
+            )
+          )}
+        </div>
+      </nav>
+    </>
   );
 };

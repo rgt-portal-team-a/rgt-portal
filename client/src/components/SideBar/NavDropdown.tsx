@@ -20,6 +20,7 @@ interface INavDropdown {
   activeBgClr: string;
   activeTxtClr: string;
   activeTabClr: string;
+  onItemClick?: () => void;
 }
 
 const NavDropdown = ({
@@ -32,6 +33,7 @@ const NavDropdown = ({
   labelClassName = "",
   itemlabelClassName = "",
   activeTabClr = "#6418c3",
+  onItemClick,
 }: INavDropdown) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasActiveChild, setHasActiveChild] = useState(false);
@@ -67,21 +69,20 @@ const NavDropdown = ({
           hasActiveChild ? activeTxtClr : "hover:bg-gray-100"
         }`}
       >
-        {/* Left accent bar - shows when any child is active */}
         <span
           className={`h-[30px] w-[5px] rounded-r-xl transition-all
               ${hasActiveChild ? `${activeBgClr}` : "bg-transparent"}`}
         />
 
-        <div className="w-full flex">
-          <div className="flex items-center gap-3">
-            {hasActiveChild ? (
-              <IconComponent color={`${activeTabClr}`} size={26} />
-            ) : (
-              <IconComponent color="gray" size={24} />
-            )}
+        <div className="flex items-center gap-3 w-full">
+          {hasActiveChild ? (
+            <IconComponent color={`${activeTabClr}`} size={26} />
+          ) : (
+            <IconComponent color="gray" size={24} />
+          )}
+          <div className="w-full flex justify-between pr-3">
             <span
-              className={`hidden md:block text-base font-semibold ${labelClassName} ${
+              className={`text-base font-semibold ${labelClassName} ${
                 hasActiveChild ? activeTxtClr : ""
               }`}
             >
@@ -116,17 +117,17 @@ const NavDropdown = ({
                 key={index}
                 to={item.path}
                 className={({ isActive }) => `
-                  flex items-center md:gap-3 px-4 py-1 rounded-lg
+                  flex items-center gap-3 px-4 py-1 rounded-lg
                   transition-all duration-300 font-medium
                   ${isActive ? activeTxtClr : "text-gray-600 hover:bg-gray-50"}
                 `}
-                // onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  onItemClick?.();
+                }}
               >
-                <Dot className=" h-6 w-6 transition-all ease-in-out duration-300" />
-                <p className={`hidden md:block ${itemlabelClassName}`}>
-                  {item.label}
-                </p>
-                <div className="md:hidden">{<item.icon size={18} />}</div>
+                <Dot className="h-6 w-6 transition-all ease-in-out duration-300" />
+                <p className={`${itemlabelClassName}`}>{item.label}</p>
               </NavLink>
             ))}
           </div>
