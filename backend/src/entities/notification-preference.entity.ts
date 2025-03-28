@@ -14,7 +14,7 @@ export class NotificationPreference {
 
   @Column({ nullable: true, type: "bigint" })
   userId!: number;
-
+ 
   @Column({
     type: "enum",
     enum: NotificationType,

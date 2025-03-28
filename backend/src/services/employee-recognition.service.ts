@@ -12,7 +12,7 @@ export class EmployeeRecognitionService {
 
   async findAll(): Promise<EmployeeRecognition[]> {
     return this.recognitionRepository.find({
-      relations: ["recognizedBy", "recognizedEmployee", "project"],
+      relations: ["recognizedBy.user", "recognizedEmployee.user"],
     });
   }
 
