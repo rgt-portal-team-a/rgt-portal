@@ -163,4 +163,90 @@ export class RecruitmentReportController {
       });
     }
   };
+    
+  public getEmployeeCountByDepartment = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { startDate, endDate } = req.query;
+      
+      const data = await this.recruitmentService.getEmployeeCountByDepartment(
+        startDate ? new Date(startDate as string) : undefined,
+        endDate ? new Date(endDate as string) : undefined
+      );
+
+      const response: ApiResponse<typeof data> = {
+        success: true,
+        data,
+        message: "Employee count by department data retrieved successfully",
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      this.logger.error("Error fetching employee count by department data:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch employee count by department data",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  };
+
+  public getEmployeeHeadCountByWorkType = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { startDate, endDate } = req.query;
+        
+        const data = await this.recruitmentService.getEmployeeHeadCountByWorkType(
+            startDate ? new Date(startDate as string) : undefined,
+            endDate ? new Date(endDate as string) : undefined
+        );
+        
+        const response: ApiResponse<typeof data> = {
+            success: true,
+            data,
+            message: "Employee head count by work type data retrieved successfully",
+        };
+        
+        res.status(200).json(response);
+    } catch (error) {
+        this.logger.error("Error fetching employee head count by work type data:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch employee head count by work type data",
+            error: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+  }
+    
+  public setAllEmployeesToHybrid = async (req: Request, res: Response): Promise<void> => {
+    try {
+      await this.recruitmentService.setAllEmployeesToHybrid();
+    } catch (error) {
+      this.logger.error("Error setting all employees to hybrid:", error);
+    }
+  }
+
+  public getEmployeeHiringTrendsOverTime = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { startDate, endDate } = req.query;
+
+      const data = await this.recruitmentService.getEmployeeHiringTrendsOverTime(
+        startDate ? new Date(startDate as string) : undefined,
+        endDate ? new Date(endDate as string) : undefined
+      );
+
+      const response: ApiResponse<typeof data> = {
+        success: true,
+        data,
+        message: "Employee hiring trends over time data retrieved successfully",
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      this.logger.error("Error fetching employee hiring trends over time data:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch employee hiring trends over time data",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
 } 

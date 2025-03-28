@@ -123,7 +123,7 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
         isOpen={isOpen}
         onOpenChange={() => {
           console.log("Before Closing The Modal. Befre isSubmitting");
-          if (!isSubmitting) {
+          if (!isSubmitting) { 
             console.log("About to Close The Modal");
             onClose();
           }

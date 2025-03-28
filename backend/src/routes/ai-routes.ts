@@ -14,7 +14,6 @@ const aiRouter = Router();
 const authMiddleware = new AuthMiddleware();
 const aiController = new AiController();
 
-// Configure multer for file upload
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,

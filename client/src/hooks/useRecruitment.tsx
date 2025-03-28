@@ -4,7 +4,7 @@ import { toast } from "./use-toast";
 import { RecruitmentStatus } from "@/lib/enums";
 
 export interface Recruitment {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phoneNumber: string;
@@ -27,7 +27,7 @@ export interface Recruitment {
   createdAt: string;
   updatedAt: string;
   createdBy?: {
-    id: number;
+    id: string;
     username: string;
     profileImage?: string;
     email: string;
@@ -70,7 +70,11 @@ interface StatusUpdateDto {
   failReason?: string;
 }
 
-const API_URL = `${import.meta.env.VITE_API_URL}/recruitment`;
+const API_URL = `${
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_API_URL
+}/recruitment`;
 axios.defaults.withCredentials = true;
 
 export const useRecruitments = (
@@ -119,7 +123,7 @@ export const useUpdateRecruitment = () => {
       id,
       data,
     }: {
-      id: number;
+      id: string;
       data: Partial<Recruitment>;
     }) => {
       const response = await axios.put<ApiResponse<Recruitment>>(
@@ -159,7 +163,7 @@ export const useDeleteRecruitment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const response = await axios.delete<ApiResponse<void>>(
         `${API_URL}/${id}`
       );
@@ -186,7 +190,7 @@ export const useDeleteRecruitment = () => {
   });
 };
 
-export const useRecruitment = (id: number | null, enabled = true) => {
+export const useRecruitment = (id: string | null, enabled = true) => {
   return useQuery({
     queryKey: ["recruitment", id],
     queryFn: async () => {
@@ -210,10 +214,9 @@ export const useRecruitment = (id: number | null, enabled = true) => {
 
 export const useUpdateRecruitmentStatus = () => {
   const queryClient = useQueryClient();
-  const API_URL = `${import.meta.env.VITE_API_URL}/recruitment`;
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: StatusUpdateDto }) => {
+    mutationFn: async ({ id, data }: { id: string; data: StatusUpdateDto }) => {
       const response = await axios.patch<ApiResponse<Recruitment>>(
         `${API_URL}/${id}/status`,
         data

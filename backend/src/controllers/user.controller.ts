@@ -116,6 +116,12 @@ export class AuthController {
     res.json({ success: true, message: "Password has been reset successfully" });
   };
 
+  public updateUserAndEmployee = async (req: Request, res: Response) => {
+    const { userId, updateUserAndEmployeeDto } = req.body;
+    const updatedUser = await this.userService.updateUserAndEmployee(userId, updateUserAndEmployeeDto);
+    res.json(updatedUser);
+  };
+
   public logout = (req: Request, res: Response) => {
     req.logout(() => {
       res.json({ success: true });

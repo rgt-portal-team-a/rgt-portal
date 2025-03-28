@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect, useMemo } from "react";
 import { Formik, Form, ErrorMessage, FormikHelpers, Field } from "formik";
 import { Loader } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { recruitmentSchema } from "@/lib/recruitmentSchema";
 import { buildInitialValues, buildValidationSchema } from "@/lib/utils";
 import { RecruitmentStatus, FailStage, RecruitmentType } from "@/lib/enums";
@@ -24,11 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { employeeService } from "@/api/services/employee.service";
 
 interface EditRecruitmentProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  candidateId: number | null;
+  candidateId: string | null;
   title?: string;
   type: RecruitmentType;
   fields?: any[];
@@ -47,6 +49,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
   onOpenChange,
   candidateId,
   title = "Edit Candidate",
+  type,
   fields = recruitmentSchema,
   onSubmit = (values) => console.log("Form submitted with values:", values),
 }) => {
@@ -64,6 +67,20 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
     candidateId,
     isOpen
   );
+
+  const { data: employees } = useQuery({
+    queryKey: ["employees"],
+    queryFn: () => employeeService.getAllEmployees(),
+    enabled: isOpen,
+    refetchOnWindowFocus: false,
+  });
+
+  const filteredFields = useMemo(() => {
+    return fields.filter((field: any) => {
+      if (!field.conditionalRender) return true;
+      return field.conditionalRender(type);
+    });
+  }, [fields, type]);
 
   const updateMutation = useUpdateRecruitment();
   const statusUpdateMutation = useUpdateRecruitmentStatus();
@@ -139,8 +156,13 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
     if (candidate) {
       return transformCandidateToFormValues(candidate);
     }
-    return buildInitialValues(fields);
-  }, [candidate, fields]);
+    return buildInitialValues(filteredFields);
+  }, [candidate, filteredFields]);
+
+  const assigneeOptions = employees?.map((emp: any) => ({
+    value: emp.id,
+    label: `${emp.firstName} ${emp.lastName}`,
+  })) || [];
 
   useEffect(() => {
     if (!isOpen) {
@@ -234,6 +256,8 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
         failStage: values.failStage,
         failReason: values.failReason,
       };
+      console.log("statusData", statusData);
+      
 
       await statusUpdateMutation.mutateAsync({
         id: candidateId,
@@ -260,10 +284,10 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
   };
 
   const getFieldGroups = () => {
-    const fullWidthFields = fields.filter(
+    const fullWidthFields = filteredFields.filter(
       (field: any) => field.gridColumn === "full" || !field.gridColumn
     );
-    const halfWidthFields = fields.filter(
+    const halfWidthFields = filteredFields.filter(
       (field: any) => field.gridColumn === "half"
     );
 
@@ -343,7 +367,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
         title={title}
         position="right"
         size="md"
-        className="w-1/3"
+        className="w-2/5 p-6"
       >
         <Tabs
           value={activeTab}
@@ -416,7 +440,11 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                                   )}
                               </div>
                             )}
-                            {renderField(field, formikProps)}
+                            {renderField(field, formikProps, {
+                              ...(field.name === "assignee" && {
+                                options: assigneeOptions,
+                              }),
+                            })}
                             {(field.name === "cv" || field.name === "photo") &&
                               renderUploadStatus(field.name as "cv" | "photo")}
                             <ErrorMessage name={field.name}>
@@ -442,7 +470,11 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                             <span className="text-red-500 ml-1">*</span>
                           )}
                         </label>
-                        {renderField(field, formikProps)}
+                        {renderField(field, formikProps, {
+                          ...(field.name === "assignee" && {
+                            options: assigneeOptions,
+                          }),
+                        })}
                         <ErrorMessage name={field.name}>
                           {(msg) => (
                             <div className="text-red-500 text-xs mt-1">
@@ -511,13 +543,17 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                       </label>
 
                       <Field name={"currentStatus"} key={"currentStatus"}>
-                        {({}: any) => (
+                        {({ field, form }: any) => (
                           <Select
-                            value={formikProps.values.currentStatus}
-                            onValueChange={(e) => {
-                              formikProps.handleChange(e);
+                            value={field.value}
+                            onValueChange={(selectedValue) => {
+                              form.setFieldValue(
+                                "currentStatus",
+                                selectedValue
+                              );
+
                               setFailStageVisible(
-                                e === RecruitmentStatus.NOT_HIRED
+                                selectedValue === RecruitmentStatus.NOT_HIRED
                               );
                             }}
                           >
@@ -526,7 +562,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                                 placeholder={`Select Current Status`}
                               />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="z-[9999]">
                               <SelectGroup>
                                 {Object.values(RecruitmentStatus).map(
                                   (status) => (
@@ -558,11 +594,11 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                         </label>
 
                         <Field name={"failStage"} key={"failStage"}>
-                          {({}: any) => (
+                          {({ field, form }: any) => (
                             <Select
-                              value={formikProps.values.failStage}
-                              onValueChange={(e) => {
-                                formikProps.handleChange(e);
+                              value={field.value}
+                              onValueChange={(selectedValue) => {
+                                form.setFieldValue("failStage", selectedValue);
                               }}
                             >
                               <SelectTrigger className="w-full">
@@ -570,7 +606,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                                   placeholder={`Select fail stage`}
                                 />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="z-[9999]">
                                 <SelectGroup>
                                   {Object.values(FailStage).map((stage) => (
                                     <SelectItem key={stage} value={stage}>
@@ -596,7 +632,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                             value={formikProps.values.failReason}
                             onChange={formikProps.handleChange}
                             rows={4}
-                            className="w-full border-gray-300 rounded-md shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                            className="w-full border-gray-300 p-2 rounded-md shadow-sm focus:border-pink-500 focus:ring-pink-500"
                             placeholder="Provide details on why the candidate was not hired"
                           />
                         </div>
@@ -610,7 +646,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                       <textarea
                         name="notes"
                         rows={4}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:border-pink-500 focus:ring-pink-500"
+                        className="w-full border-gray-300 p-2 rounded-md shadow-sm focus:border-pink-500 focus:ring-pink-500"
                         placeholder="Add any additional notes about this status change"
                       />
                     </div>

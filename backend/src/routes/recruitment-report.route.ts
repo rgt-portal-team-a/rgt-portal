@@ -47,4 +47,28 @@ recruitmentReportRouter.get(
   recruitmentReportController.getCandidatesByDepartment
 );
 
+// Employee Count by Department
+recruitmentReportRouter.get(
+  "/employee-count-department",
+  recruitmentReportController.getEmployeeCountByDepartment
+);
+
+// Employee Head Count by Work Type
+recruitmentReportRouter.get(
+  "/employee-headcount-worktype",
+  recruitmentReportController.getEmployeeHeadCountByWorkType
+);
+
+// Set All Employees to Hybrid
+recruitmentReportRouter.post(
+  "/set-all-employees-to-hybrid",
+  recruitmentReportController.setAllEmployeesToHybrid
+);
+
+// Employee Hiring Trends Over Time
+recruitmentReportRouter.get(
+  "/employee-hiring-trends",
+  recruitmentReportController.getEmployeeHiringTrendsOverTime
+);
+
 export default recruitmentReportRouter; 
