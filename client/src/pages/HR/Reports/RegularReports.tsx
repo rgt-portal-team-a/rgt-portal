@@ -3,7 +3,7 @@ import DropoutAnalysis from "@/components/Hr/Reports/RegularReports/DropoutAnaly
 import EmployeeCountDepartment from "@/components/Hr/Reports/RegularReports/EmployeeCountDepartment";
 import HiringTrendsOverTime from "@/components/Hr/Reports/RegularReports/HiringTrendsOverTime";
 import HomeOfficeHeadCount from "@/components/Hr/Reports/RegularReports/HomeOfficeHeadCount";
-import BestSourceRetention from "@/components/Hr/Reports/RegularReports/BestSourceRetention";
+// import BestSourceRetention from "@/components/Hr/Reports/RegularReports/BestSourceRetention";
 import SourceToHireSuccessRate from "@/components/Hr/Reports/RegularReports/SourceToHireSuccessRate";
 import ConversionRateStage from "@/components/Hr/Reports/RegularReports/ConversionRateStage";
 import HiringLadder from "@/components/Hr/Reports/RegularReports/HiringLadder";
@@ -28,8 +28,8 @@ const RegularReports = () => {
         <SourceToHireSuccessRate />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BestSourceRetention />
+      <div className="grid grid-cols-1  gap-6">
+        {/* <BestSourceRetention /> */}
         <DropoutAnalysis />
       </div>
 

@@ -82,7 +82,7 @@ export const HrSideBar = () => {
         end={true}
         className={({ isActive }) => `
             group flex items-center justify-center text-center font-medium text-sm 
-            rounded-t-4xl py-4 mb-2 w-full transition-colors ease-in-out duration-400
+            rounded-t-2xl py-4 mb-2 w-full transition-colors ease-in-out duration-400
             ${
               isActive
                 ? "bg-rgtviolet text-white" // Active state styles

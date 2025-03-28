@@ -20,7 +20,7 @@ import CreatePassword from "./pages/auth/CreatePassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import Events from "./pages/HR/Events/Events";
 import DepartmentPage from "@/pages/HR/Employees/DepartmentPage";
-import Messages from "./pages/common/Messages";
+// import Messages from "./pages/common/Messages";
 import FindEmployee from "./pages/common/FindEmployee";
 import EmployeePage from "@/pages/HR/Employees/EmployeePage";
 import EmployeeTimeOffRequests from "./pages/Manager/ManagerEmployeeTimeOff";
@@ -70,7 +70,7 @@ function App() {
             <Route path="all-departments/" element={<Departments />} />
             <Route path="all-departments/:id" element={<DepartmentDetails />} />
             <Route path="time-off" element={<TimeOff />} />
-            <Route path="messages" element={<Messages />} />
+            {/* <Route path="messages" element={<Messages />} /> */}
             <Route path=":id" element={<FindEmployee />} />
             <Route path="profile" element={<ProfilePage />} />
 
@@ -118,13 +118,13 @@ function App() {
             />
             <Route
               path={`manageemployees/employee/:id`}
-              element={<EmployeePage />}
+              element={<EmployeePage/>}
             />
 
             <Route path="feed" element={<Feed />} />
             <Route path="time-off" element={<TimeOff />} />
             <Route path="emp-time-off" element={<EmployeeTimeOff />} />
-            <Route path="messages" element={<Messages />} />
+            {/* <Route path="messages" element={<Messages />} /> */}
             <Route path="events" element={<Events />} />
 
             {/* Advanced Report routes - accessible by HR and ADMIN */}

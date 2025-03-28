@@ -1,5 +1,6 @@
 import { SideFormModal } from "@/components/common/Modal";
-import EventForm from "./EventForm";
+// import EventForm from "./EventForm";
+import {EventForm} from "./EventForm/EventForm";
 import { useEventForm, formTypes } from "@/hooks/useEventForm";
 import { Field, FieldProps } from "formik";
 import {
@@ -11,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {useEffect} from "react"
 
 interface IEventModal {
   isOpen?: boolean;
@@ -31,6 +33,7 @@ export const EventModal = ({ onClose, selectedAction, title }: IEventModal) => {
 
   const {
     formik,
+    isSubmitting,
     validationSchema,
     getInitialValues,
     selectedFormType,
@@ -40,24 +43,26 @@ export const EventModal = ({ onClose, selectedAction, title }: IEventModal) => {
     selectedEmployee,
     setSelectedEmployee,
     users,
-    projects,
   } = useEventForm(initialFormType);
+
+
 
   return (
     <SideFormModal
       initialFormValues={formik.initialValues}
       validationSchema={validationSchema}
       onSubmit={(values, helpers) => {
-        formik.onSubmit(values, helpers);
-        helpers.resetForm();
-        onClose();
+        formik.onSubmit(values, helpers).then(() => {
+          onClose();
+        });
       }}
+      isSubmitting={isSubmitting}
       title={title || "New Event"}
       back={true}
       backFn={onClose}
       formClassName="flex flex-col my-8 gap-6"
     >
-      {/* {({ values, errors, setFieldValue }) => ( */}
+      {(formikProps) => (
       <>
         {!selectedAction && (
           <div className="">
@@ -111,17 +116,16 @@ export const EventModal = ({ onClose, selectedAction, title }: IEventModal) => {
           </div>
         )}
         <EventForm
-          // formik={formik}
+          formik={formikProps}
           selectedFormType={selectedFormType}
           selectedSpecialEventType={selectedSpecialEventType}
           setSelectedSpecialEventType={setSelectedSpecialEventType}
           selectedEmployee={selectedEmployee}
           setSelectedEmployee={setSelectedEmployee}
           users={users}
-          projects={projects}
         />
       </>
-      {/* )} */}
+      )} 
     </SideFormModal>
   );
 };

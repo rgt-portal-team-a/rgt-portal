@@ -15,6 +15,14 @@ export interface CreateDepartmentDTO{
   managerId: number;
 }
 
+export interface UpdateDepartmentDTO {
+  name: string;
+  description?: string;
+  managerId?: number;
+}
+
+
+
 export interface AddEmployeeToDepartmentDTO{
   employeeId: string;
 }
