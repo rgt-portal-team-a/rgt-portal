@@ -19,6 +19,7 @@ interface INavDropdown {
   itemlabelClassName?: string;
   activeBgClr: string;
   activeTxtClr: string;
+  activeTabClr: string;
 }
 
 export const NavDropdown = ({
@@ -30,6 +31,7 @@ export const NavDropdown = ({
   className = "",
   labelClassName = "",
   itemlabelClassName = "",
+  activeTabClr = "#6418c3",
 }: INavDropdown) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasActiveChild, setHasActiveChild] = useState(false);
@@ -58,11 +60,11 @@ export const NavDropdown = ({
   };
 
   return (
-    <div className={`relative w-full py-2 ${className}`}>
+    <div className={`w-full py-2 ${className}`}>
       <div
         onClick={toggleDropdown}
-        className={`relative flex items-center gap-3 transition-colors duration-200 cursor-pointer text-slate-500 ${
-          hasActiveChild ? "text-[#E328AF]" : "hover:bg-gray-100"
+        className={`flex items-center gap-3 transition-colors duration-200 cursor-pointer text-slate-500 ${
+          hasActiveChild ? activeTxtClr : "hover:bg-gray-100"
         }`}
       >
         {/* Left accent bar - shows when any child is active */}
@@ -70,12 +72,13 @@ export const NavDropdown = ({
           className={`h-[30px] w-[5px] rounded-r-xl transition-all
               ${hasActiveChild ? `${activeBgClr}` : "bg-transparent"}`}
         />
-        <div className="w-fit flex">
+
+        <div className="w-full flex">
           <div className="flex items-center gap-3">
             {hasActiveChild ? (
-              <IconComponent color="#ea5e9c" size={24} />
+              <IconComponent color={`${activeTabClr}`} size={26} />
             ) : (
-              <IconComponent size={24} />
+              <IconComponent color="gray" size={24} />
             )}
             <span
               className={`hidden md:block text-base font-semibold ${labelClassName} ${
@@ -84,19 +87,19 @@ export const NavDropdown = ({
             >
               {label}
             </span>
+            <ChevronDown
+              className={`transition-transform duration-200 ${
+                isOpen ? "rotate-180" : ""
+              } `}
+              size={24}
+              color={`${hasActiveChild ? activeTabClr : "gray"}`}
+            />
           </div>
         </div>
-
-        <ChevronDown
-          className={`transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          } ${hasActiveChild ? activeTxtClr : ""}`}
-          size={24}
-        />
       </div>
 
       <div
-        className={`absolute overflow-hidden w-full transition-all duration-500 ease-in-out
+        className={`overflow-hidden w-full transition-all duration-500 ease-in-out
           ${isOpen ? "max-h-96" : "max-h-0"}`}
       >
         <div
