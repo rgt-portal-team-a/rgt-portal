@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit, Save, X } from "lucide-react";
+import { Edit, RefreshCw, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -50,16 +50,16 @@ export function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      
-      await updateUserMutation.mutateAsync({
-        id: Number(editedUser.id),
-        username: String(editedUser.username),
-        email: editedUser.email,
-        profileImage: editedUser.profileImage,
-        firstName: editedUser.firstName,
-        lastName: editedUser.lastName,
-        phone: editedUser.phone,
-      });
+      if (editedUser.profileImage)
+        await updateUserMutation.mutateAsync({
+          id: Number(editedUser.id),
+          username: String(editedUser.username),
+          email: editedUser.email,
+          profileImage: editedUser.profileImage,
+          firstName: editedUser.firstName,
+          lastName: editedUser.lastName,
+          phone: editedUser.phone,
+        });
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to update user:", error);
@@ -136,10 +136,14 @@ export function ProfilePage() {
                 size="sm"
                 className="text-xs md:text-sm"
                 onClick={handleSave}
-                // disabled={updateUserMutation.isLoading}
+                disabled={updateUserMutation.isPending}
               >
-                <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                {/* {updateUserMutation.isLoading ? "Saving..." : "Save"} */}
+                {updateUserMutation.isPending ? (
+                  <RefreshCw className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                )}
+                {updateUserMutation.isPending ? "Saving..." : "Save"}
               </Button>
             </div>
           )}

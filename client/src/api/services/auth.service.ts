@@ -64,13 +64,28 @@ export const authService = {
     return response.data;
   },
 
-  updateUser: async (data: Partial<User>):Promise<any> => {
-    if(data.profileImage){
-      const uploadResponse = await FileUploadService.uploadFile(data.profileImage);
+  updateUser: async (data: Partial<User>): Promise<any> => {
+    let profileImageUrl = data.profileImage;
+
+    // If profileImage is a File object, upload it first
+    if (data.profileImage && data.profileImage instanceof File) {
+      const uploadResponse = await FileUploadService.uploadFile(
+        data.profileImage
+      );
+      if (!uploadResponse.success || !uploadResponse.file?.url) {
+        throw new Error(
+          uploadResponse.error || "Failed to upload profile image"
+        );
+      }
+      profileImageUrl = uploadResponse.file.url;
     }
+
     const response = await axios.put("/user/auth/update-user-and-employee", {
       userId: data.id,
-      updateUserAndEmployeeDto: data,
+      updateUserAndEmployeeDto: {
+        ...data,
+        profileImage: profileImageUrl,
+      },
     });
     return response.data;
   },
