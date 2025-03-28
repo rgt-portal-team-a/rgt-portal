@@ -77,6 +77,22 @@ export class EmployeeController {
     }
   };
 
+  // create batch employee
+  public createBatchEmployee = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const employeeData: CreateEmployeeDto[] = req.body;
+      const employees = await this.employeeService.createBatch(employeeData);
+      res.status(StatusCodes.CREATED).json({ data: employees, message: "created" });
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        res.status(error.status).json({ message: error.message });
+      } else {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
+      }
+    }
+  };
+
+
   public createEmployee = async (req: Request, res: Response): Promise<void> => {
     try {
       const employeeData: CreateEmployeeDto = req.body;

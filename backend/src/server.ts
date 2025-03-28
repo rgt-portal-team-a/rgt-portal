@@ -35,6 +35,7 @@ import { SchedulerService } from "@/services/scheduler.service";
 const app = express();
 const httpServer = createServer(app);
 
+// app.set("trust proxy", true);
 
 export const io: SocketIOServer = require("socket.io")(httpServer, {
   serveClient: true,
@@ -50,16 +51,6 @@ export const io: SocketIOServer = require("socket.io")(httpServer, {
 
 httpServer.on("upgrade", (request: any, socket, head) => {
   console.log("[HTTP] WebSocket upgrade request received");
-});
-
-const authMiddleware = new AuthMiddleware();
-
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-
-app.use((req, res, next) => {
-  res.setHeader("Set-Cookie", [`connect.sid=${req.sessionID}; HttpOnly; SameSite=None; Secure`]);
-  next();
 });
 
 // MIDDLEWARE

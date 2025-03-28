@@ -27,8 +27,8 @@ export const HrSideBar = () => {
       labelClassName: "ml-4",
       path: "/time-off",
       items: [
-        { label: "My Time Off", path: "time-off" },
-        { label: "Employee Time Off", path: "emp-time-off" },
+        { label: "My Time Off", path: "time-off", icon: TimeIcon },
+        { label: "Employee Time Off", path: "emp-time-off", icon: TimeIcon },
       ],
     },
     {
@@ -37,8 +37,12 @@ export const HrSideBar = () => {
       labelClassName: "ml-3",
       path: "/hr/recruitment",
       items: [
-        { label: "FullTime", path: "/hr/recruitment/employee" },
-        { label: "NSS", path: "/hr/recruitment/nss" },
+        {
+          label: "FullTime",
+          path: "/hr/recruitment/employee",
+          icon: ProfileAdd2,
+        },
+        { label: "NSS", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
       ],
     },
     // { icon: MessageIcon, label: "Messages", path: "messages" },
