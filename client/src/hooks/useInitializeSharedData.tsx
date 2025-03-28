@@ -68,6 +68,7 @@ export const useInitializeSharedData = () => {
     isEmployeesError,
     refetchEmployees,
     employeesError,
+    employees,
     
   };
 };

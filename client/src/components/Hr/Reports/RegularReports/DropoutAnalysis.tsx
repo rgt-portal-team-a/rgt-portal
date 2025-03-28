@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   ResponsiveContainer,
   PieChart,
@@ -7,15 +8,11 @@ import {
   Cell,
   PieLabelRenderProps,
 } from "recharts";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import {useDropOutRateByStage} from "@/api/query-hooks/reports.hooks"
 
-// Define the type for the dropout data
-interface DropoutDataItem {
-  stage: string;
-  value: number;
-  color: string;
-}
 
-// Define the custom label props type
+
 interface CustomLabelProps extends PieLabelRenderProps {
   cx: number;
   cy: number;
@@ -27,15 +24,11 @@ interface CustomLabelProps extends PieLabelRenderProps {
 }
 
 const DropoutAnalysis: React.FC = () => {
-  const dropoutData: DropoutDataItem[] = [
-    { stage: "CV Review", value: 16, color: "#9333EA" },
-    { stage: "1st Interview", value: 16, color: "#03a9f4" },
-    { stage: "Tech Interview", value: 12, color: "#ffc107" },
-    { stage: "Online Exam", value: 25, color: "#e91e63" },
-    { stage: "Other", value: 20, color: "#9e9e9e" },
-  ];
+  const { data, isLoading, isError, error, refetch, isFetching } =
+    useDropOutRateByStage();
 
-  const total = dropoutData.reduce((sum, item) => sum + item.value, 0);
+  const total =
+    data?.dropoutData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({
@@ -69,16 +62,101 @@ const DropoutAnalysis: React.FC = () => {
     );
   };
 
+  // Render Loading State
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Dropout Analysis</CardTitle>
+          <Button variant="outline" disabled>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Loading...
+          </Button>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center text-gray-500">
+            <Loader2 className="h-12 w-12 animate-spin mb-4" />
+            <p>Fetching dropout data...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Render Error State
+  if (isError) {
+    return (
+      <Card className="border-destructive/50">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-destructive">Data Fetch Error</CardTitle>
+          <Button
+            variant="destructive"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            {isFetching ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            Retry
+          </Button>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center text-destructive">
+            <AlertCircle className="h-12 w-12 mb-4" />
+            <p className="text-center mb-2">
+              {error instanceof Error
+                ? error.message
+                : "Unable to fetch dropout data"}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Render Empty State
+  if (!data || !data.dropoutData || data.dropoutData.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Dropout Analysis</CardTitle>
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            {isFetching ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center text-gray-500">
+            <AlertCircle className="h-12 w-12 mb-4" />
+            <p className="text-center">No dropout data available</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Render Normal State
   return (
     <Card className="border-none shadow-none relative">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Dropout Analysis</CardTitle>
+        
       </CardHeader>
       <CardContent className="relative">
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
-              data={dropoutData}
+              data={data.dropoutData}
               cx="50%"
               cy="50%"
               innerRadius={100}
@@ -87,7 +165,7 @@ const DropoutAnalysis: React.FC = () => {
               dataKey="value"
               label={renderCustomizedLabel}
             >
-              {dropoutData.map((entry, index) => (
+              {data.dropoutData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
@@ -102,17 +180,21 @@ const DropoutAnalysis: React.FC = () => {
             height: "80px",
             zIndex: 10,
           }}
-        ></div>
+        >
+          <div className="flex items-center justify-center h-full text-sm font-bold">
+            {total}
+          </div>
+        </div>
 
-        <div className="flex justify-center mt-4 space-x-4">
-          {dropoutData.map((item, index) => (
-            <div key={index} className="flex items-center">
+        <div className="flex justify-center mt-4 space-x-4 flex-wrap">
+          {data.dropoutData.map((item, index) => (
+            <div key={index} className="flex items-center m-1">
               <div
                 className="w-3 h-3 mr-2 rounded-full"
                 style={{ backgroundColor: item.color }}
               ></div>
               <span className="text-xs">
-                {item.stage}: {((item.value / total) * 100).toFixed(0)}%
+                {item.stage}: {((Number(item.value) / total) * 100).toFixed(0)}%
               </span>
             </div>
           ))}

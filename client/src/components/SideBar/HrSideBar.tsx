@@ -1,7 +1,7 @@
 import { NavDropdown } from "./NavDropdown";
 import { NavLink } from "react-router-dom";
 import FeedIcon from "@/assets/icons/FeedIcon"
-import MessageIcon from "@/assets/icons/MessageIcon"
+// import MessageIcon from "@/assets/icons/MessageIcon"
 import TimeIcon from "@/assets/icons/TimeIcon"
 import CalendarIcon from "@/assets/icons/CalendarIcon"
 import ChartIcon from "@/assets/icons/ChartIcon"
@@ -41,7 +41,7 @@ export const HrSideBar = () => {
         { label: "NSS", path: "/hr/recruitment/nss" },
       ],
     },
-    { icon: MessageIcon, label: "Messages", path: "messages" },
+    // { icon: MessageIcon, label: "Messages", path: "messages" },
     { icon: CalendarIcon, label: "Events", path: "events" },
     // { icon: ChartIcon, label: "Reports", path: "reports" },
     {
@@ -56,13 +56,13 @@ export const HrSideBar = () => {
   ];
 
   return (
-    <nav className="w-[280px] rounded-4xl h-fit text-center bg-white flex-col hidden md:flex">
+    <nav className="w-[280px] rounded-2xl pb-4 h-fit text-center bg-white flex-col hidden md:flex">
       <NavLink
         to="/hr/dashboard"
         end={true}
         className={({ isActive }) => `
             group flex items-center justify-center text-center font-medium text-sm 
-            rounded-t-4xl py-4 mb-2 w-full transition-colors ease-in-out duration-400
+            rounded-t-2xl py-4 mb-2 w-full transition-colors ease-in-out duration-400
             ${
               isActive
                 ? "bg-rgtviolet text-white" // Active state styles

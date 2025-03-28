@@ -23,3 +23,4 @@ export * from "./emergency-contact.entity";
 export * from "./api-keys.entity";
 export * from "./notification.entity";
 export * from "./notification-preference.entity";
+export * from "./job-match-result.entity";

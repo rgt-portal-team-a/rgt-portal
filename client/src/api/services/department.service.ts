@@ -1,10 +1,14 @@
-import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, Department, DepartmentQueryParams } from '@/types/department';
+import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, Department, DepartmentQueryParams, UpdateDepartmentDTO } from '@/types/department';
 import { createApiClient } from '../axios';
 import { ApiResponse } from '../types';
 
 
 const departmentApiClient = createApiClient(
-  `${import.meta.env.VITE_API_URL}/departments`
+  `${
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_API_URL
+      : import.meta.env.VITE_API_URL
+  }/departments`
 );
 
 export const departmentService = {
@@ -13,6 +17,17 @@ export const departmentService = {
   ): Promise<CreateDepartmentDTO> => {
     const response = await departmentApiClient.post<CreateDepartmentDTO>(
       '/',
+      data
+    );
+    return response.data;
+  },
+
+  updateDepartment: async (
+    id: string,
+    data: UpdateDepartmentDTO
+  ): Promise<ApiResponse<Department>> => {
+    const response = await departmentApiClient.put<ApiResponse<Department>>(
+      `/${id}`,
       data
     );
     return response.data;

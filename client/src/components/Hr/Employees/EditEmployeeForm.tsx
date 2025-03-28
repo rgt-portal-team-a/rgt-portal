@@ -41,10 +41,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
-import {
-  CountrySelect,
-  StateSelect,
-} from "react-country-state-city";
 import "react-country-state-city/dist/react-country-state-city.css";
 import { Country, State } from "react-country-state-city/dist/esm/types";
 import SkillsSelector from "./SkillsSelector";
@@ -54,6 +50,8 @@ import { useEmployeeSubmission } from "@/hooks/useEmployeeSubmission";
 import { LEAVE_TYPES, EMPLOYEE_TYPES, ROLE_TYPES  } from "@/constants";
 import { toast } from "@/hooks/use-toast";
 import {Employee, RoleType} from "@/types/employee"
+import CustomCountrySelect from "./CustomCountrySelect"
+import CustomStateSelect from "./CustomStateSelect"
 
 
 
@@ -125,7 +123,7 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
         isOpen={isOpen}
         onOpenChange={() => {
           console.log("Before Closing The Modal. Befre isSubmitting");
-          if (!isSubmitting) {
+          if (!isSubmitting) { 
             console.log("About to Close The Modal");
             onClose();
           }
@@ -824,8 +822,8 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                           return (
                             <div className="space-y-2">
                               <div className="relative">
-                                <CountrySelect
-                                  onChange={(country: Country) => {
+                                <CustomCountrySelect
+                                  onChange={(country: Country | null) => {
                                     setSelectedCountry(country?.id || null);
                                     form.setFieldValue(
                                       "countryId",
@@ -834,7 +832,7 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                                     form.setFieldValue("stateId", null);
                                     form.setFieldValue("city", "");
                                   }}
-                                  defaultValue={selectedCountry||undefined}
+                                  selectedCountry={selectedCountry} 
                                   placeHolder="Select Country"
                                   containerClassName="w-full "
                                   inputClassName="w-full py-6 border rounded-md px-3"
@@ -858,29 +856,32 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                       <Field name="stateId">
                         {({ form, meta }: FieldProps) => {
                           return (
-                          <div className="relative">
-                            <StateSelect
-                              countryid={selectedCountry || formikProps.values.countryId}
-                              onChange={(state: State) => {
-                                form.setFieldValue(
-                                  "stateId",
-                                  state?.id || null
-                                );
-                                form.setFieldValue("city", "");
-                              }}
-                              defaultValue={selectedState || undefined}
-                              placeHolder="Select State/Region"
-                              containerClassName="w-full shadow-xs rounded-md "
-                              inputClassName="w-full border-none rounded-md px-3"
-                              disabled={!formikProps.values.countryId}
-                            />
-                            {meta.touched && meta.error && (
-                              <div className="text-red-500 text-sm mt-1">
-                                {meta.error}
-                              </div>
-                            )}
-                          </div>
-                        )}}
+                            <div className="relative">
+                              <CustomStateSelect
+                                countryid={
+                                  selectedCountry ||
+                                  formikProps.values.countryId
+                                }
+                                onChange={(state: State | null) => {
+                                  form.setFieldValue(
+                                    "stateId",
+                                    state?.id || null
+                                  );
+                                  form.setFieldValue("city", "");
+                                }}
+                                defaultValue={selectedState || undefined}
+                                placeHolder="Select State/Region"
+                                containerClassName="w-full shadow-xs rounded-md"
+                                inputClassName="w-full border-none rounded-md px-3"
+                                disabled={!formikProps.values.countryId}
+                              />
+                              {meta.touched && meta.error && (
+                                <div className="text-red-500 text-sm mt-1">
+                                  {meta.error}
+                                </div>
+                              )}
+                            </div>
+                          );}}
                       </Field>
                     </div>
 

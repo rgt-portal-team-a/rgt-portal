@@ -471,6 +471,7 @@ export const useEventForm = (initialFormType = "1") => {
   return {
     formik,
     validationSchema: getValidationSchema(selectedFormType),
+    isSubmitting: multiRecognitionMutation.isPending || singleRecognitionMutation.isPending || createEventMutation.isPending,
     getInitialValues,
     selectedFormType,
     setSelectedFormType,

@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+  workflow_dispatch:
 
 env:
   AWS_REGION: ap-south-1
@@ -13,11 +14,13 @@ env:
 jobs:
   build-and-push-ecr:
     runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 45
     permissions:
       packages: write
       contents: write
       attestations: write
-      id-token: write # Needed for OIDC
+      id-token: write
 
     strategy:
       matrix:
@@ -31,7 +34,7 @@ jobs:
             ecr_repo: rgt-portal-team-a/backend
           - service: client
             dockerfile: ./client/Dockerfile
-            ecr_repo: rgt-portal-team-a/frontend
+            ecr_repo: rgt-portal-team-a/client
 
     steps:
       - name: Checkout Code
@@ -63,15 +66,6 @@ jobs:
             ${{ github.sha }}
             ${{ matrix.service }}
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.ref }}-${{ github.sha }}-${{ matrix.service }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-${{ github.ref }}
-            ${{ runner.os }}-buildx
-
       - name: Build and Push Docker Image to ECR
         uses: docker/build-push-action@v6
         with:
@@ -80,8 +74,6 @@ jobs:
           push: true
           builder: ${{ steps.buildx.outputs.name }}
           tags: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ matrix.service }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@0.29.0

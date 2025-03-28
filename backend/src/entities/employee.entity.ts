@@ -64,7 +64,7 @@ export class Employee {
   @Column({ nullable: true, type: "enum", enum: EmployeeType })
   employeeType?: EmployeeType;
 
-  @Column({ nullable: true, type: "enum", enum: WorkType })
+  @Column({ nullable: true, default: WorkType.HYBRID, type: "enum", enum: WorkType })
   workType?: WorkType;
 
   @Column({ nullable: true, type: "varchar" })
