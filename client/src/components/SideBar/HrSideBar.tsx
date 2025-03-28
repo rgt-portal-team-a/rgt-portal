@@ -26,6 +26,16 @@ export const HrSideBar = () => {
           path: "alldepartments",
           icon: EmployeesIcon,
         },
+        {
+          label: "Manage Employees",
+          path: "manageemployees",
+          icon: EmployeesIcon,
+        },
+        {
+          label: "All Departments",
+          path: "alldepartments",
+          icon: EmployeesIcon,
+        },
       ],
     },
     {
@@ -34,6 +44,8 @@ export const HrSideBar = () => {
       labelClassName: "ml-4",
       path: "/time-off",
       items: [
+        { label: "My Time Off", path: "time-off", icon: TimeIcon },
+        { label: "Employee Time Off", path: "emp-time-off", icon: TimeIcon },
         { label: "My Time Off", path: "time-off", icon: TimeIcon },
         { label: "Employee Time Off", path: "emp-time-off", icon: TimeIcon },
       ],
@@ -50,9 +62,15 @@ export const HrSideBar = () => {
           icon: ProfileAdd2,
         },
         { label: "NSS", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
+        {
+          label: "FullTime",
+          path: "/hr/recruitment/employee",
+          icon: ProfileAdd2,
+        },
+        { label: "NSS", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
       ],
     },
-    // { icon: MessageIcon, label: "Messages", path: "messages" },
+    { icon: MessageIcon, label: "Messages", path: "messages" },
     { icon: CalendarIcon, label: "Events", path: "events" },
     // { icon: ChartIcon, label: "Reports", path: "reports" },
     {
@@ -60,6 +78,18 @@ export const HrSideBar = () => {
       label: "Reports",
       path: "/reports",
       items: [
+        {
+          label: "Regular Report",
+          path: "/hr/reports/regularreport",
+          icon: ChartIcon,
+        },
+        {
+          label: "Advanced Report",
+          path: "/hr/reports/advancedreport",
+          icon: ChartIcon,
+        },
+      ],
+    },
         {
           label: "Regular Report",
           path: "/hr/reports/regularreport",

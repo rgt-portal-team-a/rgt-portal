@@ -79,3 +79,72 @@ yarn.lock
 # ignore for ai
 .history
 .vscode
+__pycache__/
+# Python compiled files
+*.py[cod]
+__pycache__/
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Virtual environment
+venv/
+.env/
+.env.*  # Exclude all environment files except example
+!.env.example
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# MyPy cache
+.mypy_cache/
+
+# Profiling data
+.prof
+
+# Logs and debug files
+*.log
+*.out
+*.err
+
+# Temporary files
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# Machine learning artifacts
+*.h5
+*.ckpt
+*.pth
+*.joblib
+*.pkl
+*.npy
+*.npz
+
+# TensorBoard logs
+logs/
+runs/
+
+# Model checkpoints
+checkpoints/
+
+# Dataset files
+*.csv
+*.tsv
+*.json
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.parquet
+
+# Ignore large files
+*.bin
+*.dat
