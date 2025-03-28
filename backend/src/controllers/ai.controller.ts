@@ -60,7 +60,7 @@ export class AiController {
         name: candidate.name,
         email: candidate.email,
         phoneNumber: candidate.phoneNumber,
-        position: candidate.position,
+        position: candidate.firstPriority,
         currentTitle: candidate.currentTitle,
         highestDegree: candidate.highestDegree,
         graduationYear: candidate.graduationYear,
@@ -77,7 +77,10 @@ export class AiController {
         programOfStudy: candidate.programOfStudy,
       };
 
-      const response = await axios.post<CandidateMatchResponseDto>(`${this.aiEndpoint}/predict-match`, requestData);
+      const response = await axios.post<CandidateMatchResponseDto>(`${this.aiEndpoint}/predict-match`, {
+        profile: requestData,
+        applied_position: candidate.position || candidate.firstPriority,
+      });
 
       const matchResult = new JobMatchResult();
       matchResult.candidateId = candidate_id;
