@@ -1,21 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
 
 @Entity("job_match_results")
 export class JobMatchResult {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ type: "uuid" })
+  @Column({ nullable: true, type: "uuid" })
   candidateId!: string;
 
-  @Column({ type: "varchar" })
+  @Column({ nullable: true, type: "varchar" })
   jobTitle!: string;
 
-  @Column({ type: "float" })
+  @Column({ nullable: true, type: "float" })
   matchPercentage!: number;
 
-  @Column({ type: "boolean", default: true })
+  @Column({ nullable: true, type: "boolean", default: true })
   isActive!: boolean;
+
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;

@@ -1,6 +1,8 @@
+import axios from "axios";
 import { defaultApiClient } from "../axios";
 import { ApiResponse } from "../types";
 import { User, ResponseUser } from "@/types/authUser";
+import { FileUploadService } from "./file.service";
 
 export interface LoginRequest {
   email: string;
@@ -30,12 +32,9 @@ export const authService = {
   },
 
   login: async (data: LoginRequest): Promise<any> => {
-    const response = await defaultApiClient.post(
-      "/user/auth/login",
-      data
-    );
+    const response = await defaultApiClient.post("/user/auth/login", data);
     console.log("response", response);
-    
+
     return response.data;
   },
 
@@ -48,10 +47,7 @@ export const authService = {
   },
 
   verifyOtp: async (data: any): Promise<any> => {
-    const response = await defaultApiClient.post(
-      "/user/auth/verify-otp",
-      data
-    );
+    const response = await defaultApiClient.post("/user/auth/verify-otp", data);
     return response.data;
   },
 
@@ -65,6 +61,17 @@ export const authService = {
   getCurrentUser: async (): Promise<ResponseUser> => {
     const response = await defaultApiClient.get("/user");
     // console.log("User data", response.data);
+    return response.data;
+  },
+
+  updateUser: async (data: Partial<User>):Promise<any> => {
+    if(data.profileImage){
+      const uploadResponse = await FileUploadService.uploadFile(data.profileImage);
+    }
+    const response = await axios.put("/user/auth/update-user-and-employee", {
+      userId: data.id,
+      updateUserAndEmployeeDto: data,
+    });
     return response.data;
   },
 };

@@ -200,7 +200,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           {row && (
             <>
               <Avtr
-                name={row.employee?.user?.username}
+                name={row.employee?.user?.usernam ?? "USER"}
                 url={row.employee?.user?.profileImage}
               />
               <div>

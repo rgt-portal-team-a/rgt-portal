@@ -47,4 +47,18 @@ aiRouter.post(
   aiController.extractCv.bind(aiController)
 );
 
+aiRouter.get(
+  "/get-all-job-match-results",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
+  aiController.getAllJobMatchResults.bind(aiController)
+);
+
+aiRouter.get(
+  "/get-program-of-study-hired",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
+  aiController.getProgramOfStudyHired.bind(aiController)
+);
+
 export default aiRouter;

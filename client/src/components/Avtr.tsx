@@ -20,7 +20,9 @@ const Avtr: React.FC<IAvtr> = ({ className, index = 0, url, name, avtBg }) => {
       }}
     >
       <AvatarImage src={url} alt={name} className="h-full w-full" />
-      <AvatarFallback className={`h-full w-full ${avtBg}`}>
+      <AvatarFallback
+        className={`h-full w-full text-white font-semibold text-sm bg-rgtpurple ${avtBg}`}
+      >
         {getAvatarFallback(name)}
       </AvatarFallback>
     </Avatar>
