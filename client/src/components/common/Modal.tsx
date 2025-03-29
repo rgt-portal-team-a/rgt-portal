@@ -43,18 +43,16 @@ export const SideFormModal = <T extends FormikValues>({
 }: ISideFormModal<T>) => {
   return (
     <div
-      className="fixed inset-0  backdrop-blur-xs  flex items-start justify-end"
+      className="fixed inset-0 backdrop-blur-xs bg-black/50 flex items-start justify-end"
       style={{
         zIndex: 1010,
-        backdropFilter: "blur(4px)",
-        WebkitBackdropFilter: "blur(4px)",
       }}
     >
       {back && (
         <div className="relative h-screen flex flex-col justify-center p-5">
           <img
             src="/Down 2.svg"
-            className="-rotate-90 bg-white p-2 rounded-full shadow-neutral-400 shadow-lg top-10 border hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer"
+            className="-rotate-90 bg-white p-2 rounded-full shadow-black shadow-sm top-10 border hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer"
             onClick={backFn}
           />
         </div>
@@ -94,7 +92,9 @@ export const SideFormModal = <T extends FormikValues>({
                     type={"submit"}
                     key={"Create"}
                     disabled={
-                      formikProps.isSubmitting || isSubmitting || !formikProps.isValid
+                      formikProps.isSubmitting ||
+                      isSubmitting ||
+                      !formikProps.isValid
                     }
                     className={`w-1/2 h-full rounded-[12px] bg-rgtpink  text-white cursor-pointer
                     ${isSubmitting ? "opacity-45" : "hover:bg-pink-500"}`}
