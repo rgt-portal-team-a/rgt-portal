@@ -11,8 +11,9 @@ export const session = {
   store: sessionStore,
   cookie: {
     maxAge: 72 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
-  // httpOnly: true,
-  // secure: process.env.NODE_ENV == "production",
-  // sameSite: "none",
 } as SessionOptions;
+  
