@@ -26,8 +26,8 @@ export const useNotificationSocket = (
   const queryClient = useQueryClient();
   const [connectionAttempts, setConnectionAttempts] = useState(0);
 
-  const wsUrl = "ws://localhost:8000";
-
+  const wsUrl = "wss://sih2h86cxp.ap-south-1.awsapprunner.com";
+  
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     isAuthenticated ? wsUrl : null,
     {
