@@ -60,6 +60,11 @@ if (app.get("env") === "production") {
   }
 }
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
 // MIDDLEWARE
 app.use(cors(_cors));
 app.use(session(_session));
