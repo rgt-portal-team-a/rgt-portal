@@ -65,20 +65,20 @@ export const authService = {
   },
 
  updateUser: async (data: Partial<User>): Promise<any> => {
-  let profileImageUrl = data.profileImage;
+  // let profileImageUrl = data.profileImage;
   
-  if (data?.profileImage instanceof File) {
-    const uploadResponse = await FileUploadService.uploadFile(data?.profileImage);
-    profileImageUrl = uploadResponse?.url;
-  }
+  // if (data?.profileImage instanceof File) {
+  //   const uploadResponse = await FileUploadService.uploadFile(data?.profileImage);
+  //   profileImageUrl = uploadResponse?.url;
+  // }
 
-  const response = await axios.put("/user/auth/update-user-and-employee", {
-    userId: data.id,
-    updateUserAndEmployeeDto: {
-      ...data,
-      profileImage: profileImageUrl
-    },
-  });
-  return response.data;
+  // const response = await axios.put("/user/auth/update-user-and-employee", {
+  //   userId: data.id,
+  //   updateUserAndEmployeeDto: {
+  //     ...data,
+  //     profileImage: profileImageUrl
+  //   },
+  // });
+  return {};
 },
 };
