@@ -5,7 +5,7 @@ import { redis } from "@/config/redis.config";
 export const sessionStore = new RedisStore({ client: redis });
 
 export const session = {
-  secret: process.env.SESSION_SECRET || "rgtportal2025",
+  secret: "rgtportalsecretforsessionstore2025",
   resave: false,
   saveUninitialized: true,
   store: sessionStore,

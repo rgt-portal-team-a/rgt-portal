@@ -53,6 +53,13 @@ httpServer.on("upgrade", (request: any, socket, head) => {
   console.log("[HTTP] WebSocket upgrade request received");
 });
 
+if (app.get("env") === "production") {
+  app.set("trust proxy", 1); 
+  if (_session && _session.cookie) {
+    _session.cookie.secure = true;
+  }
+}
+
 // MIDDLEWARE
 app.use(cors(_cors));
 app.use(session(_session));
