@@ -15,21 +15,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Change to backend directory
-        run: cd backend
-
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: "22.x"
 
-      - name: npm install and build
+      - name: Install and build in backend directory
+        working-directory: ./backend
         run: |
           npm install
           npm run build
 
-      # Create startup script
+      # Create startup script in backend directory
       - name: Create startup script
+        working-directory: ./backend
         run: |
           echo "#!/bin/bash" > startup.sh
           echo "cd /home/site/wwwroot" >> startup.sh
@@ -37,11 +36,9 @@ jobs:
           echo "npm start" >> startup.sh
           chmod +x startup.sh
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
-
-      - name: Move zip to root directory
-        run: mv release.zip ../
+      - name: Zip backend directory for deployment
+        working-directory: ./backend
+        run: zip -r ../release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
