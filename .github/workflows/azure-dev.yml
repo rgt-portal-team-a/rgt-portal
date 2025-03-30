@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - rgt-portal
+name: Build and deploy rgt-portal
 
 on:
   push:
