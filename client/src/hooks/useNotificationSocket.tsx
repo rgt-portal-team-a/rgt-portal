@@ -18,142 +18,165 @@ export const useNotificationSocket = (
   const {
     onNewNotification,
     enableReconnect = true,
-    reconnectInterval = 3000,
-    reconnectAttempts = 5,
+    reconnectInterval = 5000, // Increased from 3s to 5s
+    reconnectAttempts = 10, // Increased from 5 to 10
   } = options;
 
   const { isAuthenticated, currentUser } = useAuthContextProvider();
   const queryClient = useQueryClient();
   const [connectionAttempts, setConnectionAttempts] = useState(0);
+  const [shouldForcePolling, setShouldForcePolling] = useState(false);
 
-  const wsUrl = "wss://sih2h86cxp.ap-south-1.awsapprunner.com";
-  
+  const getWebSocketUrl = () => {
+    const baseUrl = import.meta.env.VITE_PUBLIC_WS_URL 
+      || "https://sih2h86cxp.ap-south-1.awsapprunner.com";
+    
+    const wsProtocol = baseUrl.startsWith("https") ? "wss" : "ws";
+    const host = baseUrl.replace(/^https?:\/\//, "");
+    
+    return shouldForcePolling 
+      ? `${wsProtocol}://${host}/socket.io/?EIO=4&transport=polling`
+      : `${wsProtocol}://${host}/socket.io/?EIO=4&transport=websocket`;
+  };
+
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
-    isAuthenticated ? wsUrl : null,
+    isAuthenticated ? getWebSocketUrl() : null,
     {
       fromSocketIO: true,
-      shouldReconnect: () =>
-        enableReconnect && connectionAttempts < reconnectAttempts,
+      shouldReconnect: (closeEvent) => {
+        if (closeEvent.code === 4001) return false;
+        return enableReconnect && connectionAttempts < reconnectAttempts;
+      },
       reconnectInterval,
       reconnectAttempts,
-      onOpen: () => {
-        console.log("WebSocket connection established");
+      share: true, 
+      retryOnError: true,
+      transportOptions: {
+        polling: {
+          extraHeaders: {
+            Authorization: `Bearer ${currentUser?.token}`,
+          },
+        },
+      },
+      transports: shouldForcePolling ? ['polling'] : ['websocket', 'polling'],
+
+      onOpen: (event) => {
+        console.log("Socket connection established", event);
+        setConnectionAttempts(0);
         toast({
-          title: "Success",
-          description: "WebSocket connection established",
+          title: "Connected",
+          description: "Real-time notifications connected",
           variant: "success",
         });
-        setConnectionAttempts(0);
+        
+        if (!shouldForcePolling && currentUser?.token) {
+          sendMessage(
+            JSON.stringify({
+              type: "authentication",
+              token: currentUser.token,
+            })
+          );
+        }
       },
-      onClose: () => {
-        console.log("WebSocket connection closed");
+
+      onClose: (event) => {
+        console.log("Socket connection closed", event);
+        if (event.code === 1006 && !shouldForcePolling) {
+          console.warn("WebSocket failed, falling back to polling");
+          setShouldForcePolling(true);
+        }
       },
-      onError: () => {
+
+      onError: (event) => {
+        console.error("Socket error:", event);
         toast({
-          title: "Error",
-          description: "WebSocket connection error",
+          title: "Connection Error",
+          description: "Failed to connect to real-time service",
           variant: "destructive",
         });
         setConnectionAttempts((prev) => prev + 1);
       },
-      onReconnectStop: () => {
-        console.log("WebSocket reconnection attempts exhausted");
+
+      onReconnectStop: (numAttempts) => {
+        console.log("Reconnection attempts exhausted", numAttempts);
+        toast({
+          title: "Connection Lost",
+          description: "Could not reconnect to notification service",
+          variant: "destructive",
+        });
       },
-      queryParams: { token: currentUser?.token as string },
+
+      queryParams: {
+        token: currentUser?.token as string,
+      },
     }
   );
 
   useEffect(() => {
-    if (lastMessage?.data) {
-     
+    if (!lastMessage?.data) return;
+
+    const handleSocketMessage = (data: string) => {
       try {
-        const socketData = lastMessage.data;
+        if (data.startsWith("42")) {
+          const payload = JSON.parse(data.substring(2));
+          const [eventName, eventData] = payload;
 
-          if (typeof socketData === "string" && socketData.match(/^\d+\[/)) {
-            const jsonStartIndex = socketData.indexOf("[");
-            if (jsonStartIndex !== -1) {
-              const jsonPart = socketData.substring(jsonStartIndex);
-              const parsedArray = JSON.parse(jsonPart);
-
-              if (Array.isArray(parsedArray) && parsedArray.length >= 2) {
-                const [eventName, eventData] = parsedArray;
-
-                console.log("Received Socket.IO event:", eventName, eventData);
-
-                if (eventName === "notification") {
-                  console.log("Received notification:", eventData);
-                  queryClient.invalidateQueries({
-                    queryKey: ["notifications"],
-                  });
-                  queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-
-                  if (onNewNotification) {
-                    onNewNotification(eventData as Notification);
-                  }
-                } else {
-                  console.log("Received event notification:", eventData);
-                  queryClient.invalidateQueries({
-                    queryKey: ["notifications"],
-                  });
-                  queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-
-                  if (onNewNotification) {
-                    onNewNotification(eventData as Notification);
-                  }
-                }
-              }
-            }
-          } else {
-            // Handle regular JSON if not in Socket.IO format
-            const data = JSON.parse(socketData);
-            console.log("Received WebSocket message:", data);
-
-            if (data.type === "notification") {
-              console.log("Received notification:", data);
-              const notification = data.payload as Notification;
-
-              queryClient.invalidateQueries({ queryKey: ["notifications"] });
-              queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-
-              if (onNewNotification) {
-                onNewNotification(notification);
-              }
-            }
+          if (eventName === "notification") {
+            processNotification(eventData);
           }
+        } 
+        else {
+          const message = JSON.parse(data);
+          if (message.type === "notification") {
+            processNotification(message.payload);
+          }
+        }
       } catch (error) {
-        console.error(
-          "Error parsing WebSocket message:",
-          error,
-          lastMessage.data
-        );
+        console.error("Error parsing message:", error, data);
       }
-    }
+    };
+
+    const processNotification = (notification: Notification) => {
+      console.log("New notification:", notification);
+      queryClient.invalidateQueries(["notifications"]);
+      queryClient.invalidateQueries(["unreadCount"]);
+      onNewNotification?.(notification);
+      
+      toast({
+        title: "New Notification",
+        description: notification.message,
+      });
+    };
+
+    handleSocketMessage(lastMessage.data);
   }, [lastMessage, queryClient, onNewNotification]);
 
   const reconnect = useCallback(() => {
     const socket = getWebSocket();
     if (socket) {
       socket.close();
+      setConnectionAttempts(0);
+      setShouldForcePolling(false); 
     }
   }, [getWebSocket]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
-    [ReadyState.OPEN]: "Open",
+    [ReadyState.OPEN]: "Connected",
     [ReadyState.CLOSING]: "Closing",
-    [ReadyState.CLOSED]: "Closed",
-    [ReadyState.UNINSTANTIATED]: "Uninstantiated",
+    [ReadyState.CLOSED]: "Disconnected",
+    [ReadyState.UNINSTANTIATED]: "Uninitialized",
   }[readyState];
-
-  const isConnected = readyState === ReadyState.OPEN;
 
   return {
     sendMessage,
     lastMessage,
     readyState,
     connectionStatus,
-    isConnected,
+    isConnected: readyState === ReadyState.OPEN,
+    isConnecting: readyState === ReadyState.CONNECTING,
     reconnect,
     connectionAttempts,
+    transportMode: shouldForcePolling ? "polling" : "websocket",
   };
 };
