@@ -50,21 +50,21 @@ app.add_middleware(
 
 
 class Profile(BaseModel):
-    currentTitle: str
-    currentCompany: str
-    totalYearsInTech: int
-    highestDegree: str
-    programOfStudy: str
-    university: str
-    graduationYear: str
-    technicalSkills: str
-    programmingLanguages: str
-    toolsAndTechnologies: str
-    softSkills: str
-    industries: str
+    currentTitle: Optional[str] = "Not provided"
+    currentCompany: Optional[str] = "Not provided"
+    totalYearsInTech: Optional[int] = 0
+    highestDegree: Optional[str] = "Not provided"
+    programOfStudy: Optional[str] = "Not provided"
+    university: Optional[str] = "Not provided"
+    graduationYear: Optional[str] = "Not provided"
+    technicalSkills: Optional[str] = ""
+    programmingLanguages: Optional[str] = ""
+    toolsAndTechnologies: Optional[str] = ""
+    softSkills: Optional[str] = ""
+    industries: Optional[str] = ""
     certifications: Optional[str] = None
-    keyProjects: str
-    recentAchievements: str
+    keyProjects: Optional[str] = ""
+    recentAchievements: Optional[str] = ""
 
 
 class JobRequest(BaseModel):
@@ -152,11 +152,25 @@ def predict_attrition_endpoint(employee: EmployeeData):
 @app.post("/predict-match")
 def match_job_endpoint(request: JobRequest):
     try:
+        # Get formatted profile with fallback for missing values
+        profile_str = format_profile(request.profile)
+
+        # Ensure we have at least some basic data to work with
+        if not any([request.profile.technicalSkills,
+                   request.profile.programmingLanguages,
+                   request.profile.toolsAndTechnologies]):
+            raise HTTPException(
+                status_code=400,
+                detail="At least one of technicalSkills, programmingLanguages, or toolsAndTechnologies must be provided"
+            )
+
         return match_jobs_to_applicant(
-            format_profile(request.profile),
+            profile_str,
             request.applied_position,
             df
         )
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
