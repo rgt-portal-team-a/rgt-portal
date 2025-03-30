@@ -35,8 +35,6 @@ import { SchedulerService } from "@/services/scheduler.service";
 const app = express();
 const httpServer = createServer(app);
 
-// app.set("trust proxy", true);
-
 export const io: SocketIOServer = require("socket.io")(httpServer, {
   serveClient: true,
   transports: ["websocket", "polling"],
