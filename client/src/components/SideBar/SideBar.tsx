@@ -99,14 +99,14 @@ export const SideBar = () => {
       )}
       <div className="bg-white h-full rounded-[30px] flex flex-col items-center py-[31px] w-full max-w-[280px]">
         <div className="space-y-3">
-          <div className="flex relative bg-[#452667] text-white justify-start items-center px-4 md:p-[16px] space-x-2 md:space-x-4 rounded-[16px] md:w-[240px] h-[72px]">
+          <div className="flex relative bg-[#452667] text-white justify-start items-center px-4 md:p-[16px] space-x-2 md:space-x-4 rounded-[16px] sm:w-[200px] md:w-[240px] h-[72px]">
             <Avtr
               url={user?.profileImage as string}
               name={user?.username as string}
               className="border-0"
             />
-            <div className="md:flex flex-col items-start justify-start hidden">
-              <p className="font-bold text-[15px] text-nowrap w-32 text-start truncate">
+            <div className="sm:flex flex-col items-start justify-start hidden">
+              <p className="font-bold text-[15px] text-nowrap sm:w-[97px] md:w-32 text-start truncate">
                 {user?.username}
               </p>
               <p className="text-[#F6F6F9] text-[12px] font-medium">
@@ -160,9 +160,9 @@ export const SideBar = () => {
                 icon={item.icon}
                 className="w-24 h-10"
                 itemlabelClassName="ml-6 text-sm"
-                activeBgClr="bg-rgtpink"
-                activeTabClr=""
-                activeTxtClr="text-rgtpink"
+                activeBgClr="bg-[#E328AF]"
+                activeTabClr="#E328AF"
+                activeTxtClr="text-[#E328AF]"
               />
             ) : (
               <div className="w-full" key={item.path}>
@@ -182,7 +182,7 @@ export const SideBar = () => {
                         ) : (
                           <item.icon size={24} />
                         )}
-                        <span className="font-semibold text-base hidden md:block">
+                        <span className="font-semibold text-base hidden sm:block">
                           {item.label}
                         </span>
                       </div>
