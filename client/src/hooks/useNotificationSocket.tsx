@@ -25,81 +25,68 @@ export const useNotificationSocket = (
   const { isAuthenticated, currentUser } = useAuthContextProvider();
   const queryClient = useQueryClient();
   const [connectionAttempts, setConnectionAttempts] = useState(0);
-  const [shouldForcePolling, setShouldForcePolling] = useState(false);
+  const [shouldForcePolling, setShouldForcePolling] = useState(true); // Start with polling
 
+  // Correct URL construction
   const getWebSocketUrl = () => {
-    const baseUrl = process.env.NEXT_PUBLIC_WS_URL 
+    const baseUrl = import.meta.env.VITE_NODE_ENV === "development" ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_BASE_URL
       || "https://sih2h86cxp.ap-south-1.awsapprunner.com";
     
-    const wsProtocol = baseUrl.startsWith("https") ? "wss" : "ws";
-    const host = baseUrl.replace(/^https?:\/\//, "");
+    const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
+    const wsProtocol = cleanBaseUrl.startsWith("https") ? "wss" : "ws";
+    const host = cleanBaseUrl.replace(/^https?:\/\//, '');
     
-    return shouldForcePolling 
-      ? `${wsProtocol}://${host}/socket.io/?EIO=4&transport=polling`
-      : `${wsProtocol}://${host}/socket.io/?EIO=4&transport=websocket`;
-  };
-
-  const socketOptions = {
-    fromSocketIO: true,
-    shouldReconnect: (closeEvent: CloseEvent) => {
-      if (closeEvent.code === 4001) return false;
-      return enableReconnect && connectionAttempts < reconnectAttempts;
-    },
-    reconnectInterval,
-    reconnectAttempts,
-    share: true,
-    retryOnError: true,
-    transports: shouldForcePolling ? ['polling'] : ['websocket', 'polling'],
-    onOpen: (event: Event) => {
-      console.log("Socket connection established", event);
-      setConnectionAttempts(0);
-      toast({
-        title: "Connected",
-        description: "Real-time notifications connected",
-        variant: "success",
-      });
-      
-      if (!shouldForcePolling && currentUser?.token) {
-        sendMessage(
-          JSON.stringify({
-            type: "authentication",
-            token: currentUser.token,
-          })
-        );
-      }
-    },
-    onClose: (event: CloseEvent) => {
-      console.log("Socket connection closed", event);
-      if (event.code === 1006 && !shouldForcePolling) {
-        console.warn("WebSocket failed, falling back to polling");
-        setShouldForcePolling(true);
-      }
-    },
-    onError: (event: Event) => {
-      console.error("Socket error:", event);
-      toast({
-        title: "Connection Error",
-        description: "Failed to connect to real-time service",
-        variant: "destructive",
-      });
-      setConnectionAttempts((prev) => prev + 1);
-    },
-    onReconnectStop: (numAttempts: number) => {
-      console.log("Reconnection attempts exhausted", numAttempts);
-      toast({
-        title: "Connection Lost",
-        description: "Could not reconnect to notification service",
-        variant: "destructive",
-      });
-    },
-    queryParams: {
-      token: currentUser?.token as string,
-    },
+    return `${wsProtocol}://${host}/socket.io/?EIO=4&transport=polling`;
   };
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     isAuthenticated ? getWebSocketUrl() : null,
-    socketOptions
+    {
+      fromSocketIO: true,
+      shouldReconnect: (closeEvent) => {
+        if (closeEvent.code === 4001) return false;
+        return enableReconnect && connectionAttempts < reconnectAttempts;
+      },
+      reconnectInterval,
+      reconnectAttempts,
+      share: true,
+      retryOnError: true,
+      transports: ['polling'],
+      onOpen: (event) => {
+        console.log("Socket connection established");
+        setConnectionAttempts(0);
+        toast({
+          title: "Connected",
+          description: "Real-time notifications connected",
+          variant: "success",
+        });
+        
+        // Send authentication if needed
+        if (currentUser?.token) {
+          sendMessage(
+            JSON.stringify({
+              type: "authentication",
+              token: currentUser.token,
+            })
+          );
+        }
+      },
+      onClose: (event) => {
+        console.log("Socket connection closed", event);
+        toast({
+          title: "Disconnected",
+          description: "Notification connection lost",
+          variant: "destructive",
+        });
+      },
+      onError: (event) => {
+        console.error("Socket error:", event);
+        setConnectionAttempts((prev) => prev + 1);
+      },
+      queryParams: {
+        token: currentUser?.token as string,
+      },
+    }
   );
 
   useEffect(() => {
@@ -107,14 +94,16 @@ export const useNotificationSocket = (
 
     const handleSocketMessage = (data: string) => {
       try {
+        // Handle Socket.IO format
         if (data.startsWith("42")) {
           const payload = JSON.parse(data.substring(2));
           const [eventName, eventData] = payload;
-
           if (eventName === "notification") {
             processNotification(eventData);
           }
-        } else {
+        } 
+        // Handle plain JSON format
+        else {
           const message = JSON.parse(data);
           if (message.type === "notification") {
             processNotification(message.payload);
@@ -126,15 +115,13 @@ export const useNotificationSocket = (
     };
 
     const processNotification = (notification: Notification) => {
-      console.log("New notification:", notification);
-      // Fixed query invalidation syntax
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
       onNewNotification?.(notification);
       
       toast({
         title: "New Notification",
-        description: notification.content || "You have a new notification", // Changed from notification.message
+        description: notification.content,
       });
     };
 
@@ -146,7 +133,6 @@ export const useNotificationSocket = (
     if (socket) {
       socket.close();
       setConnectionAttempts(0);
-      setShouldForcePolling(false);
     }
   }, [getWebSocket]);
 
@@ -164,9 +150,7 @@ export const useNotificationSocket = (
     readyState,
     connectionStatus,
     isConnected: readyState === ReadyState.OPEN,
-    isConnecting: readyState === ReadyState.CONNECTING,
     reconnect,
     connectionAttempts,
-    transportMode: shouldForcePolling ? "polling" : "websocket",
   };
 };
