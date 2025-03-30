@@ -2,12 +2,15 @@ import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
 import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
+import { Employee } from "@/entities/employee.entity";
 
 export class UserService {
   private userRepository: Repository<User>;
+  private employeeRepository: Repository<Employee>;
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
+    this.employeeRepository = AppDataSource.getRepository(Employee);
   }
 
   async findAll(): Promise<User[]> {
@@ -46,4 +49,5 @@ export class UserService {
   async delete(id: number): Promise<void> {
     await this.userRepository.delete(id);
   }
+
 }

@@ -1,6 +1,6 @@
 interface CustomSelectProps {
   placeholder?: string;
-  options: string[];
+  options: { label: string; value: string }[];
   value: string;
   onChange: (value: string) => void;
   className?: string;
@@ -21,8 +21,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
+        <option key={option.label} value={option.value}>
+          {option.label}
         </option>
       ))}
     </select>
