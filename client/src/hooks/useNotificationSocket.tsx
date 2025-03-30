@@ -25,33 +25,31 @@ export const useNotificationSocket = (
   const { isAuthenticated, currentUser } = useAuthContextProvider();
   const queryClient = useQueryClient();
   const [connectionAttempts, setConnectionAttempts] = useState(0);
-  const [shouldForcePolling, setShouldForcePolling] = useState(true); // Start with polling
 
-  // Correct URL construction
-  const getWebSocketUrl = () => {
-    const baseUrl = import.meta.env.VITE_NODE_ENV === "development" ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_BASE_URL
-      || "https://sih2h86cxp.ap-south-1.awsapprunner.com";
+  const getSocketUrl = useCallback(() => {
+    const baseUrl = process.env.NEXT_PUBLIC_WS_URL || 
+      "https://sih2h86cxp.ap-south-1.awsapprunner.com";
     
     const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
     const wsProtocol = cleanBaseUrl.startsWith("https") ? "wss" : "ws";
     const host = cleanBaseUrl.replace(/^https?:\/\//, '');
     
     return `${wsProtocol}://${host}/socket.io/?EIO=4&transport=polling`;
-  };
+  }, []);
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
-    isAuthenticated ? getWebSocketUrl() : null,
+    isAuthenticated ? getSocketUrl() : null,
     {
       fromSocketIO: true,
       shouldReconnect: (closeEvent) => {
-        if (closeEvent.code === 4001) return false;
+        if (closeEvent.code === 4001) return false; 
         return enableReconnect && connectionAttempts < reconnectAttempts;
       },
       reconnectInterval,
       reconnectAttempts,
       share: true,
       retryOnError: true,
-      transports: ['polling'],
+
       onOpen: (event) => {
         console.log("Socket connection established");
         setConnectionAttempts(0);
@@ -61,7 +59,6 @@ export const useNotificationSocket = (
           variant: "success",
         });
         
-        // Send authentication if needed
         if (currentUser?.token) {
           sendMessage(
             JSON.stringify({
@@ -73,11 +70,13 @@ export const useNotificationSocket = (
       },
       onClose: (event) => {
         console.log("Socket connection closed", event);
-        toast({
-          title: "Disconnected",
-          description: "Notification connection lost",
-          variant: "destructive",
-        });
+        if (!event.wasClean) {
+          toast({
+            title: "Disconnected",
+            description: "Notification connection lost",
+            variant: "destructive",
+          });
+        }
       },
       onError: (event) => {
         console.error("Socket error:", event);
@@ -94,23 +93,21 @@ export const useNotificationSocket = (
 
     const handleSocketMessage = (data: string) => {
       try {
-        // Handle Socket.IO format
-        if (data.startsWith("42")) {
+        if (typeof data === "string" && data.startsWith("42")) {
           const payload = JSON.parse(data.substring(2));
           const [eventName, eventData] = payload;
           if (eventName === "notification") {
             processNotification(eventData);
           }
-        } 
-        // Handle plain JSON format
-        else {
+        }
+        else if (typeof data === "string") {
           const message = JSON.parse(data);
           if (message.type === "notification") {
             processNotification(message.payload);
           }
         }
       } catch (error) {
-        console.error("Error parsing message:", error, data);
+        console.error("Error parsing message:", error, lastMessage.data);
       }
     };
 
@@ -121,7 +118,7 @@ export const useNotificationSocket = (
       
       toast({
         title: "New Notification",
-        description: notification.content,
+        description: notification.content || "New update available",
       });
     };
 
