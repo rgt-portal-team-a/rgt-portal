@@ -14,3 +14,4 @@ export { default as projectRoutes } from "./project.route";
 export { default as userRoutes } from "./user.route";
 export { default as notificationRoutes } from "./notification.route";
 export { default as aiRoutes } from "./ai-routes";
+export { default as queueRoutes } from "./queue.routes";

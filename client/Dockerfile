@@ -1,4 +1,3 @@
-
 # Stage 1: Build
 FROM node:20-alpine AS builder
 
@@ -8,7 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install dependencies only (no unnecessary dev dependencies in final build)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy the rest of the app files
 COPY . .
