@@ -49,7 +49,7 @@ const Upcoming_SpecialCard = () => {
   return (
     <>
       <section
-        className={`space-y-10 w-full md:w-[380px] overflow-y-auto h-full`}
+        className={`space-y-10 w-full overflow-y-auto h-full`}
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",

@@ -161,7 +161,7 @@ export default function TimeOff() {
   ];
 
   return (
-    <main className="sm:px-4">
+    <main>
       <div className="bg-white p-4 rounded-md overflow-auto">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">

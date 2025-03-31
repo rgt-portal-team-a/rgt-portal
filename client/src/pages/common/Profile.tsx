@@ -61,13 +61,19 @@ export function ProfilePage() {
         phone: editedUser.phone,
       });
       setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to update user:", error);
       toast({
         title: "Success",
         description: "Updated your profile successfully!",
         duration: 500,
         variant: "success",
+      });
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        duration: 500,
+        variant: "destructive",
       });
     }
   };

@@ -147,7 +147,7 @@ export const BaseLayout = () => {
   return (
     <div>
       <header
-        className="fixed top-0 flex items-center justify-between p-4 bg-white border-b w-full"
+        className="fixed top-0 flex items-center justify-between p-4 bg-white border-b w-full h-18"
         style={{ zIndex: 1000 }}
       >
         {/* Left section with logo */}
@@ -214,12 +214,12 @@ export const BaseLayout = () => {
         <div className="flex w-full justify-end gap-3">
           <div className="relative w-full flex justify-end gap-6">
             {/* Center section with search */}
-            <div className="relative md:w-[400px]">
-              <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
+            <div className="relative md:w-[400px] flex items-center">
+              <Search className="absolute left-2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
                 placeholder="Search employees..."
-                className="pl-10 py-5 bg-gray-50 border-none outline-none shadow-none"
+                className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none"
                 value={searchQuery}
                 onChange={handleOnChange}
                 onFocus={() => setIsDropdownVisible(!!searchQuery)}
@@ -278,7 +278,7 @@ export const BaseLayout = () => {
               </button>
             </div>
             <div
-              className="md:hidden flex justify-center items-center md:h-[60px] w-[60px] rounded-[16px] bg-[#F6F6F9] cursor-pointer hover:bg-slate-200 transition-all duration-300 ease-in"
+              className="xl:hidden flex justify-center items-center md:h-[60px] w-[60px] rounded-[16px] bg-[#F6F6F9] cursor-pointer hover:bg-slate-200 transition-all duration-300 ease-in"
               onClick={handleCalendarShow}
             >
               <CalendarIcon2 />
@@ -299,34 +299,33 @@ export const BaseLayout = () => {
           </div>
         </div>
       </header>
-      <div className="flex px-[13px] sm:space-x-[17px] w-screen h-screen">
+      <div className="flex w-screen h-screen px-[13px] gap-[17px]">
         <div
           className="h-screen text-center sm:py-[78px] hidden sm:block overflow-y-scroll"
           style={{
-            scrollbarWidth: "none" /* Firefox */,
-            msOverflowStyle: "none" /* IE and Edge */,
+        scrollbarWidth: "none" /* Firefox */,
+        msOverflowStyle: "none" /* IE and Edge */,
           }}
         >
           <WithRole
-            roles={["hr", "admin"]}
-            userRole={user?.role.name as string}
+        roles={["hr", "admin"]}
+        userRole={user?.role.name as string}
           >
-            <HrSideBar />
+        <HrSideBar />
           </WithRole>
           <WithRole
-            roles={["employee", "manager", "marketer"]}
-            userRole={user?.role.name as string}
+        roles={["employee", "manager", "marketer"]}
+        userRole={user?.role.name as string}
           >
-            <SideBar />
+        <SideBar />
           </WithRole>
         </div>
 
         <div
-          className="pt-[78px] flex-1 h-screen overflow-y-auto relative"
+          className="pt-[78px] flex-1 h-screen overflow-y-auto relative pb-[60px] sm:pb-0"
           style={{
-            scrollbarWidth: "none" /* Firefox */,
-            msOverflowStyle: "none" /* IE and Edge */,
-            // scale: "85%"
+        scrollbarWidth: "none" /* Firefox */,
+        msOverflowStyle: "none" /* IE and Edge */,
           }}
         >
           <Outlet />

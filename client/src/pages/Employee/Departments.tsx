@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 
 const Departments = () => {
   const { departments } = useSelector((state: RootState) => state.sharedState);
+  console.log("departments:", departments)
   return (
     <main>
       <header className="text-[#706D8A] font-semibold text-xl">

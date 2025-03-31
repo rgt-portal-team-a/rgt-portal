@@ -38,7 +38,7 @@ const Feed = () => {
   }
 
   return (
-    <main className={`flex w-full h-full pb-3 md:space-x-[17px]`}>
+    <main className={`flex w-full h-full pb-3 lg:space-x-[17px]`}>
       {/* main screen */}
       <div className="flex flex-col h-full flex-1 min-w-0">
         <Recognition
@@ -93,7 +93,7 @@ const Feed = () => {
       </div>
       {/* calendar */}
       <div
-        className="hidden md:block h-[100%] overflow-y-scroll"
+        className="hidden xl:block h-[100%] overflow-y-scroll"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <Upcoming_SpecialCard />

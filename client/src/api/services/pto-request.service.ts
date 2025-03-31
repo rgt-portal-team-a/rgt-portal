@@ -131,4 +131,18 @@ export class PtoRequestService {
       throw error;
     }
   }
+
+  static async fetchManagerDepartmentPtos(managerId:number):Promise<PtoLeave[] | undefined> {
+     try {
+       const response = await axios.get(`${API_URL}/manager/${managerId}`);
+       console.log("response ManagerIdPtos:", response.data);
+       if (!response.data.success) {
+         throw new Error(response.data.message || "manager ptos fetch unsuccessful");
+       }
+       return response.data.data.reverse();
+     } catch (error) {
+       console.log("Error fetching manager ptos:", error);
+       throw error;
+     }
+  }
 }

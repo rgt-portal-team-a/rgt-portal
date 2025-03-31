@@ -62,10 +62,10 @@ const NavDropdown = ({
   };
 
   return (
-    <div className={`w-full py-2 ${className}`}>
+    <div className={`w-full ${className}`}>
       <div
         onClick={toggleDropdown}
-        className={`flex items-center gap-3 transition-colors duration-200 cursor-pointer text-[#706D8A] ${
+        className={`flex items-center gap-3 transition-colors duration-200 py-2 cursor-pointer text-[#706D8A] ${
           hasActiveChild ? activeTxtClr : "hover:bg-gray-100"
         }`}
       >
