@@ -68,8 +68,6 @@ const EmployeeTimeOffRequest = ({
     },
   ];
 
-  console.log("data:", data);
-
   const filterData = (data: PtoLeave[] | undefined): PtoLeave[] => {
     if (!data) return [];
 
@@ -108,9 +106,18 @@ const EmployeeTimeOffRequest = ({
 
       if (
         filter.searchQuery &&
-        !item.employee?.user?.username
-          .toLowerCase()
-          .includes(filter.searchQuery.toLowerCase())
+        !(
+          item.employee?.user?.username
+            .toLowerCase()
+            .includes(filter.searchQuery.toLowerCase()) ||
+          item.employee?.firstName
+            ?.toLowerCase()
+            .includes(filter.searchQuery.toLowerCase()) ||
+          item.employee?.lastName
+            ?.toLowerCase()
+            .toLowerCase()
+            .includes(filter.searchQuery.toLowerCase())
+        )
       ) {
         return false;
       }
