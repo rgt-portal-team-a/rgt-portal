@@ -415,23 +415,23 @@ export class QueueService {
 
   // Email processing methods
   private async processEventSummaryEmail(payload: { event: Event; organizer: Employee }): Promise<void> {
-    // Implement email sending logic here
+    // TODO:  email sending logic 
     this.logger.info(`Processing event summary email for event ${payload.event.id}`);
   }
 
   private async processWeeklyDigestEmail(payload: { employee: Employee; events: Event[] }): Promise<void> {
-    // Implement email sending logic here
+    // TODO:  email sending logic 
     this.logger.info(`Processing weekly digest email for employee ${payload.employee.id}`);
   }
 
   // Report generation methods
   private async generateEventReport(payload: { startDate: Date; endDate: Date }): Promise<void> {
-    // Implement report generation logic here
+    // TODO: report generation logic 
     this.logger.info(`Generating event report for period ${payload.startDate} to ${payload.endDate}`);
   }
 
   private async generateParticipationReport(payload: { employeeId: number; startDate: Date; endDate: Date }): Promise<void> {
-    // Implement report generation logic here
+      // Implement report generation logic here
     this.logger.info(`Generating participation report for employee ${payload.employeeId}`);
   }
 
