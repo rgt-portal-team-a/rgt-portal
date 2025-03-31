@@ -2,7 +2,6 @@ import axios from "axios";
 import { defaultApiClient } from "../axios";
 import { ApiResponse } from "../types";
 import { User, ResponseUser } from "@/types/authUser";
-import { FileUploadService } from "./file.service";
 
 export interface LoginRequest {
   email: string;
@@ -64,14 +63,15 @@ export const authService = {
     return response.data;
   },
 
-  updateUser: async (data: Partial<User>):Promise<any> => {
-    if(data.profileImage){
-      const uploadResponse = await FileUploadService.uploadFile(data.profileImage);
-    }
-    const response = await axios.put("/user/auth/update-user-and-employee", {
-      userId: data.id,
-      updateUserAndEmployeeDto: data,
-    });
+  updateUser: async (data: Partial<User>): Promise<any> => {
+    console.log("data.id:", data.id);
+    const response = await axios.put(
+      `http://localhost:8000/user/auth/update-user-and-employee`,
+      {
+        userId: data.id,
+        updateUserAndEmployeeDto: data,
+      }
+    );
     return response.data;
   },
 };

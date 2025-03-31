@@ -152,12 +152,12 @@ export const BaseLayout = () => {
       >
         {/* Left section with logo */}
         <div className="flex items-center">
-          <div className="">
+          <div className="hidden sm:block">
             <img src="/RgtPortalLogo.svg" className="w-24" />
           </div>
 
           {/* Mobile profile dropdown */}
-          <div className="sm:ml-4 md:hidden relative" ref={profileDropdownRef}>
+          <div className="sm:ml-4 md:hidden relative mr-2" ref={profileDropdownRef}>
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -214,7 +214,7 @@ export const BaseLayout = () => {
         <div className="flex w-full justify-end gap-3">
           <div className="relative w-full flex justify-end gap-6">
             {/* Center section with search */}
-            <div className="relative w-[400px]">
+            <div className="relative md:w-[400px]">
               <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
@@ -286,7 +286,7 @@ export const BaseLayout = () => {
             {showCalendar && (
               <div className="absolute -right-3 top-10" ref={calendarRef}>
                 <div
-                  className="h-[620px] w-[300px] pb-3 overflow-auto border-gray-400 border- shadow-lg shadow-gray-600 rounded-2xl"
+                  className="h-[620px] w-[300px] pb-3 bg-white overflow-auto border-gray-400 border- shadow-lg shadow-gray-600 rounded-2xl"
                   style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",

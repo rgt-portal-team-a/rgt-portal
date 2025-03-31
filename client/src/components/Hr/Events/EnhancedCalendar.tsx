@@ -171,7 +171,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
             "w-8 flex-grow text-[#B5BEC6] font-semibold uppercase text-[10px]",
           cell: "flex items-center justify-center flex-grow text-sm relative",
         }}
-        className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-full md:w-[348px] h-full relative"
+        className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-full md:w-[348px] relative h-[310px]"
         components={{
           Day: ({ date }) => {
             const dateKey = format(date, "yyyy-MM-dd");
@@ -189,7 +189,7 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
                     }
                     onMouseLeave={handleDayMouseLeave}
                     className={cn(
-                      "w-8 h-8 sm:w-10 sm:h-10 font-medium rounded-full flex items-center justify-center",
+                      "w-8 h-8 font-medium rounded-full flex items-center justify-center",
                       modifiersClassNames[dateKey] || "",
                       hasEvents ? "cursor-pointer" : ""
                     )}
