@@ -9,17 +9,15 @@ from datetime import datetime
 from typing import List, Dict, Optional, Any
 import warnings
 from sklearn.exceptions import DataConversionWarning
+import json
 
 # Import modules from your project
 from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
 from smart_match.predict import match_jobs_to_applicant, df
 from nsp_retention.nsp_analyzer import NSPAnalyzer, generate_recommendations, generate_report
 from nsp_retention.nsp_models import ReportResponse
-from dropoff_analysis.employee_predict_test import (
-    DropoffPredictor,
-    RawApplicantData,
-    PredictionResult
-)
+# Updated dropoff predictor import; note that we now use RawCandidateData from our updated module.
+from dropoff_final.predict import DropoffPredictor, RawCandidateData, PredictionResult
 from cv_screening.cv_processor import process_cv
 
 # Suppress sklearn warnings
@@ -83,10 +81,11 @@ class NSPDataDirectInput(BaseModel):
     )
 
 
-# Initialize predictor
+# Initialize the updated dropoff predictor.
 try:
+    # Adjust the path if necessary.
     predictor = DropoffPredictor(os.path.join(
-        'dropoff_analysis', 'employee_dropoff_best_model.pkl'))
+        'dropoff_final', 'models', 'best_model.pkl'))
 except Exception as e:
     raise RuntimeError(f"Failed to initialize predictor: {str(e)}")
 
@@ -188,9 +187,10 @@ async def generate_report_endpoint(input_data: NSPDataDirectInput):
 
 
 @app.post("/predict-dropoff", response_model=List[PredictionResult])
-async def predict_dropoff_endpoint(applicants: List[RawApplicantData]):
+async def predict_dropoff_endpoint(applicants: List[RawCandidateData]):
     try:
-        return predictor.predict_from_raw(applicants)
+        predictions = predictor.predict_from_raw(applicants)
+        return predictions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
