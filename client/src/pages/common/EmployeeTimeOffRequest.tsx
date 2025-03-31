@@ -9,9 +9,11 @@ import { useState } from "react";
 const EmployeeTimeOffRequest = ({
   data,
   isDataLoading,
+  departmentName,
 }: {
   data: PtoLeave[] | undefined;
   isDataLoading: boolean;
+  departmentName?: string;
 }) => {
   const [filter, setFilter] = useState<FilterState>({
     type: "All Type",
@@ -124,7 +126,7 @@ const EmployeeTimeOffRequest = ({
       <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
         <section className="space-y-2 flex flex-col sm:flex-row sm:justify-between w-full sm:items-center py-1 pl-4">
           <h1 className="text-lg sm:text-xl font-medium text-gray-600 text-nowrap">
-            Employee TimeOff Requests
+            {departmentName ?? "Employee TimeOff Requests"}
           </h1>
         </section>
 

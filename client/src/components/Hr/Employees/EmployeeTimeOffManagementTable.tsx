@@ -205,7 +205,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
               />
               <div>
                 <p className="text-[#8A8A8C] font-semibold ">
-                  {row.employee?.user?.username}
+                  {row.employee?.firstName + " " + row.employee?.lastName}
                 </p>
                 <p className="font-[400]">{row.employee?.user?.email}</p>
               </div>

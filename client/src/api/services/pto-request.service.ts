@@ -134,7 +134,9 @@ export class PtoRequestService {
 
   static async fetchManagerDepartmentPtos(managerId:number):Promise<PtoLeave[] | undefined> {
      try {
-       const response = await axios.get(`${API_URL}/manager/${managerId}`);
+       const response = await axios.get(
+         `http://localhost:8000/api/departments/manager/${managerId}`
+       );
        console.log("response ManagerIdPtos:", response.data);
        if (!response.data.success) {
          throw new Error(response.data.message || "manager ptos fetch unsuccessful");
