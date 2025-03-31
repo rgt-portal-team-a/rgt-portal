@@ -85,7 +85,7 @@ class NSPDataDirectInput(BaseModel):
 try:
     # Adjust the path if necessary.
     predictor = DropoffPredictor(os.path.join(
-        'dropoff_final', 'models', 'best_model.pkl'))
+        'dropoff_final', 'best_dropoff_model.pkl'))
 except Exception as e:
     raise RuntimeError(f"Failed to initialize predictor: {str(e)}")
 

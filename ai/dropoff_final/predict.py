@@ -64,8 +64,8 @@ class PredictionResult(BaseModel):
 
 
 class DropoffPredictor:
-    def __init__(self, model_path: str = 'dropoff_final/models/best_model.pkl',
-                 scaler_path: str = 'dropoff_final/models/feature_scaler.pkl'):
+    def __init__(self, model_path: str = 'dropoff_final/best_dropoff_model.pkl',
+                 scaler_path: str = 'dropoff_final/dropoff_feature_scaler.pkl'):
         self.model = self._load_model(model_path)
         self.scaler = self._load_scaler(scaler_path)
 
