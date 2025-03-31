@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DataTable } from "../../common/DataTable";
 import StepProgress from "../../common/StepProgress";
 import { Column } from "@/types/tables";
@@ -14,12 +14,19 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
-import { Employee } from "@/types/employee";
+import { Employee, EmployeeType } from "@/types/employee";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import EmployeeTableSkeleton from "./EmployeeTableSkeleton";
 import ErrorMessage from "@/components/common/ErrorMessage";
+import { WORK_TYPES } from "@/constants";
+
+const employeeTypeLabels: Record<EmployeeType, string> = {
+   full_time: "FT",
+   part_time: "PT",
+   contractor: "FT",
+   nsp: "PT",
+ };
 
 interface EmployeeTableState {
   currentPage: number;
@@ -33,26 +40,27 @@ interface EmployeeTableState {
 interface FilterState {
   department: string;
   type: string;
-  status: string;
+  employmentType: string;
+}
+interface EmployeeTableProps {
+  employeeData: Employee[] | undefined;
+  isEmployeesLoading: boolean;
+  isEmployeesError: boolean;
+  employeeError: Error | null;
+  refetchEmployees: () => void;
 }
 
-const EmployeeTable: React.FC = () => {
+const EmployeeTable: React.FC<EmployeeTableProps> = ({employeeData, employeeError, isEmployeesError, isEmployeesLoading, refetchEmployees}) => {
   const [searchName, setSearchName] = useState("");
   const { departments } = useSelector((state: RootState) => state.sharedState);
   const { hasAccess } = usePermission();
   const [filter, setFilter] = useState<FilterState>({
     department: "All Departments",
     type: "All Type",
-    status: "All Status",
+    employmentType: "All Type",
   });
 
-  const {
-    data: employeeData,
-    isLoading: isEmployeesLoading,
-    isError: isEmployeesError,
-    error: employeeError,
-    refetch: refetchEmployees,
-  } = useAllEmployees({}, {});
+
 
   const [state, setState] = useState<EmployeeTableState>({
     currentPage: 1,
@@ -60,7 +68,7 @@ const EmployeeTable: React.FC = () => {
     loading: true,
     error: null,
     totalPages: 1,
-    itemsPerPage: 10,
+    itemsPerPage: 5,
   });
 
   const {
@@ -94,8 +102,11 @@ const EmployeeTable: React.FC = () => {
         filtered = filtered.filter((emp) => emp.workType === filter.type);
       }
 
-      if (filter.status !== "All Status") {
-        filtered = filtered.filter((emp) => emp.employeeType === filter.status);
+      // Employment type filter
+      if (filter.employmentType !== "All Types") {
+        filtered = filtered.filter(
+          (emp) => emp.employeeType === filter.employmentType
+        );
       }
 
       const newTotalPages = Math.max(
@@ -134,30 +145,47 @@ const EmployeeTable: React.FC = () => {
     return filteredEmployees.slice(startIndex, endIndex);
   };
 
-  // View action handler
-  const handleView = (id?: number): void => {
-    console.log(`Viewing employee with ID: ${id}`);
-  };
-
-  // Edit action handler
-  const handleEdit = (id?: number): void => {
-    console.log(`Editing employee with ID: ${id}`);
-  };
-
   const resetFilter = () => {
     setFilter({
       department: "All Departments",
       type: "All Type",
-      status: "All Status",
+      employmentType: "All Types",
     });
     setState((prev) => ({ ...prev, currentPage: 1 }));
   };
+
+  const calculateSeniority = useCallback((date: Date | null): string => {
+    if (!date) return "N/A";
+    const now = new Date();
+    const diffInYears = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24 * 365));
+    return `${diffInYears} years`;
+  }, []);
 
   const columns: Column[] = [
     {
       key: "name",
       header: "Employee Name",
-      render: (row) => `${row.firstName} ${row.lastName}`,
+      render: (row) => <div className="py-4">{row.firstName} {row.lastName}</div>,
+    },
+    {
+      key: "phone",
+      header: "Phone Number",
+      render: (row) => <div>{row.phone || "N/A"}</div>,
+    },
+    {
+      key: "age",
+      header: "Age",
+      render: (row) => <div>{calculateSeniority(row.birthDate)}</div>,
+    },
+    {
+      key: "city",
+      header: "City",
+      render: (row) => <div>{row.contactDetails?.city || "N/A"}</div>,
+    },
+    {
+      key: "region",
+      header: "Region",
+      render: (row) => <div>{row.contactDetails?.region || "N/A"}</div>,
     },
     {
       key: "department",
@@ -165,9 +193,14 @@ const EmployeeTable: React.FC = () => {
       render: (row) => row.department?.name || "N/A",
     },
     {
-      key: "role",
-      header: "Role",
-      render: (row) => row.position || "N/A",
+      key: "startDate",
+      header: "Start Date",
+      render: (row) => <div>{row.hireDate || "N/A"}</div>,
+    },
+    {
+      key: "seniority",
+      header: "Seniority",
+      render: (row) => <div>{calculateSeniority(row.hireDate)}</div>,
     },
     {
       key: "type",
@@ -175,42 +208,18 @@ const EmployeeTable: React.FC = () => {
       render: (row) => row.workType || "N/A",
     },
     {
-      key: "status",
-      header: "Status",
+      key: "employmentType",
+      header: "Employee Type",
       render: (row) => (
-        <div
-          className={`px-3 py-2 rounded-[5px] text-center text-xs
-          ${
-            row.employeeType === "Permanent"
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-purple-100 text-purple-800"
-          }`}
-        >
-          {row.employeeType || "N/A"}
+        <div>
+          {employeeTypeLabels[row.employeeType as EmployeeType] || "N/A"}
         </div>
       ),
       cellClassName: () => "flex items-center justify-center",
     },
   ];
 
-  const actionObj = [
-    ...(hasAccess("employeeRecords", "view")
-      ? [
-          {
-            name: "view",
-            action: (id?: number, _row?: any) => handleView(id),
-          },
-        ]
-      : []),
-    ...(hasAccess("employeeRecords", "edit")
-      ? [
-          {
-            name: "edit",
-            action: (id?: number, _row?: any) => handleEdit(id),
-          },
-        ]
-      : []),
-  ];
+
 
   return (
     <div className="p-6 bg-white rounded-lg">
@@ -263,26 +272,28 @@ const EmployeeTable: React.FC = () => {
                 <SelectValue placeholder="All Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="All Type">All Type</SelectItem>
-                <SelectItem value="Remote">Remote</SelectItem>
-                <SelectItem value="Office">Office</SelectItem>
+                <SelectItem value="All Types">All Type</SelectItem>
+                <SelectItem value={WORK_TYPES.REMOTE}>Remote</SelectItem>
+                <SelectItem value={WORK_TYPES.HYBRID}>Office</SelectItem>
               </SelectContent>
             </Select>
 
-            {/* Status Filter */}
+            {/* employmentType Filter */}
             <Select
-              value={filter.status}
+              value={filter.employmentType}
               onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, status: value }))
+                setFilter((prev) => ({ ...prev, employmentType: value }))
               }
             >
               <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="All Status">All Status</SelectItem>
-                <SelectItem value="Permanent">Permanent</SelectItem>
-                <SelectItem value="NSP">NSP</SelectItem>
+                <SelectItem value="All Types">All Status</SelectItem>
+                <SelectItem value="full_time">Full-time</SelectItem>
+                <SelectItem value="part_time">Part-time</SelectItem>
+                <SelectItem value="contractor">Contractor</SelectItem>
+                <SelectItem value="nsp">NSP</SelectItem>
               </SelectContent>
             </Select>
 
@@ -312,8 +323,7 @@ const EmployeeTable: React.FC = () => {
         columns={columns}
         data={getPaginatedData()}
         dividers={false}
-        actionBool={true}
-        actionObj={actionObj}
+        actionBool={false}
       />
 
       {/* No Data Message */}

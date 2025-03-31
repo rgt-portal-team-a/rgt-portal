@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
-import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
+import { CreateUserDto, UpdateUserAndEmployeeDto, UpdateUserDto } from "@/dtos/user.dto";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { MailService } from "@/services/mail.service";
@@ -11,9 +11,11 @@ import { BadRequestError, UnauthorizedError } from "@/utils/error";
 import { generateOtp } from "@/utils/function";
 import { logger } from "@/config/logger.config";
 import { redis } from "@/config/redis.config";
+import { Employee } from "@/entities/employee.entity";
 
 export class UserService {
   private userRepository: Repository<User>;
+  private employeeRepository: Repository<Employee>;
   private mailService: MailService;
   private redis: Redis;
   private readonly SALT_ROUNDS = 10;
@@ -22,6 +24,7 @@ export class UserService {
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
+    this.employeeRepository = AppDataSource.getRepository(Employee);
     this.mailService = new MailService();
     this.redis = redis;
   }
@@ -217,7 +220,7 @@ export class UserService {
     return this.findById(userId) as Promise<User>;
   }
 
-  async authenticateLocal(email: string): Promise<{ user: User; requiresOtp: boolean, otpId?: string }> {
+  async authenticateLocal(email: string): Promise<{ user: User; requiresOtp: boolean; otpId?: string }> {
     const user = await this.findByEmail(email);
 
     if (!user) {
@@ -234,7 +237,6 @@ export class UserService {
     } catch (error) {
       throw new UnauthorizedError("Invalid email");
     }
-
   }
 
   async completeAuthWithOtp(userId: number, otpId: string, otp: string): Promise<User> {
@@ -252,5 +254,38 @@ export class UserService {
     logger.info(`User email ${email} completed authentication with OTP verification`);
 
     return this.findByEmail(email) as Promise<User>;
+  }
+
+  async updateUserAndEmployee(id: number, updateUserAndEmployeeDto: UpdateUserAndEmployeeDto): Promise<User | null> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (updateUserAndEmployeeDto.username) {
+      user.username = updateUserAndEmployeeDto.username;
+    }
+    if (updateUserAndEmployeeDto.profileImage) {
+      user.profileImage = updateUserAndEmployeeDto.profileImage;
+    }
+
+    await this.userRepository.save(user);
+
+    const employee = await this.employeeRepository.findOne({ where: { user: { id: id } } });
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
+    if (updateUserAndEmployeeDto.firstName) {
+      employee.firstName = updateUserAndEmployeeDto.firstName;
+    }
+    if (updateUserAndEmployeeDto.lastName) {
+      employee.lastName = updateUserAndEmployeeDto.lastName;
+    }
+    if (updateUserAndEmployeeDto.phone) {
+      employee.phone = updateUserAndEmployeeDto.phone;
+    }
+    await this.employeeRepository.save(employee);
+
+    return user;
   }
 }

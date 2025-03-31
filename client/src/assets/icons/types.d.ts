@@ -1,6 +1,6 @@
 import { ClassNameValue } from "tailwind-merge";
 
-interface IconTypes {
+export interface IconTypes {
   color?: string;
   size?: number;
   fill?: string;

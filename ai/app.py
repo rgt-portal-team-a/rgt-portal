@@ -9,17 +9,15 @@ from datetime import datetime
 from typing import List, Dict, Optional, Any
 import warnings
 from sklearn.exceptions import DataConversionWarning
+import json
 
 # Import modules from your project
 from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
 from smart_match.predict import match_jobs_to_applicant, df
 from nsp_retention.nsp_analyzer import NSPAnalyzer, generate_recommendations, generate_report
 from nsp_retention.nsp_models import ReportResponse
-from dropoff_analysis.employee_predict_test import (
-    DropoffPredictor,
-    RawApplicantData,
-    PredictionResult
-)
+# Updated dropoff predictor import; note that we now use RawCandidateData from our updated module.
+from dropoff_final.predict import DropoffPredictor, RawCandidateData, PredictionResult
 from cv_screening.cv_processor import process_cv
 
 # Suppress sklearn warnings
@@ -50,21 +48,21 @@ app.add_middleware(
 
 
 class Profile(BaseModel):
-    currentTitle: str
-    currentCompany: str
-    totalYearsInTech: int
-    highestDegree: str
-    programOfStudy: str
-    university: str
-    graduationYear: str
-    technicalSkills: str
-    programmingLanguages: str
-    toolsAndTechnologies: str
-    softSkills: str
-    industries: str
+    currentTitle: Optional[str] = "Not provided"
+    currentCompany: Optional[str] = "Not provided"
+    totalYearsInTech: Optional[int] = 0
+    highestDegree: Optional[str] = "Not provided"
+    programOfStudy: Optional[str] = "Not provided"
+    university: Optional[str] = "Not provided"
+    graduationYear: Optional[str] = "Not provided"
+    technicalSkills: Optional[str] = ""
+    programmingLanguages: Optional[str] = ""
+    toolsAndTechnologies: Optional[str] = ""
+    softSkills: Optional[str] = ""
+    industries: Optional[str] = ""
     certifications: Optional[str] = None
-    keyProjects: str
-    recentAchievements: str
+    keyProjects: Optional[str] = ""
+    recentAchievements: Optional[str] = ""
 
 
 class JobRequest(BaseModel):
@@ -83,10 +81,11 @@ class NSPDataDirectInput(BaseModel):
     )
 
 
-# Initialize predictor
+# Initialize the updated dropoff predictor.
 try:
+    # Adjust the path if necessary.
     predictor = DropoffPredictor(os.path.join(
-        'dropoff_analysis', 'employee_dropoff_best_model.pkl'))
+        'dropoff_final', 'models', 'best_model.pkl'))
 except Exception as e:
     raise RuntimeError(f"Failed to initialize predictor: {str(e)}")
 
@@ -152,11 +151,25 @@ def predict_attrition_endpoint(employee: EmployeeData):
 @app.post("/predict-match")
 def match_job_endpoint(request: JobRequest):
     try:
+        # Get formatted profile with fallback for missing values
+        profile_str = format_profile(request.profile)
+
+        # Ensure we have at least some basic data to work with
+        if not any([request.profile.technicalSkills,
+                   request.profile.programmingLanguages,
+                   request.profile.toolsAndTechnologies]):
+            raise HTTPException(
+                status_code=400,
+                detail="At least one of technicalSkills, programmingLanguages, or toolsAndTechnologies must be provided"
+            )
+
         return match_jobs_to_applicant(
-            format_profile(request.profile),
+            profile_str,
             request.applied_position,
             df
         )
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -174,9 +187,10 @@ async def generate_report_endpoint(input_data: NSPDataDirectInput):
 
 
 @app.post("/predict-dropoff", response_model=List[PredictionResult])
-async def predict_dropoff_endpoint(applicants: List[RawApplicantData]):
+async def predict_dropoff_endpoint(applicants: List[RawCandidateData]):
     try:
-        return predictor.predict_from_raw(applicants)
+        predictions = predictor.predict_from_raw(applicants)
+        return predictions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

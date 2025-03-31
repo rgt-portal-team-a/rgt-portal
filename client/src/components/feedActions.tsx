@@ -17,11 +17,8 @@ const FeedActions = ({
   const [liked, setLiked] = useState(userPrevLiked || false);
   const [commented, setCommented] = useState(false);
 
-  console.log("postId from FeedActions:", postId);
-
   const { stats, toggleLike } = useInteraction(postId);
 
-  console.log("stats.comments:", stats?.commentsCount);
 
   const handleLike = () => {
     setLiked(!liked);

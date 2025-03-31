@@ -74,7 +74,7 @@ const FindEmployee = () => {
           <div className="flex gap-2">
             <span className="font-semibold text-sm">Email:</span>
             <p className="font-medium text-slate-500 text-sm">
-              {employee.user.email}
+              {employee.user?.email}
             </p>
           </div>
 
@@ -93,7 +93,7 @@ const FindEmployee = () => {
           <div className="flex gap-2">
             <span className="font-semibold text-sm">Agency:</span>{" "}
             <p className="font-medium text-slate-500 text-sm">
-              {employee.agency || "N/A"}
+              {employee.agency?.name || "N/A"}
             </p>
           </div>
           <div className="flex gap-2">

@@ -1,11 +1,13 @@
+import { RecruitmentType } from "@/lib/enums";
+
 interface Recruitment {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phoneNumber: string;
   date: string;
-  type: RecruitmentType;
-  currentStatus: RecruitmentStatus;
+  type: string;
+  currentStatus: string;
   statusDueDate?: string;
   failStage?: string;
   failReason?: string;

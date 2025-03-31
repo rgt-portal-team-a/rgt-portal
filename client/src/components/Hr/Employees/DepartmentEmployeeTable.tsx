@@ -7,15 +7,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, MoreVertical, UserCheck, Trash2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import StepProgress from "@/components/common/StepProgress";
-import { ActionObject, Column } from "@/types/tables";
+import { Column } from "@/types/tables";
 import { DataTable } from "../../common/DataTable";
 import { usePermission } from "@/hooks/use-permission";
 import { Employee, EmployeeType } from "@/types/employee";
 import { Department } from "@/types/department";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
-import {useRemoveEmployeeFromDepartment} from "@/api/query-hooks/employee.hooks"
+import { useRemoveEmployeeFromDepartment } from "@/api/query-hooks/employee.hooks"
+import { useUpdateDepartment } from "@/api/query-hooks/department.hooks"
 
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
@@ -43,6 +49,8 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
 }) => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+  const [managerModalOpen, setManagerModalOpen] = useState<boolean>(false);
+  const [employeeModalOpen, setEmployeeModalOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [employeesPerPage] = useState<number>(5);
   const { hasAccess } = usePermission();
@@ -53,19 +61,24 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     status: "All Status",
   });
   const removeEmployeeFromDepartment = useRemoveEmployeeFromDepartment();
+  const updateDepartment = useUpdateDepartment();
 
-  // const {
-  //   data: employeeData,
-  //   isLoading: isEmployeesLoading,
-  //   isError: isEmployeesError,
-  //   error: employeeError,
-  //   refetch: refetchEmployees
-  // } = useAllEmployees({}, {});
+  const preparedData = useMemo(() => {
+    if (!department.employees) return [];
+
+    return department.employees.map((employee) => ({
+      ...employee,
+      isDepartmentManager: department.managerId === employee.id,
+    }));
+  }, [department]);
+
+
+
 
   const filteredData = useMemo(() => {
     if (!department.employees) return [];
 
-    return department.employees.filter((employee) => {
+    return preparedData.filter((employee) => {
       const nameMatch =
         !filterByName ||
         employee.firstName
@@ -74,7 +87,8 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         employee.lastName?.toLowerCase().includes(filterByName.toLowerCase());
 
       const roleMatch =
-        filter.role === "All Role" || employee.role === filter.role;
+        filter.role === "All Role" || (filter.role === "manager" && employee.isDepartmentManager) ||
+        (filter.role === "member" && !employee.isDepartmentManager) ;
 
       const workTypeMatch =
         filter.workType === "All Work Type" ||
@@ -128,7 +142,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     setCurrentPage(page);
   };
 
-  const handleSubmit = async () => {
+  const handleDeleteEmployee = async () => {
     console.log("SelectedEMployeeId", selectedEmployeeId)
     console.log("Selected DepartmentId",  department.id)
     if (selectedEmployeeId && department.id) {
@@ -146,25 +160,12 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     }
   };
 
-  const actionObj = [
-    ...(hasAccess("employeeRecords", "edit")
-      ? [
-          {
-            name: "delete",
-            action: (_, row:Employee) => {
-              setSelectedEmployeeId(row.id);
-              setDeleteModalOpen(true)
-            },
-          },
-        ] 
-      : []) as ActionObject[],
-  ];
 
   const columns: Column[] = [
     {
       key: "name",
       header: "Employee Name",
-      render: (row) => (
+      render: (row: any) => (
         <div className="flex items-center">
           <div className="w-8 h-8 rounded-full overflow-hidden mr-3">
             <img
@@ -185,17 +186,19 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     {
       key: "role",
       header: "Role",
-      render: (row) => <div>{row.role || department?.name}</div>,
+      render: (row: any) => (
+        <div>{row.isDepartmentManager ? "Manager" : "Member"}</div>
+      ),
     },
     {
       key: "workType",
       header: "Work Type",
-      render: (row) => <div>{row.workType || "N/A"}</div>,
+      render: (row: any) => <div>{row.workType || "N/A"}</div>,
     },
     {
       key: "employeeType",
       header: "Employee Type",
-      render: (row) => (
+      render: (row: any) => (
         <div
           className={`px-3 py-2 rounded-[5px] text-center text-xs ${
             row.employeeType === "full_time"
@@ -210,7 +213,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     {
       key: "status",
       header: "Status",
-      render: (row) => (
+      render: (row: any) => (
         <div
           className={`px-3 py-2 rounded-[5px] text-center text-xs ${
             !row.leaveType
@@ -222,7 +225,121 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         </div>
       ),
     },
-  ];
+  ].concat(
+    hasAccess("employeeRecords", "edit")
+      ? [
+          {
+            key: "actions",
+            header: "Actions",
+            render: (row) => (
+              <EmployeeActionMenu
+                row={row as Employee & { isDepartmentManager?: boolean }}
+              />
+            ),
+          },
+        ]
+      : []
+  );
+
+  const handleUpdateManager = async () => {
+    if (selectedEmployeeId && department.id) {
+      try {
+        await updateDepartment.mutateAsync({
+          id: department.id.toString(),
+          data: {
+            name: department.name,
+            description: department.description,
+            managerId: selectedEmployeeId
+          }
+        });
+
+        setManagerModalOpen(false);
+        setSelectedEmployeeId(null);
+      } catch (error) {
+        console.error("Failed to update manager", error);
+      }
+    }
+  };
+  const handleUpdateEmployee = async () => {
+    if (selectedEmployeeId && department.id) {
+      try {
+        await updateDepartment.mutateAsync({
+          id: department.id.toString(),
+          data: {
+            name: department.name,
+            description: department.description,
+            // managerId: null
+          }
+        });
+
+        setManagerModalOpen(false);
+        setSelectedEmployeeId(null);
+      } catch (error) {
+        console.error("Failed to update manager", error);
+      }
+    }
+  };
+
+
+
+  const EmployeeActionMenu = ({
+    row,
+  }: {
+    row: Employee & { isDepartmentManager?: boolean };
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-[200px] p-2 space-y-1">
+          {!row.isDepartmentManager ? (
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={() => {
+                setSelectedEmployeeId(row.id);
+                setManagerModalOpen(true);
+                setIsOpen(false);
+              }}
+            >
+              <UserCheck className="mr-2 h-4 w-4" />
+              Make Manager
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              onClick={() => {
+                setSelectedEmployeeId(row.id);
+                setEmployeeModalOpen(true);
+                setIsOpen(false);
+              }}
+            >
+              <UserCheck className="mr-2 h-4 w-4" />
+              Make Employee
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-destructive hover:text-destructive"
+            onClick={() => {
+              setSelectedEmployeeId(row.id);
+              setDeleteModalOpen(true);
+              setIsOpen(false);
+            }}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </Button>
+        </PopoverContent>
+      </Popover>
+    );
+  };
 
   return (
     <div className="rounded-lg bg-white py-6">
@@ -241,8 +358,8 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="All Role">All Role</SelectItem>
-            <SelectItem value="Graphic Design">Graphic Design</SelectItem>
-            <SelectItem value="Copywriter">Copywriter</SelectItem>
+            <SelectItem value="manager">Manager</SelectItem>
+            <SelectItem value="member">Member</SelectItem>
           </SelectContent>
         </Select>
 
@@ -319,8 +436,8 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
           <DataTable
             columns={columns}
             data={paginatedData}
-            actionBool={true}
-            actionObj={actionObj}
+            actionBool={false}
+            // actionObj={actionObj}
             dividers={false}
           />
           <div className="mt-4">
@@ -349,9 +466,11 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         }}
         title="Remove Employee?"
         className="text-center"
-        submitText={removeEmployeeFromDepartment.isPending ? "Deleting..." : "Delete"}
+        submitText={
+          removeEmployeeFromDepartment.isPending ? "Deleting..." : "Delete"
+        }
         isSubmitting={removeEmployeeFromDepartment.isPending}
-        onSubmit={handleSubmit}
+        onSubmit={handleDeleteEmployee}
         onCancel={() => {
           if (!removeEmployeeFromDepartment.isPending) {
             setSelectedEmployeeId(null);
@@ -360,9 +479,79 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         }}
       >
         <div className="space-y-2 ">
-          <p className="text-sm text-gray-500">Remove Employee From This Department?</p>
+          <p className="text-sm text-gray-500">
+            Remove Employee From This Department?
+          </p>
+          <p className="text-xs text-gray-400">This action cannot be undone</p>
+        </div>
+      </ConfirmCancelModal>
+
+      {/* Make Manager Confirmation Modal */}
+      <ConfirmCancelModal
+        isOpen={managerModalOpen}
+        onOpenChange={(open) => {
+          if (!updateDepartment.isPending) {
+            setManagerModalOpen(open);
+            if (!open) {
+              setSelectedEmployeeId(null);
+            }
+          }
+        }}
+        title="Update Department Manager?"
+        className="text-center"
+        submitText={
+          updateDepartment.isPending ? "Updating..." : "Update"
+        }
+        isSubmitting={updateDepartment.isPending}
+        onSubmit={handleUpdateManager}
+        onCancel={() => {
+          if (!updateDepartment.isPending) {
+            setSelectedEmployeeId(null);
+            setManagerModalOpen(false);
+          }
+        }}
+      >
+        <div className="space-y-2 ">
+          <p className="text-sm text-gray-500">
+            Make this employee the department manager?
+          </p>
           <p className="text-xs text-gray-400">
-            This action cannot be undone
+            This will replace the current manager
+          </p>
+        </div>
+      </ConfirmCancelModal>
+
+      {/* Make Employee Confirmation Modal */}
+      <ConfirmCancelModal
+        isOpen={employeeModalOpen}
+        onOpenChange={(open) => {
+          if (!updateDepartment.isPending) {
+            setEmployeeModalOpen(open);
+            if (!open) {
+              setSelectedEmployeeId(null);
+            }
+          }
+        }}
+        title="Update Department Employee?"
+        className="text-center"
+        submitText={
+          updateDepartment.isPending ? "Updating..." : "Update"
+        }
+        isSubmitting={updateDepartment.isPending}
+        onSubmit={handleUpdateEmployee}
+        onCancel={() => {
+          if (!updateDepartment.isPending) {
+            setSelectedEmployeeId(null);
+            setEmployeeModalOpen(false);
+          }
+        }}
+      >
+        <div className="space-y-2 ">
+          <p className="text-sm text-gray-500">
+            Remove this employee as the department manager?
+          </p>
+          <p className="text-xs text-gray-400">
+            This will replace the remove the manager
           </p>
         </div>
       </ConfirmCancelModal>

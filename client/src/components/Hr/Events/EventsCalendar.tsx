@@ -480,7 +480,11 @@ const handleViewChange = (newView: 'date' | 'week' | 'month' | 'year') => {
 };
 
 return (
-  <div className="w-full h-[680px] overflow-y-scroll border rounded-lg bg-white shadow p-4">
+  <div className="w-full h-[680px] overflow-y-scroll border rounded-lg bg-white shadow p-4" 
+    style={{
+      scrollbarWidth: "none",
+      msOverflowStyle: "none",
+    }}>
     {/* Calendar header with navigation and view options */}
     <div className="flex items-center mb-4">
       <div className="flex items-center w-[40%] justify-between">

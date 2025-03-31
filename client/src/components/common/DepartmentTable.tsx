@@ -33,14 +33,14 @@ const DepartmentTable = ({ detail }: { detail: IDepartmentCard | null }) => {
                 {/* Assigned To */}
                 <td className="p-3 flex items-center gap-3">
                   <Avtr
-                    url={item.user.profileImage as string}
+                    url={item.user?.profileImage as string}
                     name={getAvatarFallback(item)}
                     index={index}
                     className="border-3 text-white font-semibold text-sm"
                     avtBg="bg-[#E328AF]"
                   />
                   <span className="text-sm font-semibold text-[#8A8A8C] text-nowrap">
-                    {item.user.username}
+                    {item.user?.username}
                   </span>
                 </td>
 
@@ -54,7 +54,7 @@ const DepartmentTable = ({ detail }: { detail: IDepartmentCard | null }) => {
                 {/* Role */}
                 <td className="p-3">
                   <span className="px-2 py-1 text-nowrap bg-green-100 text-[#039855] text-sm rounded font-semibold">
-                    {item.user.role.name.toUpperCase()}
+                    {item.user?.role.name.toUpperCase()}
                   </span>
                 </td>
 

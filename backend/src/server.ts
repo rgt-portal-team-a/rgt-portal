@@ -20,10 +20,12 @@ import {
   rootRoutes,
   fileUploaderRoutes,
   recruitmentRoutes,
+  recruitmentReportRoutes,
   projectRoutes,
   departmentRoutes,
   userRoutes,
   notificationRoutes,
+  aiRoutes,
 } from "./routes";
 import { SocketService } from "@/services/notifications/socket.service";
 import { Server as SocketIOServer } from "socket.io";
@@ -33,7 +35,6 @@ import { SchedulerService } from "@/services/scheduler.service";
 const app = express();
 const httpServer = createServer(app);
 
-app.set("trust proxy", true);
 
 export const io: SocketIOServer = require("socket.io")(httpServer, {
   serveClient: true,
@@ -53,6 +54,14 @@ httpServer.on("upgrade", (request: any, socket, head) => {
 
 const authMiddleware = new AuthMiddleware();
 
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+app.use((req, res, next) => {
+  res.setHeader("Set-Cookie", [`connect.sid=${req.sessionID}; HttpOnly; SameSite=None; Secure`]);
+  next();
+});
+
 // MIDDLEWARE
 app.use(cors(_cors));
 app.use(session(_session));
@@ -64,8 +73,9 @@ app.use(httpLogger);
 // app.use(notFoundLogger);
 app.use(checkDatabaseConnection);
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+
+// REQUEST CREDETIALS OF CLIENT
 
 // ROUTES
 app.use(rootRoutes);
@@ -78,10 +88,12 @@ app.use("/api/event", eventRoutes);
 app.use("/api/polls", pollRoutes);
 app.use("/api/file", fileUploaderRoutes);
 app.use("/api/recruitment", recruitmentRoutes);
+app.use("/api/reports", recruitmentReportRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/user/auth", userRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/ai", aiRoutes);
 
 // UNCAUGHT EXCEPTIONS & UNHANDLED REJECTIONS
 process.on("uncaughtException", (error) => {

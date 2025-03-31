@@ -269,33 +269,6 @@ export const employeeCards: EmployeeCardType[] = [
   },
 ];
 
-export const timeOffDummy = [
-  {
-    from: "01 Mar 2023",
-    to: "03 Mar 2023",
-    total: "3 Days",
-    reason: "Engagement",
-    status: "Pending",
-    type: "Sick Leave",
-  },
-  {
-    from: "01 Mar 2023",
-    to: "02 Mar 2023",
-    total: "1 Day",
-    reason: "Unwell",
-    status: "Approved",
-    type: "PTO",
-  },
-  {
-    from: "01 Mar 2023",
-    to: "04 Mar 2023",
-    total: "4 Days",
-    reason: "Emergency",
-    status: "Rejected",
-    type: "PTO",
-  },
-];
-
 export const timeOffTableColumns: Column[] = [
   { key: "total", header: "Total" },
   { key: "reason", header: "Reason" },
@@ -307,9 +280,9 @@ export const timeOffTableColumns: Column[] = [
       return `py-3 text-center ${
         status === "pending"
           ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
-          : status === "approved" || status === "manager_approved"
+          : status.includes("approved")
           ? "font-semibold text-[#7ABB9E] bg-[#E5F6EF] rounded-md "
-          : status === "declined" || status === "manager_declined"
+          : status.includes("declined")
           ? "font-semibold text-[#D92D20] bg-[#FEE4E2] rounded-md "
           : ""
       }`;

@@ -64,8 +64,8 @@ export const SideBar = () => {
               name={user?.username as string}
               className="border-0"
             />
-            <div className="md:flex flex-col items-start justify-center hidden">
-              <p className="font-bold text-[15px] text-nowrap w-32 truncate">
+            <div className="md:flex flex-col items-start justify-start hidden">
+              <p className="font-bold text-[15px] text-nowrap w-32 text-start truncate">
                 {user?.username}
               </p>
               <p className="text-[#F6F6F9] text-[12px] font-medium">

@@ -57,7 +57,7 @@ export const getEmployeeFieldValue = (
     skills: (emp) => emp.skills?.join(", ") || "",
     ftpt: (emp) => employeeTypeLabels[emp.employeeType || "full_time"] || "",
     department: (emp) => emp.department?.name || "",
-    agency: (emp) => emp.agency || "",
+    agency: (emp) => emp.agency?.name || "",
     onLeave: (emp) => (isOnLeave(emp.leaveType) ? "On Leave" : "Active"),
   };
 
