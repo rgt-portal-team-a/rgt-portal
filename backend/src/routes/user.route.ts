@@ -51,6 +51,8 @@ userRouter.get(
   }),
 );
 
+userRouter.post("/create-batch", asyncHandler(authController.createBatch));
+
 userRouter.put("/update-user-and-employee", asyncHandler(authController.updateUserAndEmployee));
 userRouter.post("/login", authLimiter, validateDto(LoginDto), asyncHandler(authController.login));
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Field } from "formik";
 import { Input } from "@/components/ui/input";
@@ -10,19 +11,76 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FormField } from "@/types/recruitment";
+import { useExtractCvDetails } from "@/hooks/useRecruitment";
+
+interface ExtractedCvData {
+  name?: string;
+  email?: string;
+  phoneNumber?: string;
+  location?: string;
+  currentTitle?: string;
+  currentCompany?: string;
+  [key: string]: any;
+}
 
 export const renderField = (
   field: FormField,
   { values, touched, errors, setFieldValue }: any,
   additionalProps: Record<string, any> = {}
 ) => {
-  const handleFileChange = (
+  const extractCvMutation = useExtractCvDetails();
+
+  const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     fieldName: string,
     setFieldValue: (field: string, value: any) => void
   ) => {
     if (event.currentTarget.files && event.currentTarget.files[0]) {
-      setFieldValue(fieldName, event.currentTarget.files[0]);
+      const file = event.currentTarget.files[0];
+      setFieldValue(fieldName, file);
+
+      if (fieldName === "cv") {
+        try {
+          const extractedData = await extractCvMutation.mutateAsync(file) as ExtractedCvData;
+          console.log("Extracted CV data:", extractedData);
+
+          if (extractedData) {
+            // Handle name splitting
+            if (extractedData.name) {
+              const nameParts = extractedData.name.split(" ");
+              const firstName = nameParts[0] || "";
+              const lastName = nameParts.slice(1).join(" ") || "";
+              console.log("Setting name fields:", { firstName, lastName });
+              setFieldValue("firstName", firstName);
+              setFieldValue("lastName", lastName);
+            }
+
+            // Map other fields
+            const fieldMapping: Record<string, string> = {
+              email: "email",
+              phoneNumber: "phoneNumber",
+              location: "location",
+              currentTitle: "position",
+              currentCompany: "university",
+            };
+
+            Object.entries(extractedData).forEach(([key, value]) => {
+              const formField = fieldMapping[key];
+              if (value && formField) {
+                console.log(`Setting ${formField} to:`, value);
+                setFieldValue(formField, value);
+              }
+            });
+
+            // Trigger UI update
+            setTimeout(() => {
+              setFieldValue("__trigger_render", Math.random());
+            }, 100);
+          }
+        } catch (error) {
+          console.error("Failed to extract CV details:", error);
+        }
+      }
     }
   };
 
@@ -76,9 +134,30 @@ export const renderField = (
             {values[field.name]
               ? typeof values[field.name] === "string"
                 ? values[field.name]
-                : values[field.name].name
+                : (values[field.name] as File)?.name
               : field.placeholder || `Upload ${field.label}`}
           </div>
+          {field.name === "cv" && (
+            <div className="mt-1">
+              {extractCvMutation.isPending && (
+                <div className="text-sm text-blue-500 flex items-center">
+                  <span className="animate-pulse">
+                    Extracting CV details...
+                  </span>
+                </div>
+              )}
+              {extractCvMutation.isSuccess && (
+                <div className="text-sm text-green-500">
+                  CV details extracted!
+                </div>
+              )}
+              {extractCvMutation.isError && (
+                <div className="text-sm text-red-500">
+                  Failed to extract details
+                </div>
+              )}
+            </div>
+          )}
         </div>
       );
 

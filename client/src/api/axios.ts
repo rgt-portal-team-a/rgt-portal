@@ -14,7 +14,7 @@ export const createApiClient = (
 ): AxiosInstance => {
   const config: ApiClientConfig = {
     baseURL,
-    timeout: 15000,
+    timeout: 30000,
     headers: {
       "Content-Type": "application/json",
     },

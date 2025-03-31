@@ -201,7 +201,7 @@ const DepartmentDetails = () => {
             className="text-[#AEB1B7] text-sm font-semibold cursor-pointer"
             onClick={() => navigate(-1)}
           >
-            All Projects
+            All Departments
           </p>
           <ArrowIcon className="-rotate-90" />
           <p className="text-[#79797E] text-sm font-semibold">

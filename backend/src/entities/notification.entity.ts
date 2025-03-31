@@ -8,6 +8,7 @@ export enum NotificationType {
   COMMENT_LIKED = "comment_liked",
   EVENT_CREATED = "event_created",
   EVENT_INVITATION = "event_invitation",
+  EVENT_REMINDER = "event_reminder",
   PTO_REQUEST_CREATED = "pto_created",
   PTO_REQUEST_STATUS = "pto_request_status",
   PROJECT_ASSIGNMENT = "project_assignment",

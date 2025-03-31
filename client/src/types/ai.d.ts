@@ -29,13 +29,47 @@ export interface DropoutRateInterface{
 }
 
 export interface HeadCountData {
-  type: string;
+  workType: string;
   count: string;
   color: string;
 }
 
 export interface HeadcountByWorkTypeInterface {
-  headCountData: HeadCountData[];
+  headcountData: HeadCountData[];
+}
+
+export interface AgencyResponseData {
+  name: string;
+  value: string;
+  percent: string;
+  color: string;
+}
+
+export interface NspCountData{
+    year: string;
+    value: string;
+}
+
+
+export interface HiringLadderInterface {
+  agencyData: AgencyResponseData[];
+  nspCountData: NspCountData[];
+}
+
+export interface HiringTrendsData{
+  month: string,
+  count: string,
+}
+
+
+export interface EmployeeCountData{
+    department: string;
+    count: string;
+}
+
+export interface EmployeeCountByDepartmentInterface {
+  employeeCountData: EmployeeCountData[];
+  totalEmployeeCount: number;
 }
 
 
@@ -46,4 +80,10 @@ export interface SuccessData {
 }
 export interface SourceHireSuccessRateInterface {
   successData: SuccessData[];
+}
+
+
+export interface HiringQueryParams{
+  startDate: string;
+  endDate: string;
 }

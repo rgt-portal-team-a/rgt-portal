@@ -4,6 +4,10 @@ import {
   SourceHireSuccessRateInterface,
   DropoutRateInterface,
   HeadcountByWorkTypeInterface,
+  HiringLadderInterface,
+  EmployeeCountByDepartmentInterface,
+  HiringTrendsData,
+  HiringQueryParams,
 } from "@/types/ai";
 import { ApiResponse } from "../types";
 
@@ -40,7 +44,44 @@ export const regularReportsService = {
   getHeadcountByWorkType: async (): Promise<HeadcountByWorkTypeInterface> => {
     const response = await reportApiClient.get<
       ApiResponse<HeadcountByWorkTypeInterface>
-    >("/headcount-worktype");
+    >("/employee-headcount-worktype");
     return response.data.data;
   },
+
+  getHiringLadder: async (): Promise<HiringLadderInterface> => {
+    const response = await reportApiClient.get<
+      ApiResponse<HiringLadderInterface>
+    >("/hiring-ladder");
+    return response.data.data;
+  },
+
+  getHiringTrends: async ({
+    startDate = new Date(2022, 0, 1).toISOString().split("T")[0], 
+    endDate = new Date().toISOString().split("T")[0],
+  }: HiringQueryParams): Promise<HiringTrendsData[]> => {
+    const queryParams = new URLSearchParams();
+
+    if (startDate && endDate) {
+      queryParams.append("startDate", startDate);
+      queryParams.append("endDate", endDate);
+    }
+    console.log("Hiring Trends Params", queryParams);
+    
+    const url = `/employee-hiring-trends/${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
+    console.log("Hiring Trends URL", url);
+    const response = await reportApiClient.get<ApiResponse<HiringTrendsData[]>>(
+      url
+    );
+    return response.data.data;
+  },
+
+  getEmployeeCountByDepartment:
+    async (): Promise<EmployeeCountByDepartmentInterface> => {
+      const response = await reportApiClient.get<
+        ApiResponse<EmployeeCountByDepartmentInterface>
+      >("/employee-count-department");
+      return response.data.data;
+    },
 };
