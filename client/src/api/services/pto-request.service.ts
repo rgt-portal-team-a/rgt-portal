@@ -86,7 +86,7 @@ export class PtoRequestService {
           response.data.message || "PTO data fetching unsuccessful."
         );
       }
-      return response.data.data.reverse();
+      return response.data.data;
     } catch (error) {
       console.error("Error fetching pto data:", error);
       throw error;

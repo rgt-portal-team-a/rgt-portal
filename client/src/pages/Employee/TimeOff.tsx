@@ -39,6 +39,8 @@ export default function TimeOff() {
     isLoading,
   } = useRequestPto();
 
+  console.log("ptodata:", ptoData)
+
   const formattedPtoData = ptoData?.map((item) => ({
     ...item,
     status:
@@ -221,7 +223,7 @@ export default function TimeOff() {
           <Field name="type">
             {({
               field,
-              form: { touched, errors },
+              form: { setFieldValue },
             }: {
               field: FieldInputProps<string>;
               form: any;
@@ -231,30 +233,29 @@ export default function TimeOff() {
                   Leave Type
                 </label>
                 <div className="flex gap-4">
-                  <label className="flex items-center text-[#737276] text-xs font-medium">
-                    <input
-                      type="radio"
-                      {...field}
-                      value="vacation"
-                      checked={field.value === "vacation"}
-                      className="mr-2"
-                    />
+                  <button
+                    type="button"
+                    onClick={() => setFieldValue("type", "vacation")}
+                    className={`px-4 py-2 rounded-md text-xs font-medium ${
+                      field.value === "vacation"
+                        ? "bg-rgtpink text-white"
+                        : "bg-slate-200 text-black"
+                    }`}
+                  >
                     Vacation
-                  </label>
-                  <label className="flex items-center text-[#737276] text-xs font-medium">
-                    <input
-                      type="radio"
-                      {...field}
-                      value="sick"
-                      checked={field.value === "sick"}
-                      className="mr-2"
-                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFieldValue("type", "sick")}
+                    className={`px-4 py-2 rounded-md text-xs font-medium ${
+                      field.value === "sick"
+                        ? "bg-rgtpink text-white"
+                        : "bg-slate-200 text-black"
+                    }`}
+                  >
                     Sick
-                  </label>
+                  </button>
                 </div>
-                {touched.type && errors.type && (
-                  <div className="text-red-500 text-xs mt-1">{errors.type}</div>
-                )}
               </div>
             )}
           </Field>
@@ -276,7 +277,6 @@ export default function TimeOff() {
                     placeholder="From"
                     value={field.value}
                     onChange={(val) => setFieldValue("startDate", val)}
-                    
                   />
                   {touched.startDate && errors.startDate && (
                     <div className="text-red-500 text-xs mt-1">

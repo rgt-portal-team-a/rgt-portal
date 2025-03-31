@@ -16,11 +16,6 @@ const ManagerEmployeeTimeOff = () => {
   const { departmentPtos, isDepartmentPtoLoading } =
     useRequestPto(departmentId);
 
-  console.log("departmentPtos", departmentPtos);
-  console.log("ManagerInfo:", currentUser);
-  console.log("departmentId:", departmentId);
-  console.log("departmentName:", departmentName);
-
   return (
     <EmployeeTimeOffRequest
       data={departmentPtos}

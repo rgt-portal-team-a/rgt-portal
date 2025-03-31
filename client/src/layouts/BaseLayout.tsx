@@ -157,7 +157,12 @@ export const BaseLayout = () => {
           </div>
 
           {/* Mobile profile dropdown */}
-          <div className="sm:ml-4 md:hidden relative mr-2" ref={profileDropdownRef}>
+          <div
+            className={`${
+              user?.role.name === "HR" ? "ml-4" : "sm:hidden"
+            } relative`}
+            ref={profileDropdownRef}
+          >
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -303,29 +308,29 @@ export const BaseLayout = () => {
         <div
           className="h-screen text-center sm:py-[78px] hidden sm:block overflow-y-scroll"
           style={{
-        scrollbarWidth: "none" /* Firefox */,
-        msOverflowStyle: "none" /* IE and Edge */,
+            scrollbarWidth: "none" /* Firefox */,
+            msOverflowStyle: "none" /* IE and Edge */,
           }}
         >
           <WithRole
-        roles={["hr", "admin"]}
-        userRole={user?.role.name as string}
+            roles={["hr", "admin"]}
+            userRole={user?.role.name as string}
           >
-        <HrSideBar />
+            <HrSideBar />
           </WithRole>
           <WithRole
-        roles={["employee", "manager", "marketer"]}
-        userRole={user?.role.name as string}
+            roles={["employee", "manager", "marketer"]}
+            userRole={user?.role.name as string}
           >
-        <SideBar />
+            <SideBar />
           </WithRole>
         </div>
 
         <div
           className="pt-[78px] flex-1 h-screen overflow-y-auto relative pb-[60px] sm:pb-0"
           style={{
-        scrollbarWidth: "none" /* Firefox */,
-        msOverflowStyle: "none" /* IE and Edge */,
+            scrollbarWidth: "none" /* Firefox */,
+            msOverflowStyle: "none" /* IE and Edge */,
           }}
         >
           <Outlet />

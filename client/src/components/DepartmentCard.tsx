@@ -63,18 +63,16 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
     return null;
   };
 
-  console.log("lead name:");
-
   return (
     <div
       key={id}
-      className="relative flex flex-col space-y-2 bg-white rounded-md p-2 md:min-w-64 md:w-[375px] w-full h-[150px] shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden"
+      className="relative flex flex-col space-y-2 bg-white rounded-md p-2 lg:min-w-64 lg:w-[32%] lg:h-fit w-full h-[150px] shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden"
     >
       <div className="pb-4 border-b-[1px]  border-gray-200">
         <header className="text-[#706D8A] text-[20px] font-semibold flex justify-between items-center">
           <div className="flex items-center space-x-1">
             {renderDepartmentIcon()}
-            <p className="w-55 text-nowrap truncate">{name}</p>
+            <p className="max-w-44 text-nowrap truncate">{name}</p>
           </div>
           <NavLink to={`${id}`}>
             <ArrowIcon
@@ -83,10 +81,10 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
             />
           </NavLink>
         </header>
-        <div className="flex ">
+        <div className="flex">
           <div>
             {manager && manager.firstName && manager.lastName && (
-              <p className=" text-[#C9ADFF] font-semibold text-[15.09px]">
+              <p className=" text-[#C9ADFF] font-semibold text-[15.09px] max-w-60 xl:max-w-72 truncate">
                 Manager - {manager?.firstName + " " + manager?.lastName}
               </p>
             )}
@@ -119,16 +117,6 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
           </div>
         )}
       </div>
-
-      {/* Background Image (Gradient Splash)
-      {includeBgImg && (
-        <div className="absolute  translate-x-56 top-1/7 h-full w-1/2  pointer-events-none opacity-50 ">
-          <img
-            src={"/RGT PATTERN 1.svg"}
-            style={{ width: "130px", height: "135px" }}
-          />
-        </div>
-      )} */}
     </div>
   );
 };
