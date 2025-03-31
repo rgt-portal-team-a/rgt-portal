@@ -18,135 +18,144 @@ export const useNotificationSocket = (
   const {
     onNewNotification,
     enableReconnect = true,
-    reconnectInterval = 5000,
-    reconnectAttempts = 10,
+    reconnectInterval = 3000,
+    reconnectAttempts = 5,
   } = options;
 
   const { isAuthenticated, currentUser } = useAuthContextProvider();
   const queryClient = useQueryClient();
   const [connectionAttempts, setConnectionAttempts] = useState(0);
 
-  const getSocketUrl = useCallback(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_WS_URL || 
-      "https://sih2h86cxp.ap-south-1.awsapprunner.com";
-    
-    const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
-    const wsProtocol = cleanBaseUrl.startsWith("https") ? "wss" : "ws";
-    const host = cleanBaseUrl.replace(/^https?:\/\//, '');
-    
-    return `${wsProtocol}://${host}/socket.io/?EIO=4&transport=polling`;
-  }, []);
+  const wsUrl =
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_WS_BASE_URL
+      : import.meta.env.VITE_WS_BASE_URL;
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
-    isAuthenticated ? getSocketUrl() : null,
+    isAuthenticated ? wsUrl : null,
     {
       fromSocketIO: true,
-      shouldReconnect: (closeEvent) => {
-        if (closeEvent.code === 4001) return false; 
-        return enableReconnect && connectionAttempts < reconnectAttempts;
-      },
+      shouldReconnect: () =>
+        enableReconnect && connectionAttempts < reconnectAttempts,
       reconnectInterval,
       reconnectAttempts,
-      share: true,
-      retryOnError: true,
-
-      onOpen: (event) => {
-        console.log("Socket connection established");
-        setConnectionAttempts(0);
+      onOpen: () => {
+        console.log("WebSocket connection established");
         toast({
-          title: "Connected",
-          description: "Real-time notifications connected",
+          title: "Success",
+          description: "WebSocket connection established",
           variant: "success",
         });
-        
-        if (currentUser?.token) {
-          sendMessage(
-            JSON.stringify({
-              type: "authentication",
-              token: currentUser.token,
-            })
-          );
-        }
+        setConnectionAttempts(0);
       },
-      onClose: (event) => {
-        console.log("Socket connection closed", event);
-        if (!event.wasClean) {
-          toast({
-            title: "Disconnected",
-            description: "Notification connection lost",
-            variant: "destructive",
-          });
-        }
+      onClose: () => {
+        console.log("WebSocket connection closed");
       },
-      onError: (event) => {
-        console.error("Socket error:", event);
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "WebSocket connection error",
+          variant: "destructive",
+        });
         setConnectionAttempts((prev) => prev + 1);
       },
-      queryParams: {
-        token: currentUser?.token as string,
+      onReconnectStop: () => {
+        console.log("WebSocket reconnection attempts exhausted");
       },
+      queryParams: { token: currentUser?.token as string },
     }
   );
 
   useEffect(() => {
-    if (!lastMessage?.data) return;
-
-    const handleSocketMessage = (data: string) => {
+    if (lastMessage?.data) {
+     
       try {
-        if (typeof data === "string" && data.startsWith("42")) {
-          const payload = JSON.parse(data.substring(2));
-          const [eventName, eventData] = payload;
-          if (eventName === "notification") {
-            processNotification(eventData);
+        const socketData = lastMessage.data;
+
+          if (typeof socketData === "string" && socketData.match(/^\d+\[/)) {
+            const jsonStartIndex = socketData.indexOf("[");
+            if (jsonStartIndex !== -1) {
+              const jsonPart = socketData.substring(jsonStartIndex);
+              const parsedArray = JSON.parse(jsonPart);
+
+              if (Array.isArray(parsedArray) && parsedArray.length >= 2) {
+                const [eventName, eventData] = parsedArray;
+
+                console.log("Received Socket.IO event:", eventName, eventData);
+
+                if (eventName === "notification") {
+                  console.log("Received notification:", eventData);
+                  queryClient.invalidateQueries({
+                    queryKey: ["notifications"],
+                  });
+                  queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+
+                  if (onNewNotification) {
+                    onNewNotification(eventData as Notification);
+                  }
+                } else {
+                  console.log("Received event notification:", eventData);
+                  queryClient.invalidateQueries({
+                    queryKey: ["notifications"],
+                  });
+                  queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+
+                  if (onNewNotification) {
+                    onNewNotification(eventData as Notification);
+                  }
+                }
+              }
+            }
+          } else {
+            // Handle regular JSON if not in Socket.IO format
+            const data = JSON.parse(socketData);
+            console.log("Received WebSocket message:", data);
+
+            if (data.type === "notification") {
+              console.log("Received notification:", data);
+              const notification = data.payload as Notification;
+
+              queryClient.invalidateQueries({ queryKey: ["notifications"] });
+              queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+
+              if (onNewNotification) {
+                onNewNotification(notification);
+              }
+            }
           }
-        }
-        else if (typeof data === "string") {
-          const message = JSON.parse(data);
-          if (message.type === "notification") {
-            processNotification(message.payload);
-          }
-        }
       } catch (error) {
-        console.error("Error parsing message:", error, lastMessage.data);
+        console.error(
+          "Error parsing WebSocket message:",
+          error,
+          lastMessage.data
+        );
       }
-    };
-
-    const processNotification = (notification: Notification) => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
-      onNewNotification?.(notification);
-      
-      toast({
-        title: "New Notification",
-        description: notification.content || "New update available",
-      });
-    };
-
-    handleSocketMessage(lastMessage.data);
+    }
   }, [lastMessage, queryClient, onNewNotification]);
 
   const reconnect = useCallback(() => {
     const socket = getWebSocket();
     if (socket) {
       socket.close();
-      setConnectionAttempts(0);
     }
   }, [getWebSocket]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
-    [ReadyState.OPEN]: "Connected",
+    [ReadyState.OPEN]: "Open",
     [ReadyState.CLOSING]: "Closing",
-    [ReadyState.CLOSED]: "Disconnected",
-    [ReadyState.UNINSTANTIATED]: "Uninitialized",
+    [ReadyState.CLOSED]: "Closed",
+    [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
+
+  const isConnected = readyState === ReadyState.OPEN;
 
   return {
     sendMessage,
     lastMessage,
     readyState,
     connectionStatus,
-    isConnected: readyState === ReadyState.OPEN,
+    isConnected,
     reconnect,
     connectionAttempts,
   };
