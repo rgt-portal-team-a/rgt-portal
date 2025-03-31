@@ -5,34 +5,31 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Install pnpm globally
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy package.json and pnpm-lock.yaml first for caching dependencies
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 
 # Install dependencies only (no unnecessary dev dependencies in final build)
-RUN pnpm install --frozen-lockfile
+RUN npm ci
 
 # Copy the rest of the app files
 COPY . .
 
 # Build the app (adjust this if using a different framework)
-RUN pnpm run build
+RUN npm run build
 
 # Stage 2: Production
 FROM node:20-alpine AS production
 
-WORKDIR /app
+# Set working directory
+WORKDIR /usr/share/nginx/html
 
-# Enable pnpm in production
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Remove default Nginx static assets
+RUN rm -rf ./*
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+# Copy built assets from the previous stage
+COPY --from=builder /app/dist ./
 
-RUN pnpm install --frozen-lockfile --prod
+# Expose port 80
+EXPOSE 80
 
-EXPOSE 8080
-CMD ["pnpm", "run", "preview"]
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
