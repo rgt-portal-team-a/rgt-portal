@@ -26,16 +26,17 @@ import {
   userRoutes,
   notificationRoutes,
   aiRoutes,
+  queueRoutes,
 } from "./routes";
 import { SocketService } from "@/services/notifications/socket.service";
 import { Server as SocketIOServer } from "socket.io";
 import { setSocketService } from "./config/socket";
 import { SchedulerService } from "@/services/scheduler.service";
+import { setupBullBoard } from "@/config/bull-board.config";
+import { QueueService } from "@/services/queue.service";
 
 const app = express();
 const httpServer = createServer(app);
-
-// app.set("trust proxy", true);
 
 export const io: SocketIOServer = require("socket.io")(httpServer, {
   serveClient: true,
@@ -96,6 +97,7 @@ app.use("/api/departments", departmentRoutes);
 app.use("/user/auth", userRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/queues", queueRoutes);
 
 // UNCAUGHT EXCEPTIONS & UNHANDLED REJECTIONS
 process.on("uncaughtException", (error) => {
@@ -112,17 +114,27 @@ process.on("unhandledRejection", (error) => {
 
 export const socketService = new SocketService(io);
 const schedulerService = new SchedulerService();
+const queueService = QueueService.getInstance();
 
 const startServer = async () => {
   try {
     await initializeDatabaseConnection();
 
     try {
+      // Initialize socket service
       socketService.initialize();
       setSocketService(socketService);
 
+      // Initialize scheduler service
       await schedulerService.startSchedulers();
       logger.info("Scheduler service initialized successfully");
+
+      // Setup Bull board for queue monitoring
+      setupBullBoard(app);
+      logger.info("Bull board initialized successfully");
+
+      // Initialize queue service
+      logger.info("Queue service initialized successfully");
     } catch (error) {
       logger.error("Failed to initialize services:", error);
       process.exit(1);

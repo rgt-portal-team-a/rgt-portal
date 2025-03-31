@@ -26,7 +26,10 @@ export const useNotificationSocket = (
   const queryClient = useQueryClient();
   const [connectionAttempts, setConnectionAttempts] = useState(0);
 
-  const wsUrl = "ws://localhost:8000";
+  const wsUrl =
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_WS_BASE_URL
+      : import.meta.env.VITE_WS_BASE_URL;
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     isAuthenticated ? wsUrl : null,
