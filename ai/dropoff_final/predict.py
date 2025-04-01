@@ -3,9 +3,8 @@ import pickle
 import numpy as np
 from datetime import datetime
 from typing import List, Dict, Optional, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, ValidationError
 import re
-import json
 
 # Define class labels for fail stages
 FAIL_STAGE_LABELS = {
@@ -27,19 +26,47 @@ class RawCandidateData(BaseModel):
                                alias="highestDegree")
     statusDueDate: str = Field(
         ..., description="Status due date in YYYY-MM-DD format", alias="statusDueDate")
-    seniorityLevel: str = Field(..., description="Seniority level",
-                                alias="seniorityLevel")
+    seniorityLevel: Optional[str] = Field("Mid", description="Seniority level (defaults to Mid if missing)",
+                                          alias="seniorityLevel")
     totalYearsInTech: str = Field(
         ..., description="Total years in tech field", alias="totalYearsInTech")
-    Job_1_Duration: str = Field(..., description="Duration of job 1")
-    Job_2_Duration: str = Field(..., description="Duration of job 2")
-    Job_3_Duration: str = Field(..., description="Duration of job 3")
+    Job_1_Duration: Optional[str] = Field(
+        "0", description="Duration of job 1 (defaults to 0 if missing)")
+    Job_2_Duration: Optional[str] = Field(
+        "0", description="Duration of job 2 (defaults to 0 if missing)")
+    Job_3_Duration: Optional[str] = Field(
+        "0", description="Duration of job 3 (defaults to 0 if missing)")
     source: str = Field(..., description="Source of the application")
     position: str = Field(..., description="Position applying to")
 
+    @validator('date', 'statusDueDate', pre=True)
+    def validate_date_format(cls, v):
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+            return v
+        except ValueError:
+            raise ValueError(
+                f"Invalid date format for field. Expected YYYY-MM-DD, got {v}")
+
+    @validator('totalYearsInTech', pre=True)
+    def validate_experience(cls, v):
+        if not v:
+            raise ValueError("totalYearsInTech cannot be empty")
+        try:
+            # Try to extract numeric value from string if needed
+            numeric_value = float(
+                ''.join(filter(lambda x: x.isdigit() or x == '.', str(v))))
+            if numeric_value < 0:
+                raise ValueError("totalYearsInTech cannot be negative")
+            return str(numeric_value)
+        except:
+            raise ValueError(f"Invalid value for totalYearsInTech: {v}")
+
     class Config:
-        # Pydantic V2 uses `validate_by_name` instead of `allow_population_by_field_name`
         validate_by_name = True
+        json_encoders = {
+            datetime: lambda v: v.strftime("%Y-%m-%d")
+        }
 
 
 class ProcessedCandidateData(BaseModel):
@@ -96,7 +123,6 @@ class DropoffPredictor:
             'UI/UX': 12, 'Unknown': 13, 'Untitled': 14, 'WordPress': 15
         }
 
-        # Corrected feature order with proper comma placement
         self.feature_order = [
             'experience_years', 'education_encoded', 'seniority_level',
             'job_stability', 'days_since_application', 'days_to_status_due',
@@ -129,7 +155,7 @@ class DropoffPredictor:
 
     def _convert_job_duration(self, duration: str) -> float:
         """Convert job duration string to years"""
-        if pd.isna(duration) or duration == 'Unknown':
+        if pd.isna(duration) or duration in ['Unknown', ' ', '']:
             return 0.0
 
         try:
@@ -174,9 +200,10 @@ class DropoffPredictor:
             if education_encoded == 0 and education != 'Unknown':
                 warnings.append(f"Unknown education level: {education}")
 
-            # Seniority processing
-            seniority = item.seniorityLevel.strip() if item.seniorityLevel else 'Unknown'
-            seniority_level = self.seniority_mapping.get(seniority, 0)
+            # Seniority processing - default to 'Mid' if not provided
+            seniority = item.seniorityLevel.strip() if item.seniorityLevel else 'Mid'
+            seniority_level = self.seniority_mapping.get(
+                seniority, 2)  # 2 is 'Mid'
             if seniority_level == 0 and seniority != 'Unknown':
                 warnings.append(f"Unknown seniority level: {seniority}")
 
@@ -199,7 +226,7 @@ class DropoffPredictor:
                 experience_years = 0.0
                 warnings.append("Could not parse years of experience")
 
-            # Job stability calculation
+            # Job stability calculation - use defaults if missing
             job1 = self._convert_job_duration(item.Job_1_Duration)
             job2 = self._convert_job_duration(item.Job_2_Duration)
             job3 = self._convert_job_duration(item.Job_3_Duration)
@@ -228,8 +255,18 @@ class DropoffPredictor:
         return processed_list
 
     def predict_from_raw(self, raw_data: List[RawCandidateData]) -> List[PredictionResult]:
-        processed_data = self._preprocess_raw_data(raw_data)
-        return self._make_predictions(processed_data)
+        try:
+            processed_data = self._preprocess_raw_data(raw_data)
+            return self._make_predictions(processed_data)
+        except ValidationError as e:
+            errors = []
+            for error in e.errors():
+                field = ".".join(str(loc) for loc in error['loc'])
+                msg = error['msg']
+                errors.append(f"{field}: {msg}")
+            raise ValueError("; ".join(errors))
+        except Exception as e:
+            raise RuntimeError(f"Prediction failed: {str(e)}")
 
     def _make_predictions(self, processed_data: List[ProcessedCandidateData]) -> List[PredictionResult]:
         if not self.model:

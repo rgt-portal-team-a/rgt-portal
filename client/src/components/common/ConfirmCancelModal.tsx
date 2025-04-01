@@ -79,7 +79,7 @@ export const ConfirmCancelModal = ({
 
         <Dialog.Content
           className={cn(
-            "fixed z-2000 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white max-h-[90vh] overflow-y-auto w-full max-w-md rounded-lg shadow-lg p-6",
+            "fixed z-2000 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white max-h-[90vh] overflow-y-auto w-full sm:max-w-md rounded-lg shadow-lg p-6",
             className
           )}
           onEscapeKeyDown={() => !isSubmitting && onOpenChange(false)}

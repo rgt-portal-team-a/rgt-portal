@@ -1,5 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../services/auth.service";
+import { User } from "@/types/authUser";
 
 export const useGoogleAuth = () => {
   return useMutation({
@@ -16,7 +17,7 @@ export const useGoogleAuth = () => {
 export const useCurrentUser = () => {
   return useQuery({
     queryFn: authService.getCurrentUser,
-    queryKey: ['user'],
+    queryKey: ["user"],
   });
 };
 
@@ -38,5 +39,17 @@ export const useVerifyOtp = (options = {}) => {
   return useMutation({
     mutationFn: authService.verifyOtp,
     ...options,
+  });
+};
+
+export const useUpdateUser = (options = {}) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Partial<User>) => authService.updateUser(data),
+    ...options,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
   });
 };

@@ -89,10 +89,6 @@ export const ConversionRateStage = () => {
       <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Conversion Rate by Stage</CardTitle>
-          <Button variant="outline">
-            <FileSpreadsheet className="mr-2 h-4 w-4" />
-            Generate Report
-          </Button>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center text-gray-500">
@@ -109,12 +105,7 @@ export const ConversionRateStage = () => {
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Conversion Rate by Stage</CardTitle>
-        <Button
-          variant="outline"
-          className="bg-[#6418C3] hover:text-white hover:bg-purple-700 py-[25px] rounded-[8px] text-white"
-        >
-          Generate Report
-        </Button>
+        
       </CardHeader>
 
       <CardContent>

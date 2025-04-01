@@ -1,9 +1,9 @@
 import React from "react";
 import { Edit, User } from "lucide-react";
-import { EmployeeData } from "./types";
+import { Employee } from "@/types/employee";
 
 interface ProfileTabsProps {
-  employee: EmployeeData;
+  employee: Employee;
   activeTab: "details" | "activity";
   setActiveTab: (tab: "details" | "activity") => void;
 }
@@ -26,13 +26,13 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-medium text-slate-700">
-                {employee.name}
+                {employee.firstName} {employee.lastName}
               </h2>
               <span className="px-2 py-0.5 text-xs bg-green-100 text-green-600 rounded-full">
-                {employee.status}
+                {employee.workType}
               </span>
             </div>
-            <p className="text-slate-500">{employee.title}</p>
+            <p className="text-slate-500">{employee.role?.name.toUpperCase()}</p>
           </div>
         </div>
 
