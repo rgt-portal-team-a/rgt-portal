@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import List, Dict, Optional, Union
 from pydantic import BaseModel, Field
 import re
-import json
 
 # Define class labels for fail stages
 FAIL_STAGE_LABELS = {
@@ -27,13 +26,16 @@ class RawCandidateData(BaseModel):
                                alias="highestDegree")
     statusDueDate: str = Field(
         ..., description="Status due date in YYYY-MM-DD format", alias="statusDueDate")
-    seniorityLevel: str = Field(..., description="Seniority level",
-                                alias="seniorityLevel")
+    seniorityLevel: Optional[str] = Field("Mid", description="Seniority level (defaults to Mid if missing)",
+                                          alias="seniorityLevel")
     totalYearsInTech: str = Field(
         ..., description="Total years in tech field", alias="totalYearsInTech")
-    Job_1_Duration: str = Field(..., description="Duration of job 1")
-    Job_2_Duration: str = Field(..., description="Duration of job 2")
-    Job_3_Duration: str = Field(..., description="Duration of job 3")
+    Job_1_Duration: Optional[str] = Field(
+        "0", description="Duration of job 1 (defaults to 0 if missing)")
+    Job_2_Duration: Optional[str] = Field(
+        "0", description="Duration of job 2 (defaults to 0 if missing)")
+    Job_3_Duration: Optional[str] = Field(
+        "0", description="Duration of job 3 (defaults to 0 if missing)")
     source: str = Field(..., description="Source of the application")
     position: str = Field(..., description="Position applying to")
 
@@ -129,7 +131,7 @@ class DropoffPredictor:
 
     def _convert_job_duration(self, duration: str) -> float:
         """Convert job duration string to years"""
-        if pd.isna(duration) or duration == 'Unknown':
+        if pd.isna(duration) or duration in ['Unknown', ' ', '']:
             return 0.0
 
         try:
@@ -174,9 +176,10 @@ class DropoffPredictor:
             if education_encoded == 0 and education != 'Unknown':
                 warnings.append(f"Unknown education level: {education}")
 
-            # Seniority processing
-            seniority = item.seniorityLevel.strip() if item.seniorityLevel else 'Unknown'
-            seniority_level = self.seniority_mapping.get(seniority, 0)
+            # Seniority processing - default to 'Mid' if not provided
+            seniority = item.seniorityLevel.strip() if item.seniorityLevel else 'Mid'
+            seniority_level = self.seniority_mapping.get(
+                seniority, 2)  # 2 is 'Mid'
             if seniority_level == 0 and seniority != 'Unknown':
                 warnings.append(f"Unknown seniority level: {seniority}")
 
@@ -199,7 +202,7 @@ class DropoffPredictor:
                 experience_years = 0.0
                 warnings.append("Could not parse years of experience")
 
-            # Job stability calculation
+            # Job stability calculation - use defaults if missing
             job1 = self._convert_job_duration(item.Job_1_Duration)
             job2 = self._convert_job_duration(item.Job_2_Duration)
             job3 = self._convert_job_duration(item.Job_3_Duration)
