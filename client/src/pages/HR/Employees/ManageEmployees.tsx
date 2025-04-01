@@ -274,16 +274,16 @@ export const ManageEmployees: React.FC = () => {
         <div className="w-full flex flex-col md:flex-row sm:items-center md:items-start lg:items-center gap-3">
           {/* Search Input - will stack vertically on small screens */}
           {viewMode === "table" ? (
-            <div className="flex items-center justify-between w-full gap-2 md:flex-wrap lg:flex-nowrap">
-              <div className="relative w-full sm:w-[200px] md:w-[301px] md:max-w-[301px] ">
+            <div className="flex items-center justify-between w-full gap-2 flex-wrap lg:flex-nowrap">
+              <div className="relative w-full">
                 <Input
                   type="text"
                   placeholder="Search Employee"
-                  className="pl-5 py-5 rounded-xl bg-gray-50 border-none outline-none shadow-none h-full w-full"
+                  className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Search className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
+                <Search className="absolute right-4 top-3 h-6 w-6 text-gray-400" />
               </div>
 
               {/* Popover Buttons - will wrap on small screens */}
@@ -295,7 +295,7 @@ export const ManageEmployees: React.FC = () => {
                     className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full w-full sm:w-auto"
                   >
                     <Search className="w-4 h-4 sm:mr-2" size={14} />
-                    <span className="hidden sm:inline">Search Fields</span>
+                    <span className="">Search Fields</span>
                   </Button>
                 </PopoverTrigger>
 
@@ -358,7 +358,7 @@ export const ManageEmployees: React.FC = () => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full"
+                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full w-full"
                   >
                     <Eye className="w-12 h-12" size={14} />
                     Columns
@@ -426,15 +426,15 @@ export const ManageEmployees: React.FC = () => {
               </Popover>
             </div>
           ) : (
-            <div className="relative w-full bg-green-700">
+            <div className="relative w-full">
               <Input
                 type="text"
                 placeholder="Search Employee"
-                className="pl-5 py-5 rounded-xl bg-gray-50 border-none outline-none shadow-none h-full w-full"
+                className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full"
                 value={gridSearchTerm}
                 onChange={(e) => setGridSearchTerm(e.target.value)}
               />
-              <Search className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
+              <Search className="absolute right-4 top-3 h-6 w-6 text-gray-400" />
             </div>
           )}
 

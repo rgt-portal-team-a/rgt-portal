@@ -22,6 +22,7 @@ import { Department } from "@/types/department";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import { useRemoveEmployeeFromDepartment } from "@/api/query-hooks/employee.hooks"
 import { useUpdateDepartment } from "@/api/query-hooks/department.hooks"
+import Filters from "@/components/common/Filters";
 
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
@@ -342,94 +343,71 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   };
 
   return (
-    <div className="rounded-lg bg-white py-6">
+    <div className="rounded-lg bg-white py-6 px-3">
       {/* Filter Section */}
-      <div className="flex mb-4 px-[22px] gap-3 justify-between items-center">
-        {/* Role Filter */}
-        <Select
-          value={filter.role}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, role: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Role">All Role</SelectItem>
-            <SelectItem value="manager">Manager</SelectItem>
-            <SelectItem value="member">Member</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Work Type Filter */}
-        <Select
-          value={filter.workType}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, workType: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Work Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Work Type">All Work Type</SelectItem>
-            <SelectItem value="remote">Remote</SelectItem>
-            <SelectItem value="hybrid">Hybrid</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Employee Type Filter */}
-        <Select
-          value={filter.employeeType}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, employeeType: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Employee Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Employee Type">All Employee Type</SelectItem>
-            <SelectItem value="full_time">Full Time</SelectItem>
-            <SelectItem value="part_time">Part Time</SelectItem>
-            <SelectItem value="contractor">Contractor</SelectItem>
-            <SelectItem value="nsp">NSP</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Status Filter */}
-        <Select
-          value={filter.status}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, status: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Status">All Status</SelectItem>
-            <SelectItem value="Available">Available</SelectItem>
-            <SelectItem value="Busy">Busy</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Reset Filter Button */}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={resetFilter}
-          className="border-none rounded-lg bg-gray-100 text-gray-500 hover:text-black font-normal w-[100px] py-[25px]"
-        >
-          <X className="h-4 w-4" />
-          Reset
-        </Button>
-      </div>
+      <Filters
+        filters={[
+          {
+        type: "select",
+        placeholder: "All Role",
+        options: [
+          { label: "All Role", value: "All Role" },
+          { label: "Manager", value: "manager" },
+          { label: "Member", value: "member" },
+        ],
+        value: filter.role,
+        onChange: (value) => {
+          setFilter((prev) => ({ ...prev, role: value }));
+          setCurrentPage(1);
+        },
+          },
+          {
+        type: "select",
+        placeholder: "All Work Type",
+        options: [
+          { label: "All Work Type", value: "All Work Type" },
+          { label: "Remote", value: "remote" },
+          { label: "Hybrid", value: "hybrid" },
+        ],
+        value: filter.workType,
+        onChange: (value) => {
+          setFilter((prev) => ({ ...prev, workType: value }));
+          setCurrentPage(1);
+        },
+          },
+          {
+        type: "select",
+        placeholder: "All Employee Type",
+        options: [
+          { label: "All Employee Type", value: "All Employee Type" },
+          { label: "Full Time", value: "full_time" },
+          { label: "Part Time", value: "part_time" },
+          { label: "Contractor", value: "contractor" },
+          { label: "NSP", value: "nsp" },
+        ],
+        value: filter.employeeType,
+        onChange: (value) => {
+          setFilter((prev) => ({ ...prev, employeeType: value }));
+          setCurrentPage(1);
+        },
+          },
+          {
+        type: "select",
+        placeholder: "All Status",
+        options: [
+          { label: "All Status", value: "All Status" },
+          { label: "Available", value: "Available" },
+          { label: "Busy", value: "Busy" },
+        ],
+        value: filter.status,
+        onChange: (value) => {
+          setFilter((prev) => ({ ...prev, status: value }));
+          setCurrentPage(1);
+        },
+          },
+        ]}
+        onReset={resetFilter}
+      />
 
       {paginatedData.length > 0 ? (
         <>

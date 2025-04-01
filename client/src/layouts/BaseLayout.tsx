@@ -159,15 +159,15 @@ export const BaseLayout = () => {
           {/* Mobile profile dropdown */}
           <div
             className={`${
-              user?.role.name === "HR" ? "ml-4" : "sm:hidden"
+              user?.role.name === "HR" ? "sm:ml-4 pr-1" : "sm:hidden"
             } relative`}
             ref={profileDropdownRef}
           >
             <div
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-1 cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                 {user?.profileImage ? (
                   <img
                     src={user.profileImage}
@@ -217,14 +217,14 @@ export const BaseLayout = () => {
         </div>
 
         <div className="flex w-full justify-end gap-3">
-          <div className="relative w-full flex justify-end gap-6">
+          <div className="relative w-full flex justify-end gap-1">
             {/* Center section with search */}
-            <div className="relative md:w-[400px] flex items-center">
+            <div className="relative w-full md:w-[400px] flex items-center">
               <Search className="absolute left-2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
                 placeholder="Search employees..."
-                className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none"
+                className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none w-full"
                 value={searchQuery}
                 onChange={handleOnChange}
                 onFocus={() => setIsDropdownVisible(!!searchQuery)}

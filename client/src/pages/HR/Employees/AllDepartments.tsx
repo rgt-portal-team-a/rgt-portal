@@ -112,11 +112,11 @@ export const AllDepartments = () => {
                 <Input
                   type="text"
                   placeholder="Search For A Department"
-                  className="pl-5 py-5 rounded-xl bg-gray-50 border-none outline-none shadow-none h-full w-full "
+                  className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full "
                   value={searchQuery}
                   onChange={handleSearchChange}
                 />
-                <Search className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
+                <Search className="absolute right-4 top-3 h-6 w-6 text-gray-400" />
               </div>
               <Button
                 onClick={() => setIsModalOpen(true)}
