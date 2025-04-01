@@ -270,19 +270,12 @@ export const ManageEmployees: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-[15px] pt-[10px] h-full">
-      <section className="h-auto md:h-[62px] flex flex-col md:flex-row justify-between w-full items-start md:items-center py-1 gap-4 md:gap-0">
-        <div className="flex flex-col h-full">
-          <h1 className="text-xl font-medium text-gray-600">RGT Team</h1>
-          <p className="text-sm text-gray-500">
-            This is the data of all employees
-          </p>
-        </div>
-
-        <div className="w-full md:w-auto flex flex-col-reverse sm:flex-row gap-4 items-stretch sm:items-center">
+      <section className="flex flex-col md:flex-row justify-end w-full items-start md:items-center py-1">
+        <div className="w-full flex flex-col md:flex-row sm:items-center md:items-start lg:items-center gap-3">
           {/* Search Input - will stack vertically on small screens */}
           {viewMode === "table" ? (
-            <>
-              <div className="relative w-full sm:w-[200px] md:w-[301px] md:max-w-[301px]">
+            <div className="flex items-center justify-between w-full gap-2 md:flex-wrap lg:flex-nowrap">
+              <div className="relative w-full sm:w-[200px] md:w-[301px] md:max-w-[301px] ">
                 <Input
                   type="text"
                   placeholder="Search Employee"
@@ -294,148 +287,146 @@ export const ManageEmployees: React.FC = () => {
               </div>
 
               {/* Popover Buttons - will wrap on small screens */}
-              <div className="flex flex-wrap gap-2 sm:gap-4 justify-end">
-                {/* Search Fields Popover */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full w-full sm:w-auto"
-                    >
-                      <Search className="w-4 h-4 sm:mr-2" size={14} />
-                      <span className="hidden sm:inline">Search Fields</span>
-                    </Button>
-                  </PopoverTrigger>
-
-                  <PopoverContent
-                    className="w-64 p-0 rounded-xl bg-gradient-to-tr from-[#FFFBEB] via-[#F2FBFF] to-[#F7FEFF]"
-                    align="end"
+              {/* Search Fields Popover */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full w-full sm:w-auto"
                   >
-                    {/* Search Fields Popover Content */}
-                    <div className="p-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <button
-                          className="text-sm font-medium text-gray-700 flex items-center"
-                          onClick={() => {
-                            resetSearchByField();
-                            setSearchFieldSearchTerm("");
-                          }}
-                        >
-                          Reset
-                        </button>
-                      </div>
-                      <div className="relative">
-                        <Search className="absolute left-4 top-[15px] h-4 w-4 text-gray-400" />
-                        <Input
-                          placeholder="Search"
-                          className="pl-10 bg-white shadow-none rounded-[16px] py-[15px] w-full h-[48px]"
-                          value={searchFieldSearchTerm}
-                          onChange={(e) =>
-                            setSearchFieldSearchTerm(e.target.value)
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="max-h-[300px] overflow-y-auto py-1">
-                      {filteredSearchByFieldOptions.map((column) => (
-                        <div
-                          key={column.key}
-                          className="flex items-center px-4 py-4 hover:bg-gray-100"
-                        >
-                          <button
-                            className={`flex items-center justify-center w-5 h-5 mr-3 rounded ${
-                              searchByField.includes(column.key)
-                                ? "bg-green-500 text-white"
-                                : "bg-gray-200"
-                            }`}
-                            onClick={() => toggleSearchByField(column.key)}
-                          >
-                            {searchByField.includes(column.key) && (
-                              <Check className="h-3 w-3" />
-                            )}
-                          </button>
-                          <span className="text-sm">{column.header}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                    <Search className="w-4 h-4 sm:mr-2" size={14} />
+                    <span className="hidden sm:inline">Search Fields</span>
+                  </Button>
+                </PopoverTrigger>
 
-                {/* Columns Popover */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full"
-                    >
-                      <Eye className="w-12 h-12" size={14} />
-                      Columns
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-64 p-0 rounded-xl bg-gradient-to-tr from-[#FFFBEB] via-[#F2FBFF] to-[#F7FEFF]"
-                    align="end"
+                <PopoverContent
+                  className="w-64 p-0 rounded-xl bg-gradient-to-tr from-[#FFFBEB] via-[#F2FBFF] to-[#F7FEFF]"
+                  align="end"
+                >
+                  {/* Search Fields Popover Content */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <button
+                        className="text-sm font-medium text-gray-700 flex items-center"
+                        onClick={() => {
+                          resetSearchByField();
+                          setSearchFieldSearchTerm("");
+                        }}
+                      >
+                        Reset
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-[15px] h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search"
+                        className="pl-10 bg-white shadow-none rounded-[16px] py-[15px] w-full h-[48px]"
+                        value={searchFieldSearchTerm}
+                        onChange={(e) =>
+                          setSearchFieldSearchTerm(e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto py-1">
+                    {filteredSearchByFieldOptions.map((column) => (
+                      <div
+                        key={column.key}
+                        className="flex items-center px-4 py-4 hover:bg-gray-100"
+                      >
+                        <button
+                          className={`flex items-center justify-center w-5 h-5 mr-3 rounded ${
+                            searchByField.includes(column.key)
+                              ? "bg-green-500 text-white"
+                              : "bg-gray-200"
+                          }`}
+                          onClick={() => toggleSearchByField(column.key)}
+                        >
+                          {searchByField.includes(column.key) && (
+                            <Check className="h-3 w-3" />
+                          )}
+                        </button>
+                        <span className="text-sm">{column.header}</span>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* Columns Popover */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full"
                   >
-                    {/* Columns Popover Content */}
-                    <div className="p-4">
-                      <div className="flex justify-between items-center mb-4">
-                        <button
-                          className="text-sm font-medium text-gray-700 flex items-center"
-                          onClick={() =>
-                            visibleColumns.length === allColumns.length
-                              ? hideAllColumns()
-                              : showAllColumns()
-                          }
-                        >
-                          {visibleColumns.length === allColumns.length
-                            ? "Hide All"
-                            : "Show All"}
-                        </button>
-                        <button
-                          className="text-sm text-gray-500"
-                          onClick={resetColumns}
-                        >
-                          Reset
-                        </button>
-                      </div>
-                      <div className="relative">
-                        <Search className="absolute left-4 top-[15px] h-4 w-4 text-gray-400" />
-                        <Input
-                          placeholder="Search"
-                          className="pl-10 bg-white shadow-none rounded-[16px] py-[15px] w-full h-[48px]"
-                          value={columnSearchTerm}
-                          onChange={(e) => setColumnSearchTerm(e.target.value)}
-                        />
-                      </div>
+                    <Eye className="w-12 h-12" size={14} />
+                    Columns
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-64 p-0 rounded-xl bg-gradient-to-tr from-[#FFFBEB] via-[#F2FBFF] to-[#F7FEFF]"
+                  align="end"
+                >
+                  {/* Columns Popover Content */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <button
+                        className="text-sm font-medium text-gray-700 flex items-center"
+                        onClick={() =>
+                          visibleColumns.length === allColumns.length
+                            ? hideAllColumns()
+                            : showAllColumns()
+                        }
+                      >
+                        {visibleColumns.length === allColumns.length
+                          ? "Hide All"
+                          : "Show All"}
+                      </button>
+                      <button
+                        className="text-sm text-gray-500"
+                        onClick={resetColumns}
+                      >
+                        Reset
+                      </button>
                     </div>
-                    <div className="max-h-[300px] overflow-y-auto py-1">
-                      {filteredColumnOptions.map((column) => (
-                        <div
-                          key={column.key}
-                          className="flex items-center px-4 py-4 hover:bg-gray-100"
-                        >
-                          <button
-                            className={`flex items-center justify-center w-5 h-5 mr-3 rounded ${
-                              visibleColumns.includes(column.key)
-                                ? "bg-green-500 text-white"
-                                : "bg-gray-200"
-                            }`}
-                            onClick={() => toggleColumnVisibility(column.key)}
-                          >
-                            {visibleColumns.includes(column.key) && (
-                              <Check className="h-3 w-3" />
-                            )}
-                          </button>
-                          <span className="text-sm">{column.header}</span>
-                        </div>
-                      ))}
+                    <div className="relative">
+                      <Search className="absolute left-4 top-[15px] h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search"
+                        className="pl-10 bg-white shadow-none rounded-[16px] py-[15px] w-full h-[48px]"
+                        value={columnSearchTerm}
+                        onChange={(e) => setColumnSearchTerm(e.target.value)}
+                      />
                     </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto py-1">
+                    {filteredColumnOptions.map((column) => (
+                      <div
+                        key={column.key}
+                        className="flex items-center px-4 py-4 hover:bg-gray-100"
+                      >
+                        <button
+                          className={`flex items-center justify-center w-5 h-5 mr-3 rounded ${
+                            visibleColumns.includes(column.key)
+                              ? "bg-green-500 text-white"
+                              : "bg-gray-200"
+                          }`}
+                          onClick={() => toggleColumnVisibility(column.key)}
+                        >
+                          {visibleColumns.includes(column.key) && (
+                            <Check className="h-3 w-3" />
+                          )}
+                        </button>
+                        <span className="text-sm">{column.header}</span>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           ) : (
-            <div className="relative w-full">
+            <div className="relative w-full bg-green-700">
               <Input
                 type="text"
                 placeholder="Search Employee"
@@ -448,7 +439,7 @@ export const ManageEmployees: React.FC = () => {
           )}
 
           {/* View Mode Toggle - adjust size for mobile */}
-          <div className="self-end sm:self-auto">
+          <div className="w-full flex md:justify-end">
             <ViewModeToggle
               viewMode={viewMode}
               onViewModeChange={handleViewModeChange}

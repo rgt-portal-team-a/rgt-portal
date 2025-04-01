@@ -17,6 +17,7 @@ import {
   PtoStatusType,
   statusTextMap,
 } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
+import StepProgress from "@/components/common/StepProgress";
 
 export default function TimeOff() {
   const [appRej, setAppRej] = useState(false);
@@ -29,6 +30,9 @@ export default function TimeOff() {
   const [selectedType, setSelectedType] = useState<string>("All Types");
   const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(4);
 
   const {
     createPto,
@@ -121,7 +125,11 @@ export default function TimeOff() {
     return typeMatch && statusMatch && dateMatch;
   });
 
-  console.log("filtered DAta:", filteredPtoData);
+const paginatedData =
+  filteredPtoData?.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  ) || [];
 
   const handleResetFilters = () => {
     setSelectedType("All Types");
@@ -164,7 +172,7 @@ export default function TimeOff() {
 
   return (
     <main>
-      <div className="bg-white p-4 rounded-md overflow-auto">
+      <div className="bg-white p-4 rounded-md overflow-auto h-[600px]">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List
@@ -180,10 +188,10 @@ export default function TimeOff() {
 
         <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="max-h-[430px] overflow-auto">
+        <div className="max-h-[300px] md:max-h-[450px] overflow-auto">
           <DataTable
             columns={timeOffTableColumns}
-            data={filteredPtoData || []}
+            data={paginatedData || []}
             actionBool={true}
             actionObj={[
               {
@@ -205,6 +213,15 @@ export default function TimeOff() {
             loading={isLoading}
           />
         </div>
+        {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
+          <div className="">
+            <StepProgress
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={Math.ceil((filteredPtoData?.length || 0) / pageSize)}
+            />
+          </div>
+        )}
       </div>
 
       {/* modal for a new Time off request */}

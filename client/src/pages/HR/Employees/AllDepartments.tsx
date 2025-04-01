@@ -6,7 +6,7 @@ import { SideFormModal } from "@/components/common/Modal";
 import { Field, FieldInputProps, FormikHelpers, FieldProps } from "formik";
 import * as Yup from "yup";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, FileText } from "lucide-react";
+import { Mail, FileText, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -97,8 +97,8 @@ export const AllDepartments = () => {
       {/* Main Content */}
       {departments && departments.length > 0 ? (
         <div className="flex flex-col gap-[15px] pt-[10px] h-full">
-          <section className="h-[62px] flex justify-between w-full items-center py-1 bg-amber-500">
-            <div className="flex flex-col h-full">
+          <section className="flex flex-col lg:flex-row justify-between w-full items-center py-1">
+            <div className="flex flex-col h-full w-full pb-3">
               <h1 className="text-xl font-medium text-gray-600">
                 All Departments
               </h1>
@@ -107,20 +107,20 @@ export const AllDepartments = () => {
               </p>
             </div>
 
-            <div className="flex flex-row gap-4 items-center h-full">
-              {/* <div className="relative justify-between items-center sm:w-[100px] md:w-[301px] md:max-w-[301px] flex-grow">
+            <div className="flex flex-col-reverse lg:flex-row gap-4 lg:items-center h-full w-full">
+              <div className="relative w-full">
                 <Input
                   type="text"
                   placeholder="Search For A Department"
-                  className="pl-5 py-5 rounded-xl bg-gray-50 border-none outline-none shadow-none h-full"
+                  className="pl-5 py-5 rounded-xl bg-gray-50 border-none outline-none shadow-none h-full w-full "
                   value={searchQuery}
                   onChange={handleSearchChange}
                 />
                 <Search className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
-              </div> */}
+              </div>
               <Button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-rgtviolet hover:bg-violet-900 rounded-xl h-full"
+                className="bg-rgtviolet hover:bg-violet-900 rounded-lg py-6"
               >
                 Create a New Department
               </Button>
@@ -128,7 +128,7 @@ export const AllDepartments = () => {
           </section>
 
           {filteredDepartments.length > 0 ? (
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 h-[100%] md:h-[53%] overflow-auto pb-5 ">
               {filteredDepartments.map((department) => (
                 <DepartmentCard
                   key={department.id}
