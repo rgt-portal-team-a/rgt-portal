@@ -8,6 +8,7 @@ import { DatabaseService } from "@/services/database.service";
 import { Logger } from "@/services/logger.service";
 import { NotificationService } from "./notifications/ntofication.service";
 import { NotificationTemplates } from "./notifications/templates";
+import { QueueService, QueueName, JobType } from "./queue.service";
 
 export class EventService {
   private eventRepository: Repository<Event>;
@@ -15,6 +16,7 @@ export class EventService {
   private participantRepository: Repository<EventParticipant>;
   private notificationService: NotificationService;
   private logger: Logger;
+  private queueService: QueueService;
 
   constructor() {
     this.eventRepository = AppDataSource.getRepository(Event);
@@ -22,6 +24,7 @@ export class EventService {
     this.participantRepository = AppDataSource.getRepository(EventParticipant);
     this.notificationService = new NotificationService();
     this.logger = new Logger("EventService");
+    this.queueService = QueueService.getInstance();
   }
 
   async findAll(relations: string[] = ["organizer"]): Promise<Event[]> {
@@ -142,7 +145,9 @@ export class EventService {
       });
       const savedEvent = await queryRunner.manager.save(Event, event);
 
-      // Send notification to all users except the organizer
+      await DatabaseService.commitTransaction(queryRunner);
+
+      // Get all employees for notifications
       const allEmployees = await this.employeeRepository.find({
         relations: ["user"],
         where: {
@@ -150,14 +155,15 @@ export class EventService {
         },
       });
 
-      // Send notifications to all employees except the organizer
-      for (const employee of allEmployees) {
-        if (employee.user) {
-          await this.notificationService.createNotification(NotificationTemplates.eventCreated(savedEvent, employee.user.id));
+      // Add notification job to queue
+      await this.queueService.addJob(
+        QueueName.NOTIFICATIONS,
+        JobType.EVENT_CREATED,
+        {
+          event: savedEvent,
+          employees: allEmployees
         }
-      }
-
-      await DatabaseService.commitTransaction(queryRunner);
+      );
 
       return this.findById(savedEvent.id) as Promise<Event>;
     } catch (error) {
@@ -205,7 +211,27 @@ export class EventService {
 
       await DatabaseService.commitTransaction(queryRunner);
 
-      return this.findById(id) as Promise<Event>;
+      // Get updated event with participants
+      const updatedEvent = await this.findById(id);
+      if (updatedEvent) {
+        // Get all participants
+        const participants = await this.participantRepository.find({
+          where: { eventId: id },
+          relations: ["employee", "employee.user"],
+        });
+
+        // Send update notification to all participants
+        await this.queueService.addJob(
+          QueueName.NOTIFICATIONS,
+          JobType.EVENT_UPDATED,
+          {
+            event: updatedEvent,
+            participants: participants.map(p => p.employee)
+          }
+        );
+      }
+
+      return updatedEvent || event;
     } catch (error) {
       if (queryRunner) {
         await DatabaseService.rollbackTransaction(queryRunner);
@@ -224,13 +250,26 @@ export class EventService {
         throw new Error("Event not found");
       }
 
+      const participants = await this.participantRepository.find({
+        where: { eventId: id },
+        relations: ["employee", "employee.user"],
+      });
+
       queryRunner = await DatabaseService.createTransaction();
 
       await queryRunner.manager.delete(EventParticipant, { eventId: id });
-
       await queryRunner.manager.delete(Event, id);
 
       await DatabaseService.commitTransaction(queryRunner);
+
+      await this.queueService.addJob(
+        QueueName.NOTIFICATIONS,
+        JobType.EVENT_CANCELLED,
+        {
+          event,
+          participants: participants.map(p => p.employee)
+        }
+      );
     } catch (error) {
       if (queryRunner) {
         await DatabaseService.rollbackTransaction(queryRunner);
@@ -275,21 +314,16 @@ export class EventService {
 
       await DatabaseService.commitTransaction(queryRunner);
 
-      // Send invitation notification to the participant
+      // Send invitation notification through queue
       if (status === ParticipationStatus.INVITED) {
-        const event = await this.eventRepository.findOne({
-          where: { id: eventId },
-          relations: ["organizer", "organizer.user"],
-        });
-
-        const employee = await this.employeeRepository.findOne({
-          where: { id: employeeId },
-          relations: ["user"],
-        });
-
-        if (event && employee && employee.user) {
-          await this.notificationService.createNotification(NotificationTemplates.eventInvitation(event, employee.user.id));
-        }
+        await this.queueService.addJob(
+          QueueName.NOTIFICATIONS,
+          JobType.EVENT_INVITATION,
+          {
+            event,
+            employee
+          }
+        );
       }
 
       return savedParticipant;
@@ -378,7 +412,7 @@ export class EventService {
     try {
       const participant = await this.participantRepository.findOne({
         where: { id },
-        relations: ["event", "employee"],
+        relations: ["event", "event.organizer", "employee", "employee.user"],
       });
 
       if (!participant) {
@@ -390,6 +424,29 @@ export class EventService {
       await queryRunner.manager.update(EventParticipant, id, { status });
 
       await DatabaseService.commitTransaction(queryRunner);
+
+      // Send appropriate notification based on status
+      if (status === ParticipationStatus.CONFIRMED) {
+        await this.queueService.addJob(
+          QueueName.NOTIFICATIONS,
+          JobType.PARTICIPANT_ACCEPTED,
+          {
+            event: participant.event,
+            participant: participant.employee,
+            organizer: participant.event.organizer
+          }
+        );
+      } else if (status === ParticipationStatus.DECLINED) {
+        await this.queueService.addJob(
+          QueueName.NOTIFICATIONS,
+          JobType.PARTICIPANT_DECLINED,
+          {
+            event: participant.event,
+            participant: participant.employee,
+            organizer: participant.event.organizer
+          }
+        );
+      }
 
       return this.participantRepository.findOne({
         where: { id },
@@ -408,9 +465,9 @@ export class EventService {
     let queryRunner: QueryRunner | null = null;
 
     try {
-      const participant = await this.participantRepository.findOneBy({
-        eventId,
-        employeeId,
+      const participant = await this.participantRepository.findOne({
+        where: { eventId, employeeId },
+        relations: ["event", "employee", "employee.user"],
       });
 
       if (!participant) {
@@ -425,11 +482,47 @@ export class EventService {
       });
 
       await DatabaseService.commitTransaction(queryRunner);
+
+      // Send removal notification to the participant
+      await this.queueService.addJob(
+        QueueName.NOTIFICATIONS,
+        JobType.PARTICIPANT_REMOVED,
+        {
+          event: participant.event,
+          participant: participant.employee
+        }
+      );
     } catch (error) {
       if (queryRunner) {
         await DatabaseService.rollbackTransaction(queryRunner);
       }
       this.logger.error(`Error removing participant from event ${eventId}:`, error);
+      throw error;
+    }
+  }
+
+  async scheduleEventReminders(): Promise<void> {
+    try {
+      const upcomingEvents = await this.findUpcoming(7); //  events in the next 7 days
+      console.log(upcomingEvents);
+      for (const event of upcomingEvents) {
+
+        const participants = await this.participantRepository.find({
+          where: { eventId: event.id },
+          relations: ["employee", "employee.user"],
+        });
+
+        await this.queueService.addJob(
+          QueueName.NOTIFICATIONS,
+          JobType.EVENT_REMINDER,
+          {
+            event,
+            participants: participants.map(p => p.employee)
+          }
+        );
+      }
+    } catch (error) {
+      this.logger.error("Error scheduling event reminders:", error);
       throw error;
     }
   }
