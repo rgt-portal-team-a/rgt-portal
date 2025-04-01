@@ -103,7 +103,7 @@ export class RecruitmentController {
       const userId = (req.user as any).id;
       const recruitmentData: CreateRecruitmentDto[] = req.body;
 
-      const recruitments = await this.recruitmentService.createBatch(recruitmentData, userId);
+      const recruitments = await this.recruitmentService.createBatch(recruitmentData);
 
       const response: ApiResponse<typeof recruitments> = {
         success: true,

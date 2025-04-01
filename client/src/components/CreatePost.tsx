@@ -17,7 +17,7 @@ import DatePicker from "./common/DatePicker";
 import PollIcon from "@/assets/icons/PollIcon";
 import VideoIcon from "@/assets/icons/VideoIcon";
 import PhotoIcon from "@/assets/icons/PhotoIcon";
-import Globe from "@/assets/icons/Globe";
+// import Globe from "@/assets/icons/Globe";
 
 interface UploadStatus {
   images?: "idle" | "loading" | "success" | "error";
@@ -364,7 +364,7 @@ const CreatePost = () => {
     createPollMutation.isPending;
 
   return (
-    <main className="flex-col flex space-y-1">
+    <main className="flex-col flex space-y-1 bg-white border px-2 py-4 rounded-2xl">
       <div className="relative flex items-start gap-1">
         <Avatar>
           <AvatarImage src={user?.profileImage} alt="Avatar" />
@@ -403,7 +403,7 @@ const CreatePost = () => {
               <label className="font-semibold text-sm">Question</label>
               <Input
                 placeholder="Write poll question..."
-                className="border shadow-none w-full"
+                className="shadow-none w-full border-1 border-rgtpink"
                 value={pollInfo.description}
                 onChange={(e) =>
                   setPollInfo({ ...pollInfo, description: e.target.value })
@@ -416,7 +416,7 @@ const CreatePost = () => {
                 <Input
                   key={index}
                   placeholder={`Option ${index + 1}`}
-                  className="border shadow-none w-full"
+                  className="border-1 border-rgtpurple focus:border-rgtpink focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none shadow-none w-full"
                   value={option.text}
                   onChange={(e) =>
                     handlePollOptionChange(index, e.target.value)
@@ -500,25 +500,28 @@ const CreatePost = () => {
               </div>
               <div className="flex sm:justify-between space-y-3 sm:space-y-0 flex-col sm:flex-row">
                 <div className="flex w-1/2 flex-col">
-                  <label className="text-xs text-slate-500 font-semibold">
+                  <label className="text-xs text-slate-500 font-semibold pb-1">
                     Type
                   </label>
                   <CustomSelect
                     placeholder="Choose poll type"
-                    options={[{label:"Single Choice", value:"single_choice"}, {label:"Multiple Choice", value:"multiple_choice"}]}
+                    options={[
+                      { label: "Single Choice", value: "single_choice" },
+                      { label: "Multiple Choice", value: "multiple_choice" },
+                    ]}
                     value={
                       pollInfo.type === "single_choice"
-                        ? "single choice"
+                        ? "single_choice"
                         : pollInfo.type === "multiple_choice"
-                        ? "multiple choice"
+                        ? "multiple_choice"
                         : ""
                     }
-                    className="w-fit h-full"
+                    className="w-fit h-full border-2 rounded-sm bg-slate-200 p-2"
                     onChange={(value) =>
                       setPollInfo({
                         ...pollInfo,
                         type:
-                          value === "single choice"
+                          value === "single_choice"
                             ? "single_choice"
                             : "multiple_choice",
                       })
@@ -528,22 +531,16 @@ const CreatePost = () => {
 
                 <div className="flex flex-col sm:flex-row justify-between gap-2 sm:w-1/2 sm:justify-end">
                   <div className="flex-col flex">
-                    <label className="text-xs text-slate-500 font-semibold">
+                    <label className="text-xs text-slate-500 font-semibold pb-1">
                       From
                     </label>
-                    <DatePicker
-                      className="bg-transparent"
-                      onChange={() => console.log("")}
-                    />
+                    <DatePicker className="" onChange={() => console.log("")} />
                   </div>
                   <div className="flex flex-col">
-                    <label className="text-xs text-slate-500 font-semibold">
+                    <label className="text-xs text-slate-500 font-semibold pb-1">
                       To
                     </label>
-                    <DatePicker
-                      className="bg-transparent"
-                      onChange={() => console.log("")}
-                    />
+                    <DatePicker className="" onChange={() => console.log("")} />
                   </div>
                 </div>
               </div>
@@ -630,10 +627,10 @@ const CreatePost = () => {
           )}
         </>
       ) : null}
-      <div className="bg-[#EFE7FF] text-[#2D264B] font-semibold text-sm py-1 px-2 rounded-[8px] w-fit flex items-center gap-1 cursor-pointer transition-all duration-300 ease-in hover:bg-rgtpurpleaccent2">
+      {/* <div className="bg-[#EFE7FF] text-[#2D264B] font-semibold text-sm py-1 px-2 rounded-[8px] w-fit flex items-center gap-1 cursor-pointer transition-all duration-300 ease-in hover:bg-rgtpurpleaccent2">
         <Globe />
         <p>Everyone can view</p>
-      </div>
+      </div> */}
       <div className="flex">
         {/* Creating actions */}
         <div className="bg-rgtpink w-[75%] sm:w-[85%] p-4 rounded-bl-2xl flex items-center justify-evenly text-white font-medium">

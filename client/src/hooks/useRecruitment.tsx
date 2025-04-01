@@ -77,6 +77,12 @@ const API_URL = `${
 }/recruitment`;
 axios.defaults.withCredentials = true;
 
+const AI_API_URL = `${
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_API_URL
+}/ai`;
+
 export const useRecruitments = (
   page = 1,
   limit = 10,
@@ -228,6 +234,8 @@ export const useUpdateRecruitmentStatus = () => {
         );
       }
 
+
+
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -238,6 +246,65 @@ export const useUpdateRecruitmentStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
       queryClient.invalidateQueries({
         queryKey: ["recruitment", variables.id],
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+// predict match
+export const usePredictMatch = () => {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await axios.post(`${AI_API_URL}/predict-match`, {
+        candidate_id: id,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("data", data);
+    },
+    onError: (error: Error) => {
+      console.log("error", error);
+    },
+  });
+};
+
+// extract cv details
+export const useExtractCvDetails = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await axios.post<ApiResponse<Recruitment>>(
+        `${AI_API_URL}/extract-cv`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (!response.data) {
+        throw new Error(
+          "Failed to extract CV details"
+        );
+      }
+
+      return response.data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "CV details extracted successfully",
       });
     },
     onError: (error: Error) => {
