@@ -5,10 +5,6 @@ from datetime import datetime
 from typing import List, Dict, Optional, Union
 from pydantic import BaseModel, Field
 import re
-import json
-from fastapi import FastAPI, HTTPException
-
-app = FastAPI()
 
 # Define class labels for fail stages
 FAIL_STAGE_LABELS = {
