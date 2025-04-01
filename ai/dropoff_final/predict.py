@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 from datetime import datetime
 from typing import List, Dict, Optional, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, ValidationError
 import re
 
 # Define class labels for fail stages
@@ -39,9 +39,34 @@ class RawCandidateData(BaseModel):
     source: str = Field(..., description="Source of the application")
     position: str = Field(..., description="Position applying to")
 
+    @validator('date', 'statusDueDate', pre=True)
+    def validate_date_format(cls, v):
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+            return v
+        except ValueError:
+            raise ValueError(
+                f"Invalid date format for field. Expected YYYY-MM-DD, got {v}")
+
+    @validator('totalYearsInTech', pre=True)
+    def validate_experience(cls, v):
+        if not v:
+            raise ValueError("totalYearsInTech cannot be empty")
+        try:
+            # Try to extract numeric value from string if needed
+            numeric_value = float(
+                ''.join(filter(lambda x: x.isdigit() or x == '.', str(v))))
+            if numeric_value < 0:
+                raise ValueError("totalYearsInTech cannot be negative")
+            return str(numeric_value)
+        except:
+            raise ValueError(f"Invalid value for totalYearsInTech: {v}")
+
     class Config:
-        # Pydantic V2 uses `validate_by_name` instead of `allow_population_by_field_name`
         validate_by_name = True
+        json_encoders = {
+            datetime: lambda v: v.strftime("%Y-%m-%d")
+        }
 
 
 class ProcessedCandidateData(BaseModel):
@@ -98,7 +123,6 @@ class DropoffPredictor:
             'UI/UX': 12, 'Unknown': 13, 'Untitled': 14, 'WordPress': 15
         }
 
-        # Corrected feature order with proper comma placement
         self.feature_order = [
             'experience_years', 'education_encoded', 'seniority_level',
             'job_stability', 'days_since_application', 'days_to_status_due',
@@ -231,8 +255,18 @@ class DropoffPredictor:
         return processed_list
 
     def predict_from_raw(self, raw_data: List[RawCandidateData]) -> List[PredictionResult]:
-        processed_data = self._preprocess_raw_data(raw_data)
-        return self._make_predictions(processed_data)
+        try:
+            processed_data = self._preprocess_raw_data(raw_data)
+            return self._make_predictions(processed_data)
+        except ValidationError as e:
+            errors = []
+            for error in e.errors():
+                field = ".".join(str(loc) for loc in error['loc'])
+                msg = error['msg']
+                errors.append(f"{field}: {msg}")
+            raise ValueError("; ".join(errors))
+        except Exception as e:
+            raise RuntimeError(f"Prediction failed: {str(e)}")
 
     def _make_predictions(self, processed_data: List[ProcessedCandidateData]) -> List[PredictionResult]:
         if not self.model:

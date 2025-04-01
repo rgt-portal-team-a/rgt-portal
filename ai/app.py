@@ -10,6 +10,7 @@ from typing import List, Dict, Optional, Any
 import warnings
 from sklearn.exceptions import DataConversionWarning
 import json
+from fastapi.responses import JSONResponse
 
 # Import modules from your project
 from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
@@ -191,6 +192,8 @@ async def predict_dropoff_endpoint(applicants: List[RawCandidateData]):
     try:
         predictions = predictor.predict_from_raw(applicants)
         return predictions
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
