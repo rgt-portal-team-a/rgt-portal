@@ -15,11 +15,10 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     <div className={`flex flex-col items-center justify-center ${className}`}>
       {/* Enhanced blur effect with a more prominent container */}
       <div 
-        className="relative bg-purple-50/60 backdrop-blur-md p-6 rounded-2xl shadow-sm"
+        className=""
         style={{ 
           minWidth: size * 3.5,
           minHeight: size * 2.5,
-          border: '1px solid rgba(255, 255, 255, 0.3)'
         }}
       >
         <svg
@@ -48,7 +47,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           />
         </svg>
       </div>
-      {label && <p className="mt-2 text-sm text-muted-foreground">{label}</p>}
+      {label && <p className=" text-sm text-muted-foreground">{label}</p>}
     </div>
   );
 };

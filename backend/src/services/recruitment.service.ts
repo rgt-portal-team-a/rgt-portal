@@ -1,13 +1,14 @@
 import { AppDataSource } from "@/database/data-source";
-import { Repository, In, Between, Not } from "typeorm";
+import { Repository, In, Between, Not, IsNull } from "typeorm";
 import { Recruitment } from "@/entities/recruitment.entity";
-import { Employee } from "@/entities/employee.entity";
+import { Employee, WorkType } from "@/entities/employee.entity";
 import { User } from "@/entities/user.entity";
 import { EmergencyContact } from "@/entities/emergency-contact.entity";
 import { DatabaseService } from "@/services/database.service";
 import { Logger } from "@/services/logger.service";
 import { CreateRecruitmentDto, UpdateRecruitmentDto, RecruitmentFilterDto } from "@/dtos/recruitment.dto";
 import { FailStage, RecruitmentStatus } from "@/defaults/enum";
+import { CreateEmployeeDto } from "@/dtos/employee.dto";
 
 export class RecruitmentService {
   private recruitmentRepository: Repository<Recruitment>;
@@ -128,6 +129,26 @@ export class RecruitmentService {
     } catch (error) {
       this.logger.error(`Error fetching recruitment with ID ${id}:`, error);
       throw error;
+    }
+  }
+
+  // create batch recruitment
+  async createBatch(recruitmentData: CreateRecruitmentDto[]): Promise<Recruitment[]> {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const recruitments = recruitmentData.map((data) => this.recruitmentRepository.create(data));
+      const savedRecruitments = await queryRunner.manager.save(recruitments);
+      await queryRunner.commitTransaction();
+      return savedRecruitments;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this.logger.error("Error creating batch recruitments:", error);
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -376,6 +397,308 @@ export class RecruitmentService {
       return this.recruitmentRepository.save(recruitment);
     } catch (error) {
       this.logger.error(`Error marking recruitment as notified:`, error);
+      throw error;
+    }
+  }
+
+  async getHiringLadderData(startDate?: Date, endDate?: Date): Promise<any> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      if (startDate && endDate) {
+        queryBuilder.where("recruitment.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const agencyData = await queryBuilder
+        .select("recruitment.source", "name")
+        .addSelect("COUNT(recruitment.id)", "value")
+        .addSelect("COUNT(CASE WHEN recruitment.currentStatus = :hiredStatus THEN 1 END) * 100.0 / COUNT(recruitment.id)", "percent")
+        .setParameter("hiredStatus", RecruitmentStatus.HIRED)
+        .groupBy("recruitment.source")
+        .getRawMany();
+
+      const nspCountData = await queryBuilder
+        .select("to_char(recruitment.createdAt, 'YYYY')", "year")
+        .addSelect("COUNT(recruitment.id)", "value")
+        .groupBy("year")
+        .orderBy("year", "ASC")
+        .getRawMany();
+
+      return {
+        agencyData: agencyData.map((item) => ({
+          ...item,
+          color: this.getRandomColor(item.name),
+        })),
+        nspCountData,
+      };
+    } catch (error) {
+      this.logger.error("Error fetching hiring ladder data:", error);
+      throw error;
+    }
+  }
+
+  async getConversionRateByStage(startDate?: Date, endDate?: Date): Promise<any> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      if (startDate && endDate) {
+        queryBuilder.where("recruitment.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const stageData = await queryBuilder
+        .select("recruitment.currentStatus", "stage")
+        .addSelect("COUNT(recruitment.id)", "value")
+        .groupBy("recruitment.currentStatus")
+        .getRawMany();
+
+      return {
+        stageData: stageData.map((item) => ({
+          ...item,
+          color: this.getRandomColor(item.stage),
+        })),
+      };
+    } catch (error) {
+      this.logger.error("Error fetching conversion rate by stage data:", error);
+      throw error;
+    }
+  }
+
+  async getSourceToHireSuccessRate(startDate?: Date, endDate?: Date): Promise<any> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      if (startDate && endDate) {
+        queryBuilder.where("recruitment.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const successData = await queryBuilder
+        .select("recruitment.source", "source")
+        .addSelect("COUNT(CASE WHEN recruitment.currentStatus = :hiredStatus THEN 1 END)", "hires")
+        .setParameter("hiredStatus", RecruitmentStatus.HIRED)
+        .groupBy("recruitment.source")
+        .getRawMany();
+
+      return {
+        successData,
+      };
+    } catch (error) {
+      this.logger.error("Error fetching source to hire success rate data:", error);
+      throw error;
+    }
+  }
+
+  async getDropoutRateByStage(startDate?: Date, endDate?: Date): Promise<any> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      if (startDate && endDate) {
+        queryBuilder.where("recruitment.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const dropoutData = await queryBuilder
+        .select("recruitment.failStage", "stage")
+        .addSelect("COUNT(recruitment.id)", "value")
+        .where("recruitment.currentStatus = :notHiredStatus")
+        .setParameter("notHiredStatus", RecruitmentStatus.NOT_HIRED)
+        .groupBy("recruitment.failStage")
+        .getRawMany();
+
+      return {
+        dropoutData: dropoutData.map((item) => ({
+          ...item,
+          color: this.getRandomColor(item.stage),
+        })),
+      };
+    } catch (error) {
+      this.logger.error("Error fetching dropout rate by stage data:", error);
+      throw error;
+    }
+  }
+
+  async getEmployeeHeadCountByWorkType(startDate?: Date, endDate?: Date): Promise<any> {
+    try {
+      const queryBuilder = this.employeeRepository.createQueryBuilder("employee");
+
+      if (startDate && endDate) {
+        queryBuilder.where("employee.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const headcountData = await queryBuilder
+        .select("employee.workType", "workType")
+        .addSelect("COUNT(employee.id)", "count")
+        .groupBy("employee.workType")
+        .getRawMany();
+
+      // Todo : change the null to hybrid
+      headcountData.forEach((item) => {
+        if (item.workType === null) {
+          item.workType = WorkType.HYBRID;
+        }
+      });
+
+      return {
+        headcountData: headcountData.map((item) => ({
+          ...item,
+          color: this.getRandomColor(item.workType),
+        })),
+      };
+    } catch (error) {
+      this.logger.error("Error fetching employee head count by work type data:", error);
+      throw error;
+    }
+  }
+
+  async getHeadcountByWorkType(): Promise<any> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      const headcountData = await queryBuilder
+        .select("recruitment.type", "type")
+        .addSelect("COUNT(recruitment.id)", "count")
+        .where("recruitment.currentStatus = :hiredStatus")
+        .setParameter("hiredStatus", RecruitmentStatus.HIRED)
+        .groupBy("recruitment.type")
+        .getRawMany();
+
+      return {
+        headcountData: headcountData.map((item) => ({
+          ...item,
+          color: this.getRandomColor(item.type),
+        })),
+      };
+    } catch (error) {
+      this.logger.error("Error fetching headcount by work type data:", error);
+      throw error;
+    }
+  }
+
+  async getCandidatesByDepartment(startDate?: Date, endDate?: Date): Promise<any> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      if (startDate && endDate) {
+        queryBuilder.where("recruitment.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const candidatesData = await queryBuilder
+        .select("recruitment.position", "department")
+        .addSelect("COUNT(CASE WHEN to_char(recruitment.createdAt, 'YYYY') = '2021' THEN 1 END)", "2021")
+        .addSelect("COUNT(CASE WHEN to_char(recruitment.createdAt, 'YYYY') = '2022' THEN 1 END)", "2022")
+        .groupBy("recruitment.position")
+        .getRawMany();
+
+      return {
+        candidatesData,
+      };
+    } catch (error) {
+      this.logger.error("Error fetching candidates by department data:", error);
+      throw error;
+    }
+  }
+
+  async getEmployeeCountByDepartment(startDate?: Date, endDate?: Date): Promise<any> {
+    try {
+      const queryBuilder = this.employeeRepository.createQueryBuilder("employee").leftJoinAndSelect("employee.department", "department"); // Ensure to join the department
+
+      if (startDate && endDate) {
+        queryBuilder.where("employee.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const employeeCountData = await queryBuilder
+        .select("department.name", "department")
+        .addSelect("COUNT(employee.id)", "count")
+        .groupBy("department.name")
+        .getRawMany();
+
+      // Todo : chage the  null for department to Other
+      employeeCountData.forEach((item) => {
+        if (item.department === null) {
+          item.department = "Not Assigned";
+        }
+      });
+
+      const totalEmployeeCount = await this.employeeRepository.count();
+
+      return {
+        employeeCountData,
+        totalEmployeeCount,
+      };
+    } catch (error) {
+      this.logger.error("Error fetching employee count by department data:", error);
+      throw error;
+    }
+  }
+
+  //  set all employees who worktype is null to hybrid
+  async setAllEmployeesToHybrid(): Promise<void> {
+    try {
+      const employees = await this.employeeRepository.find({ where: { workType: IsNull() } });
+      employees.forEach((employee) => {
+        employee.workType = WorkType.HYBRID;
+      });
+      await this.employeeRepository.save(employees);
+    } catch (error) {
+      this.logger.error("Error setting all employees to hybrid:", error);
+      throw error;
+    }
+  }
+
+  private getRandomColor(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str?.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const hue = hash % 360;
+    return `hsl(${hue}, 70%, 50%)`;
+  }
+
+  async getEmployeeHiringTrendsOverTime(startDate?: Date, endDate?: Date): Promise<Array<{ month: string; count: number }>> {
+    try {
+      const queryBuilder = this.recruitmentRepository.createQueryBuilder("recruitment");
+
+      queryBuilder.where("recruitment.currentStatus = :hiredStatus", {
+        hiredStatus: RecruitmentStatus.HIRED,
+      });
+
+      if (startDate && endDate) {
+        queryBuilder.andWhere("recruitment.createdAt BETWEEN :startDate AND :endDate", {
+          startDate,
+          endDate,
+        });
+      }
+
+      const hiringTrendsData = await queryBuilder
+        .select("to_char(recruitment.createdAt, 'YYYY Month')", "month")
+        .addSelect("COUNT(recruitment.id)", "count")
+        .groupBy("month")
+        .orderBy("month")
+        .getRawMany();
+
+      return hiringTrendsData;
+    } catch (error) {
+      this.logger.error("Error fetching employee hiring trends over time data:", error);
       throw error;
     }
   }

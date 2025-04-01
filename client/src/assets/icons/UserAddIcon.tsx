@@ -1,10 +1,12 @@
+import { IconTypes } from "./types";
+
 const UserAddIcon: React.FC<IconTypes> = ({ color }) => {
   return (
     <svg
       width="32"
       height="33"
       viewBox="0 0 22 26"
-      fill={ color || "none"}
+      fill={color || "none"}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path

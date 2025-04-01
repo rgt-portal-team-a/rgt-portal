@@ -1,3 +1,4 @@
+import { FormField, RecruitmentFormValues } from "@/types/recruitment";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import * as Yup from "yup";

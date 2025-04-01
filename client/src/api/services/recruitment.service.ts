@@ -56,7 +56,11 @@ export interface StatusUpdateDto {
   failReason?: string;
 }
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/recruitment`;
+const API_URL = `${
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_API_URL
+}/recruitment`;
 axios.defaults.withCredentials = true;
 
 class RecruitmentService {

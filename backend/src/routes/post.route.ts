@@ -41,35 +41,30 @@ postRouter.delete(
 postRouter.get(
   "/:id/stats",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.MANAGER, Roles.ADMIN, Roles.EMPLOYEE, Roles.MANAGER]),
   postController.getPostStats,
 );
 
 postRouter.post(
   "/:postId/comments",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.EMPLOYEE, Roles.MANAGER, Roles.ADMIN, Roles.HR]),
   interactionController.createComment,
 );
 
 postRouter.post(
   "/:postId/reactions",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.EMPLOYEE, Roles.MANAGER, Roles.ADMIN]),
   interactionController.toggleReaction,
 );
 
 postRouter.post(
   "/:postId/likes",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.EMPLOYEE, Roles.MANAGER, Roles.ADMIN, Roles.HR]),
   interactionController.toggleLike,
 );
 
 postRouter.post(
   "/comments/:commentId/replies",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.EMPLOYEE, Roles.MANAGER, Roles.ADMIN, Roles.HR]),
   interactionController.createCommentReply,
 );
 
@@ -80,14 +75,12 @@ postRouter.get("/replies/:replyId/replies", authMiddleware.isAuthenticated, inte
 postRouter.post(
   "/comments/:commentId/likes",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.EMPLOYEE, Roles.MANAGER, Roles.ADMIN, Roles.HR]),
   interactionController.toggleCommentLike,
 );
 
 postRouter.post(
   "/replies/:replyId/likes",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.EMPLOYEE, Roles.MANAGER, Roles.ADMIN, Roles.HR]),
   interactionController.toggleCommentLike,
 );
 

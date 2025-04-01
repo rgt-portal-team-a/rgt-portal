@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRbacQuery } from '@/features/data-access/rbacQuery';
 import { toast } from '@/hooks/use-toast';
-import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO } from '@/types/department';
+import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, UpdateDepartmentDTO } from '@/types/department';
 import { departmentService } from '../services/department.service';
 
 
@@ -63,6 +63,36 @@ export const useCreateDepartment = () => {
       toast({
         title: 'Success',
         description: 'Department created successfully',
+      })
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      })
+    }
+  });
+};
+
+export const useUpdateDepartment = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string ,data: UpdateDepartmentDTO }) => 
+      departmentService.updateDepartment(id, data),
+    onSuccess: (_, variables) => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({
+        queryKey: ["departments", variables.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['departments'],
+        exact: false
+      });
+      toast({
+        title: 'Success',
+        description: 'Department updated successfully',
       })
     },
     onError: (error) => {

@@ -14,7 +14,7 @@ type ProtectedRouteProps = {
 
 const ProtectedRoute = ({
   allowedRoles,
-  redirectPath = '/login',
+  redirectPath = '/',
   loadingComponent = <div className="flex justify-center items-center h-screen">Loading...</div>,
   unauthorizedComponent 
 }: ProtectedRouteProps) => {
@@ -44,7 +44,7 @@ const ProtectedRoute = ({
       <div className="flex flex-col justify-center items-center h-screen">
         Permission Denied! You don't have permission to access this page
         <Button
-          onClick={() => navigate(`/login`)}
+          onClick={() => navigate(`/`)}
           className="bg-blue-500 hover:bg-blue-600 text-white"
         >
           Go to Login

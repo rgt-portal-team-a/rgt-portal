@@ -26,7 +26,9 @@ const DepartmentDetails = () => {
   const [selectStatus, setSelectStatus] = useState<string>("Permanent");
 
   useEffect(() => {
-    const department = departments.find((item) => item.id === id);
+    const department = departments.find(
+      (item) => Number(item.id) === Number(id)
+    );
 
     if (!department) {
       return;
@@ -139,19 +141,32 @@ const DepartmentDetails = () => {
   const filters: FilterConfig[] = [
     {
       type: "select",
-      options: ["Work Types", "Full Time", "Part Time"],
+      options: [
+        { label: "Work Types", value: "Work Types" },
+        { label: "Full Time", value: "full time" },
+        { label: "Part Time", value: "part time" },
+      ],
       value: selectedWorkType,
       onChange: setSelectedWorkType,
     },
     {
       type: "select",
-      options: ["All User Types", "Manager", "Employee", "Marketer"],
+      options: [
+        { label: "All User Types", value: "All User Types" },
+        { label: "Manager", value: "manager" },
+        { label: "Employee", value: "employee" },
+        { label: "Marketer", value: "marketer" },
+      ],
       value: selectedUserType,
       onChange: setSelectedUserType,
     },
     {
       type: "select",
-      options: ["Position Status", "Permanent", "Nsp"],
+      options: [
+        { label: "Position Status", value: "Position Status" },
+        { label: "Permanent", value: "permanent" },
+        { label: "Nsp", value: "nsp" },
+      ],
       value: selectStatus,
       onChange: setSelectStatus,
     },
@@ -170,6 +185,8 @@ const DepartmentDetails = () => {
       selectedWorkType === "Position Status" ||
       employee.positionStatus.toLowerCase() === selectStatus.toLowerCase();
 
+    console.log("position status:");
+
     return workTypes && userTypeMatch && status;
   });
 
@@ -184,7 +201,7 @@ const DepartmentDetails = () => {
             className="text-[#AEB1B7] text-sm font-semibold cursor-pointer"
             onClick={() => navigate(-1)}
           >
-            All Projects
+            All Departments
           </p>
           <ArrowIcon className="-rotate-90" />
           <p className="text-[#79797E] text-sm font-semibold">

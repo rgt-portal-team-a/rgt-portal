@@ -5,7 +5,11 @@ import { Project } from '@/types/project';
 
 
 const projectApiClient = createApiClient(
-  `${import.meta.env.VITE_API_URL}/projects`
+  `${
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_API_URL
+      : import.meta.env.VITE_API_URL
+  }/projects`
 );
 
 import {ProjectQueryParams} from "@/types/project"

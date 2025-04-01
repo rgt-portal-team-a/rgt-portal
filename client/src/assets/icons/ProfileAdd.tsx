@@ -1,3 +1,5 @@
+import { IconTypes } from "./types";
+
 const ProfileAdd: React.FC<IconTypes> = ({ color }) => {
   return (
     <svg
@@ -26,5 +28,3 @@ const ProfileAdd: React.FC<IconTypes> = ({ color }) => {
 };
 
 export default ProfileAdd;
-
-

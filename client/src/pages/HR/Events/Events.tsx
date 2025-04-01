@@ -56,7 +56,7 @@ const Events = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-[15px]  px-4 ">
+      <div className="flex flex-col gap-[15px]">
         <section className="h-[62px] flex justify-between w-full items-center py-1  ">
           <div className="text-left flex flex-col gap-2">
             <h1 className="text-2xl font-medium text-gray-600">Events</h1>
@@ -77,7 +77,13 @@ const Events = () => {
         </section>
 
         <section className="flex sm:flex-col md:flex-row gap-4  pb-5">
-          <div className="flex justify-center w-[30%] overflow-y-scroll  h-[680px]">
+          <div
+            className="hidden md:flex justify-center w-[30%] overflow-y-scroll  h-[535px]"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
             <div className="pt-5 space-y-3 h-fit order-2 bg-white rounded-t-2xl w-full">
               <div className="px-4 flex items-center justify-between pb-4">
                 <p className="text-[#706D8A] font-[700] text-2xl">
@@ -150,7 +156,7 @@ const Events = () => {
           </div>
 
           {/* Events Calendar Section */}
-          <div className="flex w-[70%] h-fit">
+          <div className="flex md:w-[70%] h-fit">
             <EventsCalendar events={processedEvents} />
           </div>
         </section>

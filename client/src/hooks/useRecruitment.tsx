@@ -4,7 +4,7 @@ import { toast } from "./use-toast";
 import { RecruitmentStatus } from "@/lib/enums";
 
 export interface Recruitment {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phoneNumber: string;
@@ -27,7 +27,7 @@ export interface Recruitment {
   createdAt: string;
   updatedAt: string;
   createdBy?: {
-    id: number;
+    id: string;
     username: string;
     profileImage?: string;
     email: string;
@@ -70,8 +70,18 @@ interface StatusUpdateDto {
   failReason?: string;
 }
 
-const API_URL = `${import.meta.env.VITE_API_URL}/recruitment`;
+const API_URL = `${
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_API_URL
+}/recruitment`;
 axios.defaults.withCredentials = true;
+
+const AI_API_URL = `${
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_API_URL
+}/ai`;
 
 export const useRecruitments = (
   page = 1,
@@ -119,7 +129,7 @@ export const useUpdateRecruitment = () => {
       id,
       data,
     }: {
-      id: number;
+      id: string;
       data: Partial<Recruitment>;
     }) => {
       const response = await axios.put<ApiResponse<Recruitment>>(
@@ -159,7 +169,7 @@ export const useDeleteRecruitment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const response = await axios.delete<ApiResponse<void>>(
         `${API_URL}/${id}`
       );
@@ -186,7 +196,7 @@ export const useDeleteRecruitment = () => {
   });
 };
 
-export const useRecruitment = (id: number | null, enabled = true) => {
+export const useRecruitment = (id: string | null, enabled = true) => {
   return useQuery({
     queryKey: ["recruitment", id],
     queryFn: async () => {
@@ -210,10 +220,9 @@ export const useRecruitment = (id: number | null, enabled = true) => {
 
 export const useUpdateRecruitmentStatus = () => {
   const queryClient = useQueryClient();
-  const API_URL = `${import.meta.env.VITE_API_URL}/recruitment`;
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: StatusUpdateDto }) => {
+    mutationFn: async ({ id, data }: { id: string; data: StatusUpdateDto }) => {
       const response = await axios.patch<ApiResponse<Recruitment>>(
         `${API_URL}/${id}/status`,
         data
@@ -225,6 +234,8 @@ export const useUpdateRecruitmentStatus = () => {
         );
       }
 
+
+
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -235,6 +246,65 @@ export const useUpdateRecruitmentStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
       queryClient.invalidateQueries({
         queryKey: ["recruitment", variables.id],
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+// predict match
+export const usePredictMatch = () => {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await axios.post(`${AI_API_URL}/predict-match`, {
+        candidate_id: id,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("data", data);
+    },
+    onError: (error: Error) => {
+      console.log("error", error);
+    },
+  });
+};
+
+// extract cv details
+export const useExtractCvDetails = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await axios.post<ApiResponse<Recruitment>>(
+        `${AI_API_URL}/extract-cv`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (!response.data) {
+        throw new Error(
+          "Failed to extract CV details"
+        );
+      }
+
+      return response.data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "CV details extracted successfully",
       });
     },
     onError: (error: Error) => {

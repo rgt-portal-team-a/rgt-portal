@@ -1,3 +1,5 @@
+import { IconTypes } from "./types";
+
 const LinearRightArrow: React.FC<IconTypes> = ({ color }) => {
   return (
     <svg

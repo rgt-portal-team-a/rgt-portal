@@ -2,12 +2,15 @@ import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
 import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
+import { Employee } from "@/entities/employee.entity";
 
 export class UserService {
   private userRepository: Repository<User>;
+  private employeeRepository: Repository<Employee>;
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
+    this.employeeRepository = AppDataSource.getRepository(Employee);
   }
 
   async findAll(): Promise<User[]> {
@@ -38,6 +41,24 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async createBatch(userData: CreateUserDto[]): Promise<User[]> {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const users = userData.map((data) => this.userRepository.create(data));
+      const savedUsers = await queryRunner.manager.save(users);
+      await queryRunner.commitTransaction();
+      return savedUsers;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
     await this.userRepository.update(id, updateUserDto);
     return this.findById(id);
@@ -46,4 +67,5 @@ export class UserService {
   async delete(id: number): Promise<void> {
     await this.userRepository.delete(id);
   }
+
 }

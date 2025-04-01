@@ -1,8 +1,10 @@
-const ProfileIcon: React.FC<IconTypes> = ({ color }) => {
+import { IconTypes } from "./types";
+
+const ProfileIcon: React.FC<IconTypes> = ({ color, size }) => {
   return (
     <svg
-      width="31"
-      height="32"
+      width={size ?? "31"}
+      height={size ?? "32"}
       viewBox="0 0 31 32"
       fill={color ?? "#706D8A"}
       xmlns="http://www.w3.org/2000/svg"
@@ -24,5 +26,3 @@ const ProfileIcon: React.FC<IconTypes> = ({ color }) => {
 };
 
 export default ProfileIcon;
-
-

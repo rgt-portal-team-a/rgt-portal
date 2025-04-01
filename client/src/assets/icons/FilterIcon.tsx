@@ -1,3 +1,6 @@
+import {IconTypes} from "./types"
+
+
 const FilterIcon: React.FC<IconTypes> = ({ color }) => {
   return (
     <svg

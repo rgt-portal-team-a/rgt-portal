@@ -206,7 +206,7 @@ const DepartmentPage = () => {
                   const filteredUsers = users?.filter(
                     (user) =>
                       !values.emails.includes(user.id.toString()) &&
-                      department.managerId !== user.id
+                      department.managerId.toString() !== user.id.toString()
                   );
 
                   return (

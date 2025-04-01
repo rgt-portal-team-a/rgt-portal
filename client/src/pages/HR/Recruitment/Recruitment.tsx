@@ -33,8 +33,8 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editCandidateId, setEditCandidateId] = useState<number | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [editCandidateId, setEditCandidateId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const page = parseInt(searchParams.get("page") || "1");
@@ -65,18 +65,18 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
   const deleteMutation = useDeleteRecruitment();
 
   const handleView = useCallback(
-    (id: number) => {
+    (id: string) => {
       navigate(`/hr/recruitment/candidate/${id}`);
     },
     [navigate]
   );
 
-  const handleEdit = useCallback((id: number) => {
+  const handleEdit = useCallback((id: string) => {
     setEditCandidateId(id);
     setIsEditModalOpen(true);
   }, []);
 
-  const handleDelete = useCallback((id: number) => {
+  const handleDelete = useCallback((id: string) => {
     setDeleteId(id);
     setIsDeleteDialogOpen(true);
   }, []);

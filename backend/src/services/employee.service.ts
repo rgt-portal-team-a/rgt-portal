@@ -2,7 +2,7 @@ import { AppDataSource } from "@/database/data-source";
 import { Repository } from "typeorm";
 import { Agency, Employee } from "@/entities/employee.entity";
 import { EmployeeRecognition } from "@/entities/employee-recognition.entity";
-import { Role, User } from "@/entities";
+import { Recruitment, Role, User } from "@/entities";
 import { CreateEmployeeDto, UpdateEmployeeDto } from "@/dtos/employee.dto";
 import { DepartmentService } from "./department.service";
 
@@ -28,7 +28,7 @@ export class EmployeeService {
   async findById(id: number): Promise<Employee | null> {
     return this.employeeRepository.findOne({
       where: { id },
-      relations: ["department", "user", "projectAssignments", "givenRecognitions", "receivedRecognitions"],
+      relations: ["department", "user", "user.role", "projectAssignments", "givenRecognitions", "receivedRecognitions"],
     });
   }
 
@@ -70,6 +70,25 @@ export class EmployeeService {
     return this.employeeRepository.save(employee);
   }
 
+  // create batch recruitment
+  async createBatch(employeeData: CreateEmployeeDto[]): Promise<Employee[]> {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const employees = employeeData.map((data) => this.employeeRepository.create(data));
+      const savedEmployees = await queryRunner.manager.save(employees);
+      await queryRunner.commitTransaction();
+      return savedEmployees;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   async update(id: number, updateData: UpdateEmployeeDto): Promise<Employee> {
     if (updateData.roleId && updateData.user?.id) {
       const user = await this.userRepository.findOne({ where: { id: updateData.user.id } });
@@ -78,6 +97,18 @@ export class EmployeeService {
         if (role) {
           user.role = role;
           await this.userRepository.save(user);
+        }
+      }
+    }
+
+    if (updateData.departmentId) {
+      const employee = await this.findById(id);
+      if (employee) {
+        const department = await this.departmentService.findById(updateData.departmentId);
+        if (department) {
+          employee.department = department;
+          employee.departmentId = department.id;
+          await this.employeeRepository.save(employee);
         }
       }
     }

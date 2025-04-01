@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
-import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
+import { CreateUserDto, UpdateUserAndEmployeeDto, UpdateUserDto } from "@/dtos/user.dto";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { MailService } from "@/services/mail.service";
@@ -11,9 +11,11 @@ import { BadRequestError, UnauthorizedError } from "@/utils/error";
 import { generateOtp } from "@/utils/function";
 import { logger } from "@/config/logger.config";
 import { redis } from "@/config/redis.config";
+import { Employee } from "@/entities/employee.entity";
 
 export class UserService {
   private userRepository: Repository<User>;
+  private employeeRepository: Repository<Employee>;
   private mailService: MailService;
   private redis: Redis;
   private readonly SALT_ROUNDS = 10;
@@ -22,6 +24,7 @@ export class UserService {
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
+    this.employeeRepository = AppDataSource.getRepository(Employee);
     this.mailService = new MailService();
     this.redis = redis;
   }
@@ -217,7 +220,7 @@ export class UserService {
     return this.findById(userId) as Promise<User>;
   }
 
-  async authenticateLocal(email: string): Promise<{ user: User; requiresOtp: boolean, otpId?: string }> {
+  async authenticateLocal(email: string): Promise<{ user: User; requiresOtp: boolean; otpId?: string }> {
     const user = await this.findByEmail(email);
 
     if (!user) {
@@ -234,7 +237,6 @@ export class UserService {
     } catch (error) {
       throw new UnauthorizedError("Invalid email");
     }
-
   }
 
   async completeAuthWithOtp(userId: number, otpId: string, otp: string): Promise<User> {
@@ -252,5 +254,97 @@ export class UserService {
     logger.info(`User email ${email} completed authentication with OTP verification`);
 
     return this.findByEmail(email) as Promise<User>;
+  }
+
+  async updateUserAndEmployee(id: number, updateUserAndEmployeeDto: UpdateUserAndEmployeeDto): Promise<User | null> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (updateUserAndEmployeeDto.username) {
+      user.username = updateUserAndEmployeeDto.username;
+    }
+    if (updateUserAndEmployeeDto.profileImage) {
+      user.profileImage = updateUserAndEmployeeDto.profileImage;
+    }
+
+    await this.userRepository.save(user);
+
+    const employee = await this.employeeRepository.findOne({ where: { user: { id: id } } });
+    if (!employee) {
+      throw new Error("Employee not found");
+    }
+    if (updateUserAndEmployeeDto.firstName) {
+      employee.firstName = updateUserAndEmployeeDto.firstName;
+    }
+    if (updateUserAndEmployeeDto.lastName) {
+      employee.lastName = updateUserAndEmployeeDto.lastName;
+    }
+    if (updateUserAndEmployeeDto.phone) {
+      employee.phone = updateUserAndEmployeeDto.phone;
+    }
+    await this.employeeRepository.save(employee);
+
+    return user;
+  }
+
+  async createBatch(userData: CreateUserDto[]): Promise<number[]> {
+    if (!userData || !Array.isArray(userData)) {
+      throw new BadRequestError("Invalid user data provided for batch creation");
+    }
+
+    const uniqueEmails = new Set<string>();
+    const uniqueUsernames = new Set<string>();
+    const filteredUserData = userData.filter((user) => {
+      const isEmailDuplicate = uniqueEmails.has(user.email);
+      const isUsernameDuplicate = uniqueUsernames.has(user.username);
+
+      if (isEmailDuplicate || isUsernameDuplicate) {
+        return false;
+      }
+
+      uniqueEmails.add(user.email);
+      uniqueUsernames.add(user.username);
+      return true;
+    });
+
+    const existingUsers = await this.userRepository.find({
+      where: [...filteredUserData.map((user) => ({ email: user.email })), ...filteredUserData.map((user) => ({ username: user.username }))],
+    });
+
+    const existingEmails = existingUsers.map((user) => user.email);
+    const existingUsernames = existingUsers.map((user) => user.username);
+
+    const uniqueUsers = filteredUserData.filter((user) => !existingEmails.includes(user.email) && !existingUsernames.includes(user.username));
+
+    if (uniqueUsers.length === 0) {
+      logger.warn("No new users to create, all provided emails and usernames are duplicates.");
+      return []; 
+    }
+
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const users = uniqueUsers.map((data) =>
+        this.userRepository.create({
+          username: data.username,
+          email: data.email,
+          profileImage: data.profileImage,
+          role: { id: data.role_id },
+        }),
+      );
+      const savedUsers = await queryRunner.manager.save(users);
+      await queryRunner.commitTransaction();
+      logger.info(`Users created with ids: ${savedUsers?.map((user) => user.id)}`);
+      return savedUsers?.map((user) => user.id);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

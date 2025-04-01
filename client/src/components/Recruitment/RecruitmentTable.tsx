@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from "react";
 import {
   Table,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 import { RecruitmentType } from "@/lib/enums";
 import { debounce } from "lodash";
+import { Recruitment } from "@/types/recruitment";
 
 interface Column {
   key: string;
@@ -34,9 +36,9 @@ interface Column {
 interface RecruitmentTableProps {
   candidates: Recruitment[];
   type: RecruitmentType;
-  onView: (id: number) => void;
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  onView: (id: string) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
   onAddNew: () => void;
   currentPage: number;
   totalPages: number;

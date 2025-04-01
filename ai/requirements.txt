@@ -3,7 +3,7 @@ uvicorn
 pandas
 pydantic
 requests
-scikit-learn
+scikit-learn==1.6.1
 python-multipart
 pandas
 scipy
@@ -23,3 +23,6 @@ pydantic
 transformers
 langchain_community
 pypdf
+psycopg2-binary
+groq
+python-multipart

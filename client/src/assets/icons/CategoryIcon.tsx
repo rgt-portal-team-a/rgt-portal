@@ -1,3 +1,6 @@
+import {IconTypes} from "./types"
+
+
 const CategoryIcon: React.FC<IconTypes> = ({ color }) => {
   return (
     <svg

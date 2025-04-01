@@ -7,12 +7,14 @@ interface ApiClientConfig extends AxiosRequestConfig {
   withCredentials?: true;
 }
 
+axios.defaults.withCredentials = true;
+
 export const createApiClient = (
-  baseURL: string = import.meta.env.VITE_BASE_URL
+  baseURL: string = import.meta.env.VITE_NODE_ENV === "development" ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_BASE_URL
 ): AxiosInstance => {
   const config: ApiClientConfig = {
     baseURL,
-    timeout: 15000,
+    timeout: 30000,
     headers: {
       "Content-Type": "application/json",
     },

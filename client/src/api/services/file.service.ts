@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}/file`;
+const API_BASE_URL = `${
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_DEV_API_URL
+    : import.meta.env.VITE_API_URL
+}/file`;
 
 export interface FileUploadResponse {
   success: boolean;

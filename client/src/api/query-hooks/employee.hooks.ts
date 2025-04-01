@@ -1,7 +1,7 @@
 import { useRbacQuery, usePrefetchWithPermission } from '@/features/data-access/rbacQuery';
 import { employeeService } from '../services/employee.service';
-import { useMutation, useQueryClient, UseQueryOptions, QueryKey} from '@tanstack/react-query';
-import { Employee, UpdateEmployeeInterface } from "@/types/employee";
+import {  useMutation, useQueryClient, UseQueryOptions, QueryKey} from '@tanstack/react-query';
+import { Agency, Employee, UpdateEmployeeInterface } from "@/types/employee";
 import { toast } from '@/hooks/use-toast';
 import { useMemo } from 'react';
 
@@ -31,7 +31,7 @@ export const useAllEmployees = (
     {
       ...options,
       placeholderData: (previousData) => {
-          return previousData;
+        return previousData;
       },
     }
   );
@@ -45,6 +45,9 @@ export const useEmployeeDetails = (id: string) => {
     () => employeeService.getEmployeeById(id),
     {
       enabled: !!id,
+      placeholderData: (previousData) => {
+        return previousData;
+      },
     }
   );
 };
@@ -57,13 +60,38 @@ export const useUpdateEmployee = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateEmployeeInterface }) =>
       employeeService.updateEmployee(id, data),
-    onSuccess: (result, variables) => {
+    onSuccess: () => {
       // queryClient.setQueryData(["employees",{ id: variables.id}], result.data);
       queryClient.invalidateQueries({ queryKey: ["employees"] });
 
       toast({
         title: "Success",
         description: "Employee updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useUpdateEmployeeAgency = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Agency> }) =>
+      employeeService.updateEmployeeAgency(id, data),
+    onSuccess: () => {
+      // queryClient.setQueryData(["employees",{ id: variables.id}], result.data);
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+
+      toast({
+        title: "Success",
+        description: "Employee Agency updated successfully",
       });
     },
     onError: (error) => {

@@ -1,69 +1,67 @@
-import { toast } from '@/hooks/use-toast';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { toast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { CreateRecognitionDto } from "@/types/recognition";
-import { recognitionService } from '../services/recognition.service';
+import { recognitionService } from "../services/recognition.service";
 
 export const useGetAllRecognitions = () => {
-
   return useQuery({
-   queryKey: ['recognitions'],
-   queryFn: () => recognitionService.getAllRecognitions(),
+    queryKey: ["recognitions"],
+    queryFn: () => recognitionService.getAllRecognitions(),
   });
 };
 
 export const useCreateSingleRecognition = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ data }: { data: CreateRecognitionDto }) => 
+    mutationFn: ({ data }: { data: CreateRecognitionDto }) =>
       recognitionService.createNewRecognition(data),
     onSuccess: (_, _variables) => {
       // Invalidate and refetch
       queryClient.invalidateQueries({
-        queryKey: ['recognitions'],
-        exact: false
+        queryKey: ["recognitions"],
+        exact: false,
       });
       toast({
-        title: 'Success',
-        description: 'Recognition created successfully',
-      })
+        title: "Success",
+        description: "Recognition created successfully",
+      });
     },
     onError: (error) => {
-        console.log("Recognition Creation Error",error.message)
+      console.log("Recognition Creation Error", error.message);
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
-      })
-    }
+        variant: "destructive",
+      });
+    },
   });
 };
 
 export const useCreateMultipleRecognitions = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ data }: { data: CreateRecognitionDto[] }) => 
+    mutationFn: ({ data }: { data: CreateRecognitionDto[] }) =>
       recognitionService.createNewRecognitionBulk(data),
     onSuccess: (_, _variables) => {
       // Invalidate and refetch
       queryClient.invalidateQueries({
-        queryKey: ['recognitions'],
-        exact: false
+        queryKey: ["recognitions"],
+        exact: false,
       });
       toast({
-        title: 'Success',
-        description: 'Recognitions created successfully',
-      })
+        title: "Success",
+        description: "Recognitions created successfully",
+      });
     },
     onError: (error) => {
-        console.log("Recognition Creation Error",error.message)
+      console.log("Recognition Creation Error", error.message);
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
-      })
-    }
+        variant: "destructive",
+      });
+    },
   });
 };
-

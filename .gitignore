@@ -3,45 +3,32 @@
 .env.*
 !.env.example
 
-# Dependencies
-/node_modules
-
 # TypeScript build output
 /dist
+/build
+/out
 
 # OS generated files
 .DS_Store
+Thumbs.db
+Desktop.ini
 
 # Test coverage
 /coverage
+.vitest/
 
 # Node modules
 /node_modules/
+/client/node_modules/
+/backend/node_modules/
 
 # Logs
 logs
 *.log
 npm-debug.log*
 
-# Environment files
-.env
-.env.*  # Including .env.example, if you don't want it in Git
-
 # VSCode settings (local editor config)
 .vscode/
-
-# TypeScript build output
-/server/dist/
-/server/build/
-/server/out/
-
-# System files
-.DS_Store
-Thumbs.db
-
-# Yarn / npm lock files (if you use yarn, keep the yarn.lock file)
-# yarn.lock
-# package-lock.json
 
 # IDE/Editor-specific files (JetBrains, etc)
 .idea/
@@ -49,33 +36,81 @@ Thumbs.db
 # Prettier ignore file
 .prettierignore
 
-# Coverage directory for testing tools
-/coverage/
-/.vitest/
-
-# Temporary files (e.g., VSCode-specific settings)
+# Temporary files
 *.swp
 *.swo
+*.tmp
+*.bak
 
-# OS-specific files (Windows)
-Desktop.ini
+# Python compiled files
+*.py[cod]
+__pycache__/
+*.so
 
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Virtual environment
+venv/
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# MyPy cache
+.mypy_cache/
+
+# Profiling data
+.prof
+
+# Machine learning artifacts
+*.h5
+*.ckpt
+*.pth
+*.joblib
+*.pkl
+*.npy
+*.npz
+
+# TensorBoard logs
+runs/
+
+# Model checkpoints
+checkpoints/
+
+# Dataset files
+*.csv
+*.tsv
+*.json
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.parquet
+
+# Ignore large files
+*.bin
+*.dat
+
+# Yarn / npm lock files
 yarn.lock
+pnpm-lock.yaml
 
-# ignore for client
-/client/node_modules/
+# Ignore for client
 /client/dist/
 /client/build/
 /client/out/
 
-# ignore for server
-/server/node_modules/
-/server/dist/
-/server/build/
-/server/out/
-# tests
-/server/.vitest/
+# Ignore for server
+/backend/dist/
+/backend/build/
+/backend/out/
+/backend/.vitest/
 
-# ignore for ai
-.history
-.vscode
+# VSCode
+.history/
+.vscode/

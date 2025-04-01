@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { RecruitmentType } from "./enums";
+
 export const recruitmentSchema: any = [
   {
     name: "cv",
@@ -44,24 +47,19 @@ export const recruitmentSchema: any = [
     required: true,
   },
   {
-    name: "asignees",
-    label: "Asignees",
+    name: "source",
+    label: "Source",
     type: "select",
-    options: [
-      "KNUST",
-      "ASHESI",
-      "LEGON",
-      "UDS",
-      "UCC",
-      "UEW",
-      "UMAT",
-      "UNER",
-      "WISCONSIN",
-      "UPSA",
-      "ACADEMIC CITY",
-    ],
+    options: ["CodeIn", "HR Marketing", "Ghana Tech Jobs"],
     gridColumn: "full",
     required: true,
+  },
+  {
+    name: "asignee",
+    label: "Assignees",
+    type: "select",
+    // type: "asyncSelect", 
+    gridColumn: "full",
   },
   {
     name: "university",
@@ -82,6 +80,16 @@ export const recruitmentSchema: any = [
     ],
     gridColumn: "full",
     required: true,
+    conditionalRender: (type: string) => type === RecruitmentType.NSS,
+  },
+  {
+    name: "position", 
+    label: "Job Position",
+    type: "select",
+    options: ["UI/UX", "FullStack", "Data Analytics", "AI/LLM", "PM"],
+    gridColumn: "full",
+    required: true,
+    conditionalRender: (type: string) => type === RecruitmentType.EMPLOYEE,
   },
   {
     name: "firstPriority",
@@ -90,6 +98,7 @@ export const recruitmentSchema: any = [
     options: ["UI/UX", "FullStack", "Data Analytics", "AI/LLM", "PM"],
     gridColumn: "half",
     required: true,
+    conditionalRender: (type: string) => type === RecruitmentType.NSS,
   },
   {
     name: "secondPriority",
@@ -98,6 +107,7 @@ export const recruitmentSchema: any = [
     options: ["UI/UX", "FullStack", "Data Analytics", "AI/LLM", "PM"],
     gridColumn: "half",
     required: true,
+    conditionalRender: (type: string) => type === RecruitmentType.NSS,
   },
   {
     name: "location",
@@ -108,7 +118,7 @@ export const recruitmentSchema: any = [
       "Ashanti",
       "Eastern",
       "Western",
-      "Nothern",
+      "Northern",
       "Upper East",
       "Upper West",
       "Volta",

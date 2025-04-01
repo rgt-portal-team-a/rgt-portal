@@ -4,27 +4,38 @@ import { DataTable } from "../../common/DataTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
-import { Calendar as CalendarIcon, X } from "lucide-react";
-import { Calendar } from "../../ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import { DateRange } from "react-day-picker";
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { SideModal } from "@/components/ui/side-dialog";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import { PtoLeave } from "@/types/PTOS";
 import ViewIcon from "@/assets/icons/ViewIcon";
 import Avtr from "@/components/Avtr";
+import { useRequestPto } from "@/hooks/usePtoRequests";
+import Filters, { FilterConfig } from "@/components/common/Filters";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+
+export enum PtoStatusType {
+  PENDING = "pending",
+  HR_APPROVED = "approved",
+  HR_DECLINED = "declined",
+  MANAGER_APPROVED = "manager_approved",
+  MANAGER_DECLINED = "manager_declined",
+}
+
+export const statusTextMap = {
+  [PtoStatusType.MANAGER_APPROVED]: "Approved by Manager",
+  [PtoStatusType.MANAGER_DECLINED]: "Declined by Manager",
+  [PtoStatusType.HR_APPROVED]: "Approved by HR",
+  [PtoStatusType.HR_DECLINED]: "Declined by HR",
+  [PtoStatusType.PENDING]: "Pending",
+};
 
 export interface timeOffManagementTableProps {
   initialData: PtoLeave[] | undefined;
+  filters?: FilterConfig[];
+  onReset?: () => void;
   isDataLoading: boolean;
   pageSize?: number;
 }
@@ -32,50 +43,139 @@ export interface timeOffManagementTableProps {
 export interface FilterState {
   type: string;
   status: string;
-  dateRange?: DateRange;
+  selectedDate?: Date | null;
+  searchQuery: string;
 }
 
 const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
   initialData,
+  filters,
+  onReset,
+  isDataLoading,
 }) => {
+  const { currentUser } = useAuthContextProvider();
+  const departmentId = currentUser?.employee?.departmentId as number;
+
   const [selectedEmployee, setSelectedEmployee] = useState<PtoLeave | null>(
     null
   );
-
   const [rejectModalOpen, setRejectModalOpen] = React.useState<boolean>(false);
   const [approveModalOpen, setApproveModalOpen] =
     React.useState<boolean>(false);
-  const [reason, setReason] = React.useState<string>("");
-
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [reason, setReason] = React.useState<string>("");
+  const { updatePto, isPtoUpdating } = useRequestPto();
+  const { departments } = useSelector((state: RootState) => state.sharedState);
 
-  const handleReject = (id: number | undefined): void => {
-    if (id) {
-      console.log("Rejected with reason:", reason);
-      setRejectModalOpen(true);
-      setReason("");
+  const isManager =
+    departments.find((department) => department.id === departmentId)
+      ?.managerId === currentUser?.employee?.id;
+
+  const isHr = currentUser?.role.name === "HR";
+
+  const isCurrentUserEmployee =
+    selectedEmployee?.employee?.id === currentUser?.employee?.id;
+
+  const shouldDisableButtons = (
+    status: PtoStatusType,
+    isManager: boolean,
+    isHr: boolean,
+    isCurrentUserEmployee: boolean
+  ): { disabled: boolean; message: string } => {
+    if (isCurrentUserEmployee) {
+      return {
+        disabled: true,
+        message: "You cannot approve or reject your own request",
+      };
+    }
+    if (isHr) {
+      // HR's buttons are disabled if the manager has not approved or rejected
+      console.log("status:", status);
+      if (
+        status === statusTextMap[PtoStatusType.MANAGER_APPROVED] ||
+        status === statusTextMap[PtoStatusType.HR_APPROVED] ||
+        status === statusTextMap[PtoStatusType.HR_DECLINED]
+      ) {
+        return { disabled: false, message: "" };
+      } else if (status === statusTextMap[PtoStatusType.MANAGER_DECLINED]) {
+        return {
+          disabled: true,
+          message: "Manager has already declined the request",
+        };
+      }
+      return {
+        disabled: true,
+        message: "Manager has not approved or rejected yet",
+      };
+    }
+
+    if (isManager) {
+      // Manager's buttons are disabled if HR has already approved or rejected
+      if (
+        status === statusTextMap[PtoStatusType.HR_APPROVED] ||
+        status === statusTextMap[PtoStatusType.HR_DECLINED]
+      ) {
+        return { disabled: true, message: "" };
+      } else if (
+        status === statusTextMap[PtoStatusType.MANAGER_APPROVED] ||
+        status === statusTextMap[PtoStatusType.MANAGER_DECLINED]
+      ) {
+        return { disabled: false, message: "" };
+      }
+    }
+
+    return { disabled: false, message: "" };
+  };
+
+  const handleOpenApproveModal = () => {
+    setApproveModalOpen(true);
+    return;
+  };
+
+  const handleOpentRejectModal = () => {
+    setRejectModalOpen(true);
+    return;
+  };
+
+  const handleApprove = async (): Promise<void> => {
+    try {
+      if (selectedEmployee && selectedEmployee.id) {
+        const updatedPto = {
+          statusReason: selectedEmployee.statusReason,
+          status:
+            currentUser?.role.name === "MANAGER"
+              ? PtoStatusType.MANAGER_APPROVED
+              : PtoStatusType.HR_APPROVED,
+          departmentId: Number(selectedEmployee.departmentId),
+        };
+        await updatePto({ ptoUpdate: updatedPto, ptoId: selectedEmployee.id });
+        setApproveModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error approving request", error);
+      setApproveModalOpen(false);
     }
   };
 
-  const handleApprove = (id: number | undefined): void => {
-    if (id) {
-      console.log("Approved");
-      setApproveModalOpen(true);
+  const handleReject = async (): Promise<void> => {
+    try {
+      if (selectedEmployee && selectedEmployee.id) {
+        const updatedPto = {
+          statusReason: currentUser?.role.name === "MANAGER" ? "" : reason,
+          status:
+            currentUser?.role.name === "MANAGER"
+              ? PtoStatusType.MANAGER_DECLINED
+              : PtoStatusType.HR_DECLINED,
+          departmentId: Number(selectedEmployee.departmentId),
+        };
+        await updatePto({ ptoUpdate: updatedPto, ptoId: selectedEmployee.id });
+        setRejectModalOpen(false);
+        setReason("");
+      }
+    } catch (error) {
+      console.error("Error rejecting request", error);
+      setRejectModalOpen(false);
     }
-  };
-
-  const [filter, setFilter] = useState<FilterState>({
-    type: "All Type",
-    status: "All Status",
-    dateRange: undefined,
-  });
-
-  const resetFilter = () => {
-    setFilter({
-      type: "All Type",
-      status: "All Status",
-      dateRange: undefined,
-    });
   };
 
   const formattedData = initialData?.map((item) => ({
@@ -83,11 +183,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
     from: format(new Date(item.startDate), "dd MMM yyyy"),
     to: format(new Date(item.endDate), "dd MMM yyyy"),
     status:
-      (item.status ?? "") === "approved"
-        ? "Approved by Manager"
-        : (item.status ?? "") === "rejected"
-        ? "Rejected by Manager"
-        : "Pending",
+      statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
     total: `${Math.ceil(
       (new Date(item.endDate as Date).getTime() -
         new Date(item.startDate as Date).getTime()) /
@@ -104,7 +200,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           {row && (
             <>
               <Avtr
-                name={row.employee?.user?.username}
+                name={row.employee?.user?.usernam ?? "USER"}
                 url={row.employee?.user?.profileImage}
               />
               <div>
@@ -141,9 +237,9 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
         const lowerCase = row.status.toLowerCase();
         console.log("lower:", lowerCase);
         return `py-2 px-4 text-center rounded-md ${
-          lowerCase === "approved"
+          lowerCase.includes("approved")
             ? "bg-[#DFFFC7] text-[#20E42A]"
-            : lowerCase === "rejected"
+            : lowerCase.includes("declined")
             ? "bg-[#FEE4E2] text-[#D92D20]"
             : "bg-yellow-100 text-yellow-800"
         }`;
@@ -159,7 +255,6 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
             onClick={() => {
               setIsModalOpen(true);
               setSelectedEmployee(row as PtoLeave);
-              console.log("row:", row.id);
             }}
           >
             <ViewIcon />
@@ -171,103 +266,21 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
 
   return (
     <>
-      <div className="space-y-4 bg-white py-4 flex  flex-col items-center w-full">
+      <div className=" flex bg-white flex-col items-center max-h[340px] overflow-auto">
         {/* Filter Section */}
-        <div className="flex flex-wrap px-[22px]  gap-3 justify-between items-center">
-          {/* Date Range Picker */}
-          {/* <div className="flex-grow min-w-auto "> */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-[320px] py-[25px] rounded-lg justify-start text-left font-normal bg-gray-100 border-none",
-                  !filter.dateRange && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filter.dateRange?.from ? (
-                  filter.dateRange.to ? (
-                    <>
-                      {format(filter.dateRange.from, "LLL dd, y")} -{" "}
-                      {format(filter.dateRange.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(filter.dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={filter.dateRange?.from}
-                selected={filter.dateRange}
-                onSelect={(range) =>
-                  setFilter((prev) => ({ ...prev, dateRange: range }))
-                }
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
-          {/* </div> */}
-
-          {/* Type Filter */}
-          <Select
-            value={filter.type}
-            onValueChange={(value) =>
-              setFilter((prev) => ({ ...prev, type: value }))
-            }
-          >
-            <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500  hover:text-black font-normal bg-gray-100 border-none">
-              <SelectValue placeholder="All Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All Type">All Type</SelectItem>
-              <SelectItem value="Engagement">Engagement</SelectItem>
-              <SelectItem value="Unwell">Unwell</SelectItem>
-              <SelectItem value="Emergency">Emergency</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Status Filter */}
-          <Select
-            value={filter.status}
-            onValueChange={(value) =>
-              setFilter((prev) => ({ ...prev, status: value }))
-            }
-          >
-            <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500  hover:text-black font-normal bg-gray-100 border-none">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All Status">All Status</SelectItem>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Approved">Approved</SelectItem>
-              <SelectItem value="Rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Reset Filter Button */}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={resetFilter}
-            className="border-none rounded-lg bg-gray-100 text-gray-500  hover:text-black font-normal w-[100px] py-[25px]"
-          >
-            <X className="h-4 w-4" />
-            Reset
-          </Button>
+        <div className="px-[22px] w-full">
+          {filters && onReset && (
+            <Filters filters={filters} onReset={onReset} />
+          )}
         </div>
 
-        <div className="flex w-full px-4">
+        <div className="px-[22px] w-full max-h-[440px] overflow-y-scroll">
           <DataTable
             columns={columns}
             data={formattedData}
             actionBool={false}
+            skeleton="employee"
+            loading={isDataLoading}
           />
         </div>
 
@@ -284,10 +297,11 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
         isOpen={rejectModalOpen}
         onOpenChange={setRejectModalOpen}
         title="Are you sure you want to reject?"
-        onSubmit={() => console.log("submitting...")}
+        onSubmit={handleReject}
         onCancel={() => {
           setRejectModalOpen(false);
         }}
+        isSubmitting={isPtoUpdating}
       >
         <div className="space-y-2">
           <p className="text-sm text-gray-500">Provide a Reason</p>
@@ -308,10 +322,11 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
         isOpen={approveModalOpen}
         onOpenChange={setApproveModalOpen}
         title="Are you sure you want to approve?"
-        onSubmit={() => console.log("submitting...")}
+        onSubmit={handleApprove}
         onCancel={() => {
-          setApproveModalOpen(false);
+          setRejectModalOpen(false);
         }}
+        isSubmitting={isPtoUpdating}
       />
 
       <SideModal
@@ -326,23 +341,51 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           <div className="w-full flex justify-center items-end gap-4">
             <Button
               variant={"ghost"}
-              className="w-1/2 py-7 border-1 border-[#FF0000] text-[#FF0000] hover:text-[#FF0000] cursor-pointer transition-all duration-300 ease-in"
-              onClick={() => handleReject(selectedEmployee?.id)}
+              className={`w-1/2 py-7 border-1 border-[#FF0000] text-[#FF0000] hover:text-[#FF0000] cursor-pointer transition-all duration-300 ease-in disabled:opacity-40`}
+              disabled={
+                shouldDisableButtons(
+                  (selectedEmployee?.status as PtoStatusType) ??
+                    PtoStatusType.PENDING,
+                  isManager,
+                  isHr,
+                  isCurrentUserEmployee
+                ).disabled
+              }
+              onClick={handleOpentRejectModal}
             >
               Reject
             </Button>
             <Button
               variant={"secondary"}
-              className="w-1/2 py-7 bg-[#DFFFC7] text-[#15FF00] cursor-pointer transition-all duration-300 ease-in hover:text-[#15FF00] hover:bg-[#DFFFC7]"
-              onClick={() => handleApprove(selectedEmployee?.id)}
+              className="w-1/2 py-7 bg-[#DFFFC7] text-[#15FF00] cursor-pointer transition-all duration-300 ease-in hover:text-[#15FF00] hover:bg-[#DFFFC7] disabled:opacity-40"
+              onClick={handleOpenApproveModal}
+              disabled={
+                shouldDisableButtons(
+                  (selectedEmployee?.status as PtoStatusType) ??
+                    PtoStatusType.PENDING,
+                  isManager,
+                  isHr,
+                  isCurrentUserEmployee
+                ).disabled
+              }
             >
               Approve
             </Button>
           </div>
         }
       >
+        <p className="text-sm text-red-500 font-semibold text-center">
+          {
+            shouldDisableButtons(
+              (selectedEmployee?.status as PtoStatusType) ??
+                PtoStatusType.PENDING, // default to pending
+              isManager,
+              isHr,
+              isCurrentUserEmployee
+            ).message
+          }
+        </p>
         <div className=" p-6 flex flex-col ">
-          {/* Employee Name */}
           <div className="mb-4">
             <label className="text-sm text-gray-300">Employee Name</label>
             <Input
@@ -352,7 +395,6 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
             />
           </div>
 
-          {/* Date Fields */}
           <div className="flex gap-4 mb-4">
             <div className="w-1/2">
               <label className="text-sm text-gray-300">From</label>
@@ -393,9 +435,9 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
             />
           </div>
           <div className="pt-4">
-            <label className="text-sm text-gray-300">Manager Name</label>
+            <label className="text-sm text-gray-300">HR Reason</label>
             <Input
-              value={selectedEmployee?.approver?.user?.username}
+              value={selectedEmployee?.statusReason}
               readOnly
               className="h-12 rounded-lg text-gray-400 mt-1 bg-gray-100 border-none shadow-none"
             />

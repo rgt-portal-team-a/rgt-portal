@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Loader } from "lucide-react";
 
 export interface ModalProps {
 isOpen: boolean;
@@ -78,7 +79,7 @@ export const ConfirmCancelModal = ({
 
         <Dialog.Content
           className={cn(
-            "fixed z-2000 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white max-h-[90vh] overflow-y-auto w-full max-w-md rounded-lg shadow-lg p-6",
+            "fixed z-2000 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white max-h-[90vh] overflow-y-auto w-full sm:max-w-md rounded-lg shadow-lg p-6",
             className
           )}
           onEscapeKeyDown={() => !isSubmitting && onOpenChange(false)}
@@ -109,7 +110,7 @@ export const ConfirmCancelModal = ({
               disabled={isSubmitting}
               className="w-1/2 bg-green-100 text-green-600 hover:bg-green-200 py-[10px] px-[18px]"
             >
-              {submitText}
+              {isSubmitting ? <Loader className="animate-spin"/> :submitText}
             </Button>
           </div>
         </Dialog.Content>

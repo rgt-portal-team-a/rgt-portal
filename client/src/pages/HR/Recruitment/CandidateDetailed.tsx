@@ -33,7 +33,7 @@ import CandidateDetailSkeleton from "@/components/Recruitment/CandidateDetailSke
 const CandidateDetailView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const candidateId = id ? parseInt(id) : null;
+  const candidateId = id ? id : null;
 
   const {
     data: candidate,

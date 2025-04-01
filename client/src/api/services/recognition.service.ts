@@ -3,7 +3,11 @@ import { ApiResponse } from '../types';
 import { CreateRecognitionDto, EmployeeRecognition } from "@/types/recognition";
 
 const recognitionApiClient = createApiClient(
-  `${import.meta.env.VITE_API_URL}/recognition`
+  `${
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_API_URL
+      : import.meta.env.VITE_API_URL
+  }/recognition`
 );
 
 export const recognitionService = {

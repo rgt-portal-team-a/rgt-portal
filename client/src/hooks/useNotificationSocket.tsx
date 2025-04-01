@@ -26,7 +26,10 @@ export const useNotificationSocket = (
   const queryClient = useQueryClient();
   const [connectionAttempts, setConnectionAttempts] = useState(0);
 
-  const wsUrl = "ws://localhost:8000";
+  const wsUrl =
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_WS_BASE_URL
+      : import.meta.env.VITE_WS_BASE_URL;
 
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     isAuthenticated ? wsUrl : null,
@@ -48,7 +51,7 @@ export const useNotificationSocket = (
       onClose: () => {
         console.log("WebSocket connection closed");
       },
-      onError: (event: any) => {
+      onError: () => {
         toast({
           title: "Error",
           description: "WebSocket connection error",
@@ -65,58 +68,61 @@ export const useNotificationSocket = (
 
   useEffect(() => {
     if (lastMessage?.data) {
+     
       try {
         const socketData = lastMessage.data;
 
-        if (typeof socketData === "string" && socketData.match(/^\d+\[/)) {
-          const jsonStartIndex = socketData.indexOf("[");
-          if (jsonStartIndex !== -1) {
-            const jsonPart = socketData.substring(jsonStartIndex);
-            const parsedArray = JSON.parse(jsonPart);
+          if (typeof socketData === "string" && socketData.match(/^\d+\[/)) {
+            const jsonStartIndex = socketData.indexOf("[");
+            if (jsonStartIndex !== -1) {
+              const jsonPart = socketData.substring(jsonStartIndex);
+              const parsedArray = JSON.parse(jsonPart);
 
-            // Socket.IO format: [event_name, data]
-            if (Array.isArray(parsedArray) && parsedArray.length >= 2) {
-              const [eventName, eventData] = parsedArray;
+              if (Array.isArray(parsedArray) && parsedArray.length >= 2) {
+                const [eventName, eventData] = parsedArray;
 
-              console.log("Received Socket.IO event:", eventName, eventData);
+                console.log("Received Socket.IO event:", eventName, eventData);
 
-              if (eventName === "notification") {
-                console.log("Received notification:", eventData);
-                queryClient.invalidateQueries({ queryKey: ["notifications"] });
-                queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                if (eventName === "notification") {
+                  console.log("Received notification:", eventData);
+                  queryClient.invalidateQueries({
+                    queryKey: ["notifications"],
+                  });
+                  queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
 
-                if (onNewNotification) {
-                  onNewNotification(eventData as Notification);
-                }
-              } else if (eventData?.type === "event_created") {
-                // Handle notification events from your example
-                console.log("Received event notification:", eventData);
-                queryClient.invalidateQueries({ queryKey: ["notifications"] });
-                queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+                  if (onNewNotification) {
+                    onNewNotification(eventData as Notification);
+                  }
+                } else {
+                  console.log("Received event notification:", eventData);
+                  queryClient.invalidateQueries({
+                    queryKey: ["notifications"],
+                  });
+                  queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
 
-                if (onNewNotification) {
-                  onNewNotification(eventData as Notification);
+                  if (onNewNotification) {
+                    onNewNotification(eventData as Notification);
+                  }
                 }
               }
             }
-          }
-        } else {
-          // Handle regular JSON if not in Socket.IO format
-          const data = JSON.parse(socketData);
-          console.log("Received WebSocket message:", data);
+          } else {
+            // Handle regular JSON if not in Socket.IO format
+            const data = JSON.parse(socketData);
+            console.log("Received WebSocket message:", data);
 
-          if (data.type === "notification") {
-            console.log("Received notification:", data);
-            const notification = data.payload as Notification;
+            if (data.type === "notification") {
+              console.log("Received notification:", data);
+              const notification = data.payload as Notification;
 
-            queryClient.invalidateQueries({ queryKey: ["notifications"] });
-            queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+              queryClient.invalidateQueries({ queryKey: ["notifications"] });
+              queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
 
-            if (onNewNotification) {
-              onNewNotification(notification);
+              if (onNewNotification) {
+                onNewNotification(notification);
+              }
             }
           }
-        }
       } catch (error) {
         console.error(
           "Error parsing WebSocket message:",

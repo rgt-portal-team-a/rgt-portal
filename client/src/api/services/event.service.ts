@@ -5,7 +5,11 @@ import { CreateEventDto, Event } from '@/types/events';
 
 
 const eventApiClient = createApiClient(
-  `${import.meta.env.VITE_API_URL}/event`
+  `${
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_API_URL
+      : import.meta.env.VITE_API_URL
+  }/event`
 );
 
 

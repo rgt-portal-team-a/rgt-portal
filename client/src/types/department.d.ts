@@ -1,7 +1,7 @@
 import { Employee } from "./employee";
 
 export interface Department{
-  id: string;
+  id: number;
   name: string;
   description: string;
   managerId: number;
@@ -14,6 +14,14 @@ export interface CreateDepartmentDTO{
   description?: string;
   managerId: number;
 }
+
+export interface UpdateDepartmentDTO {
+  name: string;
+  description?: string;
+  managerId?: number;
+}
+
+
 
 export interface AddEmployeeToDepartmentDTO{
   employeeId: string;

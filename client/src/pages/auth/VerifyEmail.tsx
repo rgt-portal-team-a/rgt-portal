@@ -1,13 +1,13 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { Formik, Form as FormikForm } from 'formik';
-import { useLocation, useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
-import { useRef, useState } from 'react';
-import { useVerifyOtp } from '@/api/query-hooks/auth.hooks';
-import rgtPattern from '@/assets/images/RGT PATTERN 1.png';
-import rgtIcon from '@/assets/images/RGT TRANSPARENT 1.png';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
+import { useQueryClient } from "@tanstack/react-query";
+import { Formik, Form as FormikForm } from "formik";
+import { useLocation, useNavigate } from "react-router-dom";
+import * as Yup from "yup";
+import { useRef, useState } from "react";
+import { useVerifyOtp } from "@/api/query-hooks/auth.hooks";
+import rgtPattern from "@/assets/images/RGT PATTERN 1.png";
+import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 const VerifyEmail = () => {
   const inputRefs = [
@@ -19,32 +19,32 @@ const VerifyEmail = () => {
     useRef<HTMLInputElement>(null),
   ];
 
-  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const navigate = useNavigate();
   const location = useLocation();
-  const otpId = location.state?.otpId || '';
-  const userId = location.state?.userId || '';
+  const otpId = location.state?.otpId || "";
+  const userId = location.state?.userId || "";
 
   const queryClient = useQueryClient();
 
   const { mutate, isPending } = useVerifyOtp({
     onSuccess: (data: any) => {
-      console.log('Verification successful:', data);
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+      console.log("Verification successful:", data);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
 
-      navigate('/emp/feed', { replace: true });
+      navigate(`${data.user.role.name === "hr" ? "/hr/feed" : "/emp/feed"}`, { replace: true });
       toast({
-        title: 'Success',
-        description: 'Email verified successfully',
+        title: "Success",
+        description: "Email verified successfully",
       });
     },
     onError: (error: any) => {
-      console.log('Verification error:', error);
+      console.log("Verification error:", error);
       const errorMessage =
         error.response?.data?.message ||
-        'Failed to verify OTP. Please try again.';
+        "Failed to verify OTP. Please try again.";
       toast({
-        title: 'Error',
+        title: "Error",
         description: errorMessage,
       });
     },
@@ -61,8 +61,8 @@ const VerifyEmail = () => {
       inputRefs[index + 1].current?.focus();
     }
 
-    if (newOtp.every((digit) => digit) && newOtp.join('').length === 6) {
-      handleVerify(newOtp.join(''));
+    if (newOtp.every((digit) => digit) && newOtp.join("").length === 6) {
+      handleVerify(newOtp.join(""));
     }
   };
 
@@ -70,18 +70,18 @@ const VerifyEmail = () => {
     index: number,
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs[index - 1].current?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text');
+    const pastedData = e.clipboardData.getData("text");
 
     if (!/^\d+$/.test(pastedData)) return;
 
-    const digits = pastedData.slice(0, 6).split('');
+    const digits = pastedData.slice(0, 6).split("");
     const newOtp = [...otp];
 
     digits.forEach((digit, index) => {
@@ -96,7 +96,7 @@ const VerifyEmail = () => {
       inputRefs[digits.length].current?.focus();
     } else {
       inputRefs[5].current?.focus();
-      handleVerify(newOtp.join(''));
+      handleVerify(newOtp.join(""));
     }
   };
 
@@ -108,8 +108,8 @@ const VerifyEmail = () => {
 
   const handleResendOtp = () => {
     toast({
-      title: 'OTP Resent',
-      description: 'A new OTP has been sent to your email',
+      title: "OTP Resent",
+      description: "A new OTP has been sent to your email",
     });
   };
 
@@ -134,10 +134,10 @@ const VerifyEmail = () => {
           </div>
 
           <Formik
-            initialValues={{ otp: '' }}
+            initialValues={{ otp: "" }}
             validationSchema={Yup.object({})}
             onSubmit={() => {
-              handleVerify(otp.join(''));
+              handleVerify(otp.join(""));
             }}
           >
             <FormikForm className="space-y-4">
@@ -160,16 +160,16 @@ const VerifyEmail = () => {
               <Button
                 type="submit"
                 className="w-full py-2 px-4 bg-pink-500 hover:bg-pink-600 text-white rounded-md mt-6"
-                disabled={isPending || otp.join('').length !== 6}
+                disabled={isPending || otp.join("").length !== 6}
               >
-                {isPending ? 'Verifying...' : 'Verify'}
+                {isPending ? "Verifying..." : "Verify"}
               </Button>
             </FormikForm>
           </Formik>
 
           <div className="text-center mt-4">
             <p className="text-gray-500 text-sm">
-              Didn't receive code?{' '}
+              Didn't receive code?{" "}
               <button
                 onClick={handleResendOtp}
                 className="text-pink-500 hover:text-pink-600 font-medium"
@@ -197,8 +197,8 @@ const VerifyEmail = () => {
               <div
                 key={i}
                 className={`rounded-md bg-white bg-opacity-30 ${
-                  i % 3 === 1 ? 'w-24 h-24' : 'w-16 h-16'
-                } ${i === 4 ? 'w-32 h-32' : ''}`}
+                  i % 3 === 1 ? "w-24 h-24" : "w-16 h-16"
+                } ${i === 4 ? "w-32 h-32" : ""}`}
               ></div>
             ))}
           </div>

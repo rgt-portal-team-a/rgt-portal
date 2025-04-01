@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useMemo } from "react";
 import { Formik, Form, ErrorMessage, FormikHelpers } from "formik";
 import { Loader } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { SideModal } from "@/components/ui/side-dialog";
 import { recruitmentSchema } from "@/lib/recruitmentSchema";
+import { RecruitmentType } from "@/lib/enums";
 import { buildInitialValues, buildValidationSchema } from "@/lib/utils";
 import { renderField } from "./SchemaField";
 import { FileUploadService } from "@/api/services/file.service";
+import { employeeService } from "@/api/services/employee.service";
 import { toast } from "@/hooks/use-toast";
 import RecruitmentService, {
   CreateRecruitmentDto,
@@ -19,6 +22,15 @@ interface UploadStatus {
   photoUrl?: string;
 }
 
+interface CreateRecruitmentProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  title?: string;
+  type: RecruitmentType;
+  fields?: any[];
+  onSubmit?: (values: any) => void;
+}
+
 interface UploadResult {
   fieldName: string;
   fileUrl?: string;
@@ -28,7 +40,7 @@ interface UploadResult {
 export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
   isOpen,
   onOpenChange,
-  title = "New NSS Candidate",
+  title,
   type,
   fields = recruitmentSchema,
   onSubmit = (values) => console.log("Form submitted with values:", values),
@@ -42,14 +54,28 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     "idle" | "loading" | "success" | "error"
   >("idle");
 
-  const validationSchema = React.useMemo(
-    () => buildValidationSchema(fields),
-    [fields]
+  const { data: employees } = useQuery({
+    queryKey: ["employees"],
+    queryFn: () => employeeService.getAllEmployees(),
+    enabled: isOpen,
+    refetchOnWindowFocus: false,
+  });
+
+  const filteredFields = useMemo(() => {
+    return fields.filter((field: any) => {
+      if (!field.conditionalRender) return true;
+      return field.conditionalRender(type);
+    });
+  }, [fields, type]);
+
+  const validationSchema = useMemo(
+    () => buildValidationSchema(filteredFields),
+    [filteredFields]
   );
 
-  const initialValues = React.useMemo(
-    () => buildInitialValues(fields),
-    [fields]
+  const initialValues = useMemo(
+    () => buildInitialValues(filteredFields),
+    [filteredFields]
   );
 
   const uploadFileMutation = useMutation({
@@ -68,8 +94,6 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
       return { fieldName, fileUrl: response.file?.url, response };
     },
     onSuccess: (data) => {
-      console.log(data);
-
       const { fieldName, fileUrl } = data;
       setUploadStatus((prev) => ({
         ...prev,
@@ -119,13 +143,14 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
   });
 
   const handleSubmit = async (
-    values: RecruitmentFormValues,
-    { resetForm }: FormikHelpers<RecruitmentFormValues>
+    values: any,
+    { resetForm }: FormikHelpers<any>
   ) => {
     try {
       const uploadPromises = [];
       const uploadResults: UploadResult[] = [];
 
+      // Upload CV
       if (values.cv && values.cv instanceof File) {
         uploadPromises.push(
           uploadFileMutation
@@ -137,6 +162,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         );
       }
 
+      // Upload Photo
       if (values.photo && values.photo instanceof File) {
         uploadPromises.push(
           uploadFileMutation
@@ -155,8 +181,6 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         await Promise.all(uploadPromises);
       }
 
-      console.log("Upload results:", uploadResults);
-
       let cvUrl = "";
       let photoUrl = "";
 
@@ -168,25 +192,30 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         }
       });
 
+      // Construct recruitment data
       const recruitmentData: CreateRecruitmentDto = {
         name: `${values.firstName} ${values.lastName}`,
         email: values.email,
         type: type,
-        firstPriority: values.firstPriority,
-        secondPriority: values.secondPriority,
+        source: values.source,
         location: values.location,
         phoneNumber: values.phoneNumber,
-        university: values.university,
+        assignee: values.asignees,
         cvPath: cvUrl,
         photoUrl: photoUrl,
+        ...(type === RecruitmentType.NSS
+          ? {
+              firstPriority: values.firstPriority,
+              secondPriority: values.secondPriority,
+              university: values.university,
+            }
+          : {
+              position: values.position,
+            }),
       };
 
-      console.log("Recruitment data:", recruitmentData);
-
       await createRecruitmentMutation.mutateAsync(recruitmentData);
-
       onSubmit(values);
-
       resetForm();
       setUploadStatus({ cv: "idle", photo: "idle" });
       setSubmissionStatus("idle");
@@ -195,15 +224,21 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     }
   };
 
+  const assigneeOptions =
+    employees?.map((emp) => ({
+      value: emp.id,
+      label: `${emp.firstName} ${emp.lastName}`,
+    })) || [];
+
   const getFieldGroups = () => {
-    const fullWidthFields = fields.filter(
+    const fullWidthFields = filteredFields.filter(
       (field: any) => field.gridColumn === "full" || !field.gridColumn
     );
-    const halfWidthFields = fields.filter(
+    const halfWidthFields = filteredFields.filter(
       (field: any) => field.gridColumn === "half"
     );
 
-    const pairedHalfWidthFields: FormField[][] = [];
+    const pairedHalfWidthFields: any[][] = [];
     for (let i = 0; i < halfWidthFields.length; i += 2) {
       if (i + 1 < halfWidthFields.length) {
         pairedHalfWidthFields.push([
@@ -256,10 +291,10 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
             }
           }
         }}
-        title={title}
+        title={title || `New ${type.toUpperCase()} Candidate`}
         position="right"
         size="md"
-        contentClassName="flex flex-col text-[#706D8A]  p-0"
+        contentClassName="flex flex-col text-[#706D8A] p-0"
         headerClassName="text-[#706D8A]"
         showCloseButton={false}
       >
@@ -288,7 +323,11 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                               <span className="text-red-500 ml-1">*</span>
                             )}
                           </label>
-                          {renderField(field, formikProps)}
+                          {renderField(field, formikProps, {
+                            ...(field.name === "asignee" && {
+                              options: assigneeOptions,
+                            }),
+                          })}
                           {(field.name === "cv" || field.name === "photo") &&
                             renderUploadStatus(field.name as "cv" | "photo")}
                           <ErrorMessage name={field.name}>
@@ -314,7 +353,11 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                           <span className="text-red-500 ml-1">*</span>
                         )}
                       </label>
-                      {renderField(field, formikProps)}
+                      {renderField(field, formikProps, {
+                        ...(field.name === "asignee" && {
+                          options: assigneeOptions,
+                        }),
+                      })}
                       <ErrorMessage name={field.name}>
                         {(msg) => (
                           <div className="text-red-500 text-xs mt-1">{msg}</div>
