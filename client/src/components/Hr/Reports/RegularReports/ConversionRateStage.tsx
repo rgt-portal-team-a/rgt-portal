@@ -108,7 +108,7 @@ export const ConversionRateStage = () => {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data.stageData}
-              margin={{ top: 20, right: 30, left: 50, bottom: 30 }}
+              margin={{ top: 20, right: 10, left: 60, bottom: 90 }}
               className="text-sm"
             >
               <XAxis
@@ -117,10 +117,11 @@ export const ConversionRateStage = () => {
                 tickLine={false}
                 interval={0}
                 angle={-45} // Rotate labels
-                textAnchor="end" // Anchor text to end
-                tickFormatter={(value) => value.split(" ").join("\n")} // Add line breaks
-                height={70}
-                tick={{ fontSize: 10 }}
+                textAnchor="end" // Align rotated text
+                tick={{
+                  fontSize: 12, // Smaller font size
+                  fill: "#6b7280", 
+                }}
               />
               <Tooltip
                 cursor={{ fill: "transparent" }}

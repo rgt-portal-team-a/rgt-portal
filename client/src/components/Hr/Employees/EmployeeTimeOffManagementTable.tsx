@@ -12,8 +12,9 @@ import ViewIcon from "@/assets/icons/ViewIcon";
 import Avtr from "@/components/Avtr";
 import { useRequestPto } from "@/hooks/usePtoRequests";
 import Filters, { FilterConfig } from "@/components/common/Filters";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useDepartmentsData } from "@/hooks/useDepartmentsData";
+
+
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import StepProgress from "@/components/common/StepProgress";
 
@@ -68,10 +69,11 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [reason, setReason] = React.useState<string>("");
   const { updatePto, isPtoUpdating } = useRequestPto();
-  const { departments } = useSelector((state: RootState) => state.sharedState);
+  const { departments } = useDepartmentsData();
+
 
   const isManager =
-    departments.find((department) => department.id === departmentId)
+    departments?.find((department) => department.id === departmentId)
       ?.managerId === currentUser?.employee?.id;
 
   const isHr = currentUser?.role.name === "HR";

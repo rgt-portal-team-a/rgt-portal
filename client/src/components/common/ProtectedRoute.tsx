@@ -15,7 +15,12 @@ type ProtectedRouteProps = {
 const ProtectedRoute = ({
   allowedRoles,
   redirectPath = "/",
-  loadingComponent = <LoadingSpinner label="Verifying access..." size={40} />,
+  loadingComponent = (
+    <div className="flex items-center justify-center min-h-screen">
+      {" "}
+      <LoadingSpinner label="Verifying access..." size={40} />{" "}
+    </div>
+  ),
   unauthorizedComponent,
 }: ProtectedRouteProps) => {
   const { currentUser, isLoading, isAuthenticated, isVerifying } =

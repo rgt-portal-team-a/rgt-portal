@@ -99,10 +99,8 @@ const HiringLadder: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-col md:flex-row items-center justify-between">
-        <CardTitle className="text-center md:text-left">
-          The Hiring Ladder: Top Performing Agencies
-        </CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>The Hiring Ladder: Top Performing Agencies</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-3 mb-4">
@@ -113,8 +111,7 @@ const HiringLadder: React.FC = () => {
             +15% <span className="text-sm text-gray-500">than last Month</span>
           </p>
         </div>
-
-        <div className="w-full h-10 bg-gray-100 rounded-[6.25px] overflow-hidden flex">
+        <div className="w-full h-10 bg-gray-100 rounded-[6.25px] overflow-hidden flex gap-px">
           {data.agencyData.map((agency, index) => (
             <div
               key={index}
@@ -126,26 +123,30 @@ const HiringLadder: React.FC = () => {
             />
           ))}
         </div>
-
-        <div className="flex overflow-auto lg:flex-wrap lg:justify-between mt-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4 w-full">
           {data.agencyData.map((agency, index) => (
             <div
               key={index}
-              className="flex flex-col gap-2 w-full md:w-auto text-center md:text-left"
+              className="flex flex-col gap-2 min-w-[100px] p-2 bg-gray-50 rounded-lg"
             >
-              <div className="flex gap-2 items-center justify-center md:justify-start">
+              <div className="flex gap-2 items-center">
                 <div
-                  className="w-4 h-4 rounded-full"
+                  className="w-4 h-4 rounded-full flex-shrink-0"
                   style={{ backgroundColor: agency.color }}
                 />
-                <span className="flex text-sm text-nowrap">{agency.name}</span>
+                <span className="text-sm font-medium truncate">
+                  {agency.name}
+                </span>
               </div>
-              <span className="font-bold text-xl items-center flex gap-2 justify-center md:justify-start">
-                {agency.value}
-                <span className="text-sm" style={{ color: agency.color }}>
+              <div className="flex items-baseline gap-1">
+                <span className="font-bold text-lg">{agency.value}</span>
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: agency.color }}
+                >
                   ({Number(agency.percent).toFixed(2)}%)
                 </span>
-              </span>
+              </div>
             </div>
           ))}
         </div>

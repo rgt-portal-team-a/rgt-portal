@@ -4,8 +4,6 @@ import { HrSideBar } from "@/components/SideBar/HrSideBar";
 import { SideBar } from "@/components/SideBar/SideBar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthContextProvider } from "../hooks/useAuthContextProvider";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { useInitializeSharedData } from "@/hooks/useInitializeSharedData";
 import { useNotifications } from "@/api/query-hooks/notification";
 import { NotificationContainer } from "@/components/common/NotificationsContainer";
 import WithRole from "@/common/WithRole";
@@ -14,7 +12,6 @@ import { Employee } from "@/types/employee";
 import { employeeService } from "@/api/services/employee.service";
 import { debounce } from "lodash";
 import { useMemo } from "react";
-import ErrorMessage from "@/components/common/ErrorMessage";
 import CalendarIcon2 from "@/assets/icons/CalendarIcon2";
 import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
 import MobileBottomBar from "@/components/SideBar/MobileBottomBar";
@@ -22,19 +19,10 @@ import ProfileIcon from "@/assets/icons/ProfileIcon";
 import LogoutIcon from "@/assets/icons/LogoutIcon";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import HrMobileBottomBar from "@/components/SideBar/HrMobileBottomBar";
+import Kairo from "@/components/KairoChatbot/Kairo";
 
 export const BaseLayout = () => {
   const { currentUser: user, logout } = useAuthContextProvider();
-  const {
-    isDepartmentsLoading,
-    isDepartmentsError,
-    refetchDepartments,
-    departmentsError,
-    isEmployeesLoading,
-    isEmployeesError,
-    refetchEmployees,
-    employeesError,
-  } = useInitializeSharedData();
   const { unreadCount } = useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
@@ -106,37 +94,7 @@ export const BaseLayout = () => {
     debouncedFetchSearchResults(query);
   };
 
-  if (isDepartmentsLoading || isEmployeesLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner label="Fetching Shared Data..." size={60} />
-      </div>
-    );
-  }
 
-  if (isDepartmentsError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <ErrorMessage
-          title="Error Loading Shared Data"
-          error={departmentsError}
-          refetchFn={refetchDepartments}
-        />
-      </div>
-    );
-  }
-
-  if (isEmployeesError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <ErrorMessage
-          title="Error Loading Shared Data"
-          error={employeesError}
-          refetchFn={refetchEmployees}
-        />
-      </div>
-    );
-  }
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -376,6 +334,8 @@ export const BaseLayout = () => {
           </p>
         </div>
       </ConfirmCancelModal>
+
+      <Kairo />
     </div>
   );
 };
