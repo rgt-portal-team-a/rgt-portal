@@ -143,7 +143,7 @@ export const BaseLayout = () => {
                   </span>
                 )}
               </div>
-              <div className="text-nowrap hidden sm:block">
+              <div className="text-nowrap hidden sm:block pl-1">
                 <p className="text-[#706D8A] font-semibold sm:text-xl">
                   Hello {user?.employee?.firstName}!
                 </p>
