@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
 import { CreateUserDto, UpdateUserAndEmployeeDto, UpdateUserDto } from "@/dtos/user.dto";
@@ -346,5 +346,11 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async findUsersByIds(userIds: number[]): Promise<User[]> {
+    return this.userRepository.find({
+      where: { id: In(userIds) },
+    });
   }
 }

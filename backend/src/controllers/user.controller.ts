@@ -32,10 +32,6 @@ export class AuthController {
 
       const { user, requiresOtp, otpId } = authResult;
 
-      console.log('====================================');
-      console.log(authResult);
-      console.log('====================================');
-
       if (requiresOtp) {
         return res.json({
           success: true,
@@ -132,5 +128,11 @@ export class AuthController {
     req.logout(() => {
       res.json({ success: true });
     });
+  };
+
+  public getUsersByIds = async (req: Request, res: Response) => {
+    const { userIds } = req.body;
+    const users = await this.userService.findUsersByIds(userIds);
+    res.json(users);
   };
 }
