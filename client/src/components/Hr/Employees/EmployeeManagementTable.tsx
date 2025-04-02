@@ -1,29 +1,29 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Column, ActionObject } from "@/types/tables";
-import { DataTable } from '@/components/common/DataTable';
+import { DataTable } from "@/components/common/DataTable";
 import StepProgress from "@/components/common/StepProgress";
 import { Check, X } from "lucide-react";
-import EmployeeManagementTableSkeleton from './EmployeeManagementTableSkeleton';
-import {EditEmployeeForm} from './EditEmployeeForm';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import EmployeeManagementTableSkeleton from "./EmployeeManagementTableSkeleton";
+import { EditEmployeeForm } from "./EditEmployeeForm";
 import {
-  useUpdateEmployeeAgency
-} from "@/api/query-hooks/employee.hooks";
-import { Employee, EmployeeType } from "@/types/employee"; 
-import {Link} from "react-router-dom"
-import {TeamLeadToggle} from "./TeamLeadToggle";
-import {AgencyCheckboxToggle} from "./AgencyCheckboxToggle";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Employee, EmployeeType } from "@/types/employee";
+import { Link } from "react-router-dom";
+import { TeamLeadToggle } from "./TeamLeadToggle";
+import { AgencyCheckboxToggle } from "./AgencyCheckboxToggle";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
-   full_time: "FT",
-   part_time: "PT",
-   contractor: "FT",
-   nsp: "PT",
- };
-
-
-
+  full_time: "FT",
+  part_time: "PT",
+  contractor: "FT",
+  nsp: "PT",
+};
 
 interface EmployeeManagementTableProps {
   employeeData: Employee[];
@@ -32,17 +32,16 @@ interface EmployeeManagementTableProps {
   searchTerm?: string;
 }
 
-
-
-
-const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({ 
+const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   employeeData,
   columnsToShow,
-  searchByField = [], 
-  searchTerm = "" 
+  searchByField = [],
+  searchTerm = "",
 }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
@@ -51,11 +50,10 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   const [filter, setFilter] = useState({
     department: "All Departments",
     employmentType: "All Types",
-    onLeave: "All Employees"
+    onLeave: "All Employees",
   });
 
   const itemsPerPage = 5;
-
 
   const paginationData = useMemo(() => {
     const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -72,8 +70,6 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     };
   }, [filteredEmployees, currentPage, itemsPerPage]);
 
-
-
   const departments = useMemo(() => {
     if (!employees) return [];
     return Array.from(
@@ -86,7 +82,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     setFilter({
       department: "All Departments",
       employmentType: "All Types",
-      onLeave: "All Employees"
+      onLeave: "All Employees",
     });
   };
 
@@ -94,17 +90,22 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   const calculateSeniority = useCallback((date: Date | null): string => {
     if (!date) return "N/A";
     const now = new Date();
-    const diffInYears = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24 * 365));
+    const diffInYears = Math.floor(
+      (now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60 * 24 * 365)
+    );
     return `${diffInYears} years`;
   }, []);
 
   // Determine if an employee is on leave
-  const isOnLeave = useCallback((leaveType: string | null | undefined): boolean => {
-    return !!leaveType;
-  }, []);
+  const isOnLeave = useCallback(
+    (leaveType: string | null | undefined): boolean => {
+      return !!leaveType;
+    },
+    []
+  );
 
-
-  const getEmployeeFieldValue = useCallback((employee: Employee | null | undefined, field: string): string => {
+  const getEmployeeFieldValue = useCallback(
+    (employee: Employee | null | undefined, field: string): string => {
       // Early guard clauses
       if (!employee) return "";
 
@@ -123,7 +124,8 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
         endDate: (emp) => emp.endDate?.toISOString().split("T")[0] || "",
         seniority: (emp) => calculateSeniority(emp.hireDate),
         skills: (emp) => emp.skills?.join(", ") || "",
-        ftpt: (emp) => employeeTypeLabels[emp.employeeType as EmployeeType] || "",
+        ftpt: (emp) =>
+          employeeTypeLabels[emp.employeeType as EmployeeType] || "",
         department: (emp) => emp.department?.name || "",
         agency: (emp) => emp.agency?.name || "",
         onLeave: (emp) => (isOnLeave(emp.leaveType) ? "On Leave" : "Active"),
@@ -158,8 +160,9 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
         console.warn(`Unhandled field: ${field}`);
         return "";
       }
-  }, [calculateSeniority, isOnLeave]);
-
+    },
+    [calculateSeniority, isOnLeave]
+  );
 
   useEffect(() => {
     if (!employees) {
@@ -220,8 +223,6 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       setLoading(false);
     }
   }, [employeeData]);
-
-
 
   // Define the complete list of columns
   const allColumns: Column[] = [
@@ -412,14 +413,14 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     // },
   ];
 
-  const visibleColumnsData = columnsToShow 
-    ? allColumns.filter(col => columnsToShow.includes(col.key))
+  const visibleColumnsData = columnsToShow
+    ? allColumns.filter((col) => columnsToShow.includes(col.key))
     : allColumns;
 
   const actionObj: ActionObject[] = [
     {
       name: "edit",
-      action: (id, row) => {
+      action: (_, row) => {
         setSelectedEmployeeId(row.id as number);
         setIsEditModalOpen(true);
       },

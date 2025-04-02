@@ -41,6 +41,24 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async createBatch(userData: CreateUserDto[]): Promise<User[]> {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const users = userData.map((data) => this.userRepository.create(data));
+      const savedUsers = await queryRunner.manager.save(users);
+      await queryRunner.commitTransaction();
+      return savedUsers;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
     await this.userRepository.update(id, updateUserDto);
     return this.findById(id);

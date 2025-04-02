@@ -7,7 +7,7 @@ export const customEdgeStyle: React.CSSProperties = {
 };
 
 // Define node styles
-const nodeStyles = {
+export const nodeStyles = {
   common: {
     padding: "10px",
     borderRadius: "16px",

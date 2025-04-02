@@ -9,6 +9,7 @@ import { NotificationTemplates } from "./notifications/templates";
 import { User } from "@/entities/user.entity";
 import { Role } from "@/entities/role.entity";
 import { DepartmentService } from "./department.service";
+import { QueueService, QueueName, JobType } from "./queue.service";
 
 export class PtoRequestService {
   private ptoRequestRepository: Repository<PtoRequest>;
@@ -17,6 +18,7 @@ export class PtoRequestService {
   private roleRepository: Repository<Role>;
   private notificationService: NotificationService;
   private departmentService: DepartmentService;
+  private queueService: QueueService;
 
   constructor() {
     this.ptoRequestRepository = AppDataSource.getRepository(PtoRequest);
@@ -25,6 +27,7 @@ export class PtoRequestService {
     this.roleRepository = AppDataSource.getRepository(Role);
     this.notificationService = new NotificationService();
     this.departmentService = new DepartmentService();
+    this.queueService = QueueService.getInstance();
   }
 
   async findAll(): Promise<PtoRequest[]> {
@@ -100,7 +103,6 @@ export class PtoRequestService {
     employee.activePtoRequest = true;
     await this.employeeRepository.save(employee);
 
-    // Send notification to all admins, HRs and the manager of the department the employee belongs to
     const savedRequest = await this.ptoRequestRepository.save(ptoRequest);
 
     const savedRequestWithEmployee = await this.ptoRequestRepository.findOne({
@@ -108,7 +110,6 @@ export class PtoRequestService {
       relations: ["employee", "employee.user"],
     });
 
-    // Find all users with admin and HR roles
     const adminRole = await this.roleRepository.findOne({ where: { name: "admin" } });
     const hrRole = await this.roleRepository.findOne({ where: { name: "hr" } });
 
@@ -117,29 +118,33 @@ export class PtoRequestService {
         where: [{ role: { id: adminRole?.id } }, { role: { id: hrRole?.id } }],
         relations: ["employee"],
       });
-
-      console.log("Admin and HR users", adminAndHrUsers);
-      
-
-      // Send notification to all admins and HRs
+      // Send notifications to all admins and HRs using queue service
       for (const user of adminAndHrUsers) {
         if (user.employee) {
-          await this.notificationService.createNotification(NotificationTemplates.ptoRequestCreated(savedRequestWithEmployee, user.id));
+          await this.queueService.addJob(
+            QueueName.NOTIFICATIONS,
+            JobType.PTO_REQUEST_CREATED,
+            {
+              ptoRequest: savedRequestWithEmployee,
+              recipientId: user.id
+            }
+          );
         }
       }
     }
 
     if (employee.departmentId) {
-
       const department = await this.departmentService.findById(employee.departmentId, ["manager", "manager.user"]);
-      console.log('====================================');
-      console.log("Department in create", department);
-      console.log('====================================');
       if (department?.manager?.user) {
-        console.log('====================================');
-        console.log("sending notification to department manager", department.manager.user);
-        console.log('====================================');
-        await this.notificationService.createNotification(NotificationTemplates.ptoRequestCreated(savedRequestWithEmployee, department.manager.user.id));
+        // Send notification to department manager using queue service
+        await this.queueService.addJob(
+          QueueName.NOTIFICATIONS,
+          JobType.PTO_REQUEST_CREATED,
+          {
+            ptoRequest: savedRequestWithEmployee,
+            recipientId: department.manager.user.id
+          }
+        );
       }
     }
 
@@ -191,10 +196,16 @@ export class PtoRequestService {
           relations: ["user"],
         });
 
-        // TO BE FIXED
-        // if (approver?.user) {
-        //   await this.notificationService.createNotification(NotificationTemplates.ptoRequestStatusUpdate(updatedPtoRequest, approver.user));
-        // }
+        if (approver?.user) {
+          await this.queueService.addJob(
+            QueueName.NOTIFICATIONS,
+            JobType.PTO_REQUEST_STATUS,
+            {
+              ptoRequest: updatedPtoRequest,
+              updatedBy: approver.user
+            }
+          );
+        }
       }
     }
 
