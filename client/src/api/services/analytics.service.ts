@@ -1,5 +1,10 @@
 import { createApiClient } from '../axios';
-import { TurnoverByTenureInterface } from "@/types/analytics";
+import {
+  TurnoverByTenureInterface,
+  TurnoverByPositionInterface,
+  LeavingReasonsInterface,
+  TurnoverTrendsInterface,
+} from "@/types/analytics";
 import { ApiResponse } from "../types";
 
 
@@ -17,6 +22,24 @@ export const analyticsService = {
     const response = await analyticsApiClient.get<
       ApiResponse<TurnoverByTenureInterface[]>
     >("/turnover-by-tenure");
+    return response.data.data;
+  },
+  getTurnoverByPosition: async (): Promise<TurnoverByPositionInterface[]> => {
+    const response = await analyticsApiClient.get<
+      ApiResponse<TurnoverByPositionInterface[]>
+    >("/turnover-by-position");
+    return response.data.data;
+  },
+  getReasonsForLeaving: async (): Promise<LeavingReasonsInterface[]> => {
+    const response = await analyticsApiClient.get<
+      ApiResponse<LeavingReasonsInterface[]>
+    >("/leaving-reasons");
+    return response.data.data;
+  },
+  getTurnoverTrends: async (): Promise<TurnoverTrendsInterface> => {
+    const response = await analyticsApiClient.get<
+      ApiResponse<TurnoverTrendsInterface>
+    >("/turnover-trends");
     return response.data.data;
   },
 };
