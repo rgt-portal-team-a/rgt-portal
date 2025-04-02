@@ -168,7 +168,12 @@ export const BaseLayout = () => {
               className="flex items-center gap-1 cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              <ChevronDown
+                className={`h-4 w-4 text-gray-600 transition-transform ${
+                  profileDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                 {user?.profileImage ? (
                   <img
                     src={user.profileImage}
@@ -182,11 +187,10 @@ export const BaseLayout = () => {
                   </span>
                 )}
               </div>
-              <ChevronDown
-                className={`h-4 w-4 text-gray-600 transition-transform ${
-                  profileDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
+              <div>
+                <p>Hello {user?.employee?.firstName}!</p>
+                <p>This is the RGT team.</p>
+              </div>
             </div>
 
             {profileDropdownOpen && (
