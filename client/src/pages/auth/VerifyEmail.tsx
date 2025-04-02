@@ -26,6 +26,7 @@ const VerifyEmail = () => {
   const location = useLocation();
   const otpId = location.state?.otpId || "";
   const userId = location.state?.userId || "";
+  const email = location.state?.email || "";
   const queryClient = useQueryClient();
 
   const { setIsVerifying } = useAuthContextProvider();
@@ -141,18 +142,18 @@ const VerifyEmail = () => {
       <div className="bg-white flex flex-col justify-center items-center px-4 sm:px-8 py-8 md:py-0 flex-grow order-2 md:order-1">
         <div className="w-full max-w-md space-y-6">
           {/* Logo */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-4">
             <img src={rgtIcon} alt="Logo" className="h-12 md:h-auto" />
           </div>
 
           {/* Title */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Email Verification?
+            <h1 className="text-3xl md:text-[38px] font-semibold mb-1">
+              Almost there...
             </h1>
-            <p className="text-gray-500 text-sm">
-              we sent a reset link to your email, open it and type in the 6
-              digit OTP to proceed
+            <p className="text-gray-500 text-sm font-light text-nowrap">
+              we sent a temporary login code to{" "}
+              <span className="font-medium">{email}</span>
             </p>
           </div>
 
@@ -197,7 +198,7 @@ const VerifyEmail = () => {
                 onClick={handleResendOtp}
                 className="text-pink-500 hover:text-pink-600 font-medium"
               >
-                Resent OTP
+                Resend OTP
               </button>
             </p>
           </div>

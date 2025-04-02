@@ -679,7 +679,7 @@ const CreatePost = () => {
           {isSubmitting ? (
             <Loader size={20} className="animate-spin text-slate-500" />
           ) : (
-            <SendIcon className="p-4 rounded-br-2xl cursor-pointer w-16 h-16  hover:fill-rgtpink transition-all duration-300 ease-in fill-[#2D264B]" />
+            <SendIcon className="p-4 rounded-br-2xl cursor-pointer w-16 h-16  hover:fill-rgtpink transition-all rotate-45 duration-300 ease-in fill-[#2D264B]" />
           )}
         </button>
       </div>
