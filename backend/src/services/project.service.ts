@@ -250,10 +250,10 @@ export class ProjectService {
 
       await DatabaseService.commitTransaction(queryRunner);
 
-      // Send notification for project assignment
-      if (employee.user) {
-        await this.notificationService.createNotification(NotificationTemplates.projectAssignment(project, employee.user.id, employee.user));
-      }
+      // // Send notification for project assignment
+      // if (employee.user) {
+      //   await this.notificationService.createNotification(NotificationTemplates.projectAssignment(project, employee.user.id, employee.user));
+      // }
 
       return this.projectAssignmentRepository.findOne({
         where: { id: savedAssignment.id },

@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import { BirthdayNotificationService } from "./notifications/birthday-notification.service";
 import { Logger } from "./logger.service";
+import { EventService } from "./event.service";
 
 export interface ScheduledTask {
   name: string;
@@ -13,14 +14,16 @@ export class SchedulerService {
   private tasks: Map<string, cron.ScheduledTask>;
   private birthdayNotificationService: BirthdayNotificationService;
   private logger: Logger;
+  private eventService: EventService;
 
   constructor() {
     this.tasks = new Map();
-    // Initialize with default config: notify admins and HRs 1 day in advance
+    // with default config: notify admins and HRs 1 day in advance
     this.birthdayNotificationService = new BirthdayNotificationService({
       roles: ["admin", "hr"],
       daysInAdvance: 1,
     });
+    this.eventService = new EventService();
     this.logger = new Logger("SchedulerService");
   }
 
@@ -29,7 +32,7 @@ export class SchedulerService {
     const scheduledTasks: ScheduledTask[] = [
       {
         name: "birthday-notifications",
-        cronExpression: "0 0 * * *", // Run at midnight every day
+        cronExpression: "0 0,12,18 * * *", // Run at midnight, 12:00 PM and 6:00 PM
         task: async () => {
           try {
             await this.birthdayNotificationService.checkAndSendBirthdayNotifications();
@@ -37,6 +40,14 @@ export class SchedulerService {
           } catch (error) {
             this.logger.error("Error checking birthday notifications:", error);
           }
+        },
+        enabled: true,
+      },
+      {
+        name: "event-reminders",
+        cronExpression: "0 0,12,18 * * *", // Run at midnight, 12:00 PM, and 6:00 PM
+        task: async () => {
+          await this.eventService.scheduleEventReminders();
         },
         enabled: true,
       },
