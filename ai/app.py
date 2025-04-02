@@ -7,7 +7,7 @@ from kairo.helper import (
 )
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response, MarkdownResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import pandas as pd
@@ -224,7 +224,10 @@ async def startup_event():
             logger.error(f"Error details: {str(e)}")
     else:
         logger.warning(f"Jobs data file not found: {jobs_file}")
-
+        
+        
+class MarkdownResponse(Response):
+    media_type = "text/markdown"
 
 # Endpoints from app.py
 @app.get("/")
