@@ -21,6 +21,7 @@ import MobileBottomBar from "@/components/SideBar/MobileBottomBar";
 import ProfileIcon from "@/assets/icons/ProfileIcon";
 import LogoutIcon from "@/assets/icons/LogoutIcon";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
+import HrMobileBottomBar from "@/components/SideBar/HrMobileBottomBar";
 
 export const BaseLayout = () => {
   const { currentUser: user, logout } = useAuthContextProvider();
@@ -147,22 +148,27 @@ export const BaseLayout = () => {
   return (
     <div>
       <header
-        className="fixed top-0 flex items-center justify-between p-4 bg-white border-b w-full"
+        className="fixed top-0 flex items-center justify-between p-4 bg-white border-b w-full h-18"
         style={{ zIndex: 1000 }}
       >
         {/* Left section with logo */}
         <div className="flex items-center">
-          <div className="">
+          <div className="hidden sm:block">
             <img src="/RgtPortalLogo.svg" className="w-24" />
           </div>
 
           {/* Mobile profile dropdown */}
-          <div className="sm:ml-4 md:hidden relative" ref={profileDropdownRef}>
+          <div
+            className={`${
+              user?.role.name === "HR" ? "sm:ml-4 pr-1" : "sm:hidden"
+            } relative`}
+            ref={profileDropdownRef}
+          >
             <div
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-1 cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                 {user?.profileImage ? (
                   <img
                     src={user.profileImage}
@@ -212,14 +218,14 @@ export const BaseLayout = () => {
         </div>
 
         <div className="flex w-full justify-end gap-3">
-          <div className="relative w-full flex justify-end gap-6">
+          <div className="relative w-full flex justify-end gap-1">
             {/* Center section with search */}
-            <div className="relative w-[400px]">
-              <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
+            <div className="relative w-full md:w-[400px] flex items-center">
+              <Search className="absolute left-2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
                 placeholder="Search employees..."
-                className="pl-10 py-5 bg-gray-50 border-none outline-none shadow-none"
+                className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none w-full"
                 value={searchQuery}
                 onChange={handleOnChange}
                 onFocus={() => setIsDropdownVisible(!!searchQuery)}
@@ -278,7 +284,7 @@ export const BaseLayout = () => {
               </button>
             </div>
             <div
-              className="md:hidden flex justify-center items-center md:h-[60px] w-[60px] rounded-[16px] bg-[#F6F6F9] cursor-pointer hover:bg-slate-200 transition-all duration-300 ease-in"
+              className="xl:hidden flex justify-center items-center md:h-[60px] w-[60px] rounded-[16px] bg-[#F6F6F9] cursor-pointer hover:bg-slate-200 transition-all duration-300 ease-in"
               onClick={handleCalendarShow}
             >
               <CalendarIcon2 />
@@ -286,7 +292,7 @@ export const BaseLayout = () => {
             {showCalendar && (
               <div className="absolute -right-3 top-10" ref={calendarRef}>
                 <div
-                  className="h-[620px] w-[300px] pb-3 overflow-auto border-gray-400 border- shadow-lg shadow-gray-600 rounded-2xl"
+                  className="h-[620px] w-[300px] pb-3 bg-white overflow-auto border-gray-400 border- shadow-lg shadow-gray-600 rounded-2xl"
                   style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
@@ -299,7 +305,7 @@ export const BaseLayout = () => {
           </div>
         </div>
       </header>
-      <div className="flex px-[13px] sm:space-x-[17px] w-screen h-screen">
+      <div className="flex w-screen h-screen px-[13px] gap-[17px]">
         <div
           className="h-screen text-center sm:py-[78px] hidden sm:block overflow-y-scroll"
           style={{
@@ -322,16 +328,23 @@ export const BaseLayout = () => {
         </div>
 
         <div
-          className="pt-[78px] flex-1 h-screen overflow-y-auto relative"
+          className="pt-[78px] flex-1 h-screen overflow-y-auto relative pb-[60px] sm:pb-0"
           style={{
             scrollbarWidth: "none" /* Firefox */,
             msOverflowStyle: "none" /* IE and Edge */,
-            // scale: "85%"
           }}
         >
           <Outlet />
         </div>
-        <MobileBottomBar />
+        <WithRole
+          roles={["manager", "employee", "marketer"]}
+          userRole={user?.role.name as string}
+        >
+          <MobileBottomBar />
+        </WithRole>
+        <WithRole roles={["hr"]} userRole={user?.role.name as string}>
+          <HrMobileBottomBar />
+        </WithRole>
       </div>
       <NotificationContainer
         isOpen={notificationsOpen}

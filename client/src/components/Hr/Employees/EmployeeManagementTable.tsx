@@ -17,6 +17,7 @@ import { Employee, EmployeeType } from "@/types/employee";
 import { Link } from "react-router-dom";
 import { TeamLeadToggle } from "./TeamLeadToggle";
 import { AgencyCheckboxToggle } from "./AgencyCheckboxToggle";
+import Filters from "@/components/common/Filters";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
   full_time: "FT",
@@ -53,7 +54,18 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     onLeave: "All Employees",
   });
 
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState<number>(
+    window.innerWidth >= 768 ? 4 : 2
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(window.innerWidth >= 768 ? 4 : 2);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const paginationData = useMemo(() => {
     const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -428,90 +440,65 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   ];
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-medium text-gray-700">
+    <div className="flex bg-white flex-col items-center w-full overflow-auto px-4 pt-2 h-[450px] md:h-[500px]">
+      <div className="w-full">
+        <div className="flex justify-between items-center">
+          <h1 className="text-lg sm:text-xl font-medium text-gray-700">
             Employee Management
           </h1>
         </div>
 
         {/* Filter Section */}
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-center mb-6">
-          <div className="flex w-full gap-1 md:gap-3 justify-between items-center my-4 md:my-8">
-            {/* Department Filter */}
-            <Select
-              value={filter.department}
-              onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, department: value }))
-              }
-            >
-              <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-                <SelectValue placeholder="All Departments" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All Departments">All Departments</SelectItem>
-                {departments.map((department) => (
-                  <SelectItem key={department.id} value={department.name}>
-                    {department.name.toUpperCase()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Employment Type Filter */}
-            <Select
-              value={filter.employmentType}
-              onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, employmentType: value }))
-              }
-            >
-              <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All Types">All Types</SelectItem>
-                <SelectItem value="full_time">Full-time</SelectItem>
-                <SelectItem value="part_time">Part-time</SelectItem>
-                <SelectItem value="contractor">Contractor</SelectItem>
-                <SelectItem value="nsp">NSP</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* On Leave Filter */}
-            <Select
-              value={filter.onLeave}
-              onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, onLeave: value }))
-              }
-            >
-              <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-                <SelectValue placeholder="All Employees" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All Employees">All Employees</SelectItem>
-                <SelectItem value="On Leave">On Leave</SelectItem>
-                <SelectItem value="Not On Leave">Not On Leave</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Reset Filter Button */}
-            <Button
-              variant="outline"
-              onClick={resetFilter}
-              className="border-none rounded-lg bg-gray-100 text-gray-500 hover:text-black font-normal w-[100px] h-[50px] flex items-center justify-center"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Reset
-            </Button>
-          </div>
+        <div className="w-full">
+          <Filters
+            filters={[
+              {
+                type: "select",
+                options: [
+                  { label: "All Departments", value: "All Departments" },
+                  ...departments.map((department) => ({
+                    label: department.name.toUpperCase(),
+                    value: department.name,
+                  })),
+                ],
+                value: filter.department,
+                onChange: (value) =>
+                  setFilter((prev) => ({ ...prev, department: value })),
+              },
+              {
+                type: "select",
+                options: [
+                  { label: "All Types", value: "All Types" },
+                  { label: "Full-time", value: "full_time" },
+                  { label: "Part-time", value: "part_time" },
+                  { label: "Contractor", value: "contractor" },
+                  { label: "NSP", value: "nsp" },
+                ],
+                value: filter.employmentType,
+                onChange: (value) =>
+                  setFilter((prev) => ({ ...prev, employmentType: value })),
+              },
+              {
+                type: "select",
+                options: [
+                  { label: "All Employees", value: "All Employees" },
+                  { label: "On Leave", value: "On Leave" },
+                  { label: "Not On Leave", value: "Not On Leave" },
+                ],
+                value: filter.onLeave,
+                onChange: (value) =>
+                  setFilter((prev) => ({ ...prev, onLeave: value })),
+              },
+            ]}
+            onReset={resetFilter}
+          />
         </div>
       </div>
 
       {loading ? (
         <EmployeeManagementTableSkeleton />
       ) : (
-        <div className="overflow-x-auto">
+        <div className="w-full h-[200px] sm:h-[300px] lg:h-[333px]">
           <DataTable
             columns={visibleColumnsData}
             data={paginationData.paginatedData}
@@ -524,11 +511,13 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
       {/* Step Progress (Pagination) */}
       {!loading && (
-        <StepProgress
-          currentPage={paginationData.currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={paginationData.totalPages}
-        />
+        <div className="w-full">
+          <StepProgress
+            currentPage={paginationData.currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={paginationData.totalPages}
+          />
+        </div>
       )}
 
       {selectedEmployeeId && (
