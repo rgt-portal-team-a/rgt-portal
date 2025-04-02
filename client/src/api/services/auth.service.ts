@@ -64,14 +64,21 @@ export const authService = {
     return response.data;
   },
 
-  updateUser: async (data: Partial<User>):Promise<any> => {
-    if(data.profileImage){
-      const uploadResponse = await FileUploadService.uploadFile(data.profileImage);
-    }
-    const response = await axios.put("/user/auth/update-user-and-employee", {
-      userId: data.id,
-      updateUserAndEmployeeDto: data,
-    });
-    return response.data;
-  },
+ updateUser: async (data: Partial<User>): Promise<any> => {
+  // let profileImageUrl = data.profileImage;
+  
+  // if (data?.profileImage instanceof File) {
+  //   const uploadResponse = await FileUploadService.uploadFile(data?.profileImage);
+  //   profileImageUrl = uploadResponse?.url;
+  // }
+
+  // const response = await axios.put("/user/auth/update-user-and-employee", {
+  //   userId: data.id,
+  //   updateUserAndEmployeeDto: {
+  //     ...data,
+  //     profileImage: profileImageUrl
+  //   },
+  // });
+  return {};
+},
 };

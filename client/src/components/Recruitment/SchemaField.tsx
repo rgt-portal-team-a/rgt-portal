@@ -13,6 +13,16 @@ import {
 import { FormField } from "@/types/recruitment";
 import { useExtractCvDetails } from "@/hooks/useRecruitment";
 
+interface ExtractedCvData {
+  name?: string;
+  email?: string;
+  phoneNumber?: string;
+  location?: string;
+  currentTitle?: string;
+  currentCompany?: string;
+  [key: string]: any;
+}
+
 export const renderField = (
   field: FormField,
   { values, touched, errors, setFieldValue }: any,
@@ -31,7 +41,7 @@ export const renderField = (
 
       if (fieldName === "cv") {
         try {
-          const extractedData = await extractCvMutation.mutateAsync(file);
+          const extractedData = await extractCvMutation.mutateAsync(file) as ExtractedCvData;
           console.log("Extracted CV data:", extractedData);
 
           if (extractedData) {
@@ -124,7 +134,7 @@ export const renderField = (
             {values[field.name]
               ? typeof values[field.name] === "string"
                 ? values[field.name]
-                : values[field.name].name
+                : (values[field.name] as File)?.name
               : field.placeholder || `Upload ${field.label}`}
           </div>
           {field.name === "cv" && (

@@ -153,7 +153,6 @@ export class AiController {
     }
   }
 
-  //  GET ALL JOB MATCH RESULTS TOGETHER WITH THE CANDIDATE DETAILS
   async getAllJobMatchResults(req: Request, res: Response): Promise<void> {
     try {
       const jobMatchResults = await this.jobMatchResultRepository.find();
@@ -167,7 +166,6 @@ export class AiController {
       this.handleError(error, res);
     }
   }
-
 
   async getProgramOfStudyHired(req: Request, res: Response): Promise<void> {
     
