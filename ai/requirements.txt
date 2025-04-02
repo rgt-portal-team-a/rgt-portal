@@ -26,3 +26,14 @@ pypdf
 psycopg2-binary
 groq
 python-multipart
+
+fastapi
+uvicorn
+jinja2
+python-dotenv
+psycopg2-binary
+markdown
+langchain-groq
+langchain-core
+python-multipart
+aiofiles
