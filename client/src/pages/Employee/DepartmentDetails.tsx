@@ -83,7 +83,7 @@ const DepartmentDetails = () => {
       header: "Position Status",
       cellClassName: (row) => {
         const lowerCase = row.positionStatus.toLowerCase();
-        return `py-2 text-center rounded-md ${
+        return `py-2 text-center rounded-md w-32 sm:w-full ${
           lowerCase === "nsp"
             ? "bg-[#FFF7D8] text-rgtyellow"
             : "bg-[#C9ADFF] text-[#6418C3]"

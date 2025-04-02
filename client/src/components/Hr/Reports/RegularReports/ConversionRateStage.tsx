@@ -3,35 +3,27 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "rechar
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  FileSpreadsheet,
   Loader2,
   AlertCircle,
   TrendingUp,
 } from "lucide-react";
 
-
-
-
-
 export const ConversionRateStage = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useGetConversionRate();
 
-  // Calculate total candidates and conversion rate
   const totalCandidates =
     data?.stageData?.reduce((sum, stage) => sum + Number(stage.value), 0) || 0;
 
   const averageConversionRate =
     totalCandidates > 0 && data?.stageData
-    ? (
-        (Number(data.stageData[data.stageData.length - 1].value) /
-          Number(data.stageData[0].value)) *
-        100
-      ).toFixed(2)
-    : "0";
-    
+      ? (
+          (Number(data.stageData[data.stageData.length - 1].value) /
+            Number(data.stageData[0].value)) *
+          100
+        ).toFixed(2)
+      : "0";
 
-  // Render Loading State
   if (isLoading) {
     return (
       <Card className="w-full">
@@ -52,7 +44,6 @@ export const ConversionRateStage = () => {
     );
   }
 
-  // Render Error State
   if (isError) {
     return (
       <Card className="w-full border-destructive/50">
@@ -62,7 +53,7 @@ export const ConversionRateStage = () => {
           </CardTitle>
           <Button
             variant="destructive"
-            onClick={() => refetch}
+            onClick={() => refetch()}
             disabled={isFetching}
           >
             <AlertCircle className="mr-2 h-4 w-4" />
@@ -83,7 +74,6 @@ export const ConversionRateStage = () => {
     );
   }
 
-  // Render Empty State
   if (!data?.stageData || data.stageData.length === 0) {
     return (
       <Card className="w-full">
@@ -100,7 +90,6 @@ export const ConversionRateStage = () => {
     );
   }
 
-  // Render Normal State
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -108,14 +97,14 @@ export const ConversionRateStage = () => {
       </CardHeader>
 
       <CardContent>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
+          <div className="flex items-center mb-4 sm:mb-0">
             <TrendingUp className="h-6 w-6 mr-2 text-green-500" />
             <span className="text-2xl font-bold">{averageConversionRate}%</span>
           </div>
         </div>
 
-        <div className="h-64">
+        <div className="h-64 sm:h-80 md:h-96">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data.stageData}
@@ -161,7 +150,5 @@ export const ConversionRateStage = () => {
     </Card>
   );
 };
-
-
 
 export default ConversionRateStage;
