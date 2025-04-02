@@ -302,32 +302,6 @@ export class EmailNotificationChannel implements NotificationChannel {
           </div>
         `;
 
-      case NotificationType.EMPLOYEE_BIRTHDAY:
-        return `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-              <h2 style="color: #2c3e50; margin-top: 0;">${notification.title}</h2>
-              <p style="color: #34495e; line-height: 1.6;">${notification.content}</p>
-              ${
-                notification.data
-                  ? `
-                <div style="margin-top: 20px; background-color: #fff; padding: 15px; border-radius: 3px; border: 1px solid #e0e0e0;">
-                  <p><strong>Employee Name:</strong> ${notification.data.employeeName}</p>
-                  <p><strong>Birthday:</strong> ${new Date(notification.data.birthday).toLocaleDateString()}</p>
-                  <div style="text-align: center; margin-top: 20px;">
-                    <a href="/employees/${notification.data.employeeId}" style="display: inline-block; background-color: #3498db; color: white; padding: 10px 15px; text-decoration: none; border-radius: 3px;">View Employee Profile</a>
-                  </div>
-                </div>
-              `
-                  : ""
-              }
-            </div>
-            <div style="color: #7f8c8d; font-size: 12px; text-align: center; margin-top: 20px;">
-              <p>This is an automated message from RGT Portal. Please do not reply to this email.</p>
-            </div>
-          </div>
-        `;
-
       default:
         return baseTemplate;
     }

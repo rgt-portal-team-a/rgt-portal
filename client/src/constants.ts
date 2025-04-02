@@ -453,11 +453,3 @@ export const LeaveType = {
   DISMISSED: "dismissed",
   OTHER: "other",
 } as const;
-
-export const PTOSTATUS_TYPES = {
-  PENDING: "pending",
-  HR_APPROVED: "approved",
-  HR_DECLINED: "declined",
-  MANAGER_APPROVED: "manager_approved",
-  MANAGER_DECLINED: "manager_declined",
-} as const;

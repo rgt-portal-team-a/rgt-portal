@@ -2,7 +2,7 @@ import { AppDataSource } from "@/database/data-source";
 import { Repository } from "typeorm";
 import { Agency, Employee } from "@/entities/employee.entity";
 import { EmployeeRecognition } from "@/entities/employee-recognition.entity";
-import { Recruitment, Role, User } from "@/entities";
+import { Role, User } from "@/entities";
 import { CreateEmployeeDto, UpdateEmployeeDto } from "@/dtos/employee.dto";
 import { DepartmentService } from "./department.service";
 
@@ -68,25 +68,6 @@ export class EmployeeService {
   async create(employeeData: CreateEmployeeDto): Promise<Employee> {
     const employee = this.employeeRepository.create(employeeData);
     return this.employeeRepository.save(employee);
-  }
-
-  // create batch recruitment
-  async createBatch(employeeData: CreateEmployeeDto[]): Promise<Employee[]> {
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      const employees = employeeData.map((data) => this.employeeRepository.create(data));
-      const savedEmployees = await queryRunner.manager.save(employees);
-      await queryRunner.commitTransaction();
-      return savedEmployees;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
   }
 
   async update(id: number, updateData: UpdateEmployeeDto): Promise<Employee> {

@@ -56,8 +56,8 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({employeeData, employeeErro
   const { hasAccess } = usePermission();
   const [filter, setFilter] = useState<FilterState>({
     department: "All Departments",
-    type: "All Types",
-    employmentType: "All Types",
+    type: "All Type",
+    employmentType: "All Type",
   });
 
 
@@ -98,7 +98,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({employeeData, employeeErro
         );
       }
 
-      if (filter.type !== "All Types") {
+      if (filter.type !== "All Type") {
         filtered = filtered.filter((emp) => emp.workType === filter.type);
       }
 
@@ -148,7 +148,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({employeeData, employeeErro
   const resetFilter = () => {
     setFilter({
       department: "All Departments",
-      type: "All Types",
+      type: "All Type",
       employmentType: "All Types",
     });
     setState((prev) => ({ ...prev, currentPage: 1 }));

@@ -122,12 +122,6 @@ export class AuthController {
     res.json(updatedUser);
   };
 
-  public createBatch = async (req: Request, res: Response) => {
-    const { userData } = req.body;
-    const users = await this.userService.createBatch(userData);
-    res.json(users);
-  };
-
   public logout = (req: Request, res: Response) => {
     req.logout(() => {
       res.json({ success: true });

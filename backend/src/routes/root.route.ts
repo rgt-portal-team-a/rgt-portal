@@ -25,7 +25,6 @@ router.get("/user", (req: Request, res: Response) => {
     req.user
       ? {
           ...req.user,
-          token: req.sessionID,
           sessionDetails: {
             authenticated: req.isAuthenticated(),
             sessionID: req.sessionID,

@@ -31,11 +31,12 @@ const RecursiveComments = ({
   };
 
   console.log("replyReplies:", replyReplies);
-  console.log("comment:", comment);
+  console.log("comment:", comment)
 
   const isLiked = comment?.likes?.find(
     (item) => item.employeeId === currentUser?.employee.id
   );
+
 
   return (
     <div className="flex items-start gap-2">
@@ -43,7 +44,7 @@ const RecursiveComments = ({
         url={comment?.author.profileImage ?? ""}
         name={comment?.author.firstName ?? ""}
         avtBg="#94A3B8"
-        className="text-xs font-semibold text-white"
+        className="text-sm font-semibold text-slate-500"
       />
       <div className="w-full flex items-center">
         <div className="flex flex-col items-center w-[90%] gap-1">

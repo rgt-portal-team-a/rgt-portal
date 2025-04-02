@@ -8,9 +8,6 @@ import QuickActions from "../../components/Hr/QuickActions";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { useRequestPto } from "@/hooks/usePtoRequests";
 import { calculateMetrics } from "@/utils/metrics";
-import {
-  useRecruitments,
-} from "@/hooks/useRecruitment";
 
 export const HRDashboard = () => {
   const {
@@ -23,29 +20,18 @@ export const HRDashboard = () => {
 
   // const { data: ptoRequestData, isLoading: isPTOLoading } = useGetAllPTOS();
   const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } = useRequestPto();
-  const { data: recruitmentsData, isLoading: isLoadingRecruitments } = useRecruitments();
-
 
   const metrics: IMetricCard[] = useMemo(() => {
     const hasEmployeeData = employeeData && employeeData.length > 0;
     const hasPTOData = ptoRequestData && ptoRequestData.length > 0;
-    const hasRecruitmentData =  recruitmentsData?.recruitments && recruitmentsData?.recruitments.length > 0;
 
     const shouldShowLoading =
-      isEmployeesLoading &&
-      !hasEmployeeData &&
-      isPTOLoading &&
-      !hasPTOData &&
-      !hasRecruitmentData &&
-      isLoadingRecruitments;
-
-      console.log("Recruitments.recruitments", recruitmentsData?.recruitments)
+      isEmployeesLoading && !hasEmployeeData && isPTOLoading && !hasPTOData;
 
     return calculateMetrics({
       employees: employeeData,
       isLoading: shouldShowLoading,
       ptoRequests: ptoRequestData,
-      recruitments: recruitmentsData?.recruitments,
     });
   }, [employeeData, isEmployeesLoading, ptoRequestData, isPTOLoading]);
 
@@ -80,7 +66,7 @@ export const HRDashboard = () => {
         </div>
       </div>
 
-      <section className="md:flex justify-center h-fit md:right-0 md:top-0 hidden md:w-[30%] overflow-y-auto">
+      <section className="flex justify-center h-fit md:right-0 md:top-0 md:w-[30%] overflow-y-auto">
         <QuickActions />
       </section>
     </div>

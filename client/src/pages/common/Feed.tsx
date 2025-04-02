@@ -2,7 +2,13 @@ import AnnouncementCard from "@/components/AnnouncementCard";
 import CreatePost from "@/components/CreatePost";
 import EventList from "@/components/EventList";
 import Post from "@/components/Post";
+import { announcements, eventList } from "@/constants";
+import { Calendar } from "@/components/ui/calendar";
 import React, { useMemo, useState } from "react";
+import { PollService } from "@/api/services/poll.service";
+import { useQuery } from "@tanstack/react-query";
+import { Poll } from "@/types/polls";
+import { PostService } from "@/api/services/posts.service";
 import { FeedSkeleton } from "../../FeedSkeleton";
 import PollUI from "@/components/PollUI";
 import WithRole from "@/common/WithRole";
@@ -10,31 +16,28 @@ import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import { useGetAllRecognitions } from "@/api/query-hooks/recognition.hooks";
 import Recognition from "@/components/Recognition";
-import { usePoll } from "@/hooks/use-poll";
-import { usePost } from "@/hooks/use-posts";
-import { useAllEvents } from "@/api/query-hooks/event.hooks";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import EnhancedCalendar from "@/components/Hr/Events/EnhancedCalendar";
+import ToTop from "@/components/common/ToTop";
 
 const Feed = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const { currentUser: user } = useAuthContextProvider();
 
   const { data: recognitions, isLoading: recsLoading } =
     useGetAllRecognitions();
 
-  const { polls, pollsLoading } = usePoll();
-  const { posts, postsLoading } = usePost();
+  const { data: polls, isLoading: pollsLoading } = useQuery({
+    queryKey: ["polls"],
+    queryFn: () =>
+      PollService.getPolls().then((res) => {
+        console.log("polls:", res.data);
+        return res.data as Poll[];
+      }),
+  });
 
-  const {
-    data: eventsData,
-    isLoading: isEventsLoading,
-    isError: isEventsError,
-    error: eventsError,
-    refetch: refetchEvents,
-  } = useAllEvents();
+  const { data: posts, isLoading: postsLoading } = useQuery({
+    queryKey: ["posts"],
+    queryFn: () => PostService.getPosts().then((res) => res.data as IPost[]),
+  });
 
   const mergedFeed = useMemo(() => {
     const postsWithType =
@@ -49,40 +52,19 @@ const Feed = () => {
     });
   }, [posts, polls]);
 
-  if (pollsLoading && postsLoading && isEventsLoading) {
+  if (pollsLoading || postsLoading) {
     return <FeedSkeleton />;
   }
 
-  if (!eventsData || !eventsData.success || isEventsError) {
-    console.error("Events Data Error", eventsError);
-    return (
-      <ErrorMessage
-        title="Error Loading Events Data"
-        error={eventsError}
-        refetchFn={refetchEvents}
-      />
-    );
-  }
-
-  const processedEvents = eventsData.data.map((event) => ({
-    ...event,
-    startTime: new Date(event.startTime),
-    endTime: new Date(event.endTime),
-  }));
-
-  // Separate events by type
-  const specialEvents = processedEvents.filter(
-    (event) => event.type === "holiday" || event.type === "birthday"
-  );
-
-  const announcements = processedEvents.filter(
-    (event) => event.type === "announcement"
-  );
-
   return (
-    <main className={`flex w-full h-full pb-3`}>
-      {/* main screen */}
-      <div className="flex flex-col h-full flex-1 min-w-0">
+    <main
+      className={`flex flex-col md:flex-row h-full md:space-x-[17px] pb-5 justify-end relative`}>
+      <div
+        className="space-y-[18px] flex-1 overflow-y-auto"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}>
         <Recognition
           recognitions={
             Array.isArray(recognitions?.data) ? recognitions?.data : []
@@ -90,65 +72,72 @@ const Feed = () => {
           isRecLoading={recsLoading}
         />
 
-        <div
-          className="space-y-[18px] h-[80%] flex-1 overflow-y-auto mt-4"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          {/* Posts section */}
-          <section className="space-y-7 bg-white rounded-2xl">
-            <WithRole
-              roles={["hr", "marketer", "admin", "manager"]}
-              userRole={user?.role.name as string}
-            >
-              <CreatePost />
-            </WithRole>
+        {/* Posts section */}
+        <section className="space-y-7">
+          <WithRole
+            roles={["hr", "marketer", "admin"]}
+            userRole={user?.role.name as string}>
+            <CreatePost />
+          </WithRole>
 
-            <div className="space-y-3">
-              {/* <header className="font-semibold text-sm  px-4 bg-rgtpurple text-white w-fit rounded-xl shadow-md">
-                For you
-              </header> */}
-              <div className="space-y-5">
-                {mergedFeed.length > 0 ? (
-                  mergedFeed.map((item) => (
-                    <React.Fragment key={item.id}>
-                      {item.feedType === "post" ? (
-                        <Post post={item} postId={item.id} />
-                      ) : item.feedType === "poll" ? (
-                        <PollUI pollId={item.id} />
-                      ) : (
-                        <div>No post or poll data available</div>
-                      )}
-                    </React.Fragment>
-                  ))
-                ) : (
-                  <div className="flex w-full bg-slate-200 h-96 text-rgtpurple font-semibold justify-center items-center">
-                    <p>No posts available</p>
-                  </div>
-                )}
-              </div>
+          <div className="space-y-3">
+            <header className="font-semibold text-lg text-[#706D8A] ">
+              For you
+            </header>
+            <div className="space-y-5">
+              {mergedFeed.length > 0 ? (
+                mergedFeed.map((item) => (
+                  <React.Fragment key={item.id}>
+                    {item.feedType === "post" ? (
+                      <Post post={item} postId={item.id} />
+                    ) : item.feedType === "poll" ? (
+                      <PollUI pollId={item.id} />
+                    ) : (
+                      <div>No post or poll data available</div>
+                    )}
+                  </React.Fragment>
+                ))
+              ) : (
+                <div className="flex w-full bg-slate-200 h-96 text-rgtpurple font-semibold justify-center items-center">
+                  <p>No posts available</p>
+                </div>
+              )}
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </div>
-      {/* calendar */}
+
       <section
-        className="hidden custom1:flex flex-col w-[380px] pl-4 h-full overflow-auto"
+        className="hidden custom1:flex space-y-10 w-[380px] overflow-y-auto "
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
-        }}
-      >
+        }}>
         <div className="pt-5 space-y-3 h-fit  bg-white rounded-t-2xl w-full flex flex-col items-center">
           <p className="font-bold text-lg text-[#706D8A] px-4 w-full">
             Upcoming Events
           </p>
-          <EnhancedCalendar
-            events={processedEvents}
-            selected={selectedDate}
-            onSelect={setSelectedDate}
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate} 
+            initialFocus
+            modifiers={{
+              today: new Date(),
+            }}
+            modifiersClassNames={{
+              today: date ? "" : "bg-[#F8C74F] text-white",
+            }}
+            classNames={{
+              day_selected:
+                "bg-[#F8C74F] text-white hover:bg-[#F8C74F] focus:bg-[#F8C74F] rounded-full",
+              month: "flex flex-col space-y-3 flex-grow",
+              day: "w-8 h-8 font-medium rounded-full",
+              head_cell:
+                "w-8 flex-grow text-[#B5BEC6] font-semibold uppercase text-[10px]",
+              cell: "flex items-center justify-center flex-grow text-sm",
+            }}
+            className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-[348px] h-full"
           />
 
           <div className="px-4 py-[24px] bg-white rounded-lg space-y-5 w-full">
@@ -161,21 +150,15 @@ const Feed = () => {
             </div>
 
             <div className="flex flex-col space-y-5">
-              {specialEvents.length > 0 ? (
-                specialEvents.map((event, index) => (
-                  <EventList
-                    key={index}
-                    event={event.type === "holiday" ? "holiday" : "birthday"}
-                    date={event.startTime.toLocaleDateString()}
-                    title={event.title}
-                    className={`${
-                      specialEvents.length - 1 === index ? "border-b-0" : ""
-                    }`}
-                  />
-                ))
-              ) : (
-                <p className="text-gray-500 text-center">No special events</p>
-              )}
+              {eventList.map((event, index) => (
+                <EventList
+                  key={index}
+                  {...event}
+                  className={`${
+                    eventList.length - 1 === index ? "border-b-0" : ""
+                  }`}
+                />
+              ))}
             </div>
           </div>
 
@@ -187,23 +170,15 @@ const Feed = () => {
               <ArrowIcon className="hover:bg-slate-200 rounded-full transition-all duration-300 ease-in rotate-360 cursor-pointer" />
             </div>
             <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 ">
-              {announcements.length > 0 ? (
-                announcements.map((announcement) => (
-                  <AnnouncementCard
-                    key={announcement.id}
-                    date={new Date(announcement.startTime)}
-                    title={announcement.title}
-                  />
-                ))
-              ) : (
-                <p className="text-gray-500 text-center col-span-full">
-                  No announcements
-                </p>
-              )}
+              {announcements.map((announcement, index) => (
+                <AnnouncementCard {...announcement} key={index} />
+              ))}
             </div>
           </div>
         </div>
       </section>
+
+      <ToTop />
     </main>
   );
 };

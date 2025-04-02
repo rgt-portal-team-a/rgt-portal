@@ -26,17 +26,15 @@ import {
   userRoutes,
   notificationRoutes,
   aiRoutes,
-  queueRoutes,
 } from "./routes";
 import { SocketService } from "@/services/notifications/socket.service";
 import { Server as SocketIOServer } from "socket.io";
 import { setSocketService } from "./config/socket";
 import { SchedulerService } from "@/services/scheduler.service";
-import { setupBullBoard } from "@/config/bull-board.config";
-import { QueueService } from "@/services/queue.service";
 
 const app = express();
 const httpServer = createServer(app);
+
 
 export const io: SocketIOServer = require("socket.io")(httpServer, {
   serveClient: true,
@@ -54,15 +52,13 @@ httpServer.on("upgrade", (request: any, socket, head) => {
   console.log("[HTTP] WebSocket upgrade request received");
 });
 
-if (app.get("env") === "production") {
-  app.set("trust proxy", 1); 
-  if (_session && _session.cookie) {
-    _session.cookie.secure = true;
-  }
-}
+const authMiddleware = new AuthMiddleware();
+
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Set-Cookie", [`connect.sid=${req.sessionID}; HttpOnly; SameSite=None; Secure`]);
   next();
 });
 
@@ -77,8 +73,9 @@ app.use(httpLogger);
 // app.use(notFoundLogger);
 app.use(checkDatabaseConnection);
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+
+// REQUEST CREDETIALS OF CLIENT
 
 // ROUTES
 app.use(rootRoutes);
@@ -97,7 +94,6 @@ app.use("/api/departments", departmentRoutes);
 app.use("/user/auth", userRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/ai", aiRoutes);
-app.use("/api/queues", queueRoutes);
 
 // UNCAUGHT EXCEPTIONS & UNHANDLED REJECTIONS
 process.on("uncaughtException", (error) => {
@@ -114,27 +110,17 @@ process.on("unhandledRejection", (error) => {
 
 export const socketService = new SocketService(io);
 const schedulerService = new SchedulerService();
-const queueService = QueueService.getInstance();
 
 const startServer = async () => {
   try {
     await initializeDatabaseConnection();
 
     try {
-      // Initialize socket service
       socketService.initialize();
       setSocketService(socketService);
 
-      // Initialize scheduler service
       await schedulerService.startSchedulers();
       logger.info("Scheduler service initialized successfully");
-
-      // Setup Bull board for queue monitoring
-      setupBullBoard(app);
-      logger.info("Bull board initialized successfully");
-
-      // Initialize queue service
-      logger.info("Queue service initialized successfully");
     } catch (error) {
       logger.error("Failed to initialize services:", error);
       process.exit(1);

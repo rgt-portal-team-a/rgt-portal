@@ -1,0 +1,98 @@
+name: Build and Push RGT Portal Services
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: 330858616968.dkr.ecr.ap-south-1.amazonaws.com
+
+jobs:
+  build-and-push-ecr:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 45
+    permissions:
+      packages: write
+      contents: write
+      attestations: write
+      id-token: write
+
+    strategy:
+      matrix:
+        service: [ai, backend, client]
+        include:
+          - service: ai
+            dockerfile: ./ai/Dockerfile
+            ecr_repo: rgt-portal-team-a/ai
+          - service: backend
+            dockerfile: ./backend/Dockerfile
+            ecr_repo: rgt-portal-team-a/backend
+          - service: client
+            dockerfile: ./client/Dockerfile
+            ecr_repo: rgt-portal-team-a/client
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker BuildX
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::330858616968:role/rgt-portal-team-a-oidc
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set Image Tag Based on Branch
+        id: set-tag
+        run: |
+          BRANCH_NAME=${{ github.ref_name }}
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            echo "IMAGE_TAG=${{ matrix.service }}-latest" >> $GITHUB_ENV
+          elif [[ "$BRANCH_NAME" == "dev" ]]; then
+            echo "IMAGE_TAG=${{ matrix.service }}-dev" >> $GITHUB_ENV
+          else
+            # Convert feature branch names to valid tags (replace / with -)
+            SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
+            echo "IMAGE_TAG=${{ matrix.service }}-$SANITIZED_BRANCH" >> $GITHUB_ENV
+          fi
+
+      - name: Generate Docker Image Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}
+          tags: |
+            ${{ env.IMAGE_TAG }}
+
+      - name: Build and Push Docker Image to ECR
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ env.IMAGE_TAG }}
+
+      - name: Scan Docker Image for Vulnerabilities
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: '${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ env.IMAGE_TAG }}'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'

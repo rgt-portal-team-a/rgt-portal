@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from "react";
 import { Formik, Form, ErrorMessage, FormikHelpers } from "formik";
@@ -54,6 +55,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     "idle" | "loading" | "success" | "error"
   >("idle");
 
+  // Fetch employees for assignee dropdown
   const { data: employees } = useQuery({
     queryKey: ["employees"],
     queryFn: () => employeeService.getAllEmployees(),
@@ -61,13 +63,16 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     refetchOnWindowFocus: false,
   });
 
+  // Dynamic field filtering based on recruitment type
   const filteredFields = useMemo(() => {
     return fields.filter((field: any) => {
       if (!field.conditionalRender) return true;
+
       return field.conditionalRender(type);
     });
   }, [fields, type]);
 
+  // Dynamic validation schema and initial values based on filtered fields
   const validationSchema = useMemo(
     () => buildValidationSchema(filteredFields),
     [filteredFields]
@@ -78,6 +83,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     [filteredFields]
   );
 
+  // File upload mutation
   const uploadFileMutation = useMutation({
     mutationFn: async ({
       file,
@@ -118,6 +124,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     },
   });
 
+  // Recruitment creation mutation
   const createRecruitmentMutation = useMutation({
     mutationFn: (recruitmentData: CreateRecruitmentDto) => {
       setSubmissionStatus("loading");
@@ -142,6 +149,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     },
   });
 
+  // Handle form submission
   const handleSubmit = async (
     values: any,
     { resetForm }: FormikHelpers<any>
@@ -177,10 +185,12 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         );
       }
 
+      // Wait for all uploads
       if (uploadPromises.length > 0) {
         await Promise.all(uploadPromises);
       }
 
+      // Extract file URLs
       let cvUrl = "";
       let photoUrl = "";
 
@@ -192,7 +202,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         }
       });
 
-      // Construct recruitment data
+      // Construct recruitment data dynamically based on type
       const recruitmentData: CreateRecruitmentDto = {
         name: `${values.firstName} ${values.lastName}`,
         email: values.email,
@@ -203,7 +213,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         assignee: values.asignees,
         cvPath: cvUrl,
         photoUrl: photoUrl,
-        ...(type === RecruitmentType.NSS
+        ...(type === RecruitmentType.NSS 
           ? {
               firstPriority: values.firstPriority,
               secondPriority: values.secondPriority,
@@ -211,11 +221,17 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
             }
           : {
               position: values.position,
-            }),
+            }
+        ),
       };
 
+      // Submit recruitment data
       await createRecruitmentMutation.mutateAsync(recruitmentData);
+
+      // Additional onSubmit callback
       onSubmit(values);
+
+      // Reset form and states
       resetForm();
       setUploadStatus({ cv: "idle", photo: "idle" });
       setSubmissionStatus("idle");
@@ -224,12 +240,13 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     }
   };
 
-  const assigneeOptions =
-    employees?.map((emp) => ({
-      value: emp.id,
-      label: `${emp.firstName} ${emp.lastName}`,
-    })) || [];
+  // Prepare assignee options
+  const assigneeOptions = employees?.map(emp => ({
+    value: emp.id,
+    label: `${emp.firstName} ${emp.lastName}`
+  })) || [];
 
+  // Group fields for rendering
   const getFieldGroups = () => {
     const fullWidthFields = filteredFields.filter(
       (field: any) => field.gridColumn === "full" || !field.gridColumn
@@ -255,6 +272,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
 
   const { fullWidthFields, pairedHalfWidthFields } = getFieldGroups();
 
+  // Render upload status for files
   const renderUploadStatus = (fieldName: "cv" | "photo") => {
     const status = uploadStatus[fieldName];
     if (status === "loading") {
@@ -273,6 +291,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     return null;
   };
 
+  // Determine submission state
   const isSubmitting =
     uploadFileMutation.isPending ||
     createRecruitmentMutation.isPending ||
@@ -307,6 +326,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
             <div className="flex flex-col h-full">
               <div className="flex-1 overflow-y-auto p-4">
                 <Form className="space-y-6">
+                  {/* Render paired half-width fields */}
                   {pairedHalfWidthFields.map((fieldPair, index) => (
                     <div
                       key={`pair-${index}`}
@@ -324,9 +344,9 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                             )}
                           </label>
                           {renderField(field, formikProps, {
-                            ...(field.name === "asignee" && {
-                              options: assigneeOptions,
-                            }),
+                            ...(field.name === 'asignee' && { 
+                              options: assigneeOptions 
+                            })
                           })}
                           {(field.name === "cv" || field.name === "photo") &&
                             renderUploadStatus(field.name as "cv" | "photo")}
@@ -342,6 +362,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                     </div>
                   ))}
 
+                  {/* Render full-width fields */}
                   {fullWidthFields.map((field: any) => (
                     <div key={field.name}>
                       <label
@@ -354,9 +375,9 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                         )}
                       </label>
                       {renderField(field, formikProps, {
-                        ...(field.name === "asignee" && {
-                          options: assigneeOptions,
-                        }),
+                        ...(field.name === 'asignee' && { 
+                          options: assigneeOptions 
+                        })
                       })}
                       <ErrorMessage name={field.name}>
                         {(msg) => (
@@ -367,6 +388,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                   ))}
                 </Form>
 
+                {/* Submission loading state */}
                 {submissionStatus === "loading" && (
                   <div className="mt-4 p-2 bg-blue-50 text-blue-700 rounded flex items-center">
                     <Loader className="animate-spin h-4 w-4 mr-2" />
@@ -375,6 +397,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                 )}
               </div>
 
+              {/* Form action buttons */}
               <div className="p-4 bg-white">
                 <div className="w-full flex justify-end gap-3">
                   <button

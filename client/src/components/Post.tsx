@@ -7,7 +7,7 @@ import Media from "./Media";
 import PostSkeleton from "./common/PostSkeleton";
 import AvtrBlock from "./AvtrBlock";
 import FeedActions from "./feedActions";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, X } from "lucide-react";
 import CommentsModal from "./common/CommentsModal";
 import { SampleNextArrow, SamplePrevArrow } from "./Feed/PaginationArrows";
 import "slick-carousel/slick/slick.css";
@@ -17,7 +17,6 @@ import EditIcon from "@/assets/icons/EditIcon";
 import DeleteIcon2 from "@/assets/icons/DeleteIcon2";
 import ConfirmCancelModal from "./common/ConfirmCancelModal";
 import DeleteRippleIcon from "./common/DeleteRippleIcon";
-import { usePost } from "@/hooks/use-posts";
 // import { usePost } from "@/hooks/use-posts";
 
 const Post: React.FC<IFeed> = ({ post }) => {
@@ -31,7 +30,9 @@ const Post: React.FC<IFeed> = ({ post }) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { deletePost, isPostDeleting } = usePost();
+  // const { deletePost, isPostDeleting } = post
+  //   ? usePost(post.id)
+  //   : { deletePost: () => {} };
 
   // clicking outside of update and delete post container
   useEffect(() => {
@@ -61,10 +62,6 @@ const Post: React.FC<IFeed> = ({ post }) => {
   const closeMediaModal = () => {
     setSelectedMediaUrl(null);
     setIsMediaModalOpen(false);
-  };
-
-  const handleDelete = async (id: number) => {
-    await deletePost(id);
   };
 
   const formatText = (text: string | undefined) => {
@@ -122,7 +119,7 @@ const Post: React.FC<IFeed> = ({ post }) => {
     return <PostSkeleton />;
   }
 
-  // console.log("StatsComments:", stats.comments);
+  console.log("StatsComments:", stats.comments);
 
   return (
     <div className="flex flex-col p-4 rounded-lg shadow-md w-full bg-white">
@@ -183,8 +180,8 @@ const Post: React.FC<IFeed> = ({ post }) => {
           <ConfirmCancelModal
             isOpen={showDeleteModal}
             onCancel={() => setShowDeleteModal(false)}
-            onSubmit={() => handleDelete(post.id)}
-            isSubmitting={isPostDeleting}
+            onSubmit={() => console.log("")}
+            isSubmitting={false}
             submitText="Confirm"
             onOpenChange={() => console.log("")}
           >
@@ -218,11 +215,10 @@ const Post: React.FC<IFeed> = ({ post }) => {
       {/* Render the Media Modal */}
       {isMediaModalOpen && selectedMediaUrl && (
         <div
-          className="fixed inset-0 flex items-center bg-black/50 justify-center backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
           onClick={closeMediaModal}
-          style={{ zIndex: 1200 }}
         >
-          <div className="relative items-center flex flex-col justify-center max-w-[80vw] sm:w-[550px] h-[540px]">
+          <div className="relative flex justify-center max-w-[80vw] sm:max-w-[50vw] sm:max-h-[70vh]">
             {selectedMediaUrl.endsWith(".mp4") ||
             selectedMediaUrl.endsWith(".mov") ||
             selectedMediaUrl.includes("video") ? (
@@ -238,18 +234,16 @@ const Post: React.FC<IFeed> = ({ post }) => {
               <img
                 src={selectedMediaUrl}
                 alt="Media"
-                className="w-full h-full rounded-md object-contain"
-                onClick={(e) => e.stopPropagation()}
+                className="w-full h-auto rounded-md object-cover"
+                onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking image
               />
             )}
-            <div className="w-full flex justify-center pt-4">
-              <button
-                className="text-lg font-semibold text-white cursor-pointer transition-colors duration-300 ease-in"
-                onClick={closeMediaModal}
-              >
-                Close
-              </button>
-            </div>
+            <button
+              className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-200 transition-colors duration-300 ease-in"
+              onClick={closeMediaModal}
+            >
+              <X size={20} />
+            </button>
           </div>
         </div>
       )}

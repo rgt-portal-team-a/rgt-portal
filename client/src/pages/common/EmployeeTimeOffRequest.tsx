@@ -3,6 +3,7 @@ import EmployeeTimeOffManagementTable, {
   FilterState,
   PtoStatusType,
 } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
+import { Button } from "@/components/ui/button";
 import { PtoLeave } from "@/types/PTOS";
 import { useState } from "react";
 
@@ -66,8 +67,6 @@ const EmployeeTimeOffRequest = ({
     },
   ];
 
-  console.log("data:", data);
-
   const filterData = (data: PtoLeave[] | undefined): PtoLeave[] => {
     if (!data) return [];
 
@@ -121,11 +120,18 @@ const EmployeeTimeOffRequest = ({
 
   return (
     <>
-      <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
-        <section className="space-y-2 flex flex-col sm:flex-row sm:justify-between w-full sm:items-center py-1 pl-4">
+      <div className="flex flex-col gap-[15px] pt-[10px] h-full ">
+        <section className="space-y-2 flex flex-col sm:flex-row sm:justify-between w-full sm:items-center py-1">
           <h1 className="text-lg sm:text-xl font-medium text-gray-600 text-nowrap">
             Employee TimeOff Requests
           </h1>
+          <Button
+            onClick={() => {}}
+            className="bg-white text-gray-400 hover:bg-gray-100 rounded-xl w-fit h-full"
+          >
+            <img src={"/Filter 3.svg"} />
+            Filter
+          </Button>
         </section>
 
         {/* Manage Employees Table Section */}

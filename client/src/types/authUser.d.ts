@@ -7,9 +7,9 @@ type lROLE = "hr" | "manager" | "employee" | "admin" | "moderator" | "marketer";
 export enum RoleType {
   HR = "hr",
   EMPLOYEE = "emp",
-  MANAGER = "manager",
+  MANAGER = "manager", 
   ADMIN = "admin",
-  MARKETER = "marketer",
+  MARKETER = "marketer"
 }
 
 interface Role {
@@ -34,9 +34,6 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   token?: string;
-  firstName?: string;
-  lastName?: string;
-  phone?:string
 }
 
 interface ResponseUser {

@@ -2,7 +2,7 @@ import { PostService } from "@/api/services/posts.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./use-toast";
 
-export const usePost = (postId?: number) => {
+export const usePost = (postId: number) => {
   const queryClient = useQueryClient();
 
   const { data: posts, isLoading: postsLoading } = useQuery({
@@ -35,10 +35,10 @@ export const usePost = (postId?: number) => {
     await deletePostMutation.mutateAsync(id);
   };
 
-  return {
+  return{
     posts,
     deletePost,
     postsLoading,
-    isPostDeleting: deletePostMutation.isPending,
-  };
+    isPostDeleting:deletePostMutation.isPending
+  }
 };

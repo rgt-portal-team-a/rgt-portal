@@ -1,6 +1,5 @@
 import { SideFormModal } from "@/components/common/Modal";
-// import EventForm from "./EventForm";
-import {EventForm} from "./EventForm/EventForm";
+import EventForm from "./EventForm";
 import { useEventForm, formTypes } from "@/hooks/useEventForm";
 import { Field, FieldProps } from "formik";
 import {
@@ -43,6 +42,7 @@ export const EventModal = ({ onClose, selectedAction, title }: IEventModal) => {
     selectedEmployee,
     setSelectedEmployee,
     users,
+    projects,
   } = useEventForm(initialFormType);
 
 
@@ -62,7 +62,7 @@ export const EventModal = ({ onClose, selectedAction, title }: IEventModal) => {
       backFn={onClose}
       formClassName="flex flex-col my-8 gap-6"
     >
-      {(formikProps) => (
+      {/* {({ values, errors, setFieldValue }) => ( */}
       <>
         {!selectedAction && (
           <div className="">
@@ -116,16 +116,17 @@ export const EventModal = ({ onClose, selectedAction, title }: IEventModal) => {
           </div>
         )}
         <EventForm
-          formik={formikProps}
+          // formik={formik}
           selectedFormType={selectedFormType}
           selectedSpecialEventType={selectedSpecialEventType}
           setSelectedSpecialEventType={setSelectedSpecialEventType}
           selectedEmployee={selectedEmployee}
           setSelectedEmployee={setSelectedEmployee}
           users={users}
+          projects={projects}
         />
       </>
-      )} 
+      {/* )} */}
     </SideFormModal>
   );
 };

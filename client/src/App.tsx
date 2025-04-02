@@ -26,7 +26,6 @@ import EmployeePage from "@/pages/HR/Employees/EmployeePage";
 import EmployeeTimeOffRequests from "./pages/Manager/ManagerEmployeeTimeOff";
 import AdvancedReports from "./pages/HR/Reports/AdvancedReports";
 import RegularReports from "./pages/HR/Reports/RegularReports";
-import { ProfilePage } from "./pages/common/Profile";
 
 function App() {
   const getCookie = (name: string) => {
@@ -72,12 +71,11 @@ function App() {
             <Route path="time-off" element={<TimeOff />} />
             {/* <Route path="messages" element={<Messages />} /> */}
             <Route path=":id" element={<FindEmployee />} />
-            <Route path="profile" element={<ProfilePage />} />
 
             {/* Manager-specific sub-routes */}
             <Route element={<ProtectedRoute allowedRoles={["MANAGER"]} />}>
               <Route
-                path="employee-requests"
+                path="time-off/employee-requests"
                 element={<EmployeeTimeOffRequests />}
               />
             </Route>
@@ -129,7 +127,10 @@ function App() {
 
             {/* Advanced Report routes - accessible by HR and ADMIN */}
             <Route path="reports">
-              <Route path="regularreport" element={<RegularReports />} />
+              <Route
+                path="regularreport"
+                element={<RegularReports />}
+              />
               <Route path="advancedreport" element={<AdvancedReports />} />
             </Route>
 

@@ -37,8 +37,9 @@ const RegularReports = () => {
         <EmployeeCountDepartment />
       </div>
 
-      <div className="grid grid-cols-1 ">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <HomeOfficeHeadCount />
+        <HiringTrendsOverTime />
       </div>
 
       <CandidatesHiredPeriod />

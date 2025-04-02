@@ -1,13 +1,11 @@
 import { Employee } from "@/types/employee";
-import { PtoLeave, StatusType } from "@/types/PTOS";
-import { EMPLOYEE_TYPES, PTOSTATUS_TYPES } from "@/constants";
+import { PtoLeave } from "@/types/PTOS";
+import { EMPLOYEE_TYPES } from "@/constants";
 import { IMetricCard, ColorType } from "@/components/Hr/Dashboard/MetricCard";
-import { RecruitmentResponse, Recruitment } from "@/hooks/useRecruitment";
 
 export interface MetricCalculationOptions {
   employees?: Employee[] | null;
   ptoRequests?: PtoLeave[] | null;
-  recruitments?: Recruitment[] | null;
   isLoading?: boolean;
 }
 
@@ -15,7 +13,6 @@ export interface MetricCalculationOptions {
 export const calculateMetrics = ({
   employees,
   ptoRequests,
-  recruitments,
   isLoading,
 }: MetricCalculationOptions): IMetricCard[] => {
   const createEmptyMetric = (
@@ -42,26 +39,24 @@ export const calculateMetrics = ({
     return [
       createLoadingMetric("Total Employees", "purple"),
       createLoadingMetric("Regular Employees", "pink"),
-      createLoadingMetric("Recruitment", "yellow"),
-      createLoadingMetric("Employees On Leave", "blue"),
+      createLoadingMetric("NSS Employees", "blue"),
+      createLoadingMetric("PTO Requests", "yellow"),
     ];
   }
 
   const safeEmployees = employees && employees.length > 0 ? employees : [];
   const safePtoRequests = ptoRequests && ptoRequests.length > 0 ? ptoRequests : [];
-  const safeRecruitments = recruitments && recruitments.length > 0 ? recruitments : [];
 
   if (safeEmployees.length === 0 && safePtoRequests.length === 0) {
     return [
       createEmptyMetric("Total Employees", "purple"),
       createEmptyMetric("Regular Employees", "pink"),
-      createEmptyMetric("Recruitments", "yellow"),
-      createEmptyMetric("Employees On Leave", "blue"),
+      createEmptyMetric("NSS Employees", "blue"),
+      createEmptyMetric("PTO Requests", "yellow"),
     ];
   }
 
   const totalEmployees = safeEmployees.length;
-  const totalRecruitments = safeRecruitments.length;
 
   const regularEmployees = safeEmployees.reduce(
     (count, emp) =>
@@ -69,16 +64,13 @@ export const calculateMetrics = ({
     0
   );
 
+  const nssEmployees = safeEmployees.reduce(
+    (count, emp) =>
+      emp?.employeeType === EMPLOYEE_TYPES.NSP ? count + 1 : count,
+    0
+  );
 
-  const onLeaveCount = safePtoRequests.reduce((count, request) => {
-    return (
-        request.status !== PTOSTATUS_TYPES.PENDING && 
-        request.status !== PTOSTATUS_TYPES.MANAGER_DECLINED && 
-        request.status !== PTOSTATUS_TYPES.HR_DECLINED
-    ) ? count + 1 : count;
-}, 0);
-
-
+  const ptoRequestCount = safePtoRequests.length;
 
   const calculateGrowth = (value: number): string => {
     if (value === 0) return "0";
@@ -105,16 +97,16 @@ export const calculateMetrics = ({
       color: "pink",
     },
     {
-      title: "Recruitments",
-      value: totalRecruitments.toLocaleString(),
-      growth: calculateGrowth(totalRecruitments),
-      color: "yellow",
+      title: "NSS Employees",
+      value: nssEmployees.toLocaleString(),
+      growth: calculateGrowth(nssEmployees),
+      color: "blue",
     },
     {
-      title: "Employees On Leave",
-      value: onLeaveCount.toLocaleString(),
-      growth: calculateGrowth(onLeaveCount),
-      color: "blue",
+      title: "PTO Requests",
+      value: ptoRequestCount.toLocaleString(),
+      growth: calculateGrowth(ptoRequestCount),
+      color: "yellow",
     },
   ];
 };
