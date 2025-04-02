@@ -54,6 +54,36 @@ services:
         condition: service_healthy
       db:
         condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--spider', 'localhost:8000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - rgt-portal-network
+
+  client:
+    container_name: frontend
+    build:
+      context: ./client/
+      args:
+        - VITE_NODE_ENV=${VITE_NODE_ENV}
+        - VITE_API_URL=${VITE_DEV_BASE_URL}
+        - VITE_BASE_URL=${VITE_BASE_URL}
+    restart: unless-stopped
+    ports:
+      - 3000:80
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      VITE_NODE_ENV: ${VITE_NODE_ENV:-production}
+      VITE_BASE_URL: ${VITE_BASE_URL}
+      VITE_API_URL: ${VITE_API_URL}
+    env_file:
+      - .env
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - rgt-portal-network
 
