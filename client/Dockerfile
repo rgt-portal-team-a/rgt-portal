@@ -4,19 +4,23 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# Install pnpm globally
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package.json and pnpm-lock.yaml first for caching dependencies
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies only (no unnecessary dev dependencies in final build)
-RUN npm ci --legacy-peer-deps
+RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the app files
 COPY . .
 
 # Build the app (adjust this if using a different framework)
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Production
-FROM node:20-alpine AS production
+FROM nginx:alpine AS production
 
 # Set working directory
 WORKDIR /usr/share/nginx/html

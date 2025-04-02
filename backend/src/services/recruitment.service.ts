@@ -8,7 +8,6 @@ import { DatabaseService } from "@/services/database.service";
 import { Logger } from "@/services/logger.service";
 import { CreateRecruitmentDto, UpdateRecruitmentDto, RecruitmentFilterDto } from "@/dtos/recruitment.dto";
 import { FailStage, RecruitmentStatus } from "@/defaults/enum";
-import { CreateEmployeeDto } from "@/dtos/employee.dto";
 
 export class RecruitmentService {
   private recruitmentRepository: Repository<Recruitment>;
@@ -133,19 +132,20 @@ export class RecruitmentService {
   }
 
   // create batch recruitment
-  async createBatch(recruitmentData: CreateRecruitmentDto[]): Promise<Recruitment[]> {
-    const queryRunner = AppDataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async createBatch(data: CreateRecruitmentDto[], currentUserId: number): Promise<Recruitment[]> {
+    const queryRunner = await DatabaseService.createTransaction();
 
     try {
-      const recruitments = recruitmentData.map((data) => this.recruitmentRepository.create(data));
-      const savedRecruitments = await queryRunner.manager.save(recruitments);
-      await queryRunner.commitTransaction();
-      return savedRecruitments;
+      const user = await this.userRepository.findOne({ where: { id: currentUserId } });
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const recruitments = await Promise.all(data.map((recruitment) => this.create(recruitment, currentUserId)));
+
+      return recruitments;
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      this.logger.error("Error creating batch recruitments:", error);
+      this.logger.error("Error creating batch recruitment:", error);
       throw error;
     } finally {
       await queryRunner.release();

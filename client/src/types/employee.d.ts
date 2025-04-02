@@ -83,7 +83,7 @@ export interface Employee {
   photoUrl?: string | null;
   role?: ROLE_TYPES | null;
   employeeType?: EmployeeType | null;
-  workType?: WorkType | null;
+  workType?: WorkTypes | null;
   isJuniorTeamLead?: boolean;
   isSeniorTeamLead?: boolean;
   position: string | null;

@@ -27,9 +27,8 @@ const DropoutAnalysis: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useDropOutRateByStage();
 
-  console.log("Dropout Data", data?.dropoutData);
-
-  const total = data?.dropoutData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
+  const total =
+    data?.dropoutData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({

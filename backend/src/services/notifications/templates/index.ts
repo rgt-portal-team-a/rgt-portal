@@ -84,23 +84,6 @@ export class NotificationTemplates {
     };
   }
 
-  static eventReminder(event: Event, receipientId: number): NotificationPayload {
-    return {
-      type: NotificationType.EVENT_REMINDER,
-      recipientId: receipientId,
-      senderId: event.organizer.user.id,
-      title: "Event Reminder",
-      content: `Reminder: ${event.title} is coming up soon!`,
-      data: {
-        eventId: event.id,
-        eventTitle: event.title,
-        startTime: event.startTime,
-        endTime: event.endTime,
-        location: event.location,
-      },
-    };
-  }
-
   static eventInvitation(event: Event, recipientId: number): NotificationPayload {
     return {
       type: NotificationType.EVENT_INVITATION,
@@ -136,7 +119,7 @@ export class NotificationTemplates {
 
   static ptoRequestCreated(ptoRequest: any, recipientId: number): NotificationPayload {
     console.log("PTO Data", ptoRequest);
-
+    
     return {
       type: NotificationType.PTO_REQUEST_CREATED,
       recipientId,
@@ -155,17 +138,17 @@ export class NotificationTemplates {
   }
 
   //
-  static employeeBirthday(employee: Employee, birthday: Date, recipientId: number): NotificationPayload {
+
+  static projectAssignment(project: Project, recipientId: number, assignedBy: User): NotificationPayload {
     return {
-      type: NotificationType.EMPLOYEE_BIRTHDAY,
+      type: NotificationType.PROJECT_ASSIGNMENT,
       recipientId,
-      senderId: employee.user.id,
-      title: "Employee Birthday",
-      content: `${employee.user.username} has a birthday today. You are receiving this because you have signed up for this. Ignore if you already took an action or wished this employee`,
+      senderId: assignedBy.id,
+      title: "New Project Assignment",
+      content: `You have been assigned to project "${project.name}"`,
       data: {
-        employeeId: employee.id,
-        employeeName: employee.user.username,
-        birthday,
+        projectId: project.id,
+        projectName: project.name,
       },
     };
   }
@@ -183,7 +166,7 @@ export class NotificationTemplates {
     };
   }
 
-  static pollCreated(sender: User, recipientId: number, pollTitle: string, pollId: number): NotificationPayload {
+  static pollCreated(sender: User, recipientId: number, pollTitle: string, pollId: string): NotificationPayload {
     return {
       type: NotificationType.POLL_CREATED,
       recipientId,

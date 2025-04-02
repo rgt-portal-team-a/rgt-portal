@@ -23,6 +23,3 @@ pydantic
 transformers
 langchain_community
 pypdf
-psycopg2-binary
-groq
-python-multipart

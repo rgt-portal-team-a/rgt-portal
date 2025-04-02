@@ -8,6 +8,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ArrowIcon from "@/assets/icons/ArrowIcon";
+import EventList from "@/components/EventList";
 
 interface EnhancedCalendarProps {
   events: Event[];
@@ -155,23 +157,89 @@ const EnhancedCalendar: React.FC<EnhancedCalendarProps> = ({
           border: 2px solid orange;
         }
       `}</style>
+      {/* <Calendar
+        mode="single"
+        selected={selected}
+        onSelect={onSelect}
+        modifiers={modifiers}
+        modifiersClassNames={modifiersClassNames}
+        classNames={{
+          day: cn(
+            "w-8 h-8 sm:w-10 sm:h-10 font-medium rounded-full flex items-center justify-center"
+          ),
+          day_selected:
+            "bg-[#C0AFFF] text-white hover:bg-[#C0AFFF] focus:bg-[#C0AFFF]",
+          month: "flex flex-col space-y-3 flex-grow",
+          head_cell: "w-8 sm:w-10 flex-grow",
+          cell: "flex items-center justify-center flex-grow relative",
+        }}
+        className="shadow-md shadow-gray-300 p-2 rounded-md flex flex-col w-full h-full"
+        components={{
+          Day: ({ date }) => {
+            const dateKey = format(date, "yyyy-MM-dd");
+            const hasEvents = eventDatesMap.has(dateKey);
+
+            return (
+              <Tooltip key={dateKey}>
+                <TooltipTrigger asChild>
+                  <div
+                    ref={(el) => {
+                      dayRefs.current[dateKey] = el;
+                    }}
+                    onMouseEnter={(e) =>
+                      hasEvents && handleDayMouseEnter(date, e)
+                    }
+                    onMouseLeave={handleDayMouseLeave}
+                    className={cn(
+                      "w-8 h-8 sm:w-10 sm:h-10 font-medium rounded-full flex items-center justify-center",
+                      modifiersClassNames[dateKey] || "",
+                      hasEvents ? "cursor-pointer" : ""
+                    )}
+                  >
+                    {format(date, "d")}
+                  </div>
+                </TooltipTrigger>
+                {hasEvents && (
+                  <TooltipContent
+                    style={{
+                      zIndex: 1000,
+                    }}
+                  >
+                    <div className="flex flex-col gap-1">
+                      {eventDatesMap.get(dateKey)?.map((event) => (
+                        <div key={event.id}>
+                          <strong>{event.title}</strong>
+                          <p>{event.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            );
+          },
+        }}
+      /> */}
       <Calendar
         mode="single"
         selected={selected}
         onSelect={onSelect}
         initialFocus
         modifiers={modifiers}
+        // modifiersClassNames={{
+        //   today: selected ? "" : "bg-[#F8C74F] text-white",
+        // }}
         modifiersClassNames={modifiersClassNames}
         classNames={{
           day_selected:
-            "bg-green-400 text-white hover:bg-[#F8C74F] focus:bg-[#F8C74F] rounded-full relative",
+            "bg-[#F8C74F] text-white hover:bg-[#F8C74F] focus:bg-[#F8C74F] rounded-full",
           month: "flex flex-col space-y-3 flex-grow",
           day: "w-8 h-8 font-medium rounded-full",
           head_cell:
             "w-8 flex-grow text-[#B5BEC6] font-semibold uppercase text-[10px]",
-          cell: "flex items-center justify-center flex-grow text-sm relative",
+          cell: "flex items-center justify-center flex-grow text-sm",
         }}
-        className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-full md:w-[348px] h-full relative"
+        className="shadow-lg shadow-gray-300 p-2 rounded-md flex flex-col w-[348px] h-full"
         components={{
           Day: ({ date }) => {
             const dateKey = format(date, "yyyy-MM-dd");

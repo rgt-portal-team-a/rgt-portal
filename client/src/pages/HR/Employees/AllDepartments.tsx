@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SideFormModal } from "@/components/common/Modal";
 import { Field, FieldInputProps, FormikHelpers, FieldProps } from "formik";
@@ -97,7 +98,7 @@ export const AllDepartments = () => {
       {/* Main Content */}
       {departments && departments.length > 0 ? (
         <div className="flex flex-col gap-[15px] pt-[10px] h-full">
-          <section className="h-[62px] flex justify-between w-full items-center py-1 bg-amber-500">
+          <section className="h-[62px] flex justify-between w-full items-center py-1">
             <div className="flex flex-col h-full">
               <h1 className="text-xl font-medium text-gray-600">
                 All Departments
@@ -107,8 +108,8 @@ export const AllDepartments = () => {
               </p>
             </div>
 
-            <div className="flex flex-row gap-4 items-center h-full">
-              {/* <div className="relative justify-between items-center sm:w-[100px] md:w-[301px] md:max-w-[301px] flex-grow">
+            <div className="md:flex md:flex-row gap-4 items-center h-full flex-col">
+              <div className="relative justify-between items-center sm:w-[100px] md:w-[301px] md:max-w-[301px] flex-grow">
                 <Input
                   type="text"
                   placeholder="Search For A Department"
@@ -117,7 +118,7 @@ export const AllDepartments = () => {
                   onChange={handleSearchChange}
                 />
                 <Search className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
-              </div> */}
+              </div>
               <Button
                 onClick={() => setIsModalOpen(true)}
                 className="bg-rgtviolet hover:bg-violet-900 rounded-xl h-full"

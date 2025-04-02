@@ -15,7 +15,7 @@ pollRouter.get("/:id", authMiddleware.isAuthenticated, pollController.getPollByI
 pollRouter.post(
   "/",
   authMiddleware.isAuthenticated,
-  // authMiddleware.hasRole([Roles.ADMIN, Roles.HR, Roles.MANAGER, Roles.MODERATOR]),
+  authMiddleware.hasRole([Roles.ADMIN, Roles.HR, Roles.MANAGER, Roles.MODERATOR]),
   pollController.createPoll,
 );
 

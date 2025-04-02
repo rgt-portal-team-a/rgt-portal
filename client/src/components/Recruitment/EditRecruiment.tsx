@@ -12,7 +12,6 @@ import {
   useRecruitment,
   Recruitment,
   useUpdateRecruitmentStatus,
-  usePredictMatch,
 } from "@/hooks/useRecruitment";
 import { SideModal } from "@/components/ui/side-dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tab";
@@ -85,7 +84,6 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
 
   const updateMutation = useUpdateRecruitment();
   const statusUpdateMutation = useUpdateRecruitmentStatus();
-  const predictMatchMutation = usePredictMatch();
 
   const validationSchema = React.useMemo(
     () => buildValidationSchema(fields),
@@ -271,13 +269,6 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
         title: "Success",
         description: "Candidate status updated successfully",
       });
-
-      // IF SUCCESSFUL AND THE CANDIDATE IS NOT HIRED, THEN UPDATE THE CANDIDATE STATUS TO NOT HIRED MAKE A REQUEST TO THE AI API TO PREDICT THE CANDIDATE'S MATCH 
-      if (values.currentStatus === RecruitmentStatus.NOT_HIRED) {
-        await predictMatchMutation.mutateAsync(candidateId);
-      }
-
-
       onOpenChange(false);
     } catch (error) {
       console.error("Status update failed:", error);

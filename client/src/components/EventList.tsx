@@ -25,9 +25,7 @@ const EventList: React.FC<IEventList> = ({ event, date, title, className }) => {
           className="bg-[#EEF2FF] p-3 rounded-[8px]"
         />
         <div className="space-y-1">
-          <p className="text-rgtgray text-sm w-32 truncate font-semibold">
-            {title}
-          </p>
+          <p className="text-rgtgray text-sm font-semibold">{title}</p>
           <p className="text-rgtgray text-xs font-[400]">{date}</p>
         </div>
       </div>

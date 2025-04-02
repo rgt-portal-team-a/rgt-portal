@@ -49,7 +49,7 @@ const Recognition = ({
 
   return (
     <section
-      className="bg-rgtpurple min-h-32 rounded-[20px] text-white flex flex-col  w-full p-3 space-y-1 items-center justify-center"
+      className="bg-rgtpurple sticky min-h-32 top-0 rounded-[20px] text-white flex flex-col  max-w-full p-3 space-y-1 items-center justify-center"
       style={{
         backgroundImage: `url(${confetti})`,
         backgroundSize: "contain",
@@ -75,7 +75,7 @@ const Recognition = ({
       )}
 
       <div
-        className="w-full flex gap-4 overflow-x-scroll"
+        className="w-full flex justify-center gap-1 items-center overflow-x-scroll"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -121,11 +121,8 @@ const Recognition = ({
                       url={
                         item.recognizedEmployee?.user?.profileImage as string
                       }
-                      name={
-                        (item.recognizedEmployee?.user?.username as string) ??
-                        `#${index}`
-                      }
-                      className={`w-[50px] h-[50px] `}
+                      name={item.recognizedEmployee.user?.username as string}
+                      className={`w-[55px] h-[55px]`}
                     />
 
                     <span
@@ -135,9 +132,8 @@ const Recognition = ({
                       {randomEmoji}
                     </span>
                   </div>
-                  <p className="font-semibold text-xs  sm:text-sm text-nowrap text-center">
-                    {item.recognizedEmployee?.firstName ?? `User #${index}`} -
-                     <span className="text-orange-500">{item.project}</span>
+                  <p className="font-semibold text-xs  sm:text-sm w-20 truncate  text-center">
+                    {item.recognizedEmployee?.firstName}
                   </p>
                 </div>
               );

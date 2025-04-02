@@ -40,8 +40,8 @@ def extract_text_from_file(file_path):
 def extract_cv_info(text):
     # Initialize Groq LLM
     llm = ChatGroq(
-        api_key=os.getenv("GROQ_API_KEY"),
-        model_name="llama-3.3-70b-versatile"
+        api_key="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",
+        model_name="deepseek-r1-distill-qwen-32b"
     )
 
     # Create a more comprehensive prompt template
