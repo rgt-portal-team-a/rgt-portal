@@ -6,6 +6,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Cell,
   ResponsiveContainer,
   TooltipProps,
 } from "recharts";
@@ -127,7 +128,7 @@ const SourceToHireSuccessRate = () => {
   // Render Normal State
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center py-11">
+      <CardHeader className="flex flex-row items-center ">
         <CardTitle>Source-to-Hire Success Rate</CardTitle>
       </CardHeader>
       <CardContent>
@@ -138,15 +139,27 @@ const SourceToHireSuccessRate = () => {
           <BarChart
             data={data.successData}
             className="text-sm"
-            margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+            margin={{ top: 20, right: 10, left: 0, bottom: 90 }}
           >
-            <XAxis dataKey="source" axisLine={false} tickLine={false} />
+            <XAxis
+              dataKey="source"
+              axisLine={false}
+              tickLine={false}
+              interval={0} // Show all labels
+              angle={-45} // Rotate labels
+              textAnchor="end" // Proper alignment for rotated text
+              tick={{ fontSize: 12 }} // Smaller font size
+            />
             <YAxis axisLine={false} tickLine={false} />
             <Tooltip
               content={<CustomTooltip />}
               cursor={{ fill: "transparent" }}
             />
-            <Bar dataKey="hires" fill="#ffc107" barSize={40} />
+            <Bar dataKey="hires" fill="#ffc107" barSize={40} minPointSize={2}>
+              {data.successData.map((_entry, index) => (
+                <Cell key={`cell-${index}`} fill={"#ffc107"} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

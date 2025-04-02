@@ -101,7 +101,6 @@ const HiringLadder: React.FC = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>The Hiring Ladder: Top Performing Agencies</CardTitle>
-
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-3 mb-4">
@@ -110,8 +109,7 @@ const HiringLadder: React.FC = () => {
             +15% <span className="text-sm text-gray-500">than last Month</span>
           </p>
         </div>
-
-        <div className="w-full h-10 bg-gray-100 rounded-[6.25px] overflow-hidden flex">
+        <div className="w-full h-10 bg-gray-100 rounded-[6.25px] overflow-hidden flex gap-px">
           {data.agencyData.map((agency, index) => (
             <div
               key={index}
@@ -123,23 +121,30 @@ const HiringLadder: React.FC = () => {
             />
           ))}
         </div>
-
-        <div className="flex justify-between mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4 w-full">
           {data.agencyData.map((agency, index) => (
-            <div key={index} className="flex flex-col gap-2">
+            <div
+              key={index}
+              className="flex flex-col gap-2 min-w-[100px] p-2 bg-gray-50 rounded-lg"
+            >
               <div className="flex gap-2 items-center">
                 <div
-                  className="w-4 h-4 rounded-full"
+                  className="w-4 h-4 rounded-full flex-shrink-0"
                   style={{ backgroundColor: agency.color }}
                 />
-                <span className="flex text-sm">{agency.name}</span>
+                <span className="text-sm font-medium truncate">
+                  {agency.name}
+                </span>
               </div>
-              <span className="font-bold text-xl items-center flex gap-2">
-                {agency.value}
-                <span className="text-sm" style={{ color: agency.color }}>
+              <div className="flex items-baseline gap-1">
+                <span className="font-bold text-lg">{agency.value}</span>
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: agency.color }}
+                >
                   ({Number(agency.percent).toFixed(2)}%)
                 </span>
-              </span>
+              </div>
             </div>
           ))}
         </div>
