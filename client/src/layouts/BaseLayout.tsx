@@ -21,6 +21,7 @@ import MobileBottomBar from "@/components/SideBar/MobileBottomBar";
 import ProfileIcon from "@/assets/icons/ProfileIcon";
 import LogoutIcon from "@/assets/icons/LogoutIcon";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
+import HrMobileBottomBar from "@/components/SideBar/HrMobileBottomBar";
 
 export const BaseLayout = () => {
   const { currentUser: user, logout } = useAuthContextProvider();
@@ -335,7 +336,15 @@ export const BaseLayout = () => {
         >
           <Outlet />
         </div>
-        <MobileBottomBar />
+        <WithRole
+          roles={["manager", "employee", "marketer"]}
+          userRole={user?.role.name as string}
+        >
+          <MobileBottomBar />
+        </WithRole>
+        <WithRole roles={["hr"]} userRole={user?.role.name as string}>
+          <HrMobileBottomBar />
+        </WithRole>
       </div>
       <NotificationContainer
         isOpen={notificationsOpen}
