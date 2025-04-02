@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import {
   useNodesState,
@@ -40,6 +40,17 @@ const EmployeePage: React.FC = () => {
     isError: isEmployeeError,
   } = useEmployeeDetails(id);
 
+  useEffect(() => {
+    if (employee) {
+      setNodes([
+        personalDetailsNode,
+        workDetailsNode,
+        ...generatePersonalDetailNodes(employee),
+        ...generateWorkDetailNodes(employee),
+      ]);
+    }
+  }, [employee]); 
+
   const [activeTab, setActiveTab] = useState<"details" | "activity">("details");
 
   // Dynamic node generation
@@ -48,7 +59,7 @@ const EmployeePage: React.FC = () => {
       id: "personal-details",
       position: { x: 600, y: 30 },
       data: { label: "Personal Details", isHeader: true },
-      type: "custom",
+      type: "header",
       draggable: false,
       style: { ...nodeStyles.common, ...nodeStyles.header },
       sourcePosition: Position.Right,
@@ -61,7 +72,7 @@ const EmployeePage: React.FC = () => {
       id: "work-details",
       position: { x: 600, y: 370 },
       data: { label: "Work Details", isHeader: true },
-      type: "custom",
+      type: "header",
       draggable: false,
       style: { ...nodeStyles.common, ...nodeStyles.header },
       sourcePosition: Position.Right,
@@ -105,6 +116,16 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Personal Email",
             value: employee.contactDetails?.personalEmail || "Not Available",
+          },
+          type: "custom",
+          style: { ...nodeStyles.common, ...nodeStyles.detail },
+        },
+        {
+          id: "work-email",
+          position: { x: 920, y: 150 },
+          data: { 
+            label: "Work Email",
+            value: employee.user?.email || "Not Available",
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -190,11 +211,13 @@ const EmployeePage: React.FC = () => {
       },
     ];
 
+    console.log("Work Details Nodes", nodes)
+
     return nodes;
   }, []);
 
   // Generate dynamic nodes and edges
-  const [nodes, _setNodes, onNodesChange] = useNodesState(
+  const [nodes, setNodes, onNodesChange] = useNodesState(
     // employee
     //   ? 
       [
@@ -206,8 +229,12 @@ const EmployeePage: React.FC = () => {
       // : initialNodes
   );
 
+  console.log("All Nodes", nodes);
+
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    employee ? initialEdges : [] // You might want to generate dynamic edges here too
+    // employee ? 
+    initialEdges 
+    // : [] // You might want to generate dynamic edges here too
   );
 
   const onConnect = useCallback(
