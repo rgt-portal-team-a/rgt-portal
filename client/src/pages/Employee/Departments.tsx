@@ -1,16 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
 import DepartmentCard from "@/components/DepartmentCard";
-import { RootState } from "@/state/store";
-import { useSelector } from "react-redux";
+import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 import _ from "lodash";
 import { Search } from "lucide-react";
 import StepProgress from "@/components/common/StepProgress";
+import ErrorMessage from "@/components/common/ErrorMessage";
+import {Department} from "@/types/department"
+
 
 const Departments = () => {
-  const { departments } = useSelector((state: RootState) => state.sharedState);
+  const { departments, departmentsError, refetchDepartments } = useDepartmentsData();
   const [inputValue, setInputValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredDepartments, setFilteredDepartments] = useState(departments);
+  const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
+    []
+  );
+
+
+
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,13 +46,18 @@ const Departments = () => {
 
   // Filter departments whenever the search term changes
   useEffect(() => {
+    if (!departments) {
+      setFilteredDepartments([]);
+      return;
+    }
+
     if (searchTerm.trim() === "") {
       setFilteredDepartments(departments);
       return;
     }
 
     const lowercasedSearch = searchTerm.toLowerCase();
-    const filtered = departments.filter((department) => {
+    const filtered = departments?.filter((department) => {
       // Check department name
       if (department.name.toLowerCase().includes(lowercasedSearch)) {
         return true;
@@ -75,9 +87,9 @@ const Departments = () => {
   }, [searchTerm, departments]);
 
   // Update filtered departments when departments change
-  useEffect(() => {
-    setFilteredDepartments(departments);
-  }, [departments]);
+  // useEffect(() => {
+  //   setFilteredDepartments(departments);
+  // }, [departments]);
 
   // Calculate total pages
   const totalPages = Math.max(
@@ -97,6 +109,16 @@ const Departments = () => {
       setCurrentPage(1);
     }
   }, [totalPages, currentPage]);
+
+  if(!departments || departmentsError){
+    return (
+      <ErrorMessage
+        title="Error Loading Employee Data"
+        error={departmentsError}
+        refetchFn={refetchDepartments}
+      />
+    );
+  }
 
   return (
     <main>
@@ -129,7 +151,7 @@ const Departments = () => {
         ) : (
           <div className="w-full bg-slate-200 flex items-center justify-center h-96 text-rgtpurple font-semibold">
             <p>
-              {departments.length === 0
+              {departments?.length === 0
                 ? "No departments available"
                 : "No departments match your search"}
             </p>

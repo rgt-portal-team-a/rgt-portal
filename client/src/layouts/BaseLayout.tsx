@@ -5,7 +5,7 @@ import { SideBar } from "@/components/SideBar/SideBar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthContextProvider } from "../hooks/useAuthContextProvider";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { useInitializeSharedData } from "@/hooks/useInitializeSharedData";
+import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 import { useNotifications } from "@/api/query-hooks/notification";
 import { NotificationContainer } from "@/components/common/NotificationsContainer";
 import WithRole from "@/common/WithRole";
@@ -25,16 +25,12 @@ import HrMobileBottomBar from "@/components/SideBar/HrMobileBottomBar";
 
 export const BaseLayout = () => {
   const { currentUser: user, logout } = useAuthContextProvider();
-  const {
-    isDepartmentsLoading,
-    isDepartmentsError,
-    refetchDepartments,
-    departmentsError,
-    isEmployeesLoading,
-    isEmployeesError,
-    refetchEmployees,
-    employeesError,
-  } = useInitializeSharedData();
+  // const {
+  //   isDepartmentsLoading,
+  //   isDepartmentsError,
+  //   refetchDepartments,
+  //   departmentsError
+  // } = useInitializeSharedData();
   const { unreadCount } = useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
@@ -106,37 +102,37 @@ export const BaseLayout = () => {
     debouncedFetchSearchResults(query);
   };
 
-  if (isDepartmentsLoading || isEmployeesLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner label="Fetching Shared Data..." size={60} />
-      </div>
-    );
-  }
+  // if (isDepartmentsLoading || isEmployeesLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen">
+  //       <LoadingSpinner label="Fetching Shared Data..." size={60} />
+  //     </div>
+  //   );
+  // }
 
-  if (isDepartmentsError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <ErrorMessage
-          title="Error Loading Shared Data"
-          error={departmentsError}
-          refetchFn={refetchDepartments}
-        />
-      </div>
-    );
-  }
+  // if (isDepartmentsError) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen">
+  //       <ErrorMessage
+  //         title="Error Loading Shared Data"
+  //         error={departmentsError}
+  //         refetchFn={refetchDepartments}
+  //       />
+  //     </div>
+  //   );
+  // }
 
-  if (isEmployeesError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <ErrorMessage
-          title="Error Loading Shared Data"
-          error={employeesError}
-          refetchFn={refetchEmployees}
-        />
-      </div>
-    );
-  }
+  // if (isEmployeesError) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen">
+  //       <ErrorMessage
+  //         title="Error Loading Shared Data"
+  //         error={employeesError}
+  //         refetchFn={refetchEmployees}
+  //       />
+  //     </div>
+  //   );
+  // }
 
   const handleLogout = async () => {
     setLoggingOut(true);

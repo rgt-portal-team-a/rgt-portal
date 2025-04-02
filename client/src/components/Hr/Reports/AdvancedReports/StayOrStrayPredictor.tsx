@@ -1,21 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { LineChart, Line } from "recharts";
-import { PieChart, Pie, Cell } from "recharts";
 import { RefreshCw, Loader2, AlertCircle } from "lucide-react";
 import { Employee, WorkType } from "@/types/employee";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { usePredictAttrition } from "@/api/query-hooks/ai.hooks";
 import { AttritionRequestInterface, AttritionResponseDto } from "@/types/ai";
 import { WORK_TYPES } from "@/constants";
@@ -32,7 +20,14 @@ export const StayOrStrayPredictor = () => {
     null
   );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const { employees } = useSelector((state: RootState) => state.sharedState);
+  const {
+    data: employees,
+    isLoading: isEmployeesLoading,
+    isError: isEmployeesError,
+    error: employeeError,
+    refetch: refetchEmployees,
+  } = useAllEmployees({}, {});
+
   const [predictionResult, setPredictionResult] = useState<AttritionResponseDto | null>(null);
 
   const { mutate: predictAttrition, isPending } = usePredictAttrition();
@@ -184,7 +179,7 @@ export const StayOrStrayPredictor = () => {
                   searchResults.map((employee) => (
                     <div
                       key={employee.id}
-                      className="p-2 w-full flex hover:bg-gray-100 cursor-pointer text-sm text-slate-500 font-semibold text-wrap block justify-between"
+                      className="p-2 w-full flex hover:bg-gray-100 cursor-pointer text-sm text-slate-500 font-semibold text-wrap justify-between"
                       onClick={() => handleEmployeeSelect(employee)}
                     >
                       <span>

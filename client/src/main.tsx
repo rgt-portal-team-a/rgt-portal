@@ -18,9 +18,7 @@ createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <AuthContextProvider>
           <TooltipProvider>
-            {/* <div className="" > */}
             <App />
-            {/* </div> */}
             <Toaster position="bottom-right" />
           </TooltipProvider>
         </AuthContextProvider>
