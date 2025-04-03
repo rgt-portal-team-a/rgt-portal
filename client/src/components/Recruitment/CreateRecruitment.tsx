@@ -7,7 +7,7 @@ import { SideModal } from "@/components/ui/side-dialog";
 import { recruitmentSchema } from "@/lib/recruitmentSchema";
 import { RecruitmentType } from "@/lib/enums";
 import { buildInitialValues, buildValidationSchema } from "@/lib/utils";
-import { renderField } from "./SchemaField";
+import { ExtractedCvData, renderField } from "./SchemaField";
 import { FileUploadService } from "@/api/services/file.service";
 import { employeeService } from "@/api/services/employee.service";
 import { toast } from "@/hooks/use-toast";
@@ -60,6 +60,12 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     enabled: isOpen,
     refetchOnWindowFocus: false,
   });
+
+  const [extractedData, setExtractedData] = useState<ExtractedCvData | null>(null);
+
+  const handleExtractedData = (data: ExtractedCvData) => {
+    setExtractedData(data);
+  };
 
   const filteredFields = useMemo(() => {
     return fields.filter((field: any) => {
@@ -192,7 +198,9 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         }
       });
 
-      // Construct recruitment data
+      console.log(extractedData);
+
+      // Construct recruitment data and add any other data that is not in the form but is in the extracted CV information
       const recruitmentData: CreateRecruitmentDto = {
         name: `${values.firstName} ${values.lastName}`,
         email: values.email,
@@ -212,6 +220,21 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
           : {
               position: values.position,
             }),
+        //  extracted CV data if available
+        ...(extractedData && {
+          programOfStudy: values.programOfStudy || extractedData?.programOfStudy,
+          currentTitle: extractedData?.currentTitle,
+          highestDegree: extractedData?.highestDegree,
+          graduationYear: extractedData?.graduationYear,
+          technicalSkills: extractedData?.technicalSkills,
+          programmingLanguages: extractedData?.programmingLanguages,
+          toolsAndTechnologies: extractedData?.toolsAndTechnologies,
+          softSkills: extractedData?.softSkills,
+          industries: extractedData?.industries,
+          certifications: extractedData?.certifications,
+          keyProjects: extractedData?.keyProjects,
+          recentAchievements: extractedData?.recentAchievements,
+        }),
       };
 
       await createRecruitmentMutation.mutateAsync(recruitmentData);
@@ -327,7 +350,8 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                             ...(field.name === "asignee" && {
                               options: assigneeOptions,
                             }),
-                          })}
+                          }, handleExtractedData)}
+
                           {(field.name === "cv" || field.name === "photo") &&
                             renderUploadStatus(field.name as "cv" | "photo")}
                           <ErrorMessage name={field.name}>

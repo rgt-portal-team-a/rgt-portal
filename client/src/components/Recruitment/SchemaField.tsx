@@ -13,7 +13,7 @@ import {
 import { FormField } from "@/types/recruitment";
 import { useExtractCvDetails } from "@/hooks/useRecruitment";
 
-interface ExtractedCvData {
+export interface ExtractedCvData {
   name?: string;
   email?: string;
   phoneNumber?: string;
@@ -26,7 +26,8 @@ interface ExtractedCvData {
 export const renderField = (
   field: FormField,
   { values, touched, errors, setFieldValue }: any,
-  additionalProps: Record<string, any> = {}
+  additionalProps: Record<string, any> = {},
+  setExtractedData?: (data: ExtractedCvData) => void
 ) => {
   const extractCvMutation = useExtractCvDetails();
 
@@ -45,6 +46,7 @@ export const renderField = (
           console.log("Extracted CV data:", extractedData);
 
           if (extractedData) {
+            setExtractedData?.(extractedData);
             // Handle name splitting
             if (extractedData.name) {
               const nameParts = extractedData.name.split(" ");
@@ -133,7 +135,7 @@ export const renderField = (
           <div className="bg-gray-100 rounded-md p-2 text-center text-gray-500">
             {values[field.name]
               ? typeof values[field.name] === "string"
-                ? values[field.name]
+                ? values[field.name].substring(values[field.name].lastIndexOf("/") + 1)
                 : (values[field.name] as File)?.name
               : field.placeholder || `Upload ${field.label}`}
           </div>

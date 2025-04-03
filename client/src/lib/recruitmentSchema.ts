@@ -47,6 +47,20 @@ export const recruitmentSchema: any = [
     required: true,
   },
   {
+    name: "programOfStudy",
+    label: "Program of Study",
+    type: "text",
+    gridColumn: "half",
+    required: false,
+  },
+  {
+    name: "graduationYear",
+    label: "Graduation Year",
+    type: "number",
+    gridColumn: "half",
+    required: false,
+  },
+  {
     name: "source",
     label: "Source",
     type: "select",
@@ -60,6 +74,7 @@ export const recruitmentSchema: any = [
     type: "select",
     // type: "asyncSelect", 
     gridColumn: "full",
+    required: false,
   },
   {
     name: "university",
@@ -68,7 +83,7 @@ export const recruitmentSchema: any = [
     options: [
       "KNUST",
       "ASHESI",
-      "LEGON",
+      "University of Ghana",
       "UDS",
       "UCC",
       "UEW",
@@ -88,7 +103,7 @@ export const recruitmentSchema: any = [
     type: "select",
     options: ["UI/UX", "FullStack", "Data Analytics", "AI/LLM", "PM", "QA", "DevOps","Blockchain", "Mobile Development"],
     gridColumn: "full",
-    required: true,
+    // required: true,
     conditionalRender: (type: string) => type === RecruitmentType.EMPLOYEE,
   },
   {

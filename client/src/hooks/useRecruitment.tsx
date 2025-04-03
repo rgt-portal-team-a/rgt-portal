@@ -21,6 +21,8 @@ export interface Recruitment {
   university?: string;
   position?: string;
   source?: string;
+  programOfStudy?: string;
+  graduationYear?: number;
   failStage?: string;
   failReason?: string;
   notes?: string;

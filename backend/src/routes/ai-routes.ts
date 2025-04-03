@@ -31,14 +31,6 @@ aiRouter.post(
 );
 
 aiRouter.post(
-  "/predict-match",
-  authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
-  validateDto(CandidateMatchRequestDto),
-  aiController.predictMatch.bind(aiController)
-);
-
-aiRouter.post(
   "/extract-cv",
   authMiddleware.isAuthenticated,
   authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),

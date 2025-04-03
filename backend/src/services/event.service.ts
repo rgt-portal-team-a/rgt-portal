@@ -147,31 +147,35 @@ export class EventService {
 
       await DatabaseService.commitTransaction(queryRunner);
 
-      // Get all employees for notifications
-      const allEmployees = await this.employeeRepository.find({
-        relations: ["user"],
-        where: {
-          id: Not(organizer.id),
-        },
-      });
-
-      // Add notification job to queue
+      // Send notification job to queue with minimal payload
       await this.queueService.addJob(
         QueueName.NOTIFICATIONS,
         JobType.EVENT_CREATED,
         {
-          event: savedEvent,
-          employees: allEmployees
+          eventId: savedEvent.id,
+          organizerId: organizer.id
         }
       );
 
       return this.findById(savedEvent.id) as Promise<Event>;
     } catch (error) {
       if (queryRunner) {
-        await DatabaseService.rollbackTransaction(queryRunner);
+        try {
+          await DatabaseService.rollbackTransaction(queryRunner);
+        } catch (rollbackError) {
+          this.logger.error("Error rolling back transaction:", rollbackError);
+        }
       }
       this.logger.error("Error creating event:", error);
       throw error;
+    } finally {
+      if (queryRunner) {
+        try {
+          await queryRunner.release();
+        } catch (error) {
+          this.logger.error("Error releasing query runner:", error);
+        }
+      }
     }
   }
 
@@ -211,22 +215,15 @@ export class EventService {
 
       await DatabaseService.commitTransaction(queryRunner);
 
-      // Get updated event with participants
+      // Get updated event
       const updatedEvent = await this.findById(id);
       if (updatedEvent) {
-        // Get all participants
-        const participants = await this.participantRepository.find({
-          where: { eventId: id },
-          relations: ["employee", "employee.user"],
-        });
-
-        // Send update notification to all participants
+        // Send update notification to queue with minimal payload
         await this.queueService.addJob(
           QueueName.NOTIFICATIONS,
           JobType.EVENT_UPDATED,
           {
-            event: updatedEvent,
-            participants: participants.map(p => p.employee)
+            eventId: updatedEvent.id
           }
         );
       }
@@ -234,10 +231,22 @@ export class EventService {
       return updatedEvent || event;
     } catch (error) {
       if (queryRunner) {
-        await DatabaseService.rollbackTransaction(queryRunner);
+        try {
+          await DatabaseService.rollbackTransaction(queryRunner);
+        } catch (rollbackError) {
+          this.logger.error("Error rolling back transaction:", rollbackError);
+        }
       }
       this.logger.error(`Error updating event with ID ${id}:`, error);
       throw error;
+    } finally {
+      if (queryRunner) {
+        try {
+          await queryRunner.release();
+        } catch (error) {
+          this.logger.error("Error releasing query runner:", error);
+        }
+      }
     }
   }
 
