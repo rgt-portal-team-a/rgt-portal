@@ -125,16 +125,16 @@ const Upcoming_SpecialCard = () => {
               className={`flex flex-col md:grid grid-cols-2 gap-2 transition-all duration-300 ease-in max-h-[400px] ${
                 showMoreAnnouncements
                   ? "h-[234px] overflow-hidden"
-                  : "overflow-y-scroll"
+                  : " h-[240px] overflow-y-scroll"
               }`}
             >
               {announcements.length > 0 ? (
                 announcements.map((announcement) => (
-                  <AnnouncementCard
-                    key={announcement.id}
-                    date={new Date(announcement.startTime)}
-                    title={announcement.title}
-                  />
+                    <AnnouncementCard
+                      key={announcement.id}
+                      date={new Date(announcement.startTime)}
+                      title={announcement.title}
+                    />
                 ))
               ) : (
                 <p className="text-gray-500 text-center col-span-full">

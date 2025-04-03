@@ -20,7 +20,7 @@ import PhotoIcon from "@/assets/icons/PhotoIcon";
 import "react-toastify/dist/ReactToastify.css";
 import toastService from "@/api/services/toast.service";
 
-interface UploadStatus {
+export interface UploadStatus {
   images?: "idle" | "loading" | "success" | "error";
   videos?: "idle" | "loading" | "success" | "error";
 }
