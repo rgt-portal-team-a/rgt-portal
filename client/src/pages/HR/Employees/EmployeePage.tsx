@@ -11,7 +11,6 @@ import {
 import "@xyflow/react/dist/style.css";
 import { Employee } from "@/types/employee"; 
 import {
-  initialNodes,
   initialEdges,
   customEdgeStyle,
   nodeStyles,

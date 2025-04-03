@@ -1,6 +1,6 @@
 import { createApiClient } from '../axios';
 import { ApiResponse } from '../types';
-import { CreateEventDto, Event } from '@/types/events';
+import { CreateEventDto, Event, DeleteEventResponse } from '@/types/events';
 
 
 
@@ -24,6 +24,11 @@ export const eventService =  {
     createEvent: async (data: CreateEventDto): Promise<ApiResponse<Event>> => {
         console.log("Creating event with data", data)
         const response = await eventApiClient.post<ApiResponse<Event>>("/",data );
+        return response.data;
+    },
+
+    deleteEvent: async (id: number): Promise<DeleteEventResponse> => {
+        const response = await eventApiClient.delete<DeleteEventResponse>(`/${id}`);
         return response.data;
     }
 }

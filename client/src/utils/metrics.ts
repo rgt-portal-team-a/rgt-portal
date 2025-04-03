@@ -47,9 +47,9 @@ export const calculateMetrics = ({
     ];
   }
 
-  const safeEmployees = employees && employees.length > 0 ? employees : [];
-  const safePtoRequests = ptoRequests && ptoRequests.length > 0 ? ptoRequests : [];
-  const safeRecruitments = recruitments && recruitments.length > 0 ? recruitments : [];
+  const safeEmployees = employees || [];
+  const safePtoRequests = ptoRequests || [];
+  const safeRecruitments = recruitments || [];
 
   if (safeEmployees.length === 0 && safePtoRequests.length === 0) {
     return [
@@ -76,7 +76,7 @@ export const calculateMetrics = ({
         request.status !== PTOSTATUS_TYPES.MANAGER_DECLINED && 
         request.status !== PTOSTATUS_TYPES.HR_DECLINED
     ) ? count + 1 : count;
-}, 0);
+  }, 0);
 
 
 

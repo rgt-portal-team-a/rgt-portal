@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,8 @@ import GridIcon from "@/assets/icons/GridIcon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import EmployeesTableSkeleton from "@/components/Hr/Employees/EmployeesTableSkeleton";
+import StepProgress from "@/components/common/StepProgress";
+
 
 type ViewMode = "table" | "grid";
 
@@ -41,9 +43,27 @@ export const ManageEmployees: React.FC = () => {
   const [gridSearchTerm, setGridSearchTerm] = useState("");
   const [searchFieldSearchTerm, setSearchFieldSearchTerm] = useState("");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(
+    window.innerWidth >= 768 ? 6 : 4
+  );
+
   const handleViewModeChange = useCallback((mode: ViewMode) => {
     setViewMode(mode);
   }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(window.innerWidth >= 768 ? 6 : 4);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Add useEffect to reset page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [gridSearchTerm, viewMode]);
 
   // Employee Data Fetching - with staleTime to prevent unnecessary refetches
   const {
@@ -191,6 +211,18 @@ export const ManageEmployees: React.FC = () => {
     }
   );
 
+  const paginatedGridData = useMemo(() => {
+    if (!filteredEmployees || filteredEmployees.length === 0) return [];
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredEmployees.slice(startIndex, endIndex);
+  }, [filteredEmployees, currentPage, itemsPerPage]);
+
+  // Add total pages calculation
+  const totalGridPages = useMemo(() => {
+    return Math.ceil((filteredEmployees?.length || 0) / itemsPerPage);
+  }, [filteredEmployees, itemsPerPage]);
+
   // Render Methods
   const renderEmployeeContent = useCallback(() => {
     if (isEmployeesLoading) {
@@ -238,10 +270,17 @@ export const ManageEmployees: React.FC = () => {
     ) : (
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-4">
-          {filteredEmployees.map((employee) => (
+          {paginatedGridData.map((employee) => (
             <EmployeeCard key={employee.id} employee={employee} />
           ))}
         </div>
+        {totalGridPages > 1 && (
+          <StepProgress
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalGridPages}
+          />
+        )}
       </div>
     );
   }, [
@@ -249,15 +288,22 @@ export const ManageEmployees: React.FC = () => {
     isEmployeesError,
     employees,
     viewMode,
-    visibleColumns,
-    searchByField,
+    stableVisibleColumns,
+    stableSearchByField,
     searchTerm,
-    filteredEmployees,
+    paginatedGridData, 
+    totalGridPages,
+    currentPage,
+    itemsPerPage,
   ]);
 
   const memoizedRenderEmployeeContent = useMemo(() => {
     return renderEmployeeContent();
   }, [
+    renderEmployeeContent, 
+    currentPage,
+    itemsPerPage,
+    gridSearchTerm,
     isEmployeesLoading,
     isEmployeesError,
     employees,
@@ -265,7 +311,7 @@ export const ManageEmployees: React.FC = () => {
     visibleColumns,
     searchByField,
     searchTerm,
-    gridSearchTerm,
+    totalGridPages,
   ]);
 
   return (
