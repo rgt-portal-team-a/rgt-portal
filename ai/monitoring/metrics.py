@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict
 from sqlalchemy import func, case
-from .database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
+from app_scripts.database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
 
 
 class MetricsCollector:
