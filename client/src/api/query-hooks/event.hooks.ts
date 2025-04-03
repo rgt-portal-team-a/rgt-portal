@@ -38,3 +38,27 @@ export const useCreateEvent = () => {
     },
   });
 };
+
+
+export const useDeleteEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ( id:  number ) =>
+      eventService.deleteEvent(id),
+    onSuccess: (data, _variables) => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast({
+        title: "Success",
+        description:  data.message || "Event deleted successfully",
+        });
+      },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      })
+    },
+  });
+};

@@ -22,6 +22,7 @@ interface IFeed {
 interface IAnnouncementCard {
   title: string;
   date: Date;
+  id: number;
 }
 
 interface IAvtrComponent {
@@ -57,8 +58,8 @@ interface EmployeeCardType {
 
 export type EmployeeType = (typeof EMPLOYEE_TYPES)[keyof typeof EMPLOYEE_TYPES];
 export type WorkType = (typeof WORK_TYPES)[keyof typeof WORK_TYPES];
-export type LeaveType = (typeof LEAVE_TYPES)[keyof typeof LEAVE_TYPES];
 export type RoleType = (typeof ROLE_TYPES)[keyof typeof ROLE_TYPES];
+export type LeaveType = (typeof LEAVE_TYPES)[keyof typeof LEAVE_TYPES];
 
 
 

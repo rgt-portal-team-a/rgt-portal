@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Yup from "yup";
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Field, Form as FormikForm, Formik, FieldInputProps } from "formik";
@@ -11,7 +12,8 @@ import { GoogleAuthButton } from "@/components/Login/GoogleAuthButton";
 import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import rgtpatternimg1 from "@/assets/images/rgtpatternimg1.svg";
 import loginMainImg from "@/assets/images/WomanAndBackground.png";
-import { useEffect, useState } from 'react';
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+
 
 interface FormValues {
   email: string;
@@ -27,6 +29,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loginError, setLoginError] = useState<string | null>(null);
+  const { currentUser } = useAuthContextProvider();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -42,6 +45,13 @@ const Login = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [location]);
+
+  if (currentUser) {
+    const from = location.state?.from?.pathname || "/emp/feed";
+    navigate(from, { replace: true });
+    return;
+  }
+
 
   const { mutate, isPending } = useLogin({
     onSuccess: (data: any) => {

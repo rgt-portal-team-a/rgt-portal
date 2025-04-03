@@ -21,7 +21,6 @@ export const HRDashboard = () => {
     refetch: refetchEmployees,
   } = useAllEmployees({}, {});
 
-  // const { data: ptoRequestData, isLoading: isPTOLoading } = useGetAllPTOS();
   const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } = useRequestPto();
   const { data: recruitmentsData, isLoading: isLoadingRecruitments } = useRecruitments();
 
@@ -29,17 +28,16 @@ export const HRDashboard = () => {
   const metrics: IMetricCard[] = useMemo(() => {
     const hasEmployeeData = employeeData && employeeData.length > 0;
     const hasPTOData = ptoRequestData && ptoRequestData.length > 0;
-    const hasRecruitmentData =  recruitmentsData?.recruitments && recruitmentsData?.recruitments.length > 0;
+    const hasRecruitmentData =
+      recruitmentsData?.recruitments &&
+      recruitmentsData?.recruitments.length > 0;
 
     const shouldShowLoading =
-      isEmployeesLoading &&
-      !hasEmployeeData &&
-      isPTOLoading &&
-      !hasPTOData &&
-      !hasRecruitmentData &&
-      isLoadingRecruitments;
+      (isEmployeesLoading && !hasEmployeeData) ||
+      (isPTOLoading && !hasPTOData) ||
+      (isLoadingRecruitments && !hasRecruitmentData);
 
-      console.log("Recruitments.recruitments", recruitmentsData?.recruitments)
+    console.log("Recruitments.recruitments", recruitmentsData?.recruitments);
 
     return calculateMetrics({
       employees: employeeData,
@@ -47,7 +45,14 @@ export const HRDashboard = () => {
       ptoRequests: ptoRequestData,
       recruitments: recruitmentsData?.recruitments,
     });
-  }, [employeeData, isEmployeesLoading, ptoRequestData, isPTOLoading]);
+  }, [
+    employeeData,
+    isEmployeesLoading,
+    ptoRequestData,
+    isPTOLoading,
+    recruitmentsData?.recruitments,
+    isLoadingRecruitments,
+  ]);
 
   return (
     <div className="flex flex-col-reverse gap-6 md:flex-row h-full w-full">
