@@ -16,11 +16,6 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app
-app = FastAPI(title="Candidate-Job Matcher API",
-              description="API for matching candidates with job listings using NLP",
-              version="1.0.0")
-
 # Initialize the matcher
 matcher = CandidateJobMatcher()
 
@@ -187,7 +182,4 @@ def clean_nan_values(obj):
         return None
     else:
         return obj
-if __name__ == "__main__":
-    # Run the server
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+
