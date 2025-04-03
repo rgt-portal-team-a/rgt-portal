@@ -40,6 +40,47 @@ export class AiController {
     }
   }
 
+  // GENERATE REPORT FOR EMPLOYEE OR RECRUITMENT USING THE AI ENDPOINT
+  async generateReport(req: Request, res: Response): Promise<void> {
+    const { type, format } = req.query;
+    try {
+      const response = await axios.post<any>(`${this.aiEndpoint}/${type}?format=${format || "html"}`, {
+        format,
+      });
+      res.status(200).json(response.data);
+    } catch (error) {
+      this.handleError(error, res);
+    }
+  }
+
+  // KAIRO CHATBOT API WHICH TAKES A QUERY FROM FORMS AND RETURNS A RESPONSE
+  async kairoChatbot(req: Request, res: Response): Promise<void> {
+    try {
+      const { query } = req.body;
+      if (!query) {
+        throw new BadRequestError("Query is required");
+      }
+      const formData = new FormData();
+      formData.append("query", query);
+      formData.append("api_key", process.env.KAIRO_API_KEY || "");
+
+      const response = await axios.post<any>(`${this.aiEndpoint}/query`, formData, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+      console.log('====================================');
+      console.log(response.data);
+      console.log('====================================');
+      res.status(200).json(response.data);
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      this.handleError(error, res);
+    }
+  }
+
   static async predictMatch(candidate_id: string): Promise<void> {
     try {
       const candidate = await AppDataSource.getRepository(Recruitment).findOne({
