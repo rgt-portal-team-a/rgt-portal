@@ -671,15 +671,14 @@ const CreatePost = () => {
           </div>
         </div>
         <button
-          // className="flex-1 bg-green-600"
-          className="flex-1 flex bg-purpleaccent2 rounded-br-2xl hover:bg-[#dfd2f8] transition-colors duration-300 ease-in cursor-pointer items-center justify-center"
+          className="flex-1 flex bg-purpleaccent2 rounded-br-2xl hover:bg-[#dfd2f8] transition-colors duration-300 ease-in cursor-pointer items-center justify-center group"
           onClick={submitPost}
           disabled={isSubmitting}
         >
           {isSubmitting ? (
             <Loader size={20} className="animate-spin text-slate-500" />
           ) : (
-            <SendIcon className="p-4 rounded-br-2xl cursor-pointer w-16 h-16  hover:fill-rgtpink transition-all rotate-45 duration-300 ease-in fill-[#2D264B]" />
+            <SendIcon className="p-4 rounded-br-2xl cursor-pointer w-16 h-16 fill-[#2D264B] group-hover:fill-rgtpink transition-colors duration-300 ease-in rotate-45" />
           )}
         </button>
       </div>
