@@ -20,7 +20,7 @@ const Upcoming_SpecialCard = () => {
     refetch: refetchEvents,
   } = useAllEvents();
 
-  if (!eventsData || !eventsData.success || isEventsError) {
+  if ( isEventsError) {
     console.error("Events Data Error", eventsError);
     return (
       <ErrorMessage
@@ -31,18 +31,18 @@ const Upcoming_SpecialCard = () => {
     );
   }
 
-  const processedEvents = eventsData.data.map((event) => ({
+  const processedEvents = eventsData?.data.map((event) => ({
     ...event,
     startTime: new Date(event.startTime),
     endTime: new Date(event.endTime),
   }));
 
   // Separate events by type
-  const specialEvents = processedEvents.filter(
+  const specialEvents = processedEvents?.filter(
     (event) => event.type === "holiday" || event.type === "birthday"
   );
 
-  const announcements = processedEvents.filter(
+  const announcements = processedEvents?.filter(
     (event) => event.type === "announcement"
   );
 
@@ -61,7 +61,7 @@ const Upcoming_SpecialCard = () => {
           </p>
 
           <EnhancedCalendar
-            events={processedEvents}
+            events={processedEvents || []}
             selected={selectedDate}
             onSelect={setSelectedDate}
           />
@@ -89,13 +89,14 @@ const Upcoming_SpecialCard = () => {
                   : "h-[400px] overflow-y-scroll"
               }`}
             >
-              {specialEvents.length > 0 ? (
+              {specialEvents && specialEvents.length > 0 ? (
                 specialEvents.map((event, index) => (
                   <EventList
                     key={index}
                     event={event.type === "holiday" ? "holiday" : "birthday"}
                     date={event.startTime.toLocaleDateString()}
                     title={event.title}
+                    id={event.id}
                     className={`${
                       specialEvents.length - 1 === index ? "border-b-0" : ""
                     }`}
@@ -128,10 +129,11 @@ const Upcoming_SpecialCard = () => {
                   : "overflow-y-scroll"
               }`}
             >
-              {announcements.length > 0 ? (
+              {announcements && announcements.length > 0 ? (
                 announcements.map((announcement) => (
                   <AnnouncementCard
                     key={announcement.id}
+                    id={announcement.id}
                     date={new Date(announcement.startTime)}
                     title={announcement.title}
                   />
