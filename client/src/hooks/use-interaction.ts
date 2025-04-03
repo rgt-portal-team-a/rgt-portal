@@ -1,7 +1,8 @@
 import { PostInteractionService } from "@/api/services/post-interaction.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "./use-toast";
+
 import { useAuthContextProvider } from "./useAuthContextProvider";
+import toastService from "@/api/services/toast.service";
 
 export const useInteraction = (
   postId?: number,
@@ -11,17 +12,23 @@ export const useInteraction = (
   const queryClient = useQueryClient();
   const { currentUser } = useAuthContextProvider();
 
-  // if (postId === undefined) {
-  //   throw new Error("postId is undefined");
-  // }
-
   const {
     data: stats,
     refetch: refetchStats,
     isLoading,
   } = useQuery({
     queryKey: ["postStats", postId],
-    queryFn: () => PostInteractionService.getStats(postId ?? 0),
+    queryFn: async () => {
+      try {
+        const data = await PostInteractionService.getStats(postId ?? 0);
+        // toastService.success("Post stats fetched successfully");
+        return data;
+      } catch (error) {
+        // toastService.error("Failed to fetch post stats");
+        console.error("Failed to fetch post stats", error);
+        throw error;
+      }
+    },
     enabled: !!postId,
   });
 
@@ -31,7 +38,16 @@ export const useInteraction = (
     isLoading: isCommentsRepliesLoading,
   } = useQuery({
     queryKey: ["commentReplies", commentId],
-    queryFn: () => PostInteractionService.fetchCommentReplies(commentId ?? 0),
+    queryFn: async () => {
+      try {
+        const data = await PostInteractionService.fetchCommentReplies(commentId ?? 0);
+        // toastService.success("Comment replies fetched successfully");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to fetch comment replies");
+        throw error;
+      }
+    },
   });
 
   const {
@@ -40,20 +56,36 @@ export const useInteraction = (
     isLoading: isReplyRepliesLoading,
   } = useQuery({
     queryKey: ["replyReplies", replyId],
-    queryFn: () => PostInteractionService.fetchReplyReplies(replyId ?? 0),
+    queryFn: async () => {
+      try {
+        const data = await PostInteractionService.fetchReplyReplies(replyId ?? 0);
+        // toastService.success("Reply replies fetched successfully");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to fetch comment replies");
+        throw error;
+      }
+    },
     enabled: !!replyId,
   });
 
   const commentMutation = useMutation({
-    mutationFn: (newComment: IComment) =>
-      PostInteractionService.commentOnPost(postId, newComment.content),
+    mutationFn: async (newComment: IComment) => {
+      try {
+        const data = await PostInteractionService.commentOnPost(postId, newComment.content);
+        toastService.success("Comment added successfully");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to add comment");
+        throw error;
+      }
+    },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["postStats", postId] });
       const previousStats = queryClient.getQueryData<IStats>([
         "postStats",
         postId,
       ]);
-      // Optimistically update the comment count
       queryClient.setQueryData(
         ["postStats", postId],
         (old: IStats | undefined) => ({
@@ -77,8 +109,16 @@ export const useInteraction = (
   });
 
   const likeToggleMutation = useMutation({
-    mutationFn: (liked: boolean) =>
-      PostInteractionService.likePost(postId, liked),
+    mutationFn: async (liked: boolean) => {
+      try {
+        const data = await PostInteractionService.likePost(postId, liked);
+        // toastService.success(liked ? "Post liked successfully" : "Post unliked successfully");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to toggle like on post");
+        throw error;
+      }
+    },
     onMutate: async (liked: boolean) => {
       await queryClient.cancelQueries({ queryKey: ["postStats", postId] });
       const previousStats = queryClient.getQueryData<IStats>([
@@ -108,31 +148,31 @@ export const useInteraction = (
   });
 
   const likeCommentMutation = useMutation({
-    mutationFn: (commentId: number) =>
-      PostInteractionService.likeComment(commentId),
+    mutationFn: async (commentId: number) => {
+      try {
+        const data = await PostInteractionService.likeComment(commentId);
+        // toastService.success("Comment liked successfully");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to like comment");
+        throw error;
+      }
+    },
     onMutate: async (commentId: number) => {
-      // Cancel any ongoing refetches to prevent race conditions
       await queryClient.cancelQueries({ queryKey: ["postStats", postId] });
-
-      // Snapshot the current stats
       const previousStats = queryClient.getQueryData<IStats>([
         "postStats",
         postId,
       ]);
-
-      // Optimistically update the comment likes
       queryClient.setQueryData(
         ["postStats", postId],
         (old: IStats | undefined) => {
-          // Ensure we have a valid stats object
           const currentStats = old || {
             commentsCount: 0,
             likesCount: 0,
             disLikesCount: 0,
             comments: [],
           };
-
-          // Create a new comments array with the updated likes
           const updatedComments = currentStats.comments.map((comment) =>
             comment.id === commentId
               ? {
@@ -140,12 +180,10 @@ export const useInteraction = (
                   likes: (comment.likes ?? []).some(
                     (like) => like.employeeId === currentUser?.id
                   )
-                    ? // If already liked, remove the like
-                      (comment.likes ?? []).filter(
+                    ? (comment.likes ?? []).filter(
                         (like) => like.employeeId !== currentUser?.id
                       )
-                    : // If not liked, add a new like
-                      [
+                    : [
                         ...(comment.likes ?? []),
                         {
                           employeeId: currentUser?.id,
@@ -155,69 +193,55 @@ export const useInteraction = (
                 }
               : comment
           );
-
           return {
             ...currentStats,
             comments: updatedComments,
           };
         }
       );
-
-      // Return the previous stats for potential rollback
       return { previousStats };
     },
     onError: (_err, _commentId, context) => {
-      // If the mutation fails, restore the previous stats
       queryClient.setQueryData(["postStats", postId], context?.previousStats);
-
-      // Show an error toast
-      toast({
-        title: "Error",
-        description: "Failed to like comment",
-        variant: "destructive",
-      });
+      toastService.error("Failed to like comment");
     },
     onSettled: () => {
-      // Refetch the latest stats to ensure consistency
       queryClient.invalidateQueries({ queryKey: ["postStats", postId] });
     },
   });
 
   const replyToCommentMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       commentId,
       content,
     }: {
       commentId: number;
       content: string;
       parentReplyId?: number;
-    }) => PostInteractionService.replyToComment(commentId, content),
+    }) => {
+      try {
+        const data = await PostInteractionService.replyToComment(commentId, content);
+        // toastService.success("Reply to comment successful");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to reply to comment");
+        throw error;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["commentReplies", commentId],
       });
-
-      toast({
-        title: "Success",
-        description: "Reply to comment, successfull",
-        variant: "success",
-      });
     },
-    onError: (error) => {
+    onError: () => {
       queryClient.invalidateQueries({
         queryKey: ["commentReplies", commentId],
-      });
-
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
       });
     },
   });
 
   const replyToReplyMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       replyId,
       content,
       parentReplyId,
@@ -225,7 +249,16 @@ export const useInteraction = (
       replyId: number;
       content: string;
       parentReplyId?: number;
-    }) => PostInteractionService.replyToReply(replyId, content, parentReplyId),
+    }) => {
+      try {
+        const data = await PostInteractionService.replyToReply(replyId, content, parentReplyId);
+        // toastService.success("Reply added successfully");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to add reply");
+        throw error;
+      }
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: [
@@ -233,40 +266,33 @@ export const useInteraction = (
           variables.parentReplyId || variables.replyId,
         ],
       });
-
-      toast({
-        title: "Success",
-        description: "Reply added successfully",
-        variant: "success",
-      });
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toastService.error(error.message);
     },
   });
 
   const likeReplyMutation = useMutation({
-    mutationFn: (replyId: number) => PostInteractionService.likeReply(replyId),
+    mutationFn: async (replyId: number) => {
+      try {
+        const data = await PostInteractionService.likeReply(replyId);
+        // toastService.success("Reply liked successfully");
+        return data;
+      } catch (error) {
+        toastService.error("Failed to like reply");
+        throw error;
+      }
+    },
     onMutate: async (replyId) => {
-      // Cancel any ongoing refetches
       await queryClient.cancelQueries({ queryKey: ["replyReplies", replyId] });
-
-      // Snapshot the current stats
       const previousStats = queryClient.getQueryData<IComment>([
         "replyReplies",
         replyId,
       ]);
-
-      // Optimistically update the reply likes
       queryClient.setQueryData(
         ["replyReplies", replyId],
         (old: IComment[] | undefined) => {
           if (!old) return old;
-
           return old.map((reply) =>
             reply.id === replyId
               ? {
@@ -274,12 +300,10 @@ export const useInteraction = (
                   likes: (reply.likes ?? []).some(
                     (like) => like.employeeId === currentUser?.employee.id
                   )
-                    ? // If already liked, remove the like
-                      (reply.likes ?? []).filter(
+                    ? (reply.likes ?? []).filter(
                         (like) => like.employeeId !== currentUser?.employee.id
                       )
-                    : // If not liked, add a new like
-                      [
+                    : [
                         ...(reply.likes ?? []),
                         {
                           employeeId: currentUser?.employee.id,
@@ -291,24 +315,15 @@ export const useInteraction = (
           );
         }
       );
-
       return { previousStats };
     },
     onError: (_err, _replyId, context) => {
-      // If the mutation fails, restore the previous stats
       queryClient.setQueryData(
         ["replyReplies", replyId],
         context?.previousStats
       );
-
-      toast({
-        title: "Error",
-        description: "Failed to like reply",
-        variant: "destructive",
-      });
     },
     onSettled: (_, __, replyId) => {
-      // Refetch the latest stats to ensure consistency
       queryClient.invalidateQueries({
         queryKey: ["replyReplies", replyId],
       });
@@ -341,7 +356,6 @@ export const useInteraction = (
   };
 
   const toggleCommentLike = (commentId: number | undefined) => {
-    console.log("commentId:", commentId);
     if (!commentId) return;
     likeCommentMutation.mutate(commentId);
   };
