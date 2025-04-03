@@ -8,6 +8,7 @@ import logging
 import time
 import psycopg2
 from typing import Optional
+import os
 
 Base = declarative_base()
 
@@ -44,9 +45,18 @@ class SystemMetrics(Base):
 
 
 def get_database_url(use_ssl: bool = True) -> str:
-    """Construct the database connection URL with optional SSL"""
-    from config.settings import DB_CONFIG
-    base_url = f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
+    """Construct the database connection URL from environment variables with optional SSL"""
+    # Get each value from environment variables with fallback defaults
+    db_user = os.getenv('DB_USER', 'postgres')
+    db_password = os.getenv('DB_PASSWORD', '')
+    db_host = os.getenv('DB_HOST', 'localhost')
+    db_port = os.getenv('DB_PORT', '5432')
+    db_name = os.getenv('DB_NAME', 'metrics_db')
+
+    # Construct the base URL
+    base_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+
+    # Add SSL mode if required
     return f"{base_url}?sslmode=require" if use_ssl else base_url
 
 

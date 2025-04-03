@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict
 from sqlalchemy import func, case
-from app_scripts.database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
+from .database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
 
 
 class MetricsCollector:
@@ -24,6 +24,24 @@ class MetricsCollector:
         except Exception as e:
             self.session.rollback()
             self.logger.error(f"Error tracking request: {e}")
+
+    def track_model_metrics(self, model_name: str, metrics: Dict):
+        """Track multiple metrics for a specific model"""
+        try:
+            timestamp = datetime.utcnow()
+            for metric_name, metric_value in metrics.items():
+                if metric_value is not None:  # Skip None values
+                    metric = ModelMetrics(
+                        model_name=model_name,
+                        metric_name=metric_name,
+                        metric_value=float(metric_value),
+                        timestamp=timestamp
+                    )
+                    self.session.add(metric)
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            self.logger.error(f"Error tracking model metrics: {e}")
 
     def get_model_metrics(self, hours: int = 24, model_name: str = None) -> Dict:
         """Get aggregated model metrics with advanced statistics"""

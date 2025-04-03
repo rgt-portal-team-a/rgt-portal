@@ -1,3 +1,4 @@
+# attrition/router.py
 from fastapi import APIRouter, HTTPException
 from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
 from monitoring.metrics import metrics_collector
@@ -14,25 +15,29 @@ def predict_attrition_endpoint(employee: EmployeeData):
         result = predict_attrition(employee)
         inference_time = time.time() - start_time
 
-        # Track model performance metrics
-        metrics_collector.track_model_performance(
+        # Track endpoint metrics
+        metrics_collector.track_request(
+            endpoint="/predict-attrition",
+            response_time=inference_time,
+            status_code=200
+        )
+
+        # Track model-specific metrics
+        metrics_collector.track_model_metrics(
             model_name="attrition_model",
             metrics={
-                "inference_time_sec": inference_time,
-                # Convert to float if needed
+                "inference_time": inference_time,
                 "prediction": float(result.attrition_probability),
-                "confidence": float(result.confidence) if hasattr(result, 'confidence') else 0.0
+                "confidence": float(result.confidence) if hasattr(result, 'confidence') else 0.0,
+                "actual": float(employee.attrition) if hasattr(employee, 'attrition') else None
             }
         )
 
         return result
     except Exception as e:
-        # Track failed predictions too
-        metrics_collector.track_model_performance(
-            model_name="attrition_model",
-            metrics={
-                "error": 1.0,
-                "inference_time_sec": time.time() - start_time
-            }
+        metrics_collector.track_request(
+            endpoint="/predict-attrition",
+            response_time=time.time() - start_time,
+            status_code=500
         )
         raise HTTPException(status_code=500, detail=str(e))
