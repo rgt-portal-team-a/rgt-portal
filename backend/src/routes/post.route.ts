@@ -25,16 +25,27 @@ postRouter.put(
   postController.updatePost,
 );
 
+// postRouter.delete(
+//   "/:id",
+//   authMiddleware.isAuthenticated,
+//   (req, res, next) => {
+//     const allowedRoles = [Roles.MODERATOR, Roles.ADMIN];
+//     if (authMiddleware.hasRole(allowedRoles)(req, res, () => true)) {
+//       return next();
+//     }
+//     next();
+//   },
+//   postController.deletePost,
+// );
+
 postRouter.delete(
   "/:id",
   authMiddleware.isAuthenticated,
-  (req, res, next) => {
-    const allowedRoles = [Roles.MODERATOR, Roles.ADMIN];
-    if (authMiddleware.hasRole(allowedRoles)(req, res, () => true)) {
-      return next();
-    }
-    next();
-  },
+  // Proper middleware chaining
+  authMiddleware.hasRoleOrIsAuthor([Roles.MODERATOR, Roles.ADMIN], async (req) => {
+    const post = await postController.findPostById(parseInt(req.params.id));
+    return post?.authorId || -1;
+  }),
   postController.deletePost,
 );
 
