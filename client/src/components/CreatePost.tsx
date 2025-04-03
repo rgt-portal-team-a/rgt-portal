@@ -16,7 +16,6 @@ import DatePicker from "./common/DatePicker";
 import PollIcon from "@/assets/icons/PollIcon";
 import VideoIcon from "@/assets/icons/VideoIcon";
 import PhotoIcon from "@/assets/icons/PhotoIcon";
-import { toast } from "react-toastify";
 // import Globe from "@/assets/icons/Globe";
 import "react-toastify/dist/ReactToastify.css";
 import toastService from "@/api/services/toast.service";
@@ -177,7 +176,7 @@ const CreatePost = () => {
     },
     onError: (error: Error) => {
       setSubmissionStatus("error");
-      toast.error("Failed to create post: " + error.message);
+      toastService.error("Failed to create post: " + error.message);
     },
   });
 
