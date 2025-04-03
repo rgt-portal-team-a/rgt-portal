@@ -72,6 +72,11 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
           ? fetchError
           : new Error("Failed to fetch user")
       );
+      toast({
+        title: "Authentication Error",
+        description: "Failed to authenticate. Please try logging in again.",
+        variant: "destructive",
+      });
       setIsLoading(false);
     } else if (status === "pending") {
       setIsLoading(true);
@@ -90,13 +95,7 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
     setIsVerifying,
   };
 
-  if (isLoading && !currentUser) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner label="Fetching User data..." size={60} />
-      </div>
-    );
-  }
+
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

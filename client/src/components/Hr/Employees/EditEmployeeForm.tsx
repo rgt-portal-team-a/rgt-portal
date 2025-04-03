@@ -39,8 +39,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useDepartments } from "@/api/query-hooks/department.hooks";
 import "react-country-state-city/dist/react-country-state-city.css";
 import { Country, State } from "react-country-state-city/dist/esm/types";
 import SkillsSelector from "./SkillsSelector";
@@ -67,9 +66,13 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
   isOpen,
   onClose,
 }) => {
-    const { departments } = useSelector(
-        (state: RootState) => state.sharedState
-    );
+      const {
+        data: departments,
+        isLoading: isDepartmentsLoading,
+        isError: isDepartmentsError,
+        error: departmentsError,
+        refetch: refetchDepartments,
+      } = useDepartments({ includeEmployees: true });
     const { data: employeeData, isLoading:isEmployeeLoading, isError:isEmployeeError, error:getEmployeeError } = useEmployeeDetails(employeeId.toString());
     const employee = employeeData || {} as Employee;
     console.log("EMPLOYEE", employee);
@@ -100,7 +103,17 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
         return;
     }
 
-    if (isEmployeeLoading ) {
+    if(!departments || isDepartmentsError ){
+        console.log("Cannot Get Departments");
+        toast({
+            title: "Error Getting Departments",
+            description: "Failed To Get Departments" + departmentsError,
+            variant: "destructive",
+        });
+        return;
+    }
+
+    if (isEmployeeLoading || isDepartmentsLoading) {
       return (
         <SideModal
           isOpen={isOpen}

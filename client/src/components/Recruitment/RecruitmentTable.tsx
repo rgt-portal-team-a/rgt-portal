@@ -197,15 +197,22 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
       { month: "short" }
     )} ${date.getFullYear()}`;
   };
-    
-    console.log('====================================');
-    console.log("totalItems",totalItems, "totalPages", totalPages, "currentPage", currentPage);
-    console.log('====================================');
+
+  console.log("====================================");
+  console.log(
+    "totalItems",
+    totalItems,
+    "totalPages",
+    totalPages,
+    "currentPage",
+    currentPage
+  );
+  console.log("====================================");
 
   return (
-    <div className="">
-      <div className="flex flex-col">
-        <div className="flex justify-between items-center mb-4">
+    <div className="w-full">
+      <div className="flex flex-col w-full">
+        <div className="flex flex-col gap-2 lg:gap-0 lg:flex-row justify-between lg:items-center mb-4">
           <div>
             <h1 className="text-xl font-semibold text-gray-700">
               {type === RecruitmentType.EMPLOYEE
@@ -216,12 +223,12 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
               {totalItems} {totalItems === 1 ? "candidate" : "candidates"} found
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
+          <div className="flex lg:flex-row flex-wrap lg:flex-nowrap items-center gap-4">
+            <div className="relative w-full">
               <Input
                 type="text"
                 placeholder="Search candidates"
-                className="pl-10 pr-4 py-2 w-64 rounded-md border border-gray-300"
+                className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300"
                 value={searchTerm}
                 onChange={handleSearchChange}
               />

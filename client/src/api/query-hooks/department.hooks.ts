@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useRbacQuery } from '@/features/data-access/rbacQuery';
 import { toast } from '@/hooks/use-toast';
 import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, UpdateDepartmentDTO } from '@/types/department';
@@ -9,18 +9,18 @@ import { departmentService } from '../services/department.service';
 
 
 export const useDepartments = (options?: { includeEmployees?: boolean }) => {
-  return useRbacQuery(
-    "employeeRecords",
-    "view",
-    ["departments", options],
-    () =>
+  return useQuery({
+    queryKey: ["departments", options],
+    queryFn: () =>
       departmentService.getAllDepartments({
         includeEmployees: options?.includeEmployees,
       }),
-    {
-      refetchOnWindowFocus: false,
-    }
-  );
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => {
+      return previousData;
+    },
+  });
 };
 
 

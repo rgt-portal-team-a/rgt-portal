@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { ClassNameValue } from "tailwind-merge";
 import { Poll } from "./polls";
 import { User } from "./authUser";
 import { Department } from "./department";
@@ -10,17 +9,9 @@ interface IDepartmentCard {
   id: string | number;
   employees: Employee[];
   name: string;
-  leadName?: string;
+  manager?: Employee;
   includeBgImg?: boolean;
 }
-
-// interface IDepartmentMembers {
-//   id: number;
-//   name: string;
-//   avtr: { url: string; fallBack: string };
-//   department: string;
-//   role: string;
-// }
 
 interface IFeed {
   poll?: Poll;

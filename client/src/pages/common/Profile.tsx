@@ -17,6 +17,7 @@ import { NotificationChannel, NotificationType } from "@/types/notifications";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreference";
 import { useUpdateUser } from "@/api/query-hooks/auth.hooks";
+import { toast } from "@/hooks/use-toast";
 
 export function ProfilePage() {
   const { currentUser: user } = useAuthContextProvider();
@@ -50,7 +51,6 @@ export function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      
       await updateUserMutation.mutateAsync({
         id: Number(editedUser.id),
         username: String(editedUser.username),
@@ -61,8 +61,20 @@ export function ProfilePage() {
         phone: editedUser.phone,
       });
       setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Updated your profile successfully!",
+        duration: 500,
+        variant: "success",
+      });
     } catch (error) {
       console.error("Failed to update user:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        duration: 500,
+        variant: "destructive",
+      });
     }
   };
 
@@ -136,10 +148,10 @@ export function ProfilePage() {
                 size="sm"
                 className="text-xs md:text-sm"
                 onClick={handleSave}
-                // disabled={updateUserMutation.isLoading}
+                disabled={updateUserMutation.isPending}
               >
                 <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                {/* {updateUserMutation.isLoading ? "Saving..." : "Save"} */}
+                {updateUserMutation.isPending ? "Saving..." : "Save"}
               </Button>
             </div>
           )}
@@ -203,6 +215,12 @@ export function ProfilePage() {
                   {user.id}
                 </div>
               </div>
+              <div className="space-y-1">
+                <Label className="text-xs md:text-sm">Email</Label>
+                <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
+                  {user.email}
+                </div>
+              </div>
 
               {/* Editable Fields */}
               <div className="space-y-1">
@@ -218,24 +236,6 @@ export function ProfilePage() {
                 ) : (
                   <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
                     {user.username}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">Email</Label>
-                {isEditing ? (
-                  <Input
-                    className="border text-xs md:text-sm h-8 md:h-10"
-                    type="email"
-                    value={editedUser.email}
-                    onChange={(e) =>
-                      setEditedUser({ ...editedUser, email: e.target.value })
-                    }
-                  />
-                ) : (
-                  <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                    {user.email}
                   </div>
                 )}
               </div>

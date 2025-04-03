@@ -12,9 +12,11 @@ import ViewIcon from "@/assets/icons/ViewIcon";
 import Avtr from "@/components/Avtr";
 import { useRequestPto } from "@/hooks/usePtoRequests";
 import Filters, { FilterConfig } from "@/components/common/Filters";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useDepartmentsData } from "@/hooks/useDepartmentsData";
+
+
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+import StepProgress from "@/components/common/StepProgress";
 
 export enum PtoStatusType {
   PENDING = "pending",
@@ -55,6 +57,8 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
 }) => {
   const { currentUser } = useAuthContextProvider();
   const departmentId = currentUser?.employee?.departmentId as number;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(5);
 
   const [selectedEmployee, setSelectedEmployee] = useState<PtoLeave | null>(
     null
@@ -65,10 +69,11 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [reason, setReason] = React.useState<string>("");
   const { updatePto, isPtoUpdating } = useRequestPto();
-  const { departments } = useSelector((state: RootState) => state.sharedState);
+  const { departments } = useDepartmentsData();
+
 
   const isManager =
-    departments.find((department) => department.id === departmentId)
+    departments?.find((department) => department.id === departmentId)
       ?.managerId === currentUser?.employee?.id;
 
   const isHr = currentUser?.role.name === "HR";
@@ -191,6 +196,12 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
     )} days`,
   }));
 
+  // Update formattedData to use pagination
+  const paginatedData = formattedData?.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   const columns: Column[] = [
     {
       key: "employeeName",
@@ -200,14 +211,16 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           {row && (
             <>
               <Avtr
-                name={row.employee?.user?.usernam ?? "USER"}
+                name={row.employee?.user?.username || row.employee?.firstName}
                 url={row.employee?.user?.profileImage}
               />
               <div>
                 <p className="text-[#8A8A8C] font-semibold ">
-                  {row.employee?.user?.username}
+                  {row.employee?.firstName + " " + row.employee?.lastName}
                 </p>
-                <p className="font-[400]">{row.employee?.user?.email}</p>
+                <p className="font-[400]">
+                  {row.employee?.contactDetails?.personalEmail}
+                </p>
               </div>
             </>
           )}
@@ -266,7 +279,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
 
   return (
     <>
-      <div className=" flex bg-white flex-col items-center max-h[340px] overflow-auto">
+      <div className=" flex bg-white flex-col items-center max-h[370px] overflow-auto">
         {/* Filter Section */}
         <div className="px-[22px] w-full">
           {filters && onReset && (
@@ -274,23 +287,23 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           )}
         </div>
 
-        <div className="px-[22px] w-full max-h-[440px] overflow-y-scroll">
+        <div className="px-[22px] w-full h-[200px] sm:h-[350px] md:h-[370px]">
           <DataTable
             columns={columns}
-            data={formattedData}
+            data={paginatedData}
             actionBool={false}
             skeleton="employee"
             loading={isDataLoading}
           />
         </div>
 
-        {/* <div className="mt-4 flex justify-center ">
+        <div className=" flex justify-center ">
           <StepProgress
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
-            totalPages={Math.ceil(filteredEmployees?.length ?? 0 / pageSize)}
+            totalPages={Math.ceil((formattedData?.length ?? 0) / pageSize)}
           />
-        </div> */}
+        </div>
       </div>
 
       <ConfirmCancelModal
@@ -389,7 +402,9 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           <div className="mb-4">
             <label className="text-sm text-gray-300">Employee Name</label>
             <Input
-              value={selectedEmployee?.employee?.user?.username}
+              value={`${selectedEmployee?.employee?.firstName ?? ""} ${
+                selectedEmployee?.employee?.lastName ?? ""
+              }`}
               readOnly
               className="h-12 rounded-lg text-gray-400 mt-1 bg-gray-100 border-none shadow-none"
             />
