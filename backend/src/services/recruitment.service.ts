@@ -9,13 +9,21 @@ import { Logger } from "@/services/logger.service";
 import { CreateRecruitmentDto, UpdateRecruitmentDto, RecruitmentFilterDto } from "@/dtos/recruitment.dto";
 import { FailStage, RecruitmentStatus } from "@/defaults/enum";
 import { CreateEmployeeDto } from "@/dtos/employee.dto";
-
+import { QueueName, JobType } from "./queue.service";
+import { QueueService } from "@/services/queue.service";
+import axios from "axios";
+import { JobMatchResult } from "@/entities/job-match-result.entity";
+import { BadRequestError } from "@/utils/error";
+import { CandidateMatchResponseDto } from "@/dtos/ai.dto";
 export class RecruitmentService {
   private recruitmentRepository: Repository<Recruitment>;
   private employeeRepository: Repository<Employee>;
   private userRepository: Repository<User>;
   private emergencyContactRepository: Repository<EmergencyContact>;
   private databaseService: DatabaseService;
+  private jobMatchResultRepository: Repository<JobMatchResult>;
+
+  private queueService: QueueService;
   private logger: Logger;
 
   constructor() {
@@ -23,7 +31,9 @@ export class RecruitmentService {
     this.employeeRepository = AppDataSource.getRepository(Employee);
     this.userRepository = AppDataSource.getRepository(User);
     this.emergencyContactRepository = AppDataSource.getRepository(EmergencyContact);
+    this.jobMatchResultRepository = AppDataSource.getRepository(JobMatchResult);
     this.databaseService = new DatabaseService();
+    this.queueService = QueueService.getInstance();
     this.logger = new Logger("RecruitmentService");
   }
 
@@ -262,16 +272,11 @@ export class RecruitmentService {
         recruitment.failReason = failReason;
       }
 
-      //   if (status === RecruitmentStatus.HIRED && !recruitment.employee) {
-      //     const employee = this.employeeRepository.create({
-      //       name: recruitment.name,
-      //       email: recruitment.email,
-      //       phoneNumber: recruitment.phoneNumber,
-      //     });
-
-      //     const savedEmployee = await this.employeeRepository.save(employee);
-      //     recruitment.employee = savedEmployee;
-      //   }
+      if (status === RecruitmentStatus.NOT_HIRED) {
+        await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_MATCH_RESPONSE, {
+          recruitmentId: id,
+        });
+      }
 
       if (
         ![
@@ -294,6 +299,7 @@ export class RecruitmentService {
     }
   }
 
+ 
   async delete(id: string): Promise<boolean> {
     try {
       const recruitment = await this.findById(id);

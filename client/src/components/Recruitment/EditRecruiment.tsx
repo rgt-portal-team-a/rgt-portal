@@ -12,7 +12,6 @@ import {
   useRecruitment,
   Recruitment,
   useUpdateRecruitmentStatus,
-  usePredictMatch,
 } from "@/hooks/useRecruitment";
 import { SideModal } from "@/components/ui/side-dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tab";
@@ -85,7 +84,6 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
 
   const updateMutation = useUpdateRecruitment();
   const statusUpdateMutation = useUpdateRecruitmentStatus();
-  const predictMatchMutation = usePredictMatch();
 
   const validationSchema = React.useMemo(
     () => buildValidationSchema(fields),
@@ -136,21 +134,25 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
     const nameParts = candidate.name.split(" ");
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
-
+    console.log("candidate", candidate);
+    
     return {
       firstName,
       lastName,
       email: candidate.email || "",
       phoneNumber: candidate.phoneNumber || "",
       university: candidate.university || "",
+      programOfStudy: candidate.programOfStudy || "",
+      graduationYear: candidate.graduationYear || "",
       firstPriority: candidate.firstPriority || "",
       secondPriority: candidate.secondPriority || "",
       location: candidate.location || "",
-      cv: null,
-      photo: null,
+      cv: candidate.cvPath || "",
+      photo: candidate.photoUrl || "",
       currentStatus: candidate.currentStatus || RecruitmentStatus.CV_REVIEW,
       failStage: candidate.failStage || "",
       failReason: candidate.failReason || "",
+      source: candidate.source || "",
     };
   };
 
@@ -217,6 +219,9 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
         location: values.location,
         cvPath: cvUrl,
         photoUrl: photoUrl,
+        source: values.source,
+        programOfStudy: values.programOfStudy,
+        graduationYear: values.graduationYear,
       };
 
       await updateMutation.mutateAsync({
@@ -271,12 +276,6 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
         title: "Success",
         description: "Candidate status updated successfully",
       });
-
-      // IF SUCCESSFUL AND THE CANDIDATE IS NOT HIRED, THEN UPDATE THE CANDIDATE STATUS TO NOT HIRED MAKE A REQUEST TO THE AI API TO PREDICT THE CANDIDATE'S MATCH 
-      if (values.currentStatus === RecruitmentStatus.NOT_HIRED) {
-        await predictMatchMutation.mutateAsync(candidateId);
-      }
-
 
       onOpenChange(false);
     } catch (error) {
