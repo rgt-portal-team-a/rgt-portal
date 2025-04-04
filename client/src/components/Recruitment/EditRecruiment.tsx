@@ -637,7 +637,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                           <textarea
                             id="failReason"
                             name="failReason"
-                            value={formikProps.values.failReason}
+                            value={formikProps.values?.failReason as string}
                             onChange={formikProps.handleChange}
                             rows={4}
                             className="w-full border-gray-300 p-2 rounded-md shadow-sm focus:border-pink-500 focus:ring-pink-500"
