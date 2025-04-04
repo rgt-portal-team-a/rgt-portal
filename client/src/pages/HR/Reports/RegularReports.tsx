@@ -26,12 +26,10 @@ const RegularReports = () => {
     format: "html",
   });
 
-  console.log("HTML REPORT ", data);
-
   const handleGenerateReport = async (type: "employees" | "recruitment") => {
-    setReportType(type);
-    setIsModalOpen(true);
-    refetch();
+    setReportType(type); 
+    setIsModalOpen(true); 
+    refetch({ type, format: "html" }); 
   };
 
   const handleDownloadPDF = async () => {
@@ -89,7 +87,7 @@ const RegularReports = () => {
               </Button>
             </div>
             <Dialog.Description>
-              {isLoading || isFetching && (
+              {(isLoading || isFetching) && (
                 <div className="flex justify-center items-center h-40">
                   <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
@@ -97,17 +95,17 @@ const RegularReports = () => {
               {isError && (
                 <div className="flex justify-center items-center h-40 text-red-500">
                   Failed to load report. Please try again.
-                  <Button onClick={() => refetch} variant={"outline"}>
+                  <Button onClick={() => refetch()} variant={"outline"}>
                     Retry
                   </Button>
                 </div>
               )}
             </Dialog.Description>
-            {!isLoading || !isFetching && !isError && (
+            {!isLoading && !isFetching && !isError && (
               <div
                 id="report-content"
                 dangerouslySetInnerHTML={{ __html: data || "" }}
-                className="p-4  "
+                className="p-4"
               />
             )}
             <Dialog.Close asChild>
