@@ -10,7 +10,6 @@ const authMiddleware = new AuthMiddleware();
 router.get(
   "/",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.HR, Roles.MANAGER, Roles.ADMIN]),
   recognitionController.getRecognitions,
 );
 
