@@ -5,8 +5,7 @@ import passport from "passport";
 import session from "express-session";
 import { createServer } from "http";
 import { checkDatabaseConnection, initializeDatabaseConnection } from "@/middleware/database.middleware";
-import { errorLogger, httpLogger, logger, notFoundLogger } from "@/config/logger.config";
-import { AuthMiddleware } from "@/middleware/auth.middleware";
+import { errorLogger, httpLogger, logger } from "@/config/logger.config";
 import { cors as _cors } from "@/middleware/cors.middleware";
 import { session as _session } from "@/middleware/session.middleware";
 import {
@@ -123,19 +122,15 @@ const startServer = async () => {
     await initializeDatabaseConnection();
 
     try {
-      // Initialize socket service
       socketService.initialize();
       setSocketService(socketService);
 
-      // Initialize scheduler service
       await schedulerService.startSchedulers();
       logger.info("Scheduler service initialized successfully");
 
-      // Setup Bull board for queue monitoring
       setupBullBoard(app);
       logger.info("Bull board initialized successfully");
 
-      // Initialize queue service
       logger.info("Queue service initialized successfully");
     } catch (error) {
       logger.error("Failed to initialize services:", error);
