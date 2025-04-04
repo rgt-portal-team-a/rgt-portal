@@ -10,21 +10,21 @@ const FullStackIcon = () => {
       <path
         d="M13.0148 2.68286L2.63477 7.87288L13.0148 13.0629L23.3949 7.87288L13.0148 2.68286Z"
         stroke="url(#paint0_linear_1406_73504)"
-        stroke-width="2.07601"
+        strokeWidth="2.07601"
         stroke-linecap="round"
         stroke-linejoin="round"
       />
       <path
         d="M2.63477 18.2542L13.0148 23.4442L23.3949 18.2542"
         stroke="url(#paint1_linear_1406_73504)"
-        stroke-width="2.07601"
+        strokeWidth="2.07601"
         stroke-linecap="round"
         stroke-linejoin="round"
       />
       <path
         d="M2.63477 13.0657L13.0148 18.2557L23.3949 13.0657"
         stroke="url(#paint2_linear_1406_73504)"
-        stroke-width="2.07601"
+        strokeWidth="2.07601"
         stroke-linecap="round"
         stroke-linejoin="round"
       />

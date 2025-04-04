@@ -15,8 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Employee, EmployeeType } from "@/types/employee";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useDepartments } from "@/api/query-hooks/department.hooks";
 import EmployeeTableSkeleton from "./EmployeeTableSkeleton";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import { WORK_TYPES } from "@/constants";
@@ -52,7 +51,13 @@ interface EmployeeTableProps {
 
 const EmployeeTable: React.FC<EmployeeTableProps> = ({employeeData, employeeError, isEmployeesError, isEmployeesLoading, refetchEmployees}) => {
   const [searchName, setSearchName] = useState("");
-  const { departments } = useSelector((state: RootState) => state.sharedState);
+  const {
+    data: departments,
+    isLoading: isDepartmentsLoading,
+    isError: isDepartmentsError,
+    error: departmentsError,
+    refetch: refetchDepartments,
+  } = useDepartments({ includeEmployees: true });
   const { hasAccess } = usePermission();
   const [filter, setFilter] = useState<FilterState>({
     department: "All Departments",
@@ -125,19 +130,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({employeeData, employeeErro
     }
   }, [employeeData, searchName, filter, itemsPerPage, currentPage]);
 
-  if (isEmployeesLoading) {
-    return <EmployeeTableSkeleton />;
-  }
 
-  if (isEmployeesError) {
-    return (
-      <ErrorMessage
-        title="Error Loading Employee Data"
-        error={employeeError}
-        refetchFn={refetchEmployees}
-      />
-    );
-  }
 
   const getPaginatedData = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -218,6 +211,29 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({employeeData, employeeErro
       cellClassName: () => "flex items-center justify-center",
     },
   ];
+
+    if (isEmployeesLoading || isDepartmentsLoading) {
+      return <EmployeeTableSkeleton />;
+    }
+
+    if (isEmployeesError) {
+      return (
+        <ErrorMessage
+          title="Error Loading Employee Data"
+          error={employeeError}
+          refetchFn={refetchEmployees}
+        />
+      );
+    }
+    if (isDepartmentsError) {
+      return (
+        <ErrorMessage
+          title="Error Loading Department Data"
+          error={departmentsError}
+          refetchFn={refetchDepartments}
+        />
+      );
+    }
 
 
 

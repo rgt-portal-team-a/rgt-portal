@@ -28,6 +28,18 @@ export const useRequestPto = (id?: number) => {
     },
   });
 
+  // fetching manager departments
+  const { data: managerDepartments, isLoading: isManagerDepartmentsLoading } =
+    useQuery({
+      queryKey: ["managerDepartments", id],
+      queryFn: () => {
+        if (!id) {
+          return Promise.resolve([]);
+        }
+        return PtoRequestService.fetchManagerDepartmentPtos(id);
+      },
+    });
+
   const createPtoRequestMutation = useMutation({
     mutationFn: (newPto: PtoLeave) =>
       PtoRequestService.createPtoRequest(newPto),
@@ -258,5 +270,7 @@ export const useRequestPto = (id?: number) => {
     isDepartmentPtoLoading,
     updatePto,
     isPtoUpdating: updatePtoRequestMutation.isPending,
+    managerDepartments,
+    isManagerDepartmentsLoading,
   };
 };

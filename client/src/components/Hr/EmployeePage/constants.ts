@@ -304,9 +304,9 @@ export const initialEdges: Edge<EdgeData>[] = [
     },
   },
   {
-    id: "e-department-skills",
+    id: "e-department-seniority",
     source: "department",
-    target: "skills",
+    target: "seniority",
     sourceHandle: "right",
     targetHandle: "left",
     // style: customEdgeStyle,

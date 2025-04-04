@@ -170,9 +170,9 @@ return (
           layout="vertical"
           data={processedData}
           margin={{
-            left: 100,
-            right: 20,
-            top: 10,
+            left: 0,
+            right: 0,
+            top: 0,
             bottom: 10,
           }}
           aria-label="Department Employee Count Bar Chart"

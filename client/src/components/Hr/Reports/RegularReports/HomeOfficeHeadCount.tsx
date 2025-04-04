@@ -11,9 +11,7 @@ const HomeOfficeHeadCount: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useGetHeadcountByWorkType();
 
-  const totalHeadcount =
-    data?.headcountData?.reduce((sum, item) => sum + Number(item.count), 0) ||
-    0;
+  const totalHeadcount = data?.headcountData?.reduce((sum, item) => sum + Number(item.count), 0) || 0;
 
   // Render Loading State
   if (isLoading) {
@@ -123,7 +121,10 @@ const HomeOfficeHeadCount: React.FC = () => {
         <ResponsiveContainer width="100%" height={200}>
           <PieChart>
             <Pie
-              data={data.headcountData}
+              data={data.headcountData.map((item) => ({
+                ...item,
+                count: Number(item.count), 
+              }))}
               cx="50%"
               cy="50%"
               innerRadius={50}
@@ -133,7 +134,7 @@ const HomeOfficeHeadCount: React.FC = () => {
               label={({ name, percent }) =>
                 renderLabel({
                   type: name || "",
-                  percent: percent || 0,
+                  percent: Number(percent) || 0,
                 })
               }
             >

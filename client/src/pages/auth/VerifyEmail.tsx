@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQueryClient } from "@tanstack/react-query";
 import { Formik, Form as FormikForm } from "formik";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ import rgtPattern from "@/assets/images/RGT PATTERN 1.png";
 import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 
 const VerifyEmail = () => {
   const inputRefs = [
@@ -24,21 +26,41 @@ const VerifyEmail = () => {
   const location = useLocation();
   const otpId = location.state?.otpId || "";
   const userId = location.state?.userId || "";
-
   const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useVerifyOtp({
-    onSuccess: (data: any) => {
-      console.log("Verification successful:", data);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+  const { setIsVerifying } = useAuthContextProvider();
 
-      navigate(`${data.user.role.name === "hr" ? "/hr/feed" : "/emp/feed"}`, { replace: true });
-      toast({
-        title: "Success",
-        description: "Email verified successfully",
-      });
+  const { mutate, isPending } = useVerifyOtp({
+    onSuccess: async (data: any) => {
+      try {
+        setIsVerifying(true);
+        await queryClient.invalidateQueries({ queryKey: ["user"] });
+
+        // Wait briefly to ensure auth state updates
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        navigate(data.user.role.name === "hr" ? "/hr/feed" : "/emp/feed", {
+          replace: true,
+          state: { fromVerify: true },
+        });
+
+        toast({
+          title: "Success",
+          description: "Email verified successfully",
+        });
+      } catch (error) {
+        console.error("Navigation error:", error);
+        toast({
+          title: "Error",
+          description: "Verification succeeded but navigation failed",
+          variant: "destructive",
+        });
+      } finally {
+        setIsVerifying(false);
+      }
     },
     onError: (error: any) => {
+      setIsVerifying(false);
       console.log("Verification error:", error);
       const errorMessage =
         error.response?.data?.message ||
@@ -46,6 +68,7 @@ const VerifyEmail = () => {
       toast({
         title: "Error",
         description: errorMessage,
+        variant: "destructive",
       });
     },
   });

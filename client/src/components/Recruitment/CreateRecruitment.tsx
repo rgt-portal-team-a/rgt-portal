@@ -7,7 +7,7 @@ import { SideModal } from "@/components/ui/side-dialog";
 import { recruitmentSchema } from "@/lib/recruitmentSchema";
 import { RecruitmentType } from "@/lib/enums";
 import { buildInitialValues, buildValidationSchema } from "@/lib/utils";
-import { renderField } from "./SchemaField";
+import { ExtractedCvData, renderField } from "./SchemaField";
 import { FileUploadService } from "@/api/services/file.service";
 import { employeeService } from "@/api/services/employee.service";
 import { toast } from "@/hooks/use-toast";
@@ -60,6 +60,12 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     enabled: isOpen,
     refetchOnWindowFocus: false,
   });
+
+  const [extractedData, setExtractedData] = useState<ExtractedCvData | null>(null);
+
+  const handleExtractedData = (data: ExtractedCvData) => {
+    setExtractedData(data);
+  };
 
   const filteredFields = useMemo(() => {
     return fields.filter((field: any) => {
@@ -123,7 +129,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
       setSubmissionStatus("loading");
       return RecruitmentService.createRecruitment(recruitmentData);
     },
-    onSuccess: (_data) => {
+    onSuccess: () => {
       setSubmissionStatus("success");
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
       toast({
@@ -146,6 +152,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     values: any,
     { resetForm }: FormikHelpers<any>
   ) => {
+    console.log(values);
     try {
       const uploadPromises = [];
       const uploadResults: UploadResult[] = [];
@@ -192,7 +199,9 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         }
       });
 
-      // Construct recruitment data
+      console.log(extractedData);
+
+      // Construct recruitment data and add any other data that is not in the form but is in the extracted CV information
       const recruitmentData: CreateRecruitmentDto = {
         name: `${values.firstName} ${values.lastName}`,
         email: values.email,
@@ -200,7 +209,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         source: values.source,
         location: values.location,
         phoneNumber: values.phoneNumber,
-        assignee: values.asignees,
+        assignees: values?.assignees?.length > 0 ? values.assignees.map(Number) : undefined,
         cvPath: cvUrl,
         photoUrl: photoUrl,
         ...(type === RecruitmentType.NSS
@@ -212,6 +221,21 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
           : {
               position: values.position,
             }),
+        //  extracted CV data if available
+        ...(extractedData && {
+          programOfStudy: values.programOfStudy || extractedData?.programOfStudy,
+          currentTitle: extractedData?.currentTitle,
+          highestDegree: extractedData?.highestDegree,
+          graduationYear: extractedData?.graduationYear,
+          technicalSkills: extractedData?.technicalSkills,
+          programmingLanguages: extractedData?.programmingLanguages,
+          toolsAndTechnologies: extractedData?.toolsAndTechnologies,
+          softSkills: extractedData?.softSkills,
+          industries: extractedData?.industries,
+          certifications: extractedData?.certifications,
+          keyProjects: extractedData?.keyProjects,
+          recentAchievements: extractedData?.recentAchievements,
+        }),
       };
 
       await createRecruitmentMutation.mutateAsync(recruitmentData);
@@ -324,10 +348,11 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                             )}
                           </label>
                           {renderField(field, formikProps, {
-                            ...(field.name === "asignee" && {
+                            ...(field.name === "assignees" && {
                               options: assigneeOptions,
                             }),
-                          })}
+                          }, handleExtractedData)}
+
                           {(field.name === "cv" || field.name === "photo") &&
                             renderUploadStatus(field.name as "cv" | "photo")}
                           <ErrorMessage name={field.name}>
@@ -354,7 +379,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                         )}
                       </label>
                       {renderField(field, formikProps, {
-                        ...(field.name === "asignee" && {
+                        ...(field.name === "assignees" && {
                           options: assigneeOptions,
                         }),
                       })}
@@ -392,7 +417,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                   <button
                     type="button"
                     onClick={formikProps.submitForm}
-                    disabled={isSubmitting || !formikProps.isValid}
+                    disabled={isSubmitting }
                     className={`px-6 py-2 bg-[#E328AF] text-white rounded-md transition-colors cursor-pointer ${
                       isSubmitting || !formikProps.isValid
                         ? "opacity-50 cursor-not-allowed"

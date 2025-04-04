@@ -36,3 +36,9 @@ export interface IEventParticipant {
   event: Event
   employee: Employee
 }
+
+
+export interface DeleteEventResponse{
+  success: boolean; 
+  message: string
+}

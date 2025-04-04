@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "./use-toast";
@@ -13,7 +14,7 @@ export interface Recruitment {
   type: string;
   currentStatus: RecruitmentStatus;
   statusDueDate?: string;
-  assignee?: string;
+  assignees?: any[];
   notified?: boolean;
   location?: string;
   firstPriority?: string;
@@ -21,9 +22,13 @@ export interface Recruitment {
   university?: string;
   position?: string;
   source?: string;
+  programOfStudy?: string;
+  graduationYear?: number;
   failStage?: string;
   failReason?: string;
   notes?: string;
+  predictedScore?: number;
+  predictedDropOff?: number;
   createdAt: string;
   updatedAt: string;
   createdBy?: {

@@ -12,13 +12,13 @@ const HamburgerMenu: React.FC<IconTypes> = ({ color }) => {
       <path
         d="M5 18.5H19M5 6.5H19M5 12.5H19"
         stroke="#452667"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         stroke-linecap="round"
       />
       <path
         d="M5 18.5H19M5 6.5H19M5 12.5H19"
         stroke="#452667"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         stroke-linecap="round"
       />
     </svg>
