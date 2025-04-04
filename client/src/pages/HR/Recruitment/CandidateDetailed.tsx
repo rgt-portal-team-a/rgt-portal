@@ -189,7 +189,7 @@ const CandidateDetailView: React.FC = () => {
                 <Mail className="h-5 w-5 text-gray-500 mr-3 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{candidate.email}</p>
+                  <p className="font-medium text-clip overflow-hidden text-ellipsis max-w-[150px]">{candidate.email}</p>
                 </div>
               </div>
 
@@ -209,6 +209,16 @@ const CandidateDetailView: React.FC = () => {
                   <p className="text-sm text-gray-500">Location</p>
                   <p className="font-medium">
                     {candidate.location || "Not specified"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start">
+                <GraduationCap className="h-5 w-5 text-gray-500 mr-3 mt-0.5" />
+                <div>
+                  <p className="text-sm text-gray-500">Graduation Year</p>
+                  <p className="font-medium">
+                    {candidate.graduationYear || "Not specified"}
                   </p>
                 </div>
               </div>
@@ -240,6 +250,7 @@ const CandidateDetailView: React.FC = () => {
             <TabsList className="mb-4">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="status">Application Status</TabsTrigger>
+              <TabsTrigger value="predictions">AI Predictions</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
             </TabsList>
 
@@ -280,6 +291,7 @@ const CandidateDetailView: React.FC = () => {
                             {candidate.location || "Not specified"}
                           </p>
                         </div>
+                       
                       </div>
                     </div>
 
@@ -456,10 +468,30 @@ const CandidateDetailView: React.FC = () => {
                         </div>
 
                         <div>
-                          <p className="text-sm text-gray-500">Assignee</p>
-                          <p className="font-medium">
-                            {candidate.assignee || "Not assigned"}
-                          </p>
+                          <p className="text-sm text-gray-500">Assignees</p>
+                          {candidate.assignees && candidate.assignees.length > 0 ? (
+                            <div className="flex items-center mt-1">
+                              {candidate.assignees.map((assignee) => (
+                                <div key={assignee.id} className="h-6 w-6 bg-gray-200 rounded-full overflow-hidden mr-2 cursor-pointer hover:opacity-80" title={assignee.user.username} onClick={() => navigate(`/emp/${assignee.id}`)}>
+                                  {assignee.user.profileImage ? (
+                                    <img
+                                      src={assignee.user.profileImage}  
+                                      alt={assignee.user.username}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="h-full w-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                                      {assignee.user.username.toUpperCase().charAt(0)}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="font-medium">
+                              Not assigned
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -531,7 +563,7 @@ const CandidateDetailView: React.FC = () => {
 
                       {candidate.currentStatus &&
                         candidate.currentStatus.toLowerCase() !==
-                          "rejected" && (
+                          RecruitmentStatus.NOT_HIRED && (
                           <div className="relative pl-10">
                             <div className="absolute left-0 top-1 w-7 h-7 bg-blue-100 border-2 border-blue-600 rounded-full flex items-center justify-center">
                               <List className="h-3 w-3 text-blue-600" />
@@ -564,6 +596,72 @@ const CandidateDetailView: React.FC = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="predictions">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI Predictions</CardTitle>
+                  <CardDescription>
+                    AI-powered insights about the candidate
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {candidate.predictedScore && (
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Predicted Score</h3>
+                        <p className="text-sm text-gray-500">
+                          The AI's prediction of how well this candidate matches the position
+                        </p>
+                        <div className="flex items-center mt-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              className="bg-blue-600 h-2.5 rounded-full"
+                              style={{ width: `${candidate.predictedScore}%` }}
+                            ></div>
+                          </div>
+                          <span className="ml-2 text-sm font-medium">
+                            {candidate.predictedScore}%
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {candidate.predictedDropOff && (
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Drop-off Risk</h3>
+                        <p className="text-sm text-gray-500">
+                          The AI's prediction of the likelihood this candidate will drop out of the recruitment process
+                        </p>
+                        <div className="flex items-center mt-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              className={`h-2.5 rounded-full ${
+                                candidate.predictedDropOff > 70
+                                  ? "bg-red-600"
+                                  : candidate.predictedDropOff > 40
+                                  ? "bg-yellow-600"
+                                  : "bg-green-600"
+                              }`}
+                              style={{ width: `${candidate.predictedDropOff}%` }}
+                            ></div>
+                          </div>
+                          <span className="ml-2 text-sm font-medium">
+                            {candidate.predictedDropOff}%
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {!candidate.predictedScore && !candidate.predictedDropOff && (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No AI predictions available for this candidate.</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

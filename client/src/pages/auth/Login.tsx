@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Yup from "yup";
-import { useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Field, Form as FormikForm, Formik, FieldInputProps } from "formik";
 import { useLogin } from '@/api/query-hooks/auth.hooks';
@@ -11,7 +13,6 @@ import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import rgtpatternimg1 from "@/assets/images/rgtpatternimg1.svg";
 import loginMainImg from "@/assets/images/WomanAndBackground.png";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
-import { useEffect, useState } from "react";
 
 
 interface FormValues {
@@ -26,8 +27,24 @@ const LoginSchema = Yup.object({
 const Login = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { currentUser } = useAuthContextProvider();
   const location = useLocation();
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const { currentUser } = useAuthContextProvider();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const error = params.get('error');
+    if (error) {
+      console.log('Error from URL:', error); 
+      setLoginError(error);
+      toast({
+        title: 'Authentication Error',
+        description: error,
+        // variant: 'destructive',
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location]);
 
   if (currentUser) {
     const from = location.state?.from?.pathname || "/emp/feed";
@@ -89,6 +106,7 @@ const Login = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome</h1>
             <p className="text-gray-500 text-sm">get into your account</p>
           </div>
+
 
           <Formik
             initialValues={initialFormValues}

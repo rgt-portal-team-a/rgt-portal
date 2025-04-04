@@ -87,6 +87,57 @@ export const renderField = (
   };
 
   switch (field.type) {
+    case "multiSelect":
+      return (
+        <Field name={field.name} key={field.name}>
+          {({ field: formikField }: any) => {
+            const selectedValues = formikField.value || [];
+            return (
+              <Select
+                value={selectedValues[selectedValues.length - 1] || ""}
+                onValueChange={(value) => {
+                  const newValues = selectedValues.includes(value)
+                    ? selectedValues.filter((v: string) => v !== value)
+                    : [...selectedValues, value];
+                  setFieldValue(field.name, newValues);
+                }}
+              >
+                <SelectTrigger className="w-full border-none bg-gray-100">
+                  <SelectValue
+                    placeholder={
+                      selectedValues.length
+                        ? `${selectedValues.length} selected`
+                        : field.placeholder || `Select ${field.label}`
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="z-[2000]">
+                  <SelectGroup>
+                    {(additionalProps.options || field.options)?.map(
+                      (option: any, index: number) => {
+                        const value = typeof option === "object" ? option.value.toString() : option.toString();
+                        const isSelected = selectedValues.includes(value);
+                        return (
+                          <SelectItem
+                            key={index}
+                            value={value}
+                            className={isSelected ? "bg-gray-100" : ""}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span>{typeof option === "object" ? option.label : option}</span>
+                              {isSelected && <span className="text-green-500">✓</span>}
+                            </div>
+                          </SelectItem>
+                        );
+                      }
+                    )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            );
+          }}
+        </Field>
+      );
     case "select":
       return (
         <Field name={field.name} key={field.name}>

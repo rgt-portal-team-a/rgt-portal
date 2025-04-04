@@ -71,6 +71,8 @@ export enum JobType {
 
   // AI PREDICTIONS
   SAVE_PREDICT_MATCH_RESPONSE = "prediction:job:match",
+  SAVE_PREDICT_DROP_OFF_RESPONSE = "prediction:dropoff",
+  SAVE_PREDICT_SCORE_RESPONSE = "prediction:score",
 }
 
 interface JobData {
@@ -306,6 +308,12 @@ export class QueueService {
       case JobType.SAVE_PREDICT_MATCH_RESPONSE:
         await this.processJobMatchPrediction(payload);
         break;
+      case JobType.SAVE_PREDICT_DROP_OFF_RESPONSE:
+        await this.processDropOffPrediction(payload);
+        break;
+      case JobType.SAVE_PREDICT_SCORE_RESPONSE:
+        await this.processScorePrediction(payload);
+        break;
       default:
         throw new Error(`Unknown prediction type: ${type}`);
     }
@@ -474,6 +482,29 @@ export class QueueService {
       this.logger.info(`Successfully processed job match prediction for recruitment ${payload.recruitmentId}`);
     } catch (error) {
       this.logger.error(`Error predicting job match for recruitment ${payload.recruitmentId}:`, error);
+      throw error;
+    }
+  }
+
+  private async processDropOffPrediction(payload: { recruitmentId: number }): Promise<void> {
+    this.logger.info(`Processing drop off prediction for recruitment ${payload.recruitmentId}`);
+
+    try {
+      await AiController.predictCandidatesDropOff(payload.recruitmentId.toString());
+    } catch (error) {
+      this.logger.error(`Error predicting drop off for recruitment ${payload.recruitmentId}:`, error);
+      throw error;
+    }
+  }
+
+  private async processScorePrediction(payload: { recruitmentId: number }): Promise<void> {
+    this.logger.info(`Processing score prediction for recruitment ${payload.recruitmentId}`);
+
+    try {
+      await AiController.predictCandidateScore(payload.recruitmentId.toString());
+
+    } catch (error) {
+      this.logger.error(`Error predicting score for recruitment ${payload.recruitmentId}:`, error);
       throw error;
     }
   }

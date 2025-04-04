@@ -53,4 +53,18 @@ aiRouter.get(
   aiController.getProgramOfStudyHired.bind(aiController)
 );
 
+aiRouter.get(
+  "/generate-report",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
+  aiController.generateReport.bind(aiController)
+);
+
+aiRouter.post(
+  "/kairo-chatbot",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
+  aiController.kairoChatbot.bind(aiController)
+);
+
 export default aiRouter;
