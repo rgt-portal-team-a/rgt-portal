@@ -67,3 +67,33 @@ export const buildInitialValues = (fields: FormField[]) => {
 
   return initialValues;
 };
+
+export async function checkThirdPartyCookies(): Promise<boolean> {
+  const apiUrl =
+    import.meta.env.VITE_NODE_ENV === "development"
+      ? import.meta.env.VITE_DEV_BASE_URL
+      : import.meta.env.VITE_BASE_URL;
+  
+  try {
+    const response = await fetch(`${apiUrl}/test-cookie`, {
+      credentials: "include",
+      method: "POST",
+      body: JSON.stringify({ test: "cookie" }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const result = await response.json();
+    return result.hasCookie || false;
+  } catch (error) {
+    console.error("Third-party cookies might be blocked:", error);
+    return false;
+  }
+}
+
+export function setBannerDismissed(dismissed: boolean): void {
+  localStorage.setItem("cookieBannerDismissed", String(dismissed));
+}
+
+export function getBannerDismissed(): boolean {
+  return localStorage.getItem("cookieBannerDismissed") === "true";
+}

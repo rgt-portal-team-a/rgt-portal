@@ -130,7 +130,7 @@ const EmployeeTimeOffRequest = ({
 
   return (
     <>
-      <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
+      <div className="flex flex-col gap-[15px] pt-[10px] md:h-[600px] bg-white rounded-md">
         <section className="space-y-2 flex flex-col sm:flex-row sm:justify-between w-full sm:items-center py-1 pl-4">
           <h1 className="text-lg sm:text-xl font-medium text-gray-600 text-nowrap">
             {departmentName ?? "Employee TimeOff Requests"}

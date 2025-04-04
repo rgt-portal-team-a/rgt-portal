@@ -125,7 +125,7 @@ const Recognition = ({
                         (item.recognizedEmployee?.user?.username as string) ??
                         `#${index}`
                       }
-                      className={`w-[50px] h-[50px] `}
+                      className={`w-[50px] h-[50px] bg-rgtpurple`}
                     />
 
                     <span

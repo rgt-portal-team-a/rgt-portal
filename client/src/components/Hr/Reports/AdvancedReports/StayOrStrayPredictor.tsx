@@ -145,6 +145,9 @@ export const StayOrStrayPredictor = () => {
 
   return (
     <div className="bg-white rounded-[32px] shadow-sm p-6">
+      <div>
+        <p>Probability Of An Employee Leaving</p>
+      </div>
       {/* Header and Buttons (keep existing) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 border-1 rounded-[12px] p-4 items-center">
         <div className="col-span-2">

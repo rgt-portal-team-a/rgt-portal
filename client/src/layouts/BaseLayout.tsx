@@ -94,8 +94,6 @@ export const BaseLayout = () => {
     debouncedFetchSearchResults(query);
   };
 
-
-
   const handleLogout = async () => {
     setLoggingOut(true);
     await logout();
@@ -111,14 +109,14 @@ export const BaseLayout = () => {
       >
         {/* Left section with logo */}
         <div className="flex items-center">
-          <div className="hidden sm:block">
+          <div className="hidden sm:block w-32">
             <img src="/RgtPortalLogo.svg" className="w-24" />
           </div>
 
           {/* Mobile profile dropdown */}
           <div
             className={`${
-              user?.role.name === "HR" ? "sm:ml-4 pr-1" : "sm:hidden"
+              user?.role.name === "HR" ? "sm:ml-4 pr-1 w-full" : "sm:hidden"
             } relative`}
             ref={profileDropdownRef}
           >
@@ -126,7 +124,12 @@ export const BaseLayout = () => {
               className="flex items-center gap-1 cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              <ChevronDown
+                className={`h-4 w-4 text-gray-600 transition-transform ${
+                  profileDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                 {user?.profileImage ? (
                   <img
                     src={user.profileImage}
@@ -140,15 +143,18 @@ export const BaseLayout = () => {
                   </span>
                 )}
               </div>
-              <ChevronDown
-                className={`h-4 w-4 text-gray-600 transition-transform ${
-                  profileDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
+              <div className="text-nowrap hidden sm:block pl-1">
+                <p className="text-[#706D8A] font-semibold sm:text-xl">
+                  Hello {user?.employee?.firstName}!
+                </p>
+                <p className="text-xs font-semibold text text-slate-500">
+                  This is the RGT team.
+                </p>
+              </div>
             </div>
 
             {profileDropdownOpen && (
-              <div className="absolute right-0 border mt-2 sm:w-32 bg-white rounded-md shadow-lg py-1 z-50">
+              <div className="absolute left-0 border mt-2 sm:w-32 bg-white rounded-md shadow-lg py-1 z-50">
                 <button
                   onClick={() => {
                     navigate("/emp/profile");
