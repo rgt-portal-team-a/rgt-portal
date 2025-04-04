@@ -1,21 +1,14 @@
 import { useState } from "react";
 import { EventModal } from "@/components/Hr/Events/EventModal";
 import EventsCalendar from "@/components/Hr/Events/EventsCalendar";
-import EnhancedCalendar from "@/components/Hr/Events/EnhancedCalendar";
 import { Button } from "@/components/ui/button";
 import { useAllEvents } from "@/api/query-hooks/event.hooks";
-import EventList from "@/components/EventList";
-import AnnouncementCard from "@/components/AnnouncementCard";
-import { Link } from "react-router-dom";
 import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import EventsPageSkeleton from "@/components/Hr/Events/EventsPageSkeleton";
 
 const Events = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
 
   const {
     data: eventsData,
@@ -46,14 +39,6 @@ const Events = () => {
     endTime: new Date(event.endTime),
   }));
 
-  // Separate events by type
-  const specialEvents = processedEvents?.filter(
-    (event) => event.type === "holiday" || event.type === "birthday"
-  );
-
-  const announcements = processedEvents?.filter(
-    (event) => event.type === "announcement"
-  );
 
   return (
     <>
@@ -159,8 +144,11 @@ const Events = () => {
           </div> */}
           {/* calendar */}
           <div
-            className="hidden xl:block h-[100%] overflow-y-scroll"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            className="hidden md:flex justify-center w-[30%] overflow-y-scroll  h-[535px]"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
           >
             <Upcoming_SpecialCard />
           </div>

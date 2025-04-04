@@ -11,6 +11,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "./components/ui/toaster.tsx";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { queryClient } from "./features/data-access/rbacQuery";
+import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById("root")!).render(
           <TooltipProvider>
             <App />
             <Toaster position="bottom-right" />
+            <ToastContainer />
           </TooltipProvider>
         </AuthContextProvider>
         <ReactQueryDevtools />

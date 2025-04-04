@@ -1,46 +1,33 @@
-import { useEffect } from 'react';
-import { useDepartments } from '@/api/query-hooks/department.hooks';
-import { toast } from './use-toast';
-
+import { useDepartments } from "@/api/query-hooks/department.hooks";
+import toastService from "@/api/services/toast.service";
 
 export const useDepartmentsData = () => {
-
   // Departments fetch
-  const { 
-    data: departments, 
-    isLoading: isDepartmentsLoading, 
+  const {
+    data: departments,
+    isLoading: isDepartmentsLoading,
     isError: isDepartmentsError,
     error: departmentsError,
-    refetch: refetchDepartments
-  } = useDepartments({includeEmployees: true});
+    refetch: refetchDepartments,
+  } = useDepartments({ includeEmployees: true });
 
   // Employees fetch
-  // const { 
-  //   data: employees, 
-  //   isLoading: isEmployeesLoading, 
+  // const {
+  //   data: employees,
+  //   isLoading: isEmployeesLoading,
   //   isError: isEmployeesError,
   //   error: employeesError,
   //   refetch: refetchEmployees
   // } = useAllEmployees({},{});
 
   if (isDepartmentsError && departmentsError) {
-      console.log("Unable to load departments..", departmentsError)
-      toast({
-          title: "Error",
-          description: "Unable to load Departments",
-          variant: "destructive",
-      });
+    console.log("Unable to load departments..", departmentsError);
+    toastService.error("Unable to load Departments");
   }
 
   if (!departments && isDepartmentsLoading) {
-      toast({
-        title: "Loading...",
-        description: "Loading Departments",
-        variant: "default",
-      });
+    toastService.default("Loading Departments...");
   }
-
-
 
   // useEffect(() => {
 
@@ -79,6 +66,6 @@ export const useDepartmentsData = () => {
     isDepartmentsError,
     refetchDepartments,
     departmentsError,
-    departments 
+    departments,
   };
 };

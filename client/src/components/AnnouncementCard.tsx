@@ -4,60 +4,52 @@ import WithRole from "@/common/WithRole";
 import { MoreVertical } from "lucide-react";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import { useEffect, useRef, useState } from "react";
-import EditIcon from "@/assets/icons/EditIcon";
 import DeleteIcon2 from "@/assets/icons/DeleteIcon2";
 import ConfirmCancelModal from "./common/ConfirmCancelModal";
 import DeleteRippleIcon from "./common/DeleteRippleIcon";
-import {useDeleteEvent} from "@/api/query-hooks/event.hooks"
-import { toast } from "@/hooks/use-toast";
+import { useDeleteEvent } from "@/api/query-hooks/event.hooks";
+import toastService from "@/api/services/toast.service";
 
 const AnnouncementCard: React.FC<IAnnouncementCard> = ({ date, title, id }) => {
-    const time = date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    const day = date.getDate();
-    const dayOfWeek = date.toDateString().split(" ")[0];
-    console.log("day, time:", day, time, dayOfWeek);
-      const { currentUser } = useAuthContextProvider();
-      const [showMore, setShowMore] = useState(false);
-      const menuRef = useRef<HTMLDivElement | null>(null);
-      const [showDeleteModal, setShowDeleteModal] = useState(false);
-      const deleteEventMutation = useDeleteEvent();
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const day = date.getDate();
+  const dayOfWeek = date.toDateString().split(" ")[0];
+  console.log("day, time:", day, time, dayOfWeek);
+  const { currentUser } = useAuthContextProvider();
+  const [showMore, setShowMore] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const deleteEventMutation = useDeleteEvent();
 
-      useEffect(() => {
-        function handleClickOutside(event: MouseEvent): void {
-          if (
-            menuRef.current &&
-            !menuRef.current.contains(event.target as Node)
-          ) {
-            if (!(event.target as Element)?.closest(".more-vertical-icon")) {
-              setShowMore(false);
-            }
-          }
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent): void {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        if (!(event.target as Element)?.closest(".more-vertical-icon")) {
+          setShowMore(false);
         }
+      }
+    }
 
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
-        };
-      }, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
-      const handleDelete = async (id: number) => {
-        try {
-          console.log("Deleting Event with Id", id);
-          await deleteEventMutation.mutateAsync(id);
-          setShowDeleteModal(false);
-        } catch (err) {
-          console.log("Error Deleting Event", err);
-          toast({
-            title: "Error Deleting Event",
-            description: "Failed To Delete Event" + err,
-            variant: "destructive",
-          });
-        }
-      };
+  const handleDelete = async (id: number) => {
+    try {
+      console.log("Deleting Event with Id", id);
+      await deleteEventMutation.mutateAsync(id);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.log("Error Deleting Event", err);
+      toastService.error("Failed To Delete Event" + err);
+    }
+  };
 
   return (
     <>
