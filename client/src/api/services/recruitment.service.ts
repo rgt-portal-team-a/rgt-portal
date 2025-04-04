@@ -25,7 +25,7 @@ export interface CreateRecruitmentDto {
   name: string;
   email: string;
   type: string;
-  assignee?: string;
+  assignees?: string[];
   position?: string;
   source?: string;
   location?: string;

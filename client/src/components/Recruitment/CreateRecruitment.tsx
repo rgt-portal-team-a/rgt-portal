@@ -129,7 +129,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
       setSubmissionStatus("loading");
       return RecruitmentService.createRecruitment(recruitmentData);
     },
-    onSuccess: (_data) => {
+    onSuccess: () => {
       setSubmissionStatus("success");
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
       toast({
@@ -152,6 +152,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     values: any,
     { resetForm }: FormikHelpers<any>
   ) => {
+    console.log(values);
     try {
       const uploadPromises = [];
       const uploadResults: UploadResult[] = [];
@@ -208,7 +209,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         source: values.source,
         location: values.location,
         phoneNumber: values.phoneNumber,
-        assignee: values.asignees,
+        assignees: values?.assignees?.length > 0 ? values.assignees.map(Number) : undefined,
         cvPath: cvUrl,
         photoUrl: photoUrl,
         ...(type === RecruitmentType.NSS
@@ -347,7 +348,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                             )}
                           </label>
                           {renderField(field, formikProps, {
-                            ...(field.name === "asignee" && {
+                            ...(field.name === "assignees" && {
                               options: assigneeOptions,
                             }),
                           }, handleExtractedData)}
@@ -378,7 +379,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                         )}
                       </label>
                       {renderField(field, formikProps, {
-                        ...(field.name === "asignee" && {
+                        ...(field.name === "assignees" && {
                           options: assigneeOptions,
                         }),
                       })}
@@ -416,7 +417,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
                   <button
                     type="button"
                     onClick={formikProps.submitForm}
-                    disabled={isSubmitting || !formikProps.isValid}
+                    disabled={isSubmitting }
                     className={`px-6 py-2 bg-[#E328AF] text-white rounded-md transition-colors cursor-pointer ${
                       isSubmitting || !formikProps.isValid
                         ? "opacity-50 cursor-not-allowed"

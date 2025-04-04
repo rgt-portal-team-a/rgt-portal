@@ -130,12 +130,21 @@ export class RecruitmentService {
     }
   }
 
-  async findById(id: string, relations: string[] = ["createdBy", "employee", "emergencyContacts"]): Promise<Recruitment | null> {
+  async findById(id: string, relations: string[] = ["createdBy", "employee", "emergencyContacts"]): Promise<any | null> {
+    // TODO: find all the employees assigned to the recruitment using the assignees column
+
     try {
-      return this.recruitmentRepository.findOne({
+      const recruitment = await this.recruitmentRepository.findOne({
         where: { id },
         relations,
       });
+
+      const assignees = await this.employeeRepository.find({
+        where: { id: In(recruitment?.assignees || []) },
+        relations: ["user"],
+      });
+
+      return { ...recruitment, assignees };
     } catch (error) {
       this.logger.error(`Error fetching recruitment with ID ${id}:`, error);
       throw error;
@@ -147,9 +156,13 @@ export class RecruitmentService {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
     try {
-      const recruitments = recruitmentData.map((data) => this.recruitmentRepository.create(data));
+      const recruitments = recruitmentData.map((data) => {
+        return this.recruitmentRepository.create({
+          ...data,
+          assignees: data.assignees ? data.assignees.map(Number) : undefined,
+        });
+      });
       const savedRecruitments = await queryRunner.manager.save(recruitments);
       await queryRunner.commitTransaction();
       return savedRecruitments;
@@ -171,16 +184,17 @@ export class RecruitmentService {
         throw new Error("User not found");
       }
 
-      if (data.assignee) {
-        const assignee = await this.employeeRepository.findOne({ where: { id: parseInt(data.assignee) } });
-        if (!assignee) {
-          throw new Error("Assigned employee not found");
+      if (data.assignees) {
+        const assignees = await this.employeeRepository.find({ where: { id: In(data.assignees) } });
+        if (assignees.length !== data.assignees.length) {
+          throw new Error("Assigned employees not found");
         }
       }
 
       const recruitment = this.recruitmentRepository.create({
         ...data,
         createdBy: user,
+        assignees: data.assignees ? data.assignees.map(Number) : undefined,
       });
 
       const savedRecruitment = await queryRunner.manager.save(recruitment);
@@ -197,6 +211,14 @@ export class RecruitmentService {
       }
 
       await queryRunner.commitTransaction();
+
+      await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_DROP_OFF_RESPONSE, {
+        recruitmentId: savedRecruitment.id,
+      });
+
+      await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_SCORE_RESPONSE, {
+        recruitmentId: savedRecruitment.id,
+      });
 
       return this.findById(savedRecruitment.id) as Promise<Recruitment>;
     } catch (error) {
@@ -220,10 +242,10 @@ export class RecruitmentService {
         throw new Error("Recruitment not found");
       }
 
-      if (data.assignee) {
-        const assignee = await this.employeeRepository.findOne({ where: { id: parseInt(data.assignee) } });
-        if (!assignee) {
-          throw new Error("Assigned employee not found");
+      if (data.assignees) {
+        const assignees = await this.employeeRepository.find({ where: { id: In(data.assignees) } });
+        if (assignees.length !== data.assignees.length) {
+          throw new Error("Assigned employees not found");
         }
       }
 
@@ -299,7 +321,6 @@ export class RecruitmentService {
     }
   }
 
- 
   async delete(id: string): Promise<boolean> {
     try {
       const recruitment = await this.findById(id);

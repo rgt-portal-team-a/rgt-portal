@@ -69,10 +69,9 @@ export const recruitmentSchema: any = [
     required: true,
   },
   {
-    name: "asignee",
+    name: "assignees",
     label: "Assignees",
-    type: "select",
-    // type: "asyncSelect", 
+    type: "multiSelect",
     gridColumn: "full",
     required: false,
   },
