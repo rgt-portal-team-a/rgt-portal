@@ -29,7 +29,7 @@ const RegularReports = () => {
   const handleGenerateReport = async (type: "employees" | "recruitment") => {
     setReportType(type); 
     setIsModalOpen(true); 
-    refetch({ type, format: "html" }); 
+    refetch(); 
   };
 
   const handleDownloadPDF = async () => {
