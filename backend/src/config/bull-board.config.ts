@@ -8,8 +8,28 @@ export function setupBullBoard(app: any) {
   const serverAdapter = new ExpressAdapter();
   serverAdapter.setBasePath('/admin/queues');
 
+  const redisConfig = {
+    redis: {
+      host: process.env.REDIS_HOST || "localhost",
+      port: parseInt(process.env.REDIS_PORT || "6379"),
+      password: process.env.REDIS_PASSWORD || "",
+      username: process.env.REDIS_USERNAME || "",
+      retryStrategy: (times: number) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+    },
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 1000,
+      },
+    },
+  };
+
   const queues = Object.values(QueueName).map(
-    (queueName) => new BullAdapter(new Queue(queueName))
+    (queueName) => new BullAdapter(new Queue(queueName, redisConfig))
   );
 
   const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
@@ -19,7 +39,7 @@ export function setupBullBoard(app: any) {
       uiConfig: {
         boardTitle: "RGT PORTAL",
         boardLogo: {
-          path: "../logo.png",
+          path: "src/logo.png",
           width: 100,
           height: 100,
         },

@@ -21,7 +21,7 @@ interface FiltersProps {
 
 const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
   return (
-    <div className="flex-wrap lg:flex-nowrap w-full flex gap-3 my-4 ">
+    <div className="flex-wrap lg:flex-nowrap w-full flex gap-3 my-4">
       {filters.map((filter, index) => {
         if (filter.type === "select") {
           return (
@@ -31,14 +31,14 @@ const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
               options={filter.options || []}
               value={filter.value}
               onChange={filter.onChange}
-              className={`bg-[#F6F6F9] border-0 sm:w-[48%]  md:w-[320px] text-xs sm:text-sm font-semibold text-nowrap rounded-[12px] px-3 h-[50px] text-slate-500 ${filter.className}`}
+              className={`bg-[#F6F6F9] w-full border-1 sm:w-[48%]  xl:w-[320px] text-xs sm:text-sm font-semibold text-nowrap rounded-[12px] px-3 h-[50px] text-slate-500 ${filter.className}`}
             />
           );
         } else if (filter.type === "date") {
           return (
             <DatePicker
               key={index}
-              className={`border-0 bg-[#F6F6F9] w-[50%] md:w-[320px] text-xs h-[50px] sm:text-sm font-semibold rounded-[12px] ${filter.className}`}
+              className={`border-1 bg-[#F6F6F9] w-[50%] md:w-[320px] text-xs h-[50px] sm:text-sm font-semibold rounded-[12px] ${filter.className}`}
               selected={filter.value}
               onChange={(date) => filter.onChange(date ?? null)}
             />
@@ -51,19 +51,21 @@ const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
               placeholder={filter.placeholder}
               value={filter.value || ""}
               onChange={(e) => filter.onChange(e.target.value)}
-              className={`bg-[#F6F6F9] border-0 w-[50%] sm:w-[48%]  md:w-[320px] text-xs sm:text-sm font-semibold rounded-[12px] px-3 text-slate-500 ${filter.className} h-[50px]`}
+              className={`bg-[#F6F6F9] border-1 w-full sm:w-[48%]  xl:w-[320px] text-xs sm:text-sm font-semibold rounded-[12px] px-3 text-slate-500 ${filter.className} h-[50px]`}
             />
           );
         }
         return null;
       })}
-      <div
-        className="text-[#8A8A8C] font-semibold text-sm flex items-center p-1 flex-1 justify-center hover:bg-slate-200 rounded-[12px] transition-all duration-300 ease-in cursor-pointer bg-slate-100 w-fit"
-        onClick={onReset}
-      >
-        <X className="w-4 md:hidden sm:w-8" />
-        <p className="hidden md:block">Reset</p>
-      </div>
+      {/* <div className="bg-amber-300  h-full"> */}
+        <div
+          className="text-[#8A8A8C] font-semibold text-sm flex items-center py-3 px-5 border flex-1 justify-center hover:bg-slate-200 rounded-[12px] transition-all duration-300 ease-in cursor-pointer bg-slate-100 w-fit h-full "
+          onClick={onReset}
+        >
+          <X className="w-4 xl:hidden sm:w-8" />
+          <p className="hidden sm:block">Reset</p>
+        </div>
+      {/* </div> */}
     </div>
   );
 };

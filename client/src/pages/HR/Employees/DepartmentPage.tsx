@@ -141,7 +141,7 @@ const DepartmentPage = () => {
   return (
     <>
       <div className="flex flex-col gap-6">
-        <section className="h-[62px] flex justify-between w-full items-center py-1">
+        <section className="flex lg:flex-row flex-col justify-between w-full gap-2 lg:gap-0 lg:items-center py-1">
           <div className="flex flex-col h-full">
             <h1 className="text-xl font-medium text-gray-600">
               {department?.name} Department
@@ -156,20 +156,20 @@ const DepartmentPage = () => {
             </div>
           </div>
 
-          <div className="md:flex md:flex-row gap-4 items-center h-full flex-col">
-            <div className="relative justify-between items-center sm:w-[100px] md:w-[301px] md:max-w-[301px] flex-grow">
+          <div className="flex sm:flex-row flex-col-reverse gap-2 sm:gap-4 sm:items-center h-full">
+            <div className="relative justify-between items-center w-full">
               <Input
                 type="text"
                 placeholder="Search by name"
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
-                className="pl-5 py-5 rounded-xl bg-gray-50 border-none outline-none shadow-none h-full"
+                className="pl-5 py-3 rounded-xl bg-gray-50 border-1 border-rgtpurple outline-none shadow-none w-full h-full"
               />
-              <Search className="absolute right-4 top-4 h-6 w-6 text-gray-400" />
+              <Search className="absolute right-4 top-3 h-6 w-6 text-gray-400" />
             </div>
             <Button
               onClick={handleOpenModal}
-              className="bg-rgtviolet hover:bg-violet-900 rounded-xl h-full"
+              className="bg-rgtviolet hover:bg-violet-900 rounded-xl py-6"
             >
               <ProfileAdd />
               Add New Employee

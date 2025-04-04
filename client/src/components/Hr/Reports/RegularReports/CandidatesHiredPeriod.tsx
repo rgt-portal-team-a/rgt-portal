@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
-import { format, addDays, subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 
 const getMonthNumber = (monthName: string): string => {
   const months: { [key: string]: string } = {
@@ -167,8 +167,9 @@ const CandidatesHiredPeriod: React.FC = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Hiring Trends</CardTitle>
+          
           <Popover>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild >
               <Button variant="outline">
                 <Calendar className="mr-2 h-4 w-4" />
                 {format(dateRange.from, "PPP")} - {format(dateRange.to, "PPP")}
@@ -242,9 +243,9 @@ const CandidatesHiredPeriod: React.FC = () => {
   // Render chart
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex lg:flex-row lg:items-center gap-3 lg:gap-0 justify-between">
         <CardTitle>Hiring Trends</CardTitle>
-        <div className="flex items-center space-x-2">
+        <div className="flex space-y-3 lg:space-y-0 lg:items-center flex-col lg:flex-row space-x-2">
           {/* Date Range Preset Selector */}
           <Select
             onValueChange={(value) => {

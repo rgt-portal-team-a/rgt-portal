@@ -62,10 +62,10 @@ const NavDropdown = ({
   };
 
   return (
-    <div className={`w-full py-2 ${className}`}>
+    <div className={`w-full ${className}`}>
       <div
         onClick={toggleDropdown}
-        className={`flex items-center gap-3 transition-colors duration-200 cursor-pointer text-slate-500 ${
+        className={`flex items-center gap-3 transition-colors duration-200 py-2 cursor-pointer text-[#706D8A] ${
           hasActiveChild ? activeTxtClr : "hover:bg-gray-100"
         }`}
       >
@@ -78,7 +78,7 @@ const NavDropdown = ({
           {hasActiveChild ? (
             <IconComponent color={`${activeTabClr}`} size={26} />
           ) : (
-            <IconComponent color="gray" size={24} />
+            <IconComponent color="#706D8A" size={24} />
           )}
           <div className="w-full flex justify-between pr-3">
             <span
@@ -93,7 +93,7 @@ const NavDropdown = ({
                 isOpen ? "rotate-180" : ""
               } `}
               size={24}
-              color={`${hasActiveChild ? activeTabClr : "gray"}`}
+              color={`${hasActiveChild ? activeTabClr : "#706D8A"}`}
             />
           </div>
         </div>
@@ -119,7 +119,7 @@ const NavDropdown = ({
                 className={({ isActive }) => `
                   flex items-center gap-3 px-4 py-1 rounded-lg
                   transition-all duration-300 font-medium
-                  ${isActive ? activeTxtClr : "text-gray-600 hover:bg-gray-50"}
+                  ${isActive ? activeTxtClr : "text-[#706D8A] hover:bg-gray-50"}
                 `}
                 onClick={() => {
                   setIsOpen(false);

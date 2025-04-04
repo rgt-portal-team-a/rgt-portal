@@ -22,17 +22,16 @@ const PollUI = ({ pollId }: { pollId: number }) => {
           lastName={poll.createdBy.lastName}
           profileImage={poll.createdBy.user.profileImage}
         />
-        {/* <MoreVertical className="text-[#CBD5E1] hover:text-[#8d949c] transition-colors duration-300 ease-in cursor-pointer" /> */}
       </section>
       <section className="pt-3 space-y-3">
         <p className="text-sm">{poll?.description}</p>
         <div className="border p-2 rounded-lg border-slate-200 space-y-2">
           {poll.options.map((option) => {
-            const isUniqueHighest =
+            const isHighestVoted =
               option.voteCount > 0 &&
               option.voteCount === highestVoteCount &&
-              poll.options.filter((o) => o.voteCount === highestVoteCount)
-                .length === 1;
+              poll.options.filter((o) => o.voteCount === highestVoteCount).length === 1;
+
             return (
               <div
                 key={option.id}
@@ -61,12 +60,13 @@ const PollUI = ({ pollId }: { pollId: number }) => {
                     {option.text}
                   </p>
 
-                  {/* highest Voted indicator */}
-                  {(option.hasVoted || isUniqueHighest) && (
+                  {/* Highest Voted Indicator */}
+                  {isHighestVoted && (
                     <img
                       src="/CheckCircle.svg"
-                      alt={option.hasVoted ? "Your vote" : "Most voted"}
-                      className="ml-2 w-4 h-4"
+                      alt="Most voted"
+                      className="ml-2 w-4 h-4 text-pink-500"
+                      style={{ filter: "invert(39%) sepia(72%) saturate(747%) hue-rotate(310deg) brightness(96%) contrast(95%)" }}
                     />
                   )}
                 </div>
@@ -90,4 +90,4 @@ const PollUI = ({ pollId }: { pollId: number }) => {
   );
 };
 
-export default PollUI;
+export default PollUI

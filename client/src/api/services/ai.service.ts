@@ -1,5 +1,9 @@
 import { createApiClient } from '../axios';
-import { AttritionRequestInterface, AttritionResponseDto } from "@/types/ai";
+import {
+  AttritionRequestInterface,
+  AttritionResponseDto,
+  JobMatchResultsResponse,
+} from "@/types/ai";
 
 
 const aiApiClient = createApiClient(
@@ -18,6 +22,13 @@ export const aiService = {
     const response = await aiApiClient.post<AttritionResponseDto>(
       "/predict-attrition",
       data
+    );
+    return response.data;
+  },
+
+  getAllJobMatchResults: async (): Promise<JobMatchResultsResponse> => {
+    const response = await aiApiClient.post<JobMatchResultsResponse>(
+      "/get-all-job-match-results"
     );
     return response.data;
   },

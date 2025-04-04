@@ -56,15 +56,27 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Set Image Tag Based on Branch
+        id: set-tag
+        run: |
+          BRANCH_NAME=${{ github.ref_name }}
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            echo "IMAGE_TAG=${{ matrix.service }}-latest" >> $GITHUB_ENV
+          elif [[ "$BRANCH_NAME" == "dev" ]]; then
+            echo "IMAGE_TAG=${{ matrix.service }}-dev" >> $GITHUB_ENV
+          else
+            # Convert feature branch names to valid tags (replace / with -)
+            SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
+            echo "IMAGE_TAG=${{ matrix.service }}-$SANITIZED_BRANCH" >> $GITHUB_ENV
+          fi
+
       - name: Generate Docker Image Metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}
           tags: |
-            latest
-            ${{ github.sha }}
-            ${{ matrix.service }}
+            ${{ env.IMAGE_TAG }}
 
       - name: Build and Push Docker Image to ECR
         uses: docker/build-push-action@v6
@@ -73,12 +85,12 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           builder: ${{ steps.buildx.outputs.name }}
-          tags: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ matrix.service }}
+          tags: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ env.IMAGE_TAG }}
 
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: '${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ matrix.service }}'
+          image-ref: '${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ env.IMAGE_TAG }}'
           format: 'table'
           exit-code: '0'
           ignore-unfixed: true

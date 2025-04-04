@@ -11,7 +11,7 @@ const DesignIcon = () => {
         <path
           d="M5.78223 16.0643V9.06433H19.7822V2.06433L5.78223 2.06433L19.7822 16.0643H12.7822M5.78223 16.0643L12.7822 23.0643V16.0643M5.78223 16.0643H12.7822"
           stroke="url(#paint0_linear_1406_73457)"
-          stroke-width="2"
+          strokeWidth="2"
           stroke-linecap="round"
           stroke-linejoin="round"
         />
