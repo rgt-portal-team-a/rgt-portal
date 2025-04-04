@@ -27,19 +27,10 @@ import EmployeeTimeOffRequests from "./pages/Manager/ManagerEmployeeTimeOff";
 import AdvancedReports from "./pages/HR/Reports/AdvancedReports";
 import RegularReports from "./pages/HR/Reports/RegularReports";
 import { ProfilePage } from "./pages/common/Profile";
+import { CookiePermissionBanner } from "./common/CookiePermissionBanner";
 
 function App() {
-  const getCookie = (name: string) => {
-    const cookies = document.cookie.split("; ");
-    console.log("cookies", document.cookie);
 
-    const cookie = cookies.find((row) => row.startsWith(name + "="));
-    return cookie ? cookie.split("=")[1] : null;
-  };
-
-  const sessionID = getCookie("sessionID");
-
-  console.log("sessionID", sessionID);
   return (
     <BrowserRouter>
       <Routes>
@@ -118,7 +109,7 @@ function App() {
             />
             <Route
               path={`manageemployees/employee/:id`}
-              element={<EmployeePage/>}
+              element={<EmployeePage />}
             />
 
             <Route path="feed" element={<Feed />} />
@@ -151,6 +142,7 @@ function App() {
         {/* 404 route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <CookiePermissionBanner />
     </BrowserRouter>
   );
 }
