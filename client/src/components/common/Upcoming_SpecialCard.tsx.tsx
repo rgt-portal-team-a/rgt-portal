@@ -126,7 +126,7 @@ const Upcoming_SpecialCard = () => {
               className={`flex flex-col md:grid grid-cols-2 gap-2 transition-all duration-300 ease-in max-h-[400px] ${
                 showMoreAnnouncements
                   ? "h-[234px] overflow-hidden"
-                  : "overflow-y-scroll"
+                  : " h-[240px] overflow-y-scroll"
               }`}
             >
               {announcements && announcements.length > 0 ? (

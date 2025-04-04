@@ -59,13 +59,31 @@ export class PostService {
   }
 
   // Delete a single post by ID
-  public static async deletPost(id: number): Promise<ApiResponse<any>> {
+  public static async deletePost(id: number): Promise<ApiResponse<any>> {
     try {
       const response = await axios.delete(`${this.baseUrl}/${id}`);
       console.log("responsedata:", response.data);
       return response.data;
     } catch (error) {
       console.log("Error fetching post:", error);
+      throw error;
+    }
+  }
+
+  // Update a post
+  public static async updatePost(
+    id: number,
+    postData: any
+  ): Promise<ApiResponse<any>> {
+    try {
+      const response = await axios.put(`${this.baseUrl}/${id}`, postData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating post:", error);
       throw error;
     }
   }

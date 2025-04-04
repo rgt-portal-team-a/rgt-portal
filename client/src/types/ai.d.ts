@@ -183,3 +183,8 @@ export interface JobMatchResultsResponse {
   candidateDetails: CandidateDetails[];
 }
 
+
+export interface ReportQueryParams{
+  type: "employees" | "recruitment";
+  format: "html";
+}
