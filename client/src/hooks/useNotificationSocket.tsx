@@ -3,7 +3,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import { useQueryClient } from "@tanstack/react-query";
 import { Notification } from "@/types/notifications";
 import { useAuthContextProvider } from "./useAuthContextProvider";
-import { toast } from "./use-toast";
+import toastService from "@/api/services/toast.service";
 
 interface UseNotificationSocketOptions {
   onNewNotification?: (notification: Notification) => void;
@@ -41,22 +41,14 @@ export const useNotificationSocket = (
       reconnectAttempts,
       onOpen: () => {
         console.log("WebSocket connection established");
-        toast({
-          title: "Success",
-          description: "WebSocket connection established",
-          variant: "success",
-        });
+        toastService.success("WebSocket connection established");
         setConnectionAttempts(0);
       },
       onClose: () => {
         console.log("WebSocket connection closed");
       },
       onError: () => {
-        toast({
-          title: "Error",
-          description: "WebSocket connection error",
-          variant: "destructive",
-        });
+        toastService.error("WebSocket connection error");
         setConnectionAttempts((prev) => prev + 1);
       },
       onReconnectStop: () => {

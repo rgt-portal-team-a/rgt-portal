@@ -249,10 +249,6 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
               <Columns size={18} className="mr-2" />
               Columns
             </Button>
-            <Button variant="outline" size="default">
-              <Filter size={18} className="mr-2" />
-              Filter
-            </Button>
           </div>
         </div>
 
@@ -324,7 +320,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
             </Table>
           )}
 
-          <div className="flex items-center justify-between py-5 px-4">
+          {/* <div className="flex items-center justify-between py-5 px-4">
             <div className="text-sm text-gray-600">
               Showing {candidates.length} of {totalItems} entries
             </div>
@@ -370,7 +366,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
                 <ChevronRight size={20} />
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

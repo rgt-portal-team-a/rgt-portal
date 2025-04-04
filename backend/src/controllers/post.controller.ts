@@ -139,6 +139,7 @@ export class PostController {
     try {
       const postId = parseInt(req.params.id);
       const updateData: UpdatePostDto = req.body;
+      console.log("updatedData:", updateData)
 
       const existingPost = await this.postService.findById(postId);
 

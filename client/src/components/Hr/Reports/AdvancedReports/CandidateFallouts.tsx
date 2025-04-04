@@ -93,7 +93,7 @@ export const CandidateFallouts = () => {
   return (
     <div className="bg-white rounded-[32px] shadow-sm p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">JobGenius Matcher</h2>
+        <h2 className="text-2xl font-bold">Candidate Fallout</h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center relative">
             <Search className="h-6 w-6 text-gray-400 absolute left-2" />
@@ -107,10 +107,6 @@ export const CandidateFallouts = () => {
               }}
               className="pl-10 pr-3 py-2 border rounded-lg w-full"
             />
-          </div>
-          <div className="flex gap-1 items-center">
-            <History className="h-6 w-6 text-gray-400" />
-            <p className="text-md text-gray-500">History</p>
           </div>
         </div>
       </div>

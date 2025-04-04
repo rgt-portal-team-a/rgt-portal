@@ -27,9 +27,10 @@ export const aiService = {
   },
 
   getAllJobMatchResults: async (): Promise<JobMatchResultsResponse> => {
-    const response = await aiApiClient.post<JobMatchResultsResponse>(
+    const response = await aiApiClient.get<JobMatchResultsResponse>(
       "/get-all-job-match-results"
     );
+    console.log("Job Match from AI SERVICE", response.data)
     return response.data;
   },
 };
