@@ -196,10 +196,10 @@ export function ProfilePage() {
 
                 <div className="flex flex-wrap md:flex-nowrap gap-6 w-full">
                   <div className="space-y-4 w-full">
-                    <div className="space-y-1">
+                    {/* <div className="space-y-1">
                       <Label>Employee ID</Label>
                       <div className="p-2 bg-muted rounded">{user.id}</div>
-                    </div>
+                    </div> */}
                     <div className="space-y-1">
                       <Label>Email</Label>
                       <div className="p-2 bg-muted rounded">{user.email}</div>

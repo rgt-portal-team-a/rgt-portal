@@ -1,20 +1,14 @@
 import { useState } from "react";
 import { EventModal } from "@/components/Hr/Events/EventModal";
 import EventsCalendar from "@/components/Hr/Events/EventsCalendar";
-import EnhancedCalendar from "@/components/Hr/Events/EnhancedCalendar";
 import { Button } from "@/components/ui/button";
 import { useAllEvents } from "@/api/query-hooks/event.hooks";
-import EventList from "@/components/EventList";
-import AnnouncementCard from "@/components/AnnouncementCard";
-import { Link } from "react-router-dom";
+import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import EventsPageSkeleton from "@/components/Hr/Events/EventsPageSkeleton";
 
 const Events = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
 
   const {
     data: eventsData,
@@ -28,7 +22,7 @@ const Events = () => {
     return <EventsPageSkeleton />;
   }
 
-  if (!eventsData || !eventsData.success || isEventsError) {
+  if (isEventsError) {
     console.error("Events Data Error", eventsError);
     return (
       <ErrorMessage
@@ -39,20 +33,12 @@ const Events = () => {
     );
   }
 
-  const processedEvents = eventsData.data.map((event) => ({
+  const processedEvents = eventsData?.data.map((event) => ({
     ...event,
     startTime: new Date(event.startTime),
     endTime: new Date(event.endTime),
   }));
 
-  // Separate events by type
-  const specialEvents = processedEvents.filter(
-    (event) => event.type === "holiday" || event.type === "birthday"
-  );
-
-  const announcements = processedEvents.filter(
-    (event) => event.type === "announcement"
-  );
 
   return (
     <>
@@ -77,7 +63,7 @@ const Events = () => {
         </section>
 
         <section className="flex sm:flex-col md:flex-row gap-4  pb-5">
-          <div
+          {/* <div
             className="hidden md:flex justify-center w-[30%] overflow-y-scroll  h-[535px]"
             style={{
               scrollbarWidth: "none",
@@ -91,7 +77,7 @@ const Events = () => {
                 </p>
               </div>
               <EnhancedCalendar
-                events={processedEvents}
+                events={processedEvents || []}
                 selected={selectedDate}
                 onSelect={setSelectedDate}
               />
@@ -109,12 +95,13 @@ const Events = () => {
                   </Link>
                 </div>
 
-                {/* Special Events List */}
+                {/* Special Events List 
                 <div className="flex flex-col space-y-5">
-                  {specialEvents.length > 0 ? (
-                    specialEvents.map((event) => (
+                  {specialEvents && specialEvents?.length > 0 ? (
+                    specialEvents?.map((event) => (
                       <EventList
                         key={event.id}
+                        id={event.id}
                         event={
                           event.type === "holiday" ? "holiday" : "birthday"
                         }
@@ -137,10 +124,11 @@ const Events = () => {
                   </p>
                 </div>
                 <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
-                  {announcements.length > 0 ? (
-                    announcements.map((announcement) => (
+                  {announcements && announcements?.length > 0 ? (
+                    announcements?.map((announcement) => (
                       <AnnouncementCard
                         key={announcement.id}
+                        id={announcement.id}
                         date={new Date(announcement.startTime)}
                         title={announcement.title}
                       />
@@ -153,11 +141,21 @@ const Events = () => {
                 </div>
               </div>
             </div>
+          </div> */}
+          {/* calendar */}
+          <div
+            className="hidden md:flex justify-center w-[30%] overflow-y-scroll  h-[535px]"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            <Upcoming_SpecialCard />
           </div>
 
           {/* Events Calendar Section */}
           <div className="flex md:w-[70%] h-fit">
-            <EventsCalendar events={processedEvents} />
+            <EventsCalendar events={processedEvents || []} />
           </div>
         </section>
       </div>

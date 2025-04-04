@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Field, Form as FormikForm, Formik, FieldInputProps } from "formik";
 import { useLogin } from '@/api/query-hooks/auth.hooks';
@@ -10,6 +10,9 @@ import { GoogleAuthButton } from "@/components/Login/GoogleAuthButton";
 import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import rgtpatternimg1 from "@/assets/images/rgtpatternimg1.svg";
 import loginMainImg from "@/assets/images/WomanAndBackground.png";
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+import { useEffect, useState } from "react";
+
 
 interface FormValues {
   email: string;
@@ -23,6 +26,15 @@ const LoginSchema = Yup.object({
 const Login = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { currentUser } = useAuthContextProvider();
+  const location = useLocation();
+
+  if (currentUser) {
+    const from = location.state?.from?.pathname || "/emp/feed";
+    navigate(from, { replace: true });
+    return;
+  }
+
 
   const { mutate, isPending } = useLogin({
     onSuccess: (data: any) => {

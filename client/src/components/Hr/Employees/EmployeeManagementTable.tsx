@@ -5,19 +5,12 @@ import StepProgress from "@/components/common/StepProgress";
 import { Check, X } from "lucide-react";
 import EmployeeManagementTableSkeleton from "./EmployeeManagementTableSkeleton";
 import { EditEmployeeForm } from "./EditEmployeeForm";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Employee, EmployeeType } from "@/types/employee";
 import { Link } from "react-router-dom";
 import { TeamLeadToggle } from "./TeamLeadToggle";
 import { AgencyCheckboxToggle } from "./AgencyCheckboxToggle";
 import Filters from "@/components/common/Filters";
+import { useRequestPto } from "@/hooks/usePtoRequests";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
   full_time: "FT",
@@ -47,12 +40,19 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { allPtoData: ptoRequestData } = useRequestPto();
   const [activeSection, _setActiveSection] = useState<string>("personal");
   const [filter, setFilter] = useState({
     department: "All Departments",
     employmentType: "All Types",
     onLeave: "All Employees",
   });
+
+  const approvedPtoEmployeeIds = useMemo(() => {
+    return new Set(
+      ptoRequestData?.filter((request) => request.status === "approved").map((request) => request?.employee?.id)
+    );
+  }, [ptoRequestData]);
 
   const [itemsPerPage, setItemsPerPage] = useState<number>(
     window.innerWidth >= 768 ? 4 : 2
@@ -108,12 +108,11 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     return `${diffInYears} years`;
   }, []);
 
-  // Determine if an employee is on leave
   const isOnLeave = useCallback(
-    (leaveType: string | null | undefined): boolean => {
-      return !!leaveType;
+    (employeeId: number): boolean => {
+      return approvedPtoEmployeeIds.has(employeeId);
     },
-    []
+    [approvedPtoEmployeeIds]
   );
 
   const getEmployeeFieldValue = useCallback(
@@ -140,7 +139,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
           employeeTypeLabels[emp.employeeType as EmployeeType] || "",
         department: (emp) => emp.department?.name || "",
         agency: (emp) => emp.agency?.name || "",
-        onLeave: (emp) => (isOnLeave(emp.leaveType) ? "On Leave" : "Active"),
+        onLeave: (emp) => (isOnLeave(emp.id) ? "On Leave" : "Active"),
       };
 
       // Precise age calculation function
@@ -202,7 +201,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
       // Leave status filter
       if (filter.onLeave !== "All Employees") {
-        const onLeaveStatus = isOnLeave(employee.leaveType);
+        const onLeaveStatus = isOnLeave(employee.id);
         if (
           (filter.onLeave === "On Leave" && !onLeaveStatus) ||
           (filter.onLeave === "Not On Leave" && onLeaveStatus)
@@ -224,7 +223,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     });
 
     setFilteredEmployees(result);
-  }, [filter, employees, searchTerm, searchByField, getEmployeeFieldValue]);
+  }, [filter, employees, searchTerm, searchByField, getEmployeeFieldValue, isOnLeave]);
 
   // Load employee data
   useEffect(() => {
@@ -402,7 +401,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       header: "On Leave",
       render: (row) => (
         <div className="flex justify-center">
-          {isOnLeave(row.leaveType) ? (
+          {isOnLeave(row.id) ? (
             <div className="w-6 h-6 rounded-md bg-green-500 flex items-center justify-center">
               <Check className="text-white" size={16} />
             </div>
@@ -412,17 +411,6 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
         </div>
       ),
     },
-    // {
-    //   key: "actions",
-    //   header: "Action",
-    //   render: (_row) => (
-    //     <div className="flex space-x-2">
-    //       <button className="cursor-pointer w-8 h-8 bg-purple-400 rounded-md flex items-center justify-center">
-    //         <Pencil className="text-white" size={16} />
-    //       </button>
-    //     </div>
-    //   ),
-    // },
   ];
 
   const visibleColumnsData = columnsToShow
