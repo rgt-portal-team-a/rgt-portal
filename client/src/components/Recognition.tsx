@@ -125,7 +125,8 @@ const Recognition = ({
                         (item.recognizedEmployee?.user?.username as string) ??
                         `#${index}`
                       }
-                      className={`w-[50px] h-[50px] bg-rgtpurple`}
+                      className={`w-[50px] h-[50px]`}
+                      avtBg="bg-rgtpurple"
                     />
 
                     <span
@@ -137,7 +138,7 @@ const Recognition = ({
                   </div>
                   <p className="font-semibold text-xs  sm:text-sm text-nowrap text-center">
                     {item.recognizedEmployee?.firstName ?? `User #${index}`} -
-                     <span className="text-orange-500">{item.project}</span>
+                    <span className="text-orange-500">{item.project}</span>
                   </p>
                 </div>
               );
