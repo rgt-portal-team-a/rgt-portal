@@ -55,15 +55,10 @@ const Login = () => {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
       if (data.requiresOtp) {
-        navigate("/verify-email", {
-          state: {
-            email: data.message,
-            otpId: data.otpId,
-            userId: data.userId,
-          },
-        });
-      } else {
-        navigate("/emp/feed", { replace: true });
+        navigate('/verify-email', { state: { email: data.userEmail, otpId: data.otpId, userId: data.userId } });
+      }
+      else {
+        navigate('/emp/feed', { replace: true });
         toast({
           title: "Success",
           description: "Login successful",
@@ -107,12 +102,7 @@ const Login = () => {
           {/* Welcome Text */}
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome</h1>
-            <p className="text-gray-500 text-sm">
-              get into your account to begin.
-            </p>
-            {loginError && (
-              <p className="text-red-500 text-sm m-4">{loginError}</p>
-            )}
+            <p className="text-gray-500 text-sm">get into your account</p>
           </div>
 
           <Formik

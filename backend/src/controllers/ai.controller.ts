@@ -37,11 +37,12 @@ export class AiController {
 
   // GENERATE REPORT FOR EMPLOYEE OR RECRUITMENT USING THE AI ENDPOINT
   async generateReport(req: Request, res: Response): Promise<void> {
+    console.log('====================================');
+    console.log("ai endpoint", this.aiEndpoint);
+    console.log('====================================');
     const { type, format } = req.query;
     try {
-      const response = await axios.post<any>(`${this.aiEndpoint}/${type}?format=${format || "html"}`, {
-        format,
-      });
+      const response = await axios.get<any>(`${this.aiEndpoint}/api/${type}?format=${format || "html"}`);
       res.status(200).json(response.data);
     } catch (error) {
       this.handleError(error, res);

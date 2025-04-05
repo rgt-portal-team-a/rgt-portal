@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { ApiResponse } from "../types";
 import { CreatePollDto, Poll } from "@/types/polls";
@@ -39,8 +40,9 @@ export class PollService {
   }
 
   // Fetch a single poll by ID
-  public static async getPollById(pollId: number): Promise<ApiResponse<Poll>> {
+  public static async getPollById(pollId: number): Promise<any> {
     try {
+      if (!pollId) return 
       const response = await axios.get(`${this.baseUrl}/${pollId}`, {
         params: {
           withStats: true,
@@ -57,8 +59,9 @@ export class PollService {
   public static async votePoll(
     pollId: number,
     optionId: number
-  ): Promise<ApiResponse<Poll>> {
+  ): Promise<any> {
     try {
+      if (!pollId) return; 
       await axios.post(`${this.baseUrl}/${pollId}/vote`, { optionId });
       return this.getPollById(pollId);
     } catch (error) {
@@ -67,15 +70,17 @@ export class PollService {
     }
   }
 
-  public static async refreshPoll(pollId: number): Promise<ApiResponse<Poll>> {
+  public static async refreshPoll(pollId: number): Promise<any> {
+    if (!pollId) return; 
     return this.getPollById(pollId);
   }
 
   public static async removeVote(
     pollId: number,
     optionId: number
-  ): Promise<ApiResponse<Poll>> {
+  ): Promise<any> {
     try {
+      if (!pollId) return; 
       await axios.delete(`${this.baseUrl}/${pollId}/vote/${optionId}`, {
         params: {
           optionId: optionId,

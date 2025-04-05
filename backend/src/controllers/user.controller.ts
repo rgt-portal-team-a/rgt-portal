@@ -38,6 +38,7 @@ export class AuthController {
           requiresOtp: true,
           userId: user.id,
           otpId: otpId,
+          userEmail: user?.email,
           message: "Verification code sent to your email",
         });
       }

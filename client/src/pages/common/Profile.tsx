@@ -13,11 +13,14 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/common/Switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tab";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NotificationChannel, NotificationType } from "@/types/notifications";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreference";
 import { useUpdateUser } from "@/api/query-hooks/auth.hooks";
-import { toast } from "@/hooks/use-toast";
+import toastService from "@/api/services/toast.service";
+import { Badge } from "@/components/ui/badge";
 
 export function ProfilePage() {
   const { currentUser: user } = useAuthContextProvider();
@@ -61,20 +64,10 @@ export function ProfilePage() {
         phone: editedUser.phone,
       });
       setIsEditing(false);
-      toast({
-        title: "Success",
-        description: "Updated your profile successfully!",
-        duration: 500,
-        variant: "success",
-      });
+      toastService.success("Updated your profile successfully!");
     } catch (error) {
       console.error("Failed to update user:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update profile",
-        duration: 500,
-        variant: "destructive",
-      });
+      toastService.success("Failed to update profile");
     }
   };
 
@@ -118,254 +111,253 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6 bg-white">
-      {/* Profile Section */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-xl md:text-2xl font-bold">Profile Settings</h1>
-          {!isEditing ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs md:text-sm"
-              onClick={() => setIsEditing(true)}
-            >
-              <Edit className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-              Edit Profile
-            </Button>
-          ) : (
-            <div className="flex gap-1 md:gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs md:text-sm"
-                onClick={() => setIsEditing(false)}
-              >
-                <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                className="text-xs md:text-sm"
-                onClick={handleSave}
-                disabled={updateUserMutation.isPending}
-              >
-                <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                {updateUserMutation.isPending ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          )}
-        </div>
+    <div className="">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-[#706D8A] font-semibold text-xl">
+          Profile Settings
+        </h1>
+        <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
+          {user.role.name.toUpperCase()}
+        </Badge>
+      </div>
 
-        <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm">
-          <div className="flex flex-col md:flex-row items-start gap-4">
-            {/* Avatar Section */}
-            <div className="flex flex-col items-center gap-2 w-full md:w-auto">
-              {isEditing ? (
-                <>
-                  <label htmlFor="profileImage" className="cursor-pointer">
-                    <Avatar className="w-16 h-16 md:w-20 md:h-20">
-                      <AvatarImage src={editedUser.profileImage} />
-                      <AvatarFallback>
-                        {user.username.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <input
-                      id="profileImage"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
+      <Tabs defaultValue="profile" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="profile" className="cursor-pointer">
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="cursor-pointer">
+            Notifications
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile">
+          <Card className="sm:max-h-[490px] mb-3 sm:mb-0">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle>Profile Information</CardTitle>
+                {!isEditing ? (
                   <Button
-                    variant="link"
+                    variant="ghost"
                     size="sm"
-                    className="text-xs md:text-sm cursor-pointer"
-                    onClick={() =>
-                      document.getElementById("profileImage")?.click()
-                    }
+                    onClick={() => setIsEditing(true)}
                   >
-                    Change Photo
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Profile
                   </Button>
-                </>
-              ) : (
-                <Avatar className="w-16 h-16 md:w-20 md:h-20">
-                  <AvatarImage src={user.profileImage} />
-                  <AvatarFallback>
-                    {user.username.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-
-            {/* Profile Fields */}
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 w-full">
-              {/* Uneditable Fields */}
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">Role</Label>
-                <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                  {user.role.name.toUpperCase()}
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">Employee ID</Label>
-                <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                  {user.id}
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">Email</Label>
-                <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                  {user.email}
-                </div>
-              </div>
-
-              {/* Editable Fields */}
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">Username</Label>
-                {isEditing ? (
-                  <Input
-                    className="text-xs md:text-sm h-8 md:h-10 border"
-                    value={editedUser.username}
-                    onChange={(e) =>
-                      setEditedUser({ ...editedUser, username: e.target.value })
-                    }
-                  />
                 ) : (
-                  <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                    {user.username}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditing(false)}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={updateUserMutation.isPending}
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {updateUserMutation.isPending ? "Saving..." : "Save"}
+                    </Button>
                   </div>
                 )}
               </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">First Name</Label>
-                {isEditing ? (
-                  <Input
-                    className="border text-xs md:text-sm h-8 md:h-10"
-                    value={editedUser.firstName || ""}
-                    onChange={(e) =>
-                      setEditedUser({
-                        ...editedUser,
-                        firstName: e.target.value,
-                      })
-                    }
-                  />
-                ) : (
-                  <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                    {user.employee?.firstName || "Not set"}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">Last Name</Label>
-                {isEditing ? (
-                  <Input
-                    className="border text-xs md:text-sm h-8 md:h-10"
-                    value={editedUser.lastName || ""}
-                    onChange={(e) =>
-                      setEditedUser({ ...editedUser, lastName: e.target.value })
-                    }
-                  />
-                ) : (
-                  <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                    {user.employee?.lastName || "Not set"}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs md:text-sm">Phone</Label>
-                {isEditing ? (
-                  <Input
-                    className="border text-xs md:text-sm h-8 md:h-10"
-                    type="tel"
-                    value={editedUser.phone || ""}
-                    onChange={(e) =>
-                      setEditedUser({ ...editedUser, phone: e.target.value })
-                    }
-                  />
-                ) : (
-                  <div className="text-xs md:text-sm font-medium text-muted-foreground p-2 bg-muted rounded">
-                    {user.employee?.phone || "Not set"}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Notification Preferences */}
-      <div className="space-y-4">
-        <h2 className="text-xl md:text-2xl font-bold">
-          Notification Preferences
-        </h2>
-        <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm space-y-4 md:space-y-6">
-          {Object.values(NotificationType).map((type) => {
-            const preference = preferences?.find(
-              (p) => p.notificationType === type
-            );
-            const channel = preference?.channel ?? NotificationChannel.BOTH;
-            const enabled = preference?.enabled ?? true;
-            const isCurrentUpdating = isUpdating(type);
-
-            return (
-              <div
-                key={type}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4"
-              >
-                <div className="space-y-1 flex-1">
-                  <Label className="text-xs md:text-sm font-medium capitalize">
-                    {type.replace(/_/g, " ")}
-                  </Label>
-                  <p className="text-xs md:text-sm text-muted-foreground">
-                    How would you like to receive these notifications?
-                  </p>
+            </CardHeader>
+            <CardContent className="bg-indigo-70 sm:h-[420px]">
+              <div className=" flex flex-col gap-6 h-full overflow-auto">
+                <div className="lg:col-span-1 flex flex-col items-center space-y-4">
+                  <Avatar className="w-32 h-32">
+                    <AvatarImage src={editedUser.profileImage} />
+                    <AvatarFallback>
+                      {user.username.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isEditing && (
+                    <>
+                      <label htmlFor="profileImage" className="cursor-pointer">
+                        <Button variant="outline" className="w-full">
+                          Change Photo
+                        </Button>
+                        <input
+                          id="profileImage"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                    </>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2 md:gap-4">
-                  <Select
-                    value={channel}
-                    onValueChange={(value: NotificationChannel) =>
-                      handleChannelChange(type, value, enabled)
-                    }
-                    disabled={!enabled || isCurrentUpdating}
+                <div className="flex flex-wrap md:flex-nowrap gap-6 w-full">
+                  <div className="space-y-4 w-full">
+                    {/* <div className="space-y-1">
+                      <Label>Employee ID</Label>
+                      <div className="p-2 bg-muted rounded">{user.id}</div>
+                    </div> */}
+                    <div className="space-y-1">
+                      <Label>Email</Label>
+                      <div className="p-2 bg-muted rounded">{user.email}</div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Username</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editedUser.username}
+                          onChange={(e) =>
+                            setEditedUser({
+                              ...editedUser,
+                              username: e.target.value,
+                            })
+                          }
+                          className="border"
+                        />
+                      ) : (
+                        <div className="p-2 bg-muted rounded">
+                          {user.username}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 w-full ">
+                    <div className="space-y-1">
+                      <Label>First Name</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editedUser.firstName}
+                          onChange={(e) =>
+                            setEditedUser({
+                              ...editedUser,
+                              firstName: e.target.value,
+                            })
+                          }
+                          className="border"
+                        />
+                      ) : (
+                        <div className="p-2 bg-muted rounded">
+                          {user.employee?.firstName || "Not set"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Last Name</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editedUser.lastName}
+                          onChange={(e) =>
+                            setEditedUser({
+                              ...editedUser,
+                              lastName: e.target.value,
+                            })
+                          }
+                          className="border"
+                        />
+                      ) : (
+                        <div className="p-2 bg-muted rounded">
+                          {user.employee?.lastName || "Not set"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Phone</Label>
+                      {isEditing ? (
+                        <Input
+                          value={editedUser.phone}
+                          onChange={(e) =>
+                            setEditedUser({
+                              ...editedUser,
+                              phone: e.target.value,
+                            })
+                          }
+                          className="border"
+                        />
+                      ) : (
+                        <div className="p-2 bg-muted rounded">
+                          {user.employee?.phone || "Not set"}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <Card className="sm:max-h-[490px]">
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 h-[420px] overflow-auto">
+              {Object.values(NotificationType).map((type) => {
+                const preference = preferences?.find(
+                  (p) => p.notificationType === type
+                );
+                const channel = preference?.channel ?? NotificationChannel.BOTH;
+                const enabled = preference?.enabled ?? true;
+                const isCurrentUpdating = isUpdating(type);
+
+                return (
+                  <div
+                    key={type}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-muted rounded-lg"
                   >
-                    <SelectTrigger className="w-[100px] md:w-[120px] text-xs md:text-sm">
-                      <SelectValue placeholder="Channel" />
-                    </SelectTrigger>
-                    <SelectContent className="text-xs md:text-sm">
-                      <SelectItem value={NotificationChannel.IN_APP}>
-                        In App
-                      </SelectItem>
-                      <SelectItem value={NotificationChannel.EMAIL}>
-                        Email
-                      </SelectItem>
-                      <SelectItem value={NotificationChannel.BOTH}>
-                        Both
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <div className="space-y-1 flex-1">
+                      <Label className="font-medium capitalize">
+                        {type.replace(/_/g, " ")}
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        How would you like to receive these notifications?
+                      </p>
+                    </div>
 
-                  <Switch
-                    checked={enabled}
-                    onCheckedChange={(checked: boolean) =>
-                      handleToggle(type, checked, channel)
-                    }
-                    disabled={isCurrentUpdating}
-                    aria-label={`Toggle ${type} notifications`}
-                    className="scale-75 md:scale-100"
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                    <div className="flex items-center gap-4">
+                      <Select
+                        value={channel}
+                        onValueChange={(value: NotificationChannel) =>
+                          handleChannelChange(type, value, enabled)
+                        }
+                        disabled={!enabled || isCurrentUpdating}
+                      >
+                        <SelectTrigger className="w-[120px]">
+                          <SelectValue placeholder="Channel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={NotificationChannel.IN_APP}>
+                            In App
+                          </SelectItem>
+                          <SelectItem value={NotificationChannel.EMAIL}>
+                            Email
+                          </SelectItem>
+                          <SelectItem value={NotificationChannel.BOTH}>
+                            Both
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Switch
+                        checked={enabled}
+                        onCheckedChange={(checked: boolean) =>
+                          handleToggle(type, checked, channel)
+                        }
+                        disabled={isCurrentUpdating}
+                        aria-label={`Toggle ${type} notifications`}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

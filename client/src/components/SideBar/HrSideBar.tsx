@@ -89,7 +89,7 @@ export const HrSideBar = () => {
       {/* Sidebar */}
       <nav
         className={`
-          fixed sm:relative z-40 md:w-[280px] h-full text-center bg-white flex-col rounded-xl
+          fixed sm:relative z-40 md:w-[280px] h-full text-center bg-white flex-col rounded-[24px]
           transition-all duration-300 ease-in-out
           ${mobileMenuOpen ? "left-0" : "-left-full sm:left-0"}
         `}
