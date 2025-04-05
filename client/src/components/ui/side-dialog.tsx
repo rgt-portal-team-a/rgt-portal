@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { cva, type VariantProps } from "class-variance-authority";
+import { X } from "lucide-react";
 
 const sideModalVariants = cva(
   "fixed z-2000 bg-white shadow-lg overflow-auto transition-transform duration-300 ease-in-out",
@@ -102,10 +103,12 @@ export const SideModal = ({
         >
           {showCloseButton && (
             <Dialog.Close asChild>
-              <img
-                src="/Down 2.svg"
-                className="-rotate-90 bg-white p-2 rounded-full shadow-neutral-400 shadow-lg top-10 border hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer"
-              />
+              <div className="flex w-full p-2">
+                <X
+                  className="-rotate-90 bg-white rounded-full p-2 shadow-md top-10 border shadow-slate-600 hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer"
+                  size={35}
+                />
+              </div>
             </Dialog.Close>
           )}
 
