@@ -43,7 +43,7 @@ const DepartmentDetails = () => {
     username: employee.user?.username || "N/A",
     email: employee.user?.email || "N/A",
     type: employee.employeeType?.split("_").join(" ").toUpperCase() || "N/A",
-    userType: employee.user?.role.name.toUpperCase() || "N/A",
+    userType: employee.user?.role?.name.toUpperCase() || "N/A",
     positionStatus: (!employee.position
       ? "Permanent"
       : "Nsp"

@@ -66,7 +66,7 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
   return (
     <div
       key={id}
-      className="relative flex flex-col space-y-2 bg-white rounded-md p-2 lg:min-w-64 lg:w-[32%] lg:h-fit w-full h-[150px] shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden"
+      className="relative flex flex-col space-y-2 bg-white rounded-md p-2 lg:min-w-64 lg:w-[32%]  w-full h-[150px] shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden"
     >
       <div className="pb-4 border-b-[1px]  border-gray-200">
         <header className="text-[#706D8A] text-[20px] font-semibold flex justify-between items-center">

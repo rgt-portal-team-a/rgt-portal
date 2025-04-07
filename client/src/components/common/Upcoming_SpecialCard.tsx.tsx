@@ -47,13 +47,12 @@ const Upcoming_SpecialCard = () => {
   );
 
   return (
-    <>
       <section
         className={`space-y-10 w-full overflow-y-auto h-full`}
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
+        // style={{
+        //   scrollbarWidth: "none",
+        //   msOverflowStyle: "none",
+        // }}
       >
         <div className="pt-5 space-y-3 h-full  bg-white rounded-t-2xl w-full flex flex-col items-center">
           <p className="font-bold text-lg text-[#706D8A] px-4 w-full">
@@ -66,7 +65,7 @@ const Upcoming_SpecialCard = () => {
             onSelect={setSelectedDate}
           />
 
-          <div className="px-4 py-[24px] bg-white rounded-lg space-y-5 w-full">
+          <div className="px-4 pt-4 bg-white rounded-lg space-y-5 w-full">
             <div
               className="flex items-center justify-between"
               onClick={() => setMoreSpecialEvents(!showMoreSpecialEvents)}
@@ -110,7 +109,7 @@ const Upcoming_SpecialCard = () => {
 
           <div className="px-4 bg-white rounded-lg space-y-2 w-full">
             <div
-              className="flex items-center justify-between pb-4"
+              className="flex items-center justify-between"
               onClick={() => setMoreAnnouncements(!showMoreAnnouncements)}
             >
               <p className="font-semibold text-[#706D8A] text-lg">
@@ -147,7 +146,6 @@ const Upcoming_SpecialCard = () => {
           </div>
         </div>
       </section>
-    </>
   );
 };
 

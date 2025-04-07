@@ -43,7 +43,9 @@ const Feed = () => {
       <div className="flex flex-col h-full flex-1 min-w-0">
         <Recognition
           recognitions={
-            Array.isArray(recognitions?.data) ? recognitions?.data : []
+            Array.isArray(recognitions?.data)
+              ? recognitions?.data
+              : []
           }
           isRecLoading={recsLoading}
         />
@@ -93,7 +95,7 @@ const Feed = () => {
       </div>
       {/* calendar */}
       <div
-        className="hidden xl:block h-[100%] overflow-y-scroll"
+        className="hidden xl:block h-[100%] w-[400px] overflow-y-scroll"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <Upcoming_SpecialCard />
