@@ -36,6 +36,7 @@ export enum JobType {
   PARTICIPANT_REMOVED = "participant:removed",
 
   // Post related notifications
+  POST_CREATED = "post:created",
   POST_LIKED = "post:liked",
   POST_COMMENTED = "post:commented",
   COMMENT_REPLIED = "comment:replied",
@@ -223,6 +224,9 @@ export class QueueService {
       case JobType.EVENT_REMINDER:
         await this.processEventReminderNotification(payload);
         break;
+      case JobType.POST_CREATED:
+        await this.processPostCreatedNotification(payload);
+        break;
       case JobType.POST_LIKED:
         await this.processPostLikedNotification(payload);
         break;
@@ -380,6 +384,23 @@ export class QueueService {
     );
 
     this.logger.info(`Successfully processed event reminder notifications for event ${event.id}`);
+  }
+
+  private async processPostCreatedNotification(payload: { sender: User; post: Post }): Promise<void> {
+    const allEmployees = await AppDataSource.getRepository(Employee).find({
+      relations: ["user"],
+      where: {
+        id: Not(payload.sender.id),
+      },
+    });
+
+    await Promise.all(
+      allEmployees.map((employee) =>
+        this.notificationService.createNotification(NotificationTemplates.postCreated(payload.sender, payload.post, employee.user!.id)),
+      ),
+    );
+
+    this.logger.info(`Successfully processed post created notifications for post ${payload.post.id}`);  
   }
 
   // Post related notification methods
