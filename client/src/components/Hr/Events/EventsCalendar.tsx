@@ -557,11 +557,11 @@ const EventsCalendar = ({ events = [] }: ICalendarProps) => {
 
   return (
     <div
-      className="w-full h-[535px] overflow-y-scroll border rounded-lg bg-white shadow p-4"
-      style={{
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-      }}
+      className="w-full h-[520px] overflow-y-scroll border rounded-lg bg-white shadow p-4"
+      // style={{
+      //   scrollbarWidth: "none",
+      //   msOverflowStyle: "none",
+      // }}
     >
       {/* Calendar header with navigation and view options */}
       <div className="flex items-center mb-4">
