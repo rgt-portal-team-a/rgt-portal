@@ -25,9 +25,9 @@ export const useDepartmentsData = () => {
     toastService.error("Unable to load Departments");
   }
 
-  if (!departments && isDepartmentsLoading) {
-    toastService.default("Loading Departments...");
-  }
+  // if (!departments && isDepartmentsLoading) {
+  //   toastService.default("Loading Departments...");
+  // }
 
   // useEffect(() => {
 

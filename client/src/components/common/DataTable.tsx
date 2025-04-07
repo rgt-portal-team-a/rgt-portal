@@ -102,7 +102,7 @@ export function DataTable({
         skeleton == "default" ? (
           <DataTableSkeleton columns={columns} actionBool={actionBool} />
         ) : (
-          <EmployeeManagementTableSkeleton columns={columns} />
+          <EmployeeManagementTableSkeleton />
         )
       ) : (
         <Table className={dividers ? "" : "border-none bg-white rounded-md "}>

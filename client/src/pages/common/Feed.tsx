@@ -58,7 +58,7 @@ const Feed = () => {
           {/* Posts section */}
           <section className="space-y-7 bg-white rounded-2xl">
             <WithRole
-              roles={["hr", "marketer", "admin", "manager"]}
+              roles={["hr", "marketer", "admin"]}
               userRole={user?.role.name as string}
             >
               <CreatePost />
