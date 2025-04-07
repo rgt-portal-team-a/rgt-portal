@@ -1,5 +1,5 @@
-from callbacks import register_callbacks
-from layouts import create_layout
+from monitoring.app_scripts.callbacks import register_callbacks
+from monitoring.app_scripts.layouts import create_layout
 import dash
 from dash import dcc, html
 import dash_bootstrap_components as dbc

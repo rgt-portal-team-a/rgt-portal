@@ -19,7 +19,7 @@ from routers.scoring_router import router as scoring_router
 from routers.report_router import router as report_router
 # Import monitoring components
 from monitoring.metrics import metrics_collector
-from monitoring.database import init_db
+from monitoring.app_scripts.database import init_db
 from monitoring.middleware import MetricsMiddleware
 # Set up logging
 logging.basicConfig(level=logging.INFO,

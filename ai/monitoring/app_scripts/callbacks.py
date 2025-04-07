@@ -6,9 +6,9 @@ import dash_bootstrap_components as dbc
 import psutil
 
 # Import dashboard components
-from live_metrics import update_live_metrics
-from data_loader import load_data
-from tab_renderers import (
+from monitoring.app_scripts.live_metrics import update_live_metrics
+from monitoring.app_scripts.data_loader import load_data
+from monitoring.app_scripts.tab_renderers import (
     render_endpoint_tab,
     render_model_tab,
     render_system_tab,

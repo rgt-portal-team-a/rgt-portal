@@ -122,7 +122,14 @@ def create_system_cards():
             dbc.CardBody([
                 html.H2("0", id="total-requests", className="text-center"),
                 html.P("0% errors", id="error-rate",
-                       className="text-center mb-0")
+                       className="text-center mb-0"),
+                html.Div(style={
+                    'height': '75px',
+                    'display': 'flex',
+                    'alignItems': 'center',
+                    'justifyContent': 'center'
+                })
+
             ])
         ], style={
             'backgroundColor': colors['card_bg'],
