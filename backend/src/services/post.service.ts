@@ -2,12 +2,15 @@ import { Repository } from "typeorm";
 import { Post } from "../entities/post.entity";
 import { AppDataSource } from "@/database/data-source";
 import { CreatePostDto, UpdatePostDto } from "@/dtos/post.dto";
+import { QueueName, QueueService, JobType } from "./queue.service";
 
 export class PostService {
   private postRepository: Repository<Post>;
+  private queueService: QueueService;
 
   constructor() {
     this.postRepository = AppDataSource.getRepository(Post);
+    this.queueService = QueueService.getInstance();
   }
 
   async findAll(page: number = 1, limit: number = 10): Promise<[Post[], number]> {
@@ -41,6 +44,12 @@ export class PostService {
 
   async create(createPostDto: CreatePostDto): Promise<Post> {
     const post = this.postRepository.create(createPostDto);
+
+    await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.POST_CREATED, {
+      sender: post.author,
+      post: post,
+    });
+    
     return this.postRepository.save(post);
   }
 
