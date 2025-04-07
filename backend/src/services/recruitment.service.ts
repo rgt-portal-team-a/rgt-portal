@@ -287,17 +287,13 @@ export class RecruitmentService {
         throw new Error("Recruitment not found");
       }
 
-      recruitment.currentStatus = status;
+      const updateData: Partial<Recruitment> = {
+        currentStatus: status
+      };
 
       if (status === RecruitmentStatus.NOT_HIRED && failStage) {
-        recruitment.failStage = failStage;
-        recruitment.failReason = failReason;
-      }
-
-      if (status === RecruitmentStatus.NOT_HIRED) {
-        await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_MATCH_RESPONSE, {
-          recruitmentId: id,
-        });
+        updateData.failStage = failStage;
+        updateData.failReason = failReason;
       }
 
       if (
@@ -311,10 +307,18 @@ export class RecruitmentService {
       ) {
         const dueDate = new Date();
         dueDate.setDate(dueDate.getDate() + 7);
-        recruitment.statusDueDate = dueDate;
+        updateData.statusDueDate = dueDate;
       }
 
-      return this.recruitmentRepository.save(recruitment);
+      await this.recruitmentRepository.update(id, updateData);
+
+      if (status === RecruitmentStatus.NOT_HIRED) {
+        await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_MATCH_RESPONSE, {
+          recruitmentId: id,
+        });
+      }
+
+      return this.findById(id) as Promise<Recruitment>;
     } catch (error) {
       this.logger.error(`Error updating status for recruitment with ID ${id}:`, error);
       throw error;

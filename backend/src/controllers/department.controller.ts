@@ -16,7 +16,7 @@ export class DepartmentController {
   public getAllDepartments = async (req: Request, res: Response): Promise<void> => {
     try {
       const includeEmployees = req.query.includeEmployees === "true";
-      const relations = includeEmployees ? ["manager", "employees"] : ["manager"];
+      const relations = includeEmployees ? ["manager", "employees", "employees.user", "employees.user.role", "manager.user", "manager.user.role"] : ["manager", "manager.user", "manager.user.role"];
 
       const departments = await this.departmentService.findAll(relations);
 

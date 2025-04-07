@@ -176,7 +176,7 @@ export class PostService {
       .createQueryBuilder("post")
       .leftJoinAndSelect("post.author", "author")
       .leftJoinAndSelect("post.comments", "comments")
-      .leftJoinAndSelect("author.user", "user") // new code to get profileImage
+      .leftJoinAndSelect("author.user", "user") 
       .leftJoinAndSelect("comments.author", "commentAuthor")
       // .leftJoinAndSelect("comments.likes", "commentLikes")
       // .leftJoinAndSelect("comments.reactions", "commentReactions")
