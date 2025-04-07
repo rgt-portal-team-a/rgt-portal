@@ -24,3 +24,6 @@ export * from "./api-keys.entity";
 export * from "./notification.entity";
 export * from "./notification-preference.entity";
 export * from "./job-match-result.entity";
+export * from "./message.entity";
+export * from "./conversation.entity";
+export * from "./conversation-participant.entity";

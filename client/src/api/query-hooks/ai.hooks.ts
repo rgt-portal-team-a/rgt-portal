@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
-import { AttritionRequestInterface, JobMatchResultsResponse } from "@/types/ai";
+import { AttritionRequestInterface, JobMatchResultsResponse, ReportQueryParams, } from "@/types/ai";
 import { aiService } from "../services/ai.service";
 
 
@@ -24,5 +24,13 @@ export const useAllJobMatchResults = () => {
   return useQuery<JobMatchResultsResponse>({
     queryKey: ["all-job-match-results"],
     queryFn: () => aiService.getAllJobMatchResults(),
+  });
+};
+
+
+export const useGenerateReport = (params: ReportQueryParams, ) => {
+  return useQuery({
+    queryKey: ["generate-report"],
+    queryFn: () => aiService.generateReport(params),
   });
 };
