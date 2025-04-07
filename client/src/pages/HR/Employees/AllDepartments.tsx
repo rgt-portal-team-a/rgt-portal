@@ -67,6 +67,8 @@ export const AllDepartments = () => {
     setFilteredDepartments(filtered);
   }, [departments, searchQuery]);
 
+  console.log("Filtered Departments: ", filteredDepartments);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };

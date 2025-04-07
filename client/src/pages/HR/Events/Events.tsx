@@ -144,11 +144,8 @@ const Events = () => {
           </div> */}
           {/* calendar */}
           <div
-            className="hidden md:flex justify-center w-[30%] overflow-y-scroll  h-[535px]"
-            style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-            }}
+            className="hidden md:flex justify-center w-[30%] overflow-hidden  h-[535px]"
+            
           >
             <Upcoming_SpecialCard />
           </div>

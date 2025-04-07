@@ -11,6 +11,7 @@ import { TeamLeadToggle } from "./TeamLeadToggle";
 import { AgencyCheckboxToggle } from "./AgencyCheckboxToggle";
 import Filters from "@/components/common/Filters";
 import { useRequestPto } from "@/hooks/usePtoRequests";
+import Avtr from "@/components/Avtr";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
   full_time: "FT",
@@ -244,12 +245,13 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
         <Link to={`/hr/manageemployees/employee/${row.id}`}>
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden mr-2 bg-gray-200">
-              {row.photoUrl ? (
-                <img
-                  src={row.photoUrl}
-                  alt={`${row.firstName} ${row.lastName}`}
-                  className="w-full h-full object-cover"
-                />
+              {row.user.profileImage ? (
+                // <img
+                //   src={row.photoUrl}
+                //   alt={`${row.firstName} ${row.lastName}`}
+                //   className="w-full h-full object-cover"
+                // />
+                <Avtr url={row.user.profileImage} name={row.user.username} />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-purple-200 text-purple-700">
                   {row.firstName?.charAt(0) || "N/A"}

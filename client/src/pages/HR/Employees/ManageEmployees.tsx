@@ -320,7 +320,7 @@ export const ManageEmployees: React.FC = () => {
         <div className="w-full flex flex-col md:flex-row sm:items-center md:items-start lg:items-center gap-3">
           {/* Search Input - will stack vertically on small screens */}
           {viewMode === "table" ? (
-            <div className="flex items-center justify-between w-full gap-2 flex-wrap lg:flex-nowrap">
+            <div className="flex items-center w-full gap-2 flex-wrap lg:flex-nowrap">
               <div className="relative w-full">
                 <Input
                   type="text"
@@ -338,7 +338,7 @@ export const ManageEmployees: React.FC = () => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full w-full sm:w-auto"
+                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-5 w-fit md:w-full"
                   >
                     <Search className="w-4 h-4 sm:mr-2" size={14} />
                     <span className="">Search Fields</span>
@@ -404,7 +404,7 @@ export const ManageEmployees: React.FC = () => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full w-full"
+                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-5 w-fit md:w-full"
                   >
                     <Eye className="w-12 h-12" size={14} />
                     Columns
