@@ -268,8 +268,11 @@ def render_endpoint_tab(data):
         return dbc.Alert(f"Error rendering endpoint metrics: {str(e)}", color="danger")
 
 def render_model_tab(data):
-    """Render the content for the Model Performance tab"""
+    """Render the content for the Model Performance tab with improved styling"""
     try:
+        # Import colors here to ensure they're available
+        from constants import colors
+        
         if not data or 'models' not in data:
             return dbc.Alert("No model metrics data received", color="warning")
 
@@ -277,30 +280,43 @@ def render_model_tab(data):
 
         if model_df.empty:
             return dbc.Card([
-                dbc.CardHeader("Model Performance Metrics",
-                               className="text-center"),
+                dbc.CardHeader("Model Performance Metrics", className="fw-bold"),
                 dbc.CardBody([
-                    html.H4("No model metrics recorded yet",
-                            className="text-center"),
-                    html.P("Model metrics will appear here once your models start processing requests",
+                    html.H4("No model metrics recorded yet", className="text-center"),
+                    html.P("Model metrics will appear here once your models start processing requests", 
                            className="text-muted text-center"),
                     html.Img(src="https://via.placeholder.com/400x200?text=No+Model+Metrics+Yet",
                              className="img-fluid d-block mx-auto")
                 ])
-            ], className="my-4")
+            ], style={
+                'backgroundColor': colors.get('card_bg', '#5A3A7E'),
+                'color': colors.get('text', '#FFFFFF'),
+                'borderRadius': '8px',
+                'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                'marginBottom': '20px'
+            })
 
         # Get unique models and metrics
         models = model_df['model_name'].unique()
         metrics = model_df['metric_name'].unique()
+        
+        # Get color references for consistent styling
+        card_bg_color = colors.get('card_bg', '#5A3A7E')
+        text_color = colors.get('text', '#FFFFFF')
+        secondary_color = colors.get('secondary', '#FF6B6B')
+        accent_color = colors.get('accent', '#FF9E64')
+        primary_color = colors.get('primary', '#452764')
 
         # Create tabs for each model
         model_tabs = []
         for model in models:
             model_data = model_df[model_df['model_name'] == model]
-
-            # Create a card for each metric
-            metric_cards = []
-            for metric in metrics:
+            
+            # Create rows of metric cards (2 per row)
+            metric_rows = []
+            current_row = []
+            
+            for i, metric in enumerate(metrics):
                 metric_data = model_data[model_data['metric_name'] == metric]
 
                 if not metric_data.empty:
@@ -309,48 +325,220 @@ def render_model_tab(data):
                         x='time_bucket',
                         y='metric_value',
                         title=f"{metric} Over Time",
-                        markers=True
+                        markers=True,
+                        color_discrete_sequence=[secondary_color]
                     )
+                    
+                    # Update layout to match endpoint tab styling
                     fig.update_layout(
                         plot_bgcolor='rgba(0,0,0,0)',
                         paper_bgcolor='rgba(0,0,0,0)',
-                        font={'color': colors['text']}
+                        font={'color': text_color},
+                        xaxis={'showgrid': False},
+                        yaxis={'showgrid': True, 'gridcolor': '#444'},
+                        legend={'bgcolor': 'rgba(0,0,0,0)'},
+                        margin=dict(l=40, r=40, t=60, b=40)
                     )
 
-                    metric_cards.append(
-                        dbc.Col(
-                            dbc.Card([
-                                dbc.CardHeader(
-                                    metric, className="text-center"),
-                                dbc.CardBody(dcc.Graph(figure=fig))
-                            ], className="mb-4"),
-                            md=6
-                        )
-                    )
-
+                    card = dbc.Col([
+                        dbc.Card([
+                            dbc.CardHeader(metric, className="fw-bold"),
+                            dbc.CardBody(dcc.Graph(figure=fig))
+                        ], style={
+                            'backgroundColor': card_bg_color,
+                            'color': text_color,
+                            'borderRadius': '8px',
+                            'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                            'height': '100%',
+                            'marginBottom': '20px'
+                        })
+                    ], md=6)
+                    
+                    current_row.append(card)
+                    
+                    # Create a new row after every 2 cards or at the end
+                    if len(current_row) == 2 or i == len(metrics) - 1:
+                        # If we have an odd number of metrics at the end, ensure proper layout
+                        if len(current_row) == 1:
+                            current_row.append(dbc.Col(md=6))  # Empty column for balance
+                            
+                        metric_rows.append(dbc.Row(current_row, className="mb-4"))
+                        current_row = []
+            
+            # Add a divider and summary section if we have metrics
+            if metric_rows:
+                # Add divider
+                divider_row = dbc.Row([
+                    dbc.Col([
+                        html.Div([
+                            html.Hr(style={'backgroundColor': accent_color, 'opacity': '0.5'}),
+                            html.Div([
+                                html.I(className="fas fa-chart-line me-2"),
+                                html.Span("Model Analysis Summary", className="fw-bold")
+                            ], style={
+                                'position': 'absolute',
+                                'top': '-12px',
+                                'left': '50%',
+                                'transform': 'translateX(-50%)',
+                                'backgroundColor': primary_color,
+                                'padding': '0 20px',
+                                'color': text_color
+                            })
+                        ], style={'position': 'relative', 'margin': '30px 0'})
+                    ], width=12)
+                ])
+                metric_rows.append(divider_row)
+                
+                # Add a summary card at the bottom (similar to endpoint table)
+                summary_stats = model_data.groupby('metric_name')['metric_value'].agg(['mean', 'min', 'max']).reset_index()
+                summary_stats = summary_stats.round(3)
+                
+                summary_table = dbc.Table.from_dataframe(
+                    summary_stats, 
+                    striped=True, 
+                    bordered=True,
+                    hover=True,
+                    responsive=True,
+                    className="table-dark"
+                )
+                
+                summary_row = dbc.Row([
+                    dbc.Col([
+                        dbc.Card([
+                            dbc.CardHeader([
+                                html.I(className="fas fa-table me-2"),
+                                f"{model} - Summary Statistics"
+                            ], className="d-flex align-items-center fw-bold"),
+                            dbc.CardBody(summary_table)
+                        ], style={
+                            'backgroundColor': card_bg_color,
+                            'color': text_color,
+                            'borderRadius': '8px',
+                            'boxShadow': '0 4px 8px rgba(0,0,0,0.2)'
+                        })
+                    ], width=12)
+                ], className="mb-4")
+                metric_rows.append(summary_row)
+            
+            # Combine all rows into a container for this model tab
+            model_content = html.Div(children=[
+                # Top section header
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Card([
+                            dbc.CardHeader([
+                                html.I(className="fas fa-brain me-2"),
+                                f"Model: {model} - Performance Overview"
+                            ], className="d-flex align-items-center fw-bold"),
+                            dbc.CardBody([
+                                html.H5(f"Analyzing {len(metrics)} metrics for {model}"),
+                                html.P("View detailed performance data below")
+                            ])
+                        ], style={
+                            'backgroundColor': card_bg_color,
+                            'color': text_color,
+                            'borderRadius': '8px',
+                            'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                            'marginBottom': '20px'
+                        })
+                    ], width=12)
+                ]),
+                # Metric charts - add all rows to the container
+                *metric_rows
+            ])
+                
+            # Create the tab for this model
             model_tabs.append(
                 dbc.Tab(
-                    dbc.Row(metric_cards),
+                    model_content,
                     label=model,
-                    tab_id=f"model-{model}"
+                    tab_id=f"model-{model}",
+                    label_style={
+                        'color': text_color,
+                        'fontWeight': 'bold'
+                    },
+                    active_label_style={
+                        'backgroundColor': accent_color,
+                        'borderColor': accent_color,
+                        'color': primary_color
+                    }
                 )
             )
-
-        return dbc.Tabs(model_tabs)
+        
+        # Create the tabs component with custom styling
+        tabs = dbc.Tabs(
+            model_tabs,
+            className="mb-3",
+            style={
+                'borderBottom': f'1px solid {accent_color}'
+            }
+        )
+        
+        # Create the full content container
+        full_content = dbc.Container([
+            # Header section
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader([
+                            html.I(className="fas fa-brain me-2"),
+                            "Model Performance Overview"
+                        ], className="d-flex align-items-center fw-bold"),
+                        dbc.CardBody([
+                            dbc.Row([
+                                dbc.Col([
+                                    html.H4(f"{len(models)} Active Models"),
+                                    html.P(f"Tracking {len(metrics)} metrics per model")
+                                ], md=6),
+                                dbc.Col([
+                                    html.H4("Performance Analysis"),
+                                    html.P("View detailed metrics for each model below")
+                                ], md=6)
+                            ])
+                        ])
+                    ], style={
+                        'backgroundColor': card_bg_color,
+                        'color': text_color,
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                        'marginBottom': '20px'
+                    })
+                ], width=12)
+            ]),
+            
+            # Model tabs section
+            dbc.Row([
+                dbc.Col([
+                    html.H4("Model Metrics by Type", className="section-header", 
+                            style={
+                                'color': text_color,
+                                'marginBottom': '15px',
+                                'paddingLeft': '10px',
+                                'borderLeft': f'4px solid {secondary_color}',
+                            })
+                ], width=12)
+            ], style={'marginTop': '10px', 'marginBottom': '15px'}),
+            
+            # Tabs component
+            dbc.Row([
+                dbc.Col(tabs, width=12)
+            ])
+        ], fluid=True)
+        
+        return full_content
 
     except Exception as e:
         return dbc.Alert([
-            html.H4("Error displaying model metrics",
-                    className="alert-heading"),
+            html.H4("Error displaying model metrics", className="alert-heading"),
             html.Hr(),
             html.P(f"Technical details: {str(e)}")
         ], color="danger")
-
-
+    
+    
 def render_system_tab(data):
     """Render the content for the System Metrics tab"""
     try:
-        system_df = pd.read_json(data['system'], orient='split')
+        system_df = pd.read_json(StringIO(data['system']), orient='split')
 
         if system_df.empty:
             return dbc.Alert("No system metrics available", color="warning")
