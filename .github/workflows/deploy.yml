@@ -62,10 +62,10 @@ jobs:
           BRANCH_NAME=${{ github.ref_name }}
           if [[ "$BRANCH_NAME" == "main" ]]; then
             echo "ECR_REPO=rgt-portal-team-a/${{ matrix.service }}" >> $GITHUB_ENV
-            echo "IMAGE_TAG=latest"
+            echo "IMAGE_TAG=latest" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "dev" ]]; then
             echo "ECR_REPO=rgt-portal-team-a-dev" >> $GITHUB_ENV
-            echo "IMAGE_TAG=${{matrix.service}}-dev-latest"
+            echo "IMAGE_TAG=${{matrix.service}}-dev-latest" >> $GITHUB_ENV
           else
             echo "ECR_REPO=rgt-portal-team-a-dev" >> $GITHUB_ENV
             SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
