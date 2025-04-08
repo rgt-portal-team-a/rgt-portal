@@ -292,7 +292,7 @@ export const BaseLayout = () => {
         </div>
 
         <div
-          className="pt-[78px] flex-1 h-[685px] overflow-y-auto relative pb-[60px] sm:pb-0"
+          className="pt-[78px] flex-1 sm:h-[685px] overflow-y-auto relative pb-[60px] sm:pb-0"
           style={{
             scrollbarWidth: "none" /* Firefox */,
             msOverflowStyle: "none" /* IE and Edge */,
