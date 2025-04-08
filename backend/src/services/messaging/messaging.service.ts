@@ -192,7 +192,9 @@ export class MessagingService {
       description: dto.description,
       avatar: dto.avatar,
       departmentId: dto.departmentId,
-      createdById: userId
+      department: { id: dto.departmentId },
+      createdById: userId,
+      createdBy: { id: userId }
     });
 
     const savedConversation = await this.conversationRepository.save(conversation);
@@ -202,6 +204,8 @@ export class MessagingService {
       return this.conversationParticipantRepository.create({
         userId: participantId,
         conversationId: savedConversation.id,
+        user: { id: participantId },
+        conversation: { id: savedConversation.id },
         isAdmin: participantId === userId 
       });
     });
@@ -291,7 +295,7 @@ export class MessagingService {
   async getConversationById(conversationId: number): Promise<Conversation | null> {
     return this.conversationRepository.findOne({
       where: { id: conversationId },
-      relations: ["participants", "department"]
+      relations: ["participants", "participants.user", "department"]
     });
   }
 
@@ -301,6 +305,7 @@ export class MessagingService {
       relations: ["conversation"]
     });
 
+
     const conversationIds = participantRecords.map(record => record.conversationId);
     
     if (conversationIds.length === 0) {
@@ -309,7 +314,7 @@ export class MessagingService {
 
     return this.conversationRepository.find({
       where: { id: In(conversationIds) },
-      relations: ["participants", "department"],
+      relations: ["participants",  "participants.user", "department"],
       order: { updatedAt: "DESC" }
     });
   }
