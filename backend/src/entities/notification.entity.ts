@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGenerat
 import { User } from "@/entities/user.entity";
 
 export enum NotificationType {
+  POST_CREATED = "post_created",
   POST_LIKED = "post_liked",
   POST_COMMENTED = "post_commented",
   COMMENT_REPLIED = "comment_replied",

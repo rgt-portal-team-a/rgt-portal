@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { MoreThanOrEqual, Repository } from "typeorm";
 import { AppDataSource } from "@/database/data-source";
 import { EmployeeRecognition } from "@/entities/employee-recognition.entity";
 import { CreateRecognitionDto } from "@/dtos/employee-recognition.dto";
@@ -13,6 +13,18 @@ export class EmployeeRecognitionService {
   async findAll(): Promise<EmployeeRecognition[]> {
     return this.recognitionRepository.find({
       relations: ["recognizedBy.user", "recognizedEmployee.user"],
+    });
+  }
+
+  async findAllByWeek(): Promise<EmployeeRecognition[]> {
+    const currentWeek = new Date();
+    currentWeek.setDate(currentWeek.getDate() - currentWeek.getDay());
+    return this.recognitionRepository.find({
+      where: { createdAt: MoreThanOrEqual(currentWeek) }, 
+      relations: ["recognizedBy.user", "recognizedEmployee.user"],
+      order: {
+        createdAt: "DESC",
+      },
     });
   }
 
