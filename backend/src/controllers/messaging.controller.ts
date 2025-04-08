@@ -312,8 +312,8 @@ export class MessagingController {
 
   public getUserConversations = async (req: Request, res: Response): Promise<void> => {
     try {
-      const userId = (req.user as any).id;
-      
+      const userId = parseInt((req.user as any).id);
+      console.log("user", req.user);
       const conversations = await this.messagingService.getUserConversations(userId);
       
       const response: ApiResponse<typeof conversations> = {

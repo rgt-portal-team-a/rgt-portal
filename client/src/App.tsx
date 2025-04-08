@@ -20,7 +20,7 @@ import CreatePassword from "./pages/auth/CreatePassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import Events from "./pages/HR/Events/Events";
 import DepartmentPage from "@/pages/HR/Employees/DepartmentPage";
-// import Messages from "./pages/common/Messages";
+import { MessagingPage } from "@/features/messaging";
 import FindEmployee from "./pages/common/FindEmployee";
 import EmployeePage from "@/pages/HR/Employees/EmployeePage";
 import EmployeeTimeOffRequests from "./pages/Manager/ManagerEmployeeTimeOff";
@@ -59,9 +59,10 @@ function App() {
             <Route index path="feed" element={<Feed />} />
             <Route path="events-calendar" element={<EventsCalendar />} />
             <Route path="all-departments/" element={<Departments />} />
+            <Route path="messages" element={<MessagingPage />} />
             <Route path="all-departments/:id" element={<DepartmentDetails />} />
             <Route path="time-off" element={<TimeOff />} />
-            {/* <Route path="messages" element={<Messages />} /> */}
+            <Route path="messages/:conversationId" element={<MessagingPage />} />
             <Route path=":id" element={<FindEmployee />} />
             <Route path="profile" element={<ProfilePage />} />
 
@@ -115,7 +116,8 @@ function App() {
             <Route path="feed" element={<Feed />} />
             <Route path="time-off" element={<TimeOff />} />
             <Route path="emp-time-off" element={<EmployeeTimeOff />} />
-            {/* <Route path="messages" element={<Messages />} /> */}
+            <Route path="messages" element={<MessagingPage />} />
+            <Route path="messages/:conversationId" element={<MessagingPage />} />
             <Route path="events" element={<Events />} />
 
             {/* Advanced Report routes - accessible by HR and ADMIN */}
@@ -179,7 +181,8 @@ function App() {
             <Route path="feed" element={<Feed />} />
             <Route path="time-off" element={<TimeOff />} />
             <Route path="emp-time-off" element={<EmployeeTimeOff />} />
-            {/* <Route path="messages" element={<Messages />} /> */}
+            <Route path="messages" element={<MessagingPage />} />
+            <Route path="messages/:conversationId" element={<MessagingPage />} />
             <Route path="events" element={<Events />} />
 
             {/* Advanced Report routes - accessible by HR and ADMIN */}

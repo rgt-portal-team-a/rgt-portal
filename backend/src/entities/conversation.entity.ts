@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, JoinTabl
 import { User } from "./user.entity";
 import { Message } from "./message.entity";
 import { Department } from "./department.entity";
+import { ConversationParticipant } from "./conversation-participant.entity";
 
 export enum ConversationType {
   PRIVATE = "private",
@@ -40,13 +41,8 @@ export class Conversation {
   @JoinColumn({ name: "created_by_id" })
   createdBy!: User;
 
-  @ManyToMany(() => User)
-  @JoinTable({
-    name: "conversation_participants",
-    joinColumn: { name: "conversation_id", referencedColumnName: "id" },
-    inverseJoinColumn: { name: "user_id", referencedColumnName: "id" }
-  })
-  participants!: User[];
+  @OneToMany(() => ConversationParticipant, participant => participant.conversation)
+  participants!: ConversationParticipant[];
 
   @OneToMany(() => Message, (message) => message.conversationId)
   messages!: Message[];
