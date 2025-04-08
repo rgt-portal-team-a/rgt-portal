@@ -21,6 +21,7 @@ class DecimalEncoder(json.JSONEncoder):
             return obj.isoformat()  # Convert datetime/date objects to ISO format string
         return super(DecimalEncoder, self).default(obj)
 
+
 def clean_nan_values(obj):
     """Replace NaN values with None for JSON serialization"""
     if isinstance(obj, dict):
@@ -54,3 +55,4 @@ def load_jobs_data(file_path: str) -> List[Dict]:
         return clean_nan_values(data)
     except Exception as e:
         raise Exception(f"Error loading jobs data: {str(e)}")
+    
