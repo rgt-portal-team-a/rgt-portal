@@ -38,7 +38,7 @@ const Feed = () => {
   }
 
   return (
-    <main className={`flex w-full h-full pb-3 lg:space-x-[17px]`}>
+    <main className={`flex w-full h-full pb-3 sm:pb-0 lg:space-x-[17px]`}>
       {/* main screen */}
       <div className="flex flex-col h-full flex-1 min-w-0">
         <Recognition

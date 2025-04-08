@@ -43,7 +43,7 @@ export const SideBar = () => {
           label: "My TimeOff",
           path: "time-off",
           icon: TimeIcon,
-          roles: ["employee", "manager", "hr", "admin"],
+          roles: ["employee", "manager", "hr", "admin", "marketer"],
         },
         {
           label: "Employee Time Off",
@@ -98,8 +98,8 @@ export const SideBar = () => {
         </header>
       )}
       <div className="bg-white h-full rounded-[30px] flex flex-col items-center py-[31px] w-full max-w-[280px]">
-        <div className="space-y-3">
-          <div className="flex relative bg-[#452667] text-white justify-start items-center px-4 md:p-[16px] space-x-2 md:space-x-4 rounded-[16px] sm:w-[200px] md:w-[240px] h-[72px]">
+        <div className="space-y-3 px-4 w-full">
+          <div className="flex relative bg-[#452667] text-white justify-start items-center px-2 md:p-[16px] space-x-2 md:space-x-4 rounded-[16px] sm:w-[200px] md:w-[240px] h-[72px]">
             <Avtr
               url={user?.profileImage as string}
               name={user?.username as string}
@@ -147,7 +147,7 @@ export const SideBar = () => {
             )}
           </div>
         </div>
-        <nav className="rounded-xl justify-start items-center md:items-start sm:min-w-[100px] md:min-w-[280px] flex flex-col pt-[10px] space-y-1">
+        <nav className="rounded-xl justify-start items-center md:items-start w-full flex flex-col pt-[10px] space-y-1">
           {navItems.map((item) => {
             const hasSubRoutes =
               item.subRoutes && getFilteredSubRoutes(item.subRoutes).length > 0;

@@ -63,7 +63,7 @@ const Events = () => {
 
         <section className="flex sm:flex-col md:flex-row gap-4 h-full">
           {/* calendar */}
-          <div className="hidden md:flex justify-center w-[30%] overflow-hidden  h-[530px]">
+          <div className="hidden md:flex justify-center w-[35%] overflow-hidden h-[530px]">
             <Upcoming_SpecialCard />
           </div>
 
