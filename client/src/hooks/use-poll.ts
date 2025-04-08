@@ -12,6 +12,11 @@ export const usePoll = (pollId?: number) => {
         console.log("polls:", res.data);
         return res.data as Poll[];
       }),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    placeholderData: (previousData) => {
+      return previousData;
+    },
   });
 
   const { data: poll, isLoading } = useQuery<Poll>({
