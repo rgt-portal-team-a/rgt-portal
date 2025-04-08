@@ -2,7 +2,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 from sqlalchemy import func, case
-from monitoring.app_scripts.database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
+from database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
 
 
 def load_data(time_range, start_date, end_date):

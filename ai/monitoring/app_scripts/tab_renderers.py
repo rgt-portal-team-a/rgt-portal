@@ -3,7 +3,7 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 from io import StringIO
-from monitoring.app_scripts.constants import colors
+from constants import colors
 
 
 def render_endpoint_tab(data):

@@ -67,62 +67,38 @@ async def generate_report_endpoint(input_data: NSPDataDirectInput):
 
 
 @router.post("/predict-dropoff", response_model=List[PredictionResult])
-async def predict_dropoff_endpoint(applicants: List[RawCandidateData]):
+def predict_dropoff_endpoint(applicants: List[RawCandidateData]):
     start_time = time.time()
-    batch_size = len(applicants)
     try:
         # Get predictions
         predictions = predictor.predict_from_raw(applicants)
         inference_time = time.time() - start_time
 
-        # Calculate metrics
-        positive_predictions = sum(
-            1 for p in predictions if p.predicted_class == 1)
-        negative_predictions = batch_size - positive_predictions
-        avg_confidence = sum(p.confidence for p in predictions) / \
-            batch_size if batch_size > 0 else 0
+         # Track endpoint metrics
+        metrics_collector.track_request(
+            endpoint="/predict-dropoff",
+            response_time=inference_time,
+            status_code=200
+        )
 
         # Track comprehensive metrics
-        metrics_collector.track_model_performance(
+        metrics_collector.track_model_metrics(
             model_name="dropoff_model",
             metrics={
-                "inference_time_sec": inference_time,
-                "throughput": batch_size / inference_time if inference_time > 0 else 0,
-                "batch_size": batch_size,
-                "positive_predictions": positive_predictions,
-                "negative_predictions": negative_predictions,
-                "positive_rate": positive_predictions / batch_size if batch_size > 0 else 0,
-                "avg_confidence": avg_confidence,
-                "min_confidence": min(p.confidence for p in predictions) if batch_size > 0 else 0,
-                "max_confidence": max(p.confidence for p in predictions) if batch_size > 0 else 0,
-                "timestamp": datetime.utcnow().isoformat()  # For time-based analysis
+                "inference_time": inference_time,
+                "prediction": float(predictions.prediction) if hasattr(applicants, 'prediction') else 0.0,
+                "confidence": float(predictions.confidence) if hasattr(applicants, 'confidence') else 0.0,
+                "actual": float(applicants.dropoff) if hasattr(applicants, 'dropoff') else None
             }
         )
 
         return predictions
 
-    except ValueError as e:
-        # Track validation errors separately
-        metrics_collector.track_model_performance(
-            model_name="dropoff_model",
-            metrics={
-                "validation_errors": 1,
-                "inference_time_sec": time.time() - start_time,
-                "batch_size": batch_size,
-                "error_type": "validation"
-            }
-        )
-        raise HTTPException(status_code=422, detail=str(e))
-
     except Exception as e:
         # Track system errors
-        metrics_collector.track_model_performance(
-            model_name="dropoff_model",
-            metrics={
-                "system_errors": 1,
-                "inference_time_sec": time.time() - start_time,
-                "batch_size": batch_size,
-                "error_type": "system"
-            }
+        metrics_collector.track_request(
+            endpoint="/predict-dropoff",
+            response_time=time.time() - start_time,
+            status_code=500
         )
         raise HTTPException(status_code=500, detail=str(e))
