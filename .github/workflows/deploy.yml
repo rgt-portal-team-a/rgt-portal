@@ -28,13 +28,13 @@ jobs:
         include:
           - service: ai
             dockerfile: ./ai/Dockerfile
-            ecr_repo: rgt-portal-team-a/ai
+            #ecr_repo: rgt-portal-team-a/ai
           - service: backend
             dockerfile: ./backend/Dockerfile
-            ecr_repo: rgt-portal-team-a/backend
+            #ecr_repo: rgt-portal-team-a/backend
           - service: client
             dockerfile: ./client/Dockerfile
-            ecr_repo: rgt-portal-team-a/client
+            #ecr_repo: rgt-portal-team-a/client
 
     steps:
       - name: Checkout Code
@@ -56,16 +56,18 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set Image Tag Based on Branch
-        id: set-tag
+      - name: Set ECR Repository and Tags Based on Branch
+        id: set-repo
         run: |
           BRANCH_NAME=${{ github.ref_name }}
           if [[ "$BRANCH_NAME" == "main" ]]; then
-            echo "IMAGE_TAG=${{ matrix.service }}-latest" >> $GITHUB_ENV
+            echo "ECR_REPO=rgt-portal-team-a/${{ matrix.service }}" >> $GITHUB_ENV
+            echo "IMAGE_TAG=latest"
           elif [[ "$BRANCH_NAME" == "dev" ]]; then
-            echo "IMAGE_TAG=${{ matrix.service }}-dev" >> $GITHUB_ENV
+            echo "ECR_REPO=rgt-portal-team-a-dev" >> $GITHUB_ENV
+            echo "IMAGE_TAG=${{matrix.service}}-dev-latest"
           else
-            # Convert feature branch names to valid tags (replace / with -)
+            echo "ECR_REPO=rgt-portal-team-a-dev" >> $GITHUB_ENV
             SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
             echo "IMAGE_TAG=${{ matrix.service }}-$SANITIZED_BRANCH" >> $GITHUB_ENV
           fi
@@ -74,7 +76,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}
+          images: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}
           tags: |
             ${{ env.IMAGE_TAG }}
 
