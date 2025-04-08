@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback, useMemo } from "react";
 import { RecruitmentType } from "@/lib/enums";
 import RecruitmentTable from "@/components/Recruitment/RecruitmentTable";
