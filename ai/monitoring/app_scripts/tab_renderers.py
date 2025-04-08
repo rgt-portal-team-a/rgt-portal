@@ -9,6 +9,9 @@ from constants import colors
 def render_endpoint_tab(data):
     """Render the content for the Endpoint Metrics tab"""
     try:
+        # Import colors here to ensure they're available
+        from constants import colors
+        
         endpoint_df = pd.read_json(StringIO(data['endpoints']), orient='split')
 
         if endpoint_df.empty:
@@ -71,16 +74,198 @@ def render_endpoint_tab(data):
                 legend={'bgcolor': 'rgba(0,0,0,0)'}
             )
 
-        return dbc.Row([
-            dbc.Col(dcc.Graph(figure=fig1), md=6),
-            dbc.Col(dcc.Graph(figure=fig2), md=6),
-            dbc.Col(dcc.Graph(figure=fig3), md=6),
-            dbc.Col(dcc.Graph(figure=fig4), md=6)
-        ])
+        # Create a summary table with key metrics for each endpoint
+        summary_data = endpoint_agg.copy()
+        summary_data['avg_response_time'] = summary_data['avg_response_time'].round(2)
+        summary_data['error_rate'] = (summary_data['error_rate'] * 100).round(2).astype(str) + '%'
+        
+        summary_table = dbc.Table.from_dataframe(
+            summary_data, 
+            striped=True, 
+            bordered=True,
+            hover=True,
+            responsive=True,
+            className="table-dark"
+        )
+
+        # Card background style - use a safe fallback if card_bg isn't available
+        card_bg_color = colors.get('card_bg', '#5A3A7E')  # Use default if key doesn't exist
+        text_color = colors.get('text', '#FFFFFF')
+        secondary_color = colors.get('secondary', '#FF6B6B')
+        accent_color = colors.get('accent', '#FF9E64')
+        highlight_color = colors.get('highlight', '#F06292')
+        primary_color = colors.get('primary', '#452764')
+
+        # Create a well-organized layout with visual separation
+        return dbc.Container([
+            # Top row - Summary stats card (optional)
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader([
+                            html.I(className="fas fa-chart-line me-2"),
+                            "Endpoint Performance Overview"
+                        ], className="d-flex align-items-center fw-bold"),
+                        dbc.CardBody([
+                            dbc.Row([
+                                dbc.Col([
+                                    html.H4(f"{len(endpoint_agg)} Active Endpoints"),
+                                    html.P(f"Total Requests: {endpoint_agg['request_count'].sum():,}")
+                                ], md=4),
+                                dbc.Col([
+                                    html.H4(f"{endpoint_agg['avg_response_time'].mean():.2f}ms"),
+                                    html.P("Average Response Time")
+                                ], md=4),
+                                dbc.Col([
+                                    html.H4(f"{(endpoint_agg['error_rate'].mean() * 100):.2f}%"),
+                                    html.P("Overall Error Rate")
+                                ], md=4)
+                            ])
+                        ])
+                    ], style={
+                        'backgroundColor': card_bg_color,
+                        'color': text_color,
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                        'marginBottom': '20px'
+                    })
+                ], width=12)
+            ]),
+            
+            # First section - Summary charts
+            dbc.Row([
+                dbc.Col([
+                    html.H4("Endpoint Summary Statistics", className="section-header", 
+                            style={
+                                'color': text_color,
+                                'marginBottom': '15px',
+                                'paddingLeft': '10px',
+                                'borderLeft': f'4px solid {secondary_color}',
+                            })
+                ], width=12)
+            ], style={'marginTop': '10px', 'marginBottom': '15px'}),
+            
+            # Charts in cards - First row
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader("Total Requests by Endpoint", className="fw-bold"),
+                        dbc.CardBody(dcc.Graph(figure=fig1))
+                    ], style={
+                        'backgroundColor': card_bg_color,
+                        'color': text_color,
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                        'height': '100%'
+                    })
+                ], md=6),
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader("Average Response Time by Endpoint", className="fw-bold"),
+                        dbc.CardBody(dcc.Graph(figure=fig2))
+                    ], style={
+                        'backgroundColor': card_bg_color,
+                        'color': text_color,
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                        'height': '100%'
+                    })
+                ], md=6)
+            ], className="mb-4"),
+            
+            # Divider
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.Hr(style={'backgroundColor': accent_color, 'opacity': '0.5'}),
+                        html.Div([
+                            html.I(className="fas fa-clock me-2"),
+                            html.Span("Time-Based Analysis", className="fw-bold")
+                        ], style={
+                            'position': 'absolute',
+                            'top': '-12px',
+                            'left': '50%',
+                            'transform': 'translateX(-50%)',
+                            'backgroundColor': primary_color,
+                            'padding': '0 20px',
+                            'color': text_color
+                        })
+                    ], style={'position': 'relative', 'margin': '30px 0'})
+                ], width=12)
+            ]),
+            
+            # Charts in cards - Second row
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader("Request Volume Over Time", className="fw-bold"),
+                        dbc.CardBody(dcc.Graph(figure=fig3))
+                    ], style={
+                        'backgroundColor': card_bg_color,
+                        'color': text_color,
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                        'height': '100%'
+                    })
+                ], md=6),
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader("Response Time Over Time", className="fw-bold"),
+                        dbc.CardBody(dcc.Graph(figure=fig4))
+                    ], style={
+                        'backgroundColor': card_bg_color,
+                        'color': text_color,
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 8px rgba(0,0,0,0.2)',
+                        'height': '100%'
+                    })
+                ], md=6)
+            ], className="mb-4"),
+            
+            # Endpoint details table section
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        html.Hr(style={'backgroundColor': highlight_color, 'opacity': '0.5'}),
+                        html.Div([
+                            html.I(className="fas fa-table me-2"),
+                            html.Span("Detailed Metrics", className="fw-bold")
+                        ], style={
+                            'position': 'absolute',
+                            'top': '-12px',
+                            'left': '50%',
+                            'transform': 'translateX(-50%)',
+                            'backgroundColor': primary_color,
+                            'padding': '0 20px',
+                            'color': text_color
+                        })
+                    ], style={'position': 'relative', 'margin': '30px 0'})
+                ], width=12)
+            ]),
+            
+            # Table section
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader([
+                            html.I(className="fas fa-table me-2"),
+                            "Endpoint Performance Details"
+                        ], className="d-flex align-items-center fw-bold"),
+                        dbc.CardBody([
+                            summary_table
+                        ])
+                    ], style={
+                        'backgroundColor': card_bg_color,
+                        'color': text_color,
+                        'borderRadius': '8px',
+                        'boxShadow': '0 4px 8px rgba(0,0,0,0.2)'
+                    })
+                ], width=12)
+            ], className="mb-4")
+        ], fluid=True)
 
     except Exception as e:
         return dbc.Alert(f"Error rendering endpoint metrics: {str(e)}", color="danger")
-
 
 def render_model_tab(data):
     """Render the content for the Model Performance tab"""
