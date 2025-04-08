@@ -250,21 +250,21 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     }
   };
 
-  // const assigneeOptions =
-  //   employees?.map((emp) => ({
-  //     value: emp.id,
-  //     label: `${emp.firstName} ${emp.lastName}`,
-  //   })) || [];
   const assigneeOptions =
-    employees
-      ?.filter(
-        (emp) =>
-          emp.user?.role?.name === "HR" || emp.user?.role?.name === "ADMIN"
-      )
-      .map((emp) => ({
-        value: emp.id,
-        label: `${emp.firstName} ${emp.lastName}`,
-      })) || [];
+    employees?.map((emp) => ({
+      value: emp.id,
+      label: `${emp.firstName} ${emp.lastName}`,
+    })) || [];
+  // const assigneeOptions =
+  //   employees
+  //     ?.filter(
+  //       (emp) =>
+  //         emp.user?.role?.name === "HR" || emp.user?.role?.name === "ADMIN"
+  //     )
+  //     .map((emp) => ({
+  //       value: emp.id,
+  //       label: `${emp.firstName} ${emp.lastName}`,
+  //     })) || [];
 
   const getFieldGroups = () => {
     const fullWidthFields = filteredFields.filter(

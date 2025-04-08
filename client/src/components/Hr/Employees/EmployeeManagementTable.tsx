@@ -241,7 +241,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       key: "name",
       header: "Employee Name",
       render: (row) => (
-        <Link to={`/hr/manageemployees/employee/${row.id}`}>
+        <Link to={`/admin/manageemployees/employee/${row.id}`}>
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden mr-2 bg-gray-200">
               {row.photoUrl ? (
@@ -428,13 +428,13 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   ];
 
   return (
-    <div className="flex bg-white flex-col items-center w-full overflow-auto px-4 pt-2 h-[450px] md:h-[500px]">
+    <div className="flex bg-white flex-col items-center w-full rounded-3xl overflow-auto px-4 pt-4 h-[450px] md:h-[500px]">
       <div className="w-full">
-        <div className="flex justify-between items-center">
+        {/* <div className="flex ">
           <h1 className="text-lg sm:text-xl font-medium text-gray-700">
             Employee Management
           </h1>
-        </div>
+        </div> */}
 
         {/* Filter Section */}
         <div className="w-full">

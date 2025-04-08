@@ -491,7 +491,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
           </div>
         </div>
 
-        <div className="rounded-lg overflow-hidden border border-gray-100 bg-white shadow-sm">
+        <div className="rounded-2xl py-3 p-2 overflow-hidden border border-gray-100 bg-white shadow-sm">
           {filteredCandidates.length === 0 ? (
             <div className="py-16 text-center min-w-full">
               <p className="text-gray-500">No candidates found.</p>
@@ -499,7 +499,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
           ) : (
             <Table className="border-collapse min-w-full">
               <TableHeader>
-                <TableRow className="border-none bg-gray-50">
+                <TableRow className="border-none ">
                   {filteredColumns.map((column) => (
                     <TableHead
                       key={column.key}

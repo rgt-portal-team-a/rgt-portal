@@ -321,15 +321,19 @@ export const ManageEmployees: React.FC = () => {
           {/* Search Input - will stack vertically on small screens */}
           {viewMode === "table" ? (
             <div className="flex items-center justify-between w-full gap-2 flex-wrap lg:flex-nowrap">
-              <div className="relative w-full">
+              <p className="w-52 lg:text-2xl sm:text-xl font-medium text-gray-700">
+                Employees Table
+              </p>
+
+              <div className="relative ">
                 <Input
                   type="text"
                   placeholder="Search Employee"
-                  className="pl-5 py-4.5 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full"
+                  className="pl-5 py-4.5 w-64 rounded-xl bg-gray-50 border outline-none shadow-none h-full "
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Search className="absolute right-4 top-3 h-6 w-6 text-gray-400" />
+                <Search className="absolute right-4 top-3.5 h-6 w-6 text-gray-400" />
               </div>
 
               {/* Popover Buttons - will wrap on small screens */}
@@ -404,7 +408,7 @@ export const ManageEmployees: React.FC = () => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full w-full"
+                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-4 h-full"
                   >
                     <Eye className="w-12 h-12" size={14} />
                     Columns
@@ -472,15 +476,20 @@ export const ManageEmployees: React.FC = () => {
               </Popover>
             </div>
           ) : (
-            <div className="relative w-full">
-              <Input
-                type="text"
-                placeholder="Search Employee"
-                className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full"
-                value={gridSearchTerm}
-                onChange={(e) => setGridSearchTerm(e.target.value)}
-              />
-              <Search className="absolute right-4 top-3 h-6 w-6 text-gray-400" />
+            <div className="flex gap-8 items-center">
+              <p className="w-46 lg:text-2xl sm:text-xl font-medium text-gray-700">
+                Employee Cards
+              </p>
+              <div className="relative w-64 ">
+                <Input
+                  type="text"
+                  placeholder="Search Employee"
+                  className="pl-5 py-4.5 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full"
+                  value={gridSearchTerm}
+                  onChange={(e) => setGridSearchTerm(e.target.value)}
+                />
+                <Search className="absolute right-4 top-3.5 h-6 w-6 text-gray-400" />
+              </div>
             </div>
           )}
 

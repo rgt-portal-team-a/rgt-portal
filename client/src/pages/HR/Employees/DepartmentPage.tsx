@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Trash2Icon } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useGetDepartmentById } from "@/api/query-hooks/department.hooks";
@@ -12,15 +12,6 @@ import {EmployeeSelector} from "@/components/Hr/common/EmployeeSelector";
 import { SideFormModal } from "@/components/common/Modal";
 import { Field, FieldArray, FormikHelpers, FieldProps } from "formik";
 import * as Yup from "yup";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import {
@@ -148,7 +139,7 @@ const DepartmentPage = () => {
               {department?.name} Department
             </h1>
             <div className="text-sm text-gray-400 flex items-center ">
-              <Link to={"/hr/alldepartments"} className={"hover:text-gray-500"}>
+              <Link to={"/admin/alldepartments"} className={"hover:text-gray-500"}>
                 {" "}
                 All Departments{" "}
               </Link>

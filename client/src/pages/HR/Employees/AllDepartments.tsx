@@ -107,7 +107,7 @@ export const AllDepartments = () => {
               <div className="relative w-full">
                 <Input
                   type="text"
-                  placeholder="Search For A Department"
+                  placeholder="Search for a department"
                   className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full "
                   value={searchQuery}
                   onChange={handleSearchChange}

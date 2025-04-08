@@ -1,6 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Employee } from '@/types/employee';
 import { Phone, Mail } from 'lucide-react';
+import { Link } from "react-router-dom";
+
 
 const EmployeeCard = ({ employee }: { employee: Employee}) => {
   return (
@@ -17,13 +19,16 @@ const EmployeeCard = ({ employee }: { employee: Employee}) => {
               className="w-full h-full object-cover"
             />
           </div>
+
           <div className="flex flex-col h-full">
-            <h3 className="font-semibold text-base h-1/2">
-              {employee.firstName} {employee.lastName}
-            </h3>
-            <p className="text-gray-400 text-sm">
-              {employee.position ?? "No Position"}
-            </p>
+            <Link to={`/admin/manageemployees/employee/${employee.id}`}>
+              <h3 className="font-semibold text-base h-1/2">
+                {employee.firstName} {employee.lastName}
+              </h3>
+              <p className="text-gray-400 text-sm">
+                {employee.position ?? "No Position"}
+              </p>
+            </Link>
           </div>
         </div>
 

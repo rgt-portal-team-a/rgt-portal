@@ -5,6 +5,7 @@ import {
   JobMatchResultsResponse,
   ReportQueryParams,
   KairoQueryRequest,
+  NspHiringSuccessInterface,
 } from "@/types/ai";
 import { aiService } from "../services/ai.service";
 
