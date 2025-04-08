@@ -105,5 +105,15 @@ jobs:
         with:
           status: ${{ job.status }}
           fields: repo,message,commit,author,action,eventName,workflow
+          custom_payload: |
+            {
+              "attachments": [
+                {
+                  "title": "Job Notification",
+                  "text": "Service: *${{ matrix.service }}*\nStatus: *${{ job.status }}*\nBranch: *${{ github.ref_name }}*",
+                  "color": "${{ job.status == 'success' && '#36a64f' || '#FF0000' }}"
+                }
+              ]
+            }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
