@@ -61,6 +61,8 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     refetchOnWindowFocus: false,
   });
 
+  console.log("Employees", employees);
+
   const [extractedData, setExtractedData] = useState<ExtractedCvData | null>(null);
 
   const handleExtractedData = (data: ExtractedCvData) => {
@@ -248,11 +250,21 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     }
   };
 
+  // const assigneeOptions =
+  //   employees?.map((emp) => ({
+  //     value: emp.id,
+  //     label: `${emp.firstName} ${emp.lastName}`,
+  //   })) || [];
   const assigneeOptions =
-    employees?.map((emp) => ({
-      value: emp.id,
-      label: `${emp.firstName} ${emp.lastName}`,
-    })) || [];
+    employees
+      ?.filter(
+        (emp) =>
+          emp.user?.role?.name === "HR" || emp.user?.role?.name === "ADMIN"
+      )
+      .map((emp) => ({
+        value: emp.id,
+        label: `${emp.firstName} ${emp.lastName}`,
+      })) || [];
 
   const getFieldGroups = () => {
     const fullWidthFields = filteredFields.filter(
@@ -320,7 +332,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         size="md"
         contentClassName="flex flex-col text-[#706D8A] p-0"
         headerClassName="text-[#706D8A]"
-        showCloseButton={false}
+        showCloseButton={true}
       >
         <Formik
           initialValues={initialValues}

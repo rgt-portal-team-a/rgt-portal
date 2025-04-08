@@ -7,20 +7,12 @@ import { Field, FieldInputProps, FormikHelpers, FieldProps } from "formik";
 import * as Yup from "yup";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, FileText, Search } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { useCreateDepartment } from "@/api/query-hooks/department.hooks";
 import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 import DepartmentCard from "@/components/DepartmentCard";
 import AllDepartmentsSkeleton from "@/components/Hr/Employees/AllDepartmentsSkeleton";
+import {EmployeeSelector} from "@/components/Hr/common/EmployeeSelector";
 import NoDepartmentsPage from "../../common/NoDepartmentsPage";
 
 const NewDepSchema = Yup.object({
@@ -260,37 +252,14 @@ export const AllDepartments = () => {
 
           <Field name="managerId">
             {({ field, form, meta }: FieldProps) => (
-              <div className="relative">
-                <Select
-                  onValueChange={(value) =>
-                    form.setFieldValue(field.name, value)
-                  }
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="w-full py-6">
-                    <SelectValue placeholder="Select a manager for the department" />
-                  </SelectTrigger>
-                  <SelectContent position="popper" className="z-[2000]">
-                    <SelectGroup>
-                      <SelectLabel>Select a manager</SelectLabel>
-                      {users?.length ? (
-                        users.map((user) => (
-                          <SelectItem key={user.id} value={user.id.toString()}>
-                            {user.firstName} {user.lastName}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-managers" disabled>
-                          No managers available
-                        </SelectItem>
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {meta.touched && meta.error && (
-                  <div className="text-red-500 text-sm mt-1">{meta.error}</div>
-                )}
-              </div>
+              <EmployeeSelector
+                field={field}
+                form={form}
+                meta={meta}
+                users={users || []}
+                placeholder="Select a manager for the department"
+                showEmail={true}
+              />
             )}
           </Field>
         </SideFormModal>
