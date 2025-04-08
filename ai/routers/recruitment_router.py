@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import ValidationError
 import pandas as pd
 from models.profile import JobRequest
 from models.nsp import NSPDataDirectInput
@@ -8,12 +9,27 @@ from nsp_retention.nsp_analyzer import NSPAnalyzer, generate_recommendations, ge
 from nsp_retention.nsp_models import ReportResponse
 from config.settings import api_key
 from dropoff_final.predict import DropoffPredictor, RawCandidateData, PredictionResult
-from typing import List
+from typing import List, Dict, Any
+from pydantic import BaseModel
 import os
 import logging
 
 router = APIRouter(tags=["Recruitment"])
 logger = logging.getLogger(__name__)
+
+class DropoffRequest(BaseModel):
+    applicants: List[RawCandidateData]
+
+REQUIRED_FIELDS = [
+    "date",
+    "highestDegree",
+    "statusDueDate",
+    "seniorityLevel",
+    "totalYearsInTech",
+    "source",
+    "position"
+]
+
 
 # Initialize the updated dropoff predictor.
 try:
@@ -61,12 +77,35 @@ async def generate_report_endpoint(input_data: NSPDataDirectInput):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
+
 @router.post("/predict-dropoff", response_model=List[PredictionResult])
-async def predict_dropoff_endpoint(applicants: List[RawCandidateData]):
+def predict_dropoff_endpoint(request: DropoffRequest):
     try:
-        predictions = predictor.predict_from_raw(applicants)
+        validated_applicants = []
+        errors = []
+
+        for idx, applicant_data in enumerate(request.applicants):
+            missing = [f for f in REQUIRED_FIELDS if not getattr(applicant_data, f)]
+            if missing:
+                for f in missing:
+                    errors.append(f"Applicant {idx}: '{f}' is required but missing")
+                continue
+
+            try:
+                # Convert to strict RawCandidateData
+                strict_applicant = RawCandidateData(**applicant_data.dict())
+                validated_applicants.append(strict_applicant)
+            except ValidationError as ve:
+                errors.append(f"Applicant {idx}: validation error - {ve}")
+
+        if errors:
+            raise HTTPException(status_code=400, detail=errors)
+
+        predictions = predictor.predict_from_raw(validated_applicants)
         return predictions
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
