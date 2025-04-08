@@ -557,7 +557,7 @@ const EventsCalendar = ({ events = [] }: ICalendarProps) => {
 
   return (
     <div
-      className="w-full h-[520px] overflow-y-scroll border rounded-lg bg-white shadow p-4"
+      className="w-full h-[530px] overflow-y-scroll border rounded-lg bg-white shadow p-4"
       // style={{
       //   scrollbarWidth: "none",
       //   msOverflowStyle: "none",
@@ -581,7 +581,7 @@ const EventsCalendar = ({ events = [] }: ICalendarProps) => {
         </div>
 
         {/* View selection tabs */}
-        <div className="flex text-gray-400 border-b border-gray-300 mx-auto items-center justify-center overflow-hidden">
+        <div className="flex text-gray-400 border-b border-gray-300 items-center justify-center overflow-hidden">
           {(["date", "week", "month", "year"] as const).map((viewOption) => (
             <button
               key={viewOption}
