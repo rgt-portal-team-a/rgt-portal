@@ -1,15 +1,40 @@
-import React from "react";
+import React,{useRef} from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useGetHiringLadder } from "@/api/query-hooks/reports.hooks";
 
 const HiringLadder: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useGetHiringLadder();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const total =
     data?.agencyData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
+
+      const scrollLeft = () => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollBy({
+            left: -200,
+            behavior: "smooth",
+          });
+        }
+      };
+
+      const scrollRight = () => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollBy({
+            left: 200,
+            behavior: "smooth",
+          });
+        }
+      };
 
   if (isLoading) {
     return (
@@ -123,32 +148,55 @@ const HiringLadder: React.FC = () => {
             />
           ))}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4 w-full">
-          {data.agencyData.map((agency, index) => (
-            <div
-              key={index}
-              className="flex flex-col gap-2 min-w-[100px] p-2 bg-gray-50 rounded-lg"
-            >
-              <div className="flex gap-2 items-center">
-                <div
-                  className="w-4 h-4 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: agency.color }}
-                />
-                <span className="text-sm font-medium truncate">
-                  {agency.name}
-                </span>
+        <div className="relative mt-4">
+          <button
+            onClick={scrollLeft}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto scroll-smooth space-x-4 pb-4  px-8"
+            style={{ 
+              scrollbarWidth: 'none',  // For Firefox
+              msOverflowStyle: 'none', // For IE/Edge
+            }}
+          >
+            {data.agencyData.map((agency, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-[200px] min-w-[200px] p-2 bg-gray-50 rounded-lg"
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2 items-center">
+                    <div
+                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: agency.color }}
+                    />
+                    <span className="text-sm font-medium truncate">
+                      {agency.name}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-bold text-lg">{agency.value}</span>
+                    <span
+                      className="text-sm font-medium"
+                      style={{ color: agency.color }}
+                    >
+                      ({Number(agency.percent).toFixed(2)}%)
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-baseline gap-1">
-                <span className="font-bold text-lg">{agency.value}</span>
-                <span
-                  className="text-sm font-medium"
-                  style={{ color: agency.color }}
-                >
-                  ({Number(agency.percent).toFixed(2)}%)
-                </span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button
+            onClick={scrollRight}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
       </CardContent>
     </Card>

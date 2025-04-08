@@ -325,7 +325,7 @@ export const ManageEmployees: React.FC = () => {
                 <Input
                   type="text"
                   placeholder="Search Employee"
-                  className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full"
+                  className="pl-5 py-4.5 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />

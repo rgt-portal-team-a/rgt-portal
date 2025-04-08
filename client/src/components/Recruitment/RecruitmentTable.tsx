@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -25,6 +25,12 @@ import {
 import { RecruitmentType } from "@/lib/enums";
 import { debounce } from "lodash";
 import { Recruitment } from "@/types/recruitment";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check } from "lucide-react";
 
 interface Column {
   key: string;
@@ -61,20 +67,12 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
   onSearch,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchByFields, setSearchByFields] = useState<string[]>([]);
+  const [columnSearchTerm, setColumnSearchTerm] = useState("");
 
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((term: string) => {
-        onSearch(term);
-      }, 500),
-    [onSearch]
-  );
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
+  const [columnFilterTerm, setColumnFilterTerm] = useState("");
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    debouncedSearch(value);
-  };
 
   const columns = useMemo(() => {
     const commonColumns: Column[] = [
@@ -189,6 +187,107 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
     }
   }, [type]);
 
+
+  useEffect(() => {
+    setVisibleColumns(columns.map((col) => col.key));
+  }, [columns]);
+
+  // Column visibility functions
+  const toggleColumnVisibility = (columnKey: string) => {
+    setVisibleColumns((prev) =>
+      prev.includes(columnKey)
+        ? prev.filter((key) => key !== columnKey)
+        : [...prev, columnKey]
+    );
+  };
+
+
+  const showAllColumns = () => setVisibleColumns(columns.map((col) => col.key));
+  const hideAllColumns = () => setVisibleColumns([]);
+  const resetColumns = () => setVisibleColumns(columns.map((col) => col.key));
+
+  const filteredColumns = useMemo(() => {
+    return columns.filter((col) => visibleColumns.includes(col.key));
+  }, [columns, visibleColumns]);
+
+
+  useEffect(() => {
+    if (searchByFields.length === 0 && searchTerm) {
+      setSearchByFields(['name']); 
+    }
+  }, [searchTerm, searchByFields]);
+
+
+  // const debouncedSearch = useMemo(
+  //   () =>
+  //     debounce((term: string) => {
+  //       onSearch(term);
+  //     }, 500),
+  //   [onSearch]
+  // );
+
+  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value;
+  //   setSearchTerm(value);
+  //   debouncedSearch(value);
+  // };
+
+
+
+
+  const getCandidateFieldValue = (
+    candidate: Recruitment,
+    field: string
+  ): string => {
+    const column = columns.find((col) => col.key === field);
+
+    switch (field) {
+      case "name":
+        return candidate.name;
+      case "phoneNumber":
+        return candidate.phoneNumber;
+      case "dateCreated":
+        return formatDate(candidate.createdAt);
+      case "location":
+        return candidate.location || "";
+      case "position":
+        return candidate.position || "";
+      case "university":
+        return candidate.university || "";
+      case "firstPriority":
+        return candidate.firstPriority || "";
+      case "secondPriority":
+        return candidate.secondPriority || "";
+      default:
+        return String(candidate[field as keyof Recruitment] || "");
+    }
+  };
+
+  const filteredCandidates = useMemo(() => {
+    if (!searchTerm || searchByFields.length === 0) return candidates;
+
+    const lowerSearchTerm = searchTerm.toLowerCase().replace(/\s/g, "");
+
+    return candidates.filter((candidate) => {
+      return searchByFields.some((field) => {
+        const value = getCandidateFieldValue(candidate, field);
+        return value.toLowerCase().replace(/\s/g, "").includes(lowerSearchTerm);
+      });
+    });
+  }, [candidates, searchTerm, searchByFields]);
+
+
+
+  // Available searchable fields based on columns
+  const searchableFields = useMemo(() => {
+    return columns
+      .filter(col => col.key !== 'actions'  && col.key !== 'cv')
+      .map(col => ({
+        key: col.key,
+        label: col.header
+      }));
+  }, [columns]);
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "—";
     const date = new Date(dateString);
@@ -220,40 +319,180 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
                 : "NSS CANDIDATES"}
             </h1>
             <p className="text-gray-500 text-sm">
-              {totalItems} {totalItems === 1 ? "candidate" : "candidates"} found
+              Showing {filteredCandidates.length} of {candidates.length}{" "}
+              {candidates.length === 1 ? "candidate" : "candidates"}
+              {searchTerm && (
+                <span className="ml-2">
+                  matching <span className="font-medium">"{searchTerm}"</span>
+                  {searchByFields.length > 0 && (
+                    <span> in {searchByFields.length} fields</span>
+                  )}
+                </span>
+              )}
             </p>
           </div>
           <div className="flex lg:flex-row flex-wrap lg:flex-nowrap items-center gap-4">
-            <div className="relative w-full">
-              <Input
-                type="text"
-                placeholder="Search candidates"
-                className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              <div className="absolute inset-y-0 left-3 flex items-center">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-            </div>
             <Button
               variant="default"
               size="lg"
-              className="bg-purple-700 hover:bg-purple-800"
+              className="bg-purple-700 py-6 hover:bg-purple-800"
               onClick={onAddNew}
             >
               <UserPlus size={18} className="mr-2" />
               Add New Candidate
             </Button>
-            <Button variant="outline" size="default">
-              <Columns size={18} className="mr-2" />
-              Columns
-            </Button>
+
+            <div className="relative flex items-center gap-2">
+              <div className="relative flex-1">
+                <Input
+                  type="text"
+                  placeholder="Search candidates"
+                  className="pl-10 pr-4 py-4 w-54 h-full rounded-md border border-gray-300"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <div className="absolute inset-y-0 left-3 flex items-center">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+              </div>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-md py-[15px] h-full w-54 sm:w-auto"
+                  >
+                    <Search className="w-4 h-4 sm:mr-2" size={14} />
+                    <span className="">Search Fields</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-64 px-2 py-4 rounded-xl bg-gradient-to-tr from-[#FFFBEB] via-[#F2FBFF] to-[#F7FEFF]"
+                  align="end"
+                >
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="Search fields..."
+                      value={columnSearchTerm}
+                      onChange={(e) => setColumnSearchTerm(e.target.value)}
+                      className="bg-white shadow-none"
+                    />
+                    <div className="max-h-60 overflow-y-auto">
+                      {searchableFields
+                        .filter((field) =>
+                          field.label
+                            .toLowerCase()
+                            .includes(columnSearchTerm.toLowerCase())
+                        )
+                        .map((field) => (
+                          <div
+                            key={field.key}
+                            className="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer"
+                            onClick={() =>
+                              setSearchByFields((prev) =>
+                                prev.includes(field.key)
+                                  ? prev.filter((f) => f !== field.key)
+                                  : [...prev, field.key]
+                              )
+                            }
+                          >
+                            <button
+                              className={`flex items-center justify-center w-5 h-5 mr-3 rounded ${
+                                searchByFields.includes(field.key)
+                                  ? "bg-green-500 text-white"
+                                  : "bg-gray-200"
+                              }`}
+                            >
+                              {searchByFields.includes(field.key) && (
+                                <Check className=" h-4 w-4" />
+                              )}
+                            </button>
+                            <span className="text-sm">{field.label}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="bg-white text-sm text-gray-400 hover:bg-gray-100 rounded-xl py-[15px] h-full w-full"
+                >
+                  <Eye className="w-12 h-12" size={14} />
+                  Columns
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-64 px-2 py-4 rounded-xl bg-gradient-to-tr from-[#FFFBEB] via-[#F2FBFF] to-[#F7FEFF]"
+                align="end"
+              >
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center px-2">
+                    <button
+                      onClick={hideAllColumns}
+                      className="text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      Hide All
+                    </button>
+                    <button
+                      onClick={showAllColumns}
+                      className="text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      Show All
+                    </button>
+                    <button
+                      onClick={resetColumns}
+                      className="text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                  <Input
+                    placeholder="Search columns..."
+                    value={columnFilterTerm}
+                    onChange={(e) => setColumnFilterTerm(e.target.value)}
+                    className="bg-white shadow-none"
+                  />
+                  <div className="max-h-60 overflow-y-auto">
+                    {columns
+                      .filter((col) =>
+                        col.header
+                          .toLowerCase()
+                          .includes(columnFilterTerm.toLowerCase())
+                      )
+                      .map((col) => (
+                        <div
+                          key={col.key}
+                          className="flex items-center p-2 hover:bg-gray-100 rounded cursor-pointer"
+                          onClick={() => toggleColumnVisibility(col.key)}
+                        >
+                          <button
+                            className={`flex items-center justify-center w-5 h-5 mr-3 rounded ${
+                              visibleColumns.includes(col.key)
+                                ? "bg-green-500 text-white"
+                                : "bg-gray-200"
+                            }`}
+                          >
+                            {visibleColumns.includes(col.key) && (
+                              <Check className=" h-4 w-4" />
+                            )}
+                          </button>
+                          <span className="text-sm">{col.header}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         <div className="rounded-lg overflow-hidden border border-gray-100 bg-white shadow-sm">
-          {candidates.length === 0 ? (
+          {filteredCandidates.length === 0 ? (
             <div className="py-16 text-center min-w-full">
               <p className="text-gray-500">No candidates found.</p>
             </div>
@@ -261,7 +500,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
             <Table className="border-collapse min-w-full">
               <TableHeader>
                 <TableRow className="border-none bg-gray-50">
-                  {columns.map((column) => (
+                  {filteredColumns.map((column) => (
                     <TableHead
                       key={column.key}
                       className="border-none text-gray-500 text-xs font-medium p-5"
@@ -275,12 +514,12 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {candidates.map((candidate) => (
+                {filteredCandidates.map((candidate) => (
                   <TableRow
                     key={candidate.id}
                     className="border-none hover:bg-gray-50"
                   >
-                    {columns.map((column) => (
+                    {filteredColumns.map((column) => (
                       <TableCell
                         key={`${candidate.id}-${column.key}`}
                         className="border-none text-xs font-semibold text-gray-600 py-4"
@@ -319,54 +558,6 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
               </TableBody>
             </Table>
           )}
-
-          {/* <div className="flex items-center justify-between py-5 px-4">
-            <div className="text-sm text-gray-600">
-              Showing {candidates.length} of {totalItems} entries
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="text-gray-500 p-2 rounded-full hover:bg-gray-100 disabled:opacity-30"
-              >
-                <ChevronLeft size={20} />
-              </button>
-
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const pageOffset = Math.min(
-                  Math.max(0, currentPage - 3),
-                  Math.max(0, totalPages - 5)
-                );
-                const pageNum = i + 1 + pageOffset;
-
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => onPageChange(pageNum)}
-                    className={`w-6 h-6 flex text-sm items-center justify-center rounded-md transition-all ${
-                      currentPage === pageNum
-                        ? "bg-rgtpurpleaccent2 text-white font-bold"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-
-              <button
-                onClick={() =>
-                  onPageChange(Math.min(totalPages, currentPage + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="text-gray-500 p-2 rounded-full hover:bg-gray-100 disabled:opacity-30"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

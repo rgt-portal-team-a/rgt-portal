@@ -183,7 +183,6 @@ const CandidateDetailView: React.FC = () => {
             </div>
 
             <Separator className="my-4" />
-
             <div className="space-y-4">
               <div className="flex items-start">
                 <Mail className="h-5 w-5 text-gray-500 mr-3 mt-0.5" />
