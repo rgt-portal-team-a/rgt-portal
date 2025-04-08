@@ -143,7 +143,14 @@ const Departments = () => {
       >
         {currentItems.length > 0 ? (
           currentItems.map((item, index) => (
-            <DepartmentCard {...item} key={index} />
+            <DepartmentCard
+              employees={item.employees}
+              manager={item.manager}
+              path={`department/${item.id}`}
+              id={item.id}
+              name={item.name}
+              key={index}
+            />
           ))
         ) : (
           <div className="w-full bg-slate-200 flex items-center justify-center h-96 text-rgtpurple font-semibold">

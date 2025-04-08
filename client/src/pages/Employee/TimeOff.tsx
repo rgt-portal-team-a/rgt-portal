@@ -171,8 +171,8 @@ const paginatedData =
   ];
 
   return (
-    <main>
-      <div className="bg-white p-4 rounded-md overflow-auto h-[615px]">
+    <main className="bg-white p-4 rounded-md overflow-auto h-full">
+      <div>
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List

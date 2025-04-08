@@ -15,7 +15,6 @@ import {
   Eye,
   Edit,
   Trash2,
-  Filter,
   Columns,
   ChevronLeft,
   ChevronRight,
@@ -252,7 +251,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
           </div>
         </div>
 
-        <div className="rounded-lg overflow-hidden border border-gray-100 bg-white shadow-sm">
+        <div className="rounded-lg overflow-hidden bg-white">
           {candidates.length === 0 ? (
             <div className="py-16 text-center min-w-full">
               <p className="text-gray-500">No candidates found.</p>
@@ -320,7 +319,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
             </Table>
           )}
 
-          {/* <div className="flex items-center justify-between py-5 px-4">
+          <div className="flex items-center justify-between py-5 px-4">
             <div className="text-sm text-gray-600">
               Showing {candidates.length} of {totalItems} entries
             </div>
@@ -366,7 +365,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
                 <ChevronRight size={20} />
               </button>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

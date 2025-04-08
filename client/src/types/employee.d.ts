@@ -6,11 +6,12 @@ import { LEAVE_TYPES, WORK_TYPES, EMPLOYEE_TYPES, ROLE_TYPES } from "@/constants
 import { PTORequest } from "./PTOS";
 
 interface IDepartmentCard {
-  id: string | number;
+  id: string;
   employees: Employee[];
   name: string;
   manager?: Employee;
   includeBgImg?: boolean;
+  path?:string
 }
 
 interface IFeed {

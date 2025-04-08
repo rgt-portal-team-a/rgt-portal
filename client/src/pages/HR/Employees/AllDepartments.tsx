@@ -117,8 +117,8 @@ export const AllDepartments = () => {
               <div className="relative w-full">
                 <Input
                   type="text"
-                  placeholder="Search For A Department"
-                  className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full "
+                  placeholder="Search for a department"
+                  className="pl-5 py-4 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full "
                   value={searchQuery}
                   onChange={handleSearchChange}
                 />
@@ -128,7 +128,7 @@ export const AllDepartments = () => {
                 onClick={() => setIsModalOpen(true)}
                 className="bg-rgtviolet hover:bg-violet-900 rounded-lg py-6"
               >
-                Create a New Department
+                Add A New Department
               </Button>
             </div>
           </section>
@@ -138,10 +138,11 @@ export const AllDepartments = () => {
               {filteredDepartments.map((department) => (
                 <DepartmentCard
                   key={department.id}
-                  id={`department/${department.id}`}
+                  path={`department/${department.id}`}
+                  id={department.id}
                   name={department.name}
                   employees={department.employees ?? []}
-                  includeBgImg={true}
+                  manager={department.manager}
                 />
               ))}
             </div>

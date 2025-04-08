@@ -68,9 +68,9 @@ const Recognition = ({
             </p>
           </header>
 
-          <div className="bg-rgtpurple cursor-pointer absolute top-0 -right-20 p-2 rounded-lg text-sm font-semibold border">
+          {/* <div className="bg-rgtpurple cursor-pointer absolute top-0 -right-20 p-2 rounded-lg text-sm font-semibold border">
             <p>See all</p>
-          </div>
+          </div> */}
         </div>
       ) : (
         !isRecLoading && (

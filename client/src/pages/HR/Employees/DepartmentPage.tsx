@@ -214,7 +214,7 @@ const DepartmentPage = () => {
                       {values.emails && values.emails.length > 0
                         ? values.emails.map((email, index) => {
                             return (
-                              <div key={email} className="space-y-2">
+                              <div key={index} className="space-y-2">
                                 {" "}
                                 {/* Use email as the key */}
                                 <div className="flex space-x-2">

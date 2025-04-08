@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback, useMemo } from "react";
 import { RecruitmentType } from "@/lib/enums";
 import RecruitmentTable from "@/components/Recruitment/RecruitmentTable";
@@ -119,7 +120,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="">
         <RecruitmentTableSkeleton
           rowCount={limit}
           columnCount={type === RecruitmentType.EMPLOYEE ? 9 : 8}
@@ -135,7 +136,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
 
   if (isError) {
     return (
-      <div className="p-6">
+      <div className="">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error loading recruitment data</AlertTitle>
@@ -154,7 +155,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
   }
 
   return (
-    <div className="">
+    <div className="bg-white h-full rounded-md p-4">
       {isFetching && !isLoading && (
         <div className="fixed top-4 right-4 bg-white shadow-md rounded-md p-2 flex items-center z-50">
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />

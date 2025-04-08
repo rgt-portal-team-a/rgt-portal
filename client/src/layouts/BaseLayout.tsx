@@ -144,7 +144,7 @@ export const BaseLayout = () => {
                 )}
               </div>
               <div className="text-nowrap hidden sm:block pl-1">
-                <p className="text-[#706D8A] font-semibold sm:text-xl">
+                <p className="text-[#706D8A] font-semibold sm:text-xl text-nowrap">
                   Hello {user?.employee?.firstName}!
                 </p>
                 <p className="text-xs font-semibold text text-slate-500">
@@ -269,13 +269,13 @@ export const BaseLayout = () => {
           </div>
         </div>
       </header>
-      <div className="flex w-screen h-screen px-[13px] gap-[17px]">
+      <div className="flex w-screen sm:h-[695px] bg-pink-600 px-[13px] gap-[17px]">
         <div
-          className="h-screen text-center sm:py-[78px] hidden sm:block overflow-y-scroll"
-          style={{
-            scrollbarWidth: "none" /* Firefox */,
-            msOverflowStyle: "none" /* IE and Edge */,
-          }}
+          className=" text-center sm:py-[78px] hidden sm:block"
+          // style={{
+          //   scrollbarWidth: "none" /* Firefox */,
+          //   msOverflowStyle: "none" /* IE and Edge */,
+          // }}
         >
           <WithRole
             roles={["hr", "admin"]}
@@ -292,7 +292,7 @@ export const BaseLayout = () => {
         </div>
 
         <div
-          className="pt-[78px] flex-1 h-screen overflow-y-auto relative pb-[60px] sm:pb-0"
+          className="pt-[78px] flex-1 h-[685px] overflow-y-auto relative pb-[60px] sm:pb-0 bg-amber-"
           style={{
             scrollbarWidth: "none" /* Firefox */,
             msOverflowStyle: "none" /* IE and Edge */,

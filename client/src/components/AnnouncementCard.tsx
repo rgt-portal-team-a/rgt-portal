@@ -53,7 +53,7 @@ const AnnouncementCard: React.FC<IAnnouncementCard> = ({ date, title, id }) => {
 
   return (
     <>
-      <section className="flex justify-between items-center bg-[#F6F6F9] md:w-[180px] rounded-[6px] w-full h-[70px] px-2">
+      <section className="flex justify-between items-center bg-[#F6F6F9] md:w-[170px] rounded-[6px] w-full h-[70px] px-2">
         <div className="flex space-x-1 flex-1 min-w-0">
           <div className="bg-[#E328AF] text-white p-3 rounded-md flex flex-col items-center justify-center text-sm w-[40px] shrink-0">
             <p>{dayOfWeek}</p>
