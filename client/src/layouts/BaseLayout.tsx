@@ -269,7 +269,7 @@ export const BaseLayout = () => {
           </div>
         </div>
       </header>
-      <div className="flex w-screen sm:h-[695px] bg-pink-600 px-[13px] gap-[17px]">
+      <div className="flex w-screen sm:h-[695px] px-[13px] gap-[17px]">
         <div
           className=" text-center sm:py-[78px] hidden sm:block"
           // style={{
@@ -292,7 +292,7 @@ export const BaseLayout = () => {
         </div>
 
         <div
-          className="pt-[78px] flex-1 h-[685px] overflow-y-auto relative pb-[60px] sm:pb-0 bg-amber-"
+          className="pt-[78px] flex-1 h-[685px] overflow-y-auto relative pb-[60px] sm:pb-0"
           style={{
             scrollbarWidth: "none" /* Firefox */,
             msOverflowStyle: "none" /* IE and Edge */,

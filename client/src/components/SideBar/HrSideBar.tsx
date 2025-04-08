@@ -53,7 +53,7 @@ export const HrSideBar = () => {
           path: "/hr/recruitment/employee",
           icon: ProfileAdd2,
         },
-        { label: "NSS", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
+        { label: "NSP", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
       ],
     },
     { icon: CalendarIcon, label: "Events", path: "events" },
@@ -77,7 +77,7 @@ export const HrSideBar = () => {
   ];
 
   return (
-    <div className="bg-pink-700 h-[610px]">
+    <div className="h-[610px]">
       {/* Mobile Menu Button */}
       <button
         className="sm:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"

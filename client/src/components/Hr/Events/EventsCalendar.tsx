@@ -370,7 +370,7 @@ const EventsCalendar = ({ events = [] }: ICalendarProps) => {
                 <div className="space-y-1 px-1">
                   {dayEvents
                     .slice(0, 2)
-                    .map((event, _idx) => renderEventCard(event, true))}
+                    .map((event) => renderEventCard(event, true))}
 
                   {dayEvents.length > 2 && (
                     <div className="text-xs text-gray-500 text-center">
@@ -392,7 +392,7 @@ const EventsCalendar = ({ events = [] }: ICalendarProps) => {
 
     return (
       <div className="grid grid-cols-3 gap-4 md:grid-cols-4">
-        {yearMonths.map((month, _) => {
+        {yearMonths.map((month) => {
           const monthEvents = events.filter(
             (event) =>
               event.startTime.getMonth() === month.getMonth() &&
@@ -520,7 +520,7 @@ const EventsCalendar = ({ events = [] }: ICalendarProps) => {
     const totalDaysShown =
       Math.ceil((prevMonthDays.length + daysInMonth) / 7) * 7;
     const nextMonthDays = [];
-    let remainingDays = totalDaysShown - (prevMonthDays.length + daysInMonth);
+    const remainingDays = totalDaysShown - (prevMonthDays.length + daysInMonth);
 
     for (let i = 1; i <= remainingDays; i++) {
       nextMonthDays.push(new Date(year, month + 1, i));
@@ -557,7 +557,7 @@ const EventsCalendar = ({ events = [] }: ICalendarProps) => {
 
   return (
     <div
-      className="w-full h-[530px] overflow-y-scroll border rounded-lg bg-white shadow p-4"
+      className="w-full h-[530px] overflow-y-scroll  rounded-lg bg-white shadow p-4"
       // style={{
       //   scrollbarWidth: "none",
       //   msOverflowStyle: "none",

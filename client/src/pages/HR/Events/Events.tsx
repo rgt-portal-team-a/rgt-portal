@@ -41,8 +41,8 @@ const Events = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-[15px] h-full">
-        <section className="h-[62px] flex justify-between w-full items-center py-1  ">
+      <div className="flex flex-col gap-[15px] h-full bg-white rounded-md">
+        <section className="h-[62px] flex justify-between w-full items-center pt-5 px-4 ">
           <div className="text-left flex flex-col gap-2">
             <h1 className="text-2xl font-medium text-gray-600">Events</h1>
             <h1 className="text-sm font-medium text-gray-400">

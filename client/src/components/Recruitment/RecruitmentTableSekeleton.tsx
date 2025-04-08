@@ -23,7 +23,7 @@ const RecruitmentTableSkeleton: React.FC<RecruitmentTableSkeletonProps> = ({
   const rows = Array.from({ length: rowCount }, (_, i) => i);
 
   return (
-    <div className="w-full bg-amber-500">
+    <div className="w-full">
       <div className="flex flex-col w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 w-full gap-4">
           <div>

@@ -61,6 +61,12 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
     )} ${date.getFullYear()}`;
   };
 
+  const formatedCandidates = candidates.map((candidate) => ({ 
+    ...candidate,
+    failStage: candidate.failStage || "—",
+    failReason: candidate.failReason || "—",
+  }));
+
   const columns = useMemo<Column[]>(() => {
     const commonColumns: Column[] = [
       {
@@ -190,7 +196,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
       <div className="rounded-lg overflow-hidden h-full w-full flex flex-col">
         <DataTable
           columns={columns}
-          data={candidates}
+          data={formatedCandidates}
           dividers={false}
           actionBool={true}
           actionObj={[
