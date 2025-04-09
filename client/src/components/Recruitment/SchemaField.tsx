@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import { FormField } from "@/types/recruitment";
 import { useExtractCvDetails } from "@/hooks/useRecruitment";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 
 export interface ExtractedCvData {
   name?: string;
@@ -121,12 +123,44 @@ export const renderField = (
                           <SelectItem
                             key={index}
                             value={value}
-                            className={isSelected ? "bg-gray-100" : ""}
+                            className={`
+                              ${isSelected ? "bg-gray-100" : ""} 
+                              flex items-center space-x-2 w-full
+                            `}
                           >
-                            <div className="flex items-center justify-between w-full">
-                              <span>{typeof option === "object" ? option.label : option}</span>
-                              {isSelected && <span className="text-green-500">✓</span>}
-                            </div>
+<div className="flex items-center justify-between w-full space-x-4">
+                    {/* Avatar Section */}
+                    {typeof option === "object" && option.profile && (
+                      <Avatar className="shrink-0">
+                        <AvatarImage
+                          src={option.profile}
+                          alt={option.label ?? ""}
+                        />
+                        <AvatarFallback>
+                          {option.label}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    
+                    {/* Label and Email Section */}
+                    <div className="flex-grow flex flex-col">
+                      <div className="flex items-center space-x-2">
+                        <p className="flex-grow">
+                          {typeof option === "object"
+                            ? option.label
+                            : option}
+                        </p>
+                        {isSelected && (
+                          <span className="text-green-500 ml-2">✓</span>
+                        )}
+                      </div>
+                      {typeof option === "object" && option.email && (
+                        <p className="text-sm text-gray-500">
+                          {option.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                           </SelectItem>
                         );
                       }
