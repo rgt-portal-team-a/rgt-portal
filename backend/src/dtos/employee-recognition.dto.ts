@@ -1,6 +1,6 @@
 export interface CreateRecognitionDto {
-  recognizedById: number;
-  recognizedEmployeeId: number;
+  recognizedBy: { id: number };
+  recognizedEmployee: { id: number };
   category?: string;
   message: string;
   project: string;

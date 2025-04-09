@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useGenerateReport } from "@/api/query-hooks/ai.hooks";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 
 import CandidatesHiredPeriod from "@/components/Hr/Reports/RegularReports/CandidatesHiredPeriod";
 import DropoutAnalysis from "@/components/Hr/Reports/RegularReports/DropoutAnalysis";
@@ -20,16 +20,20 @@ const RegularReports = () => {
   const [reportType, setReportType] = useState<"employees" | "recruitment">(
     "recruitment"
   );
+  const [lastRequestedType, setLastRequestedType] = useState<
+    "employees" | "recruitment"
+  >();
 
   const { data, isLoading, isFetching, isError, refetch } = useGenerateReport({
     type: reportType,
     format: "html",
   });
 
-  const handleGenerateReport = async (type: "employees" | "recruitment") => {
-    setReportType(type); 
-    setIsModalOpen(true); 
-    refetch(); 
+
+  const handleGenerateReport = (type: "employees" | "recruitment") => {
+    setLastRequestedType(type);
+    setReportType(type);
+    setIsModalOpen(true);
   };
 
   const handleDownloadPDF = async () => {
@@ -46,28 +50,30 @@ const RegularReports = () => {
   };
 
   return (
-    <div className="flex flex-col gap-[15px]">
-      <section className="h-[62px] flex justify-between w-full items-center py-1">
-        <div className="text-left flex flex-col gap-2">
-          <h1 className="text-2xl font-medium text-gray-600">Reports</h1>
-          <h1 className="text-sm font-medium text-gray-400">
+    <div className="flex flex-col gap-[15px] bg-white rounded-md">
+      <section className="flex flex-col md:flex-row justify-between w-full items-center px-4 pt-4 ">
+        <div className="flex flex-col w-full pb-4 md:pb-0">
+          <h1 className="text-xl font-semibold text-[#706D8A]">Reports</h1>
+          <h1 className="text-xs font-normal text-slate-500">
             These are your reports so far
           </h1>
         </div>
 
-        <div className="space-x-3 md:flex md:flex-row items-center h-full">
+        <div className="w-full flex sm:flex-col gap-4 lg:flex-row items-center lg:justify-end h-full">
           <Button
-            className="bg-rgtviolet rounded-[12px] hover:bg-violet-900 cursor-pointer text-white font-medium text-sm py-7 transition-colors duration-300 ease-in"
+            className="bg-rgtviolet rounded-[12px] hover:bg-violet-900 w-full lg:w-fit cursor-pointer text-white font-medium text-sm py-5 transition-colors duration-300 ease-in"
             onClick={() => handleGenerateReport("recruitment")}
           >
-            <img src="/Add.svg" alt="add" />
+            {/* <img src="/Add.svg" alt="add" /> */}
+            <Plus size={32} />
             Generate Recruitment Report
           </Button>
           <Button
-            className="bg-rgtviolet rounded-[12px] hover:bg-violet-900 cursor-pointer text-white font-medium text-sm py-7 transition-colors duration-300 ease-in"
+            className="bg-rgtviolet rounded-[12px] w-full hover:bg-violet-900 lg:w-fit cursor-pointer text-white font-medium text-sm py-5 transition-colors duration-300 ease-in"
             onClick={() => handleGenerateReport("employees")}
           >
-            <img src="/Add.svg" alt="add" />
+            {/* <img src="/Add.svg" alt="add" /> */}
+            <Plus size={32} />
             Generate Employee Report
           </Button>
         </div>
@@ -88,26 +94,29 @@ const RegularReports = () => {
             </div>
             <Dialog.Description>
               {(isLoading || isFetching) && (
-                <div className="flex justify-center items-center h-40">
+                <span className="flex justify-center items-center h-40">
                   <Loader2 className="h-8 w-8 animate-spin" />
-                </div>
+                </span>
               )}
               {isError && (
-                <div className="flex justify-center items-center h-40 text-red-500">
+                <span className="flex justify-center items-center h-40 text-red-500">
                   Failed to load report. Please try again.
                   <Button onClick={() => refetch()} variant={"outline"}>
                     Retry
                   </Button>
-                </div>
+                </span>
               )}
             </Dialog.Description>
-            {!isLoading && !isFetching && !isError && (
-              <div
-                id="report-content"
-                dangerouslySetInnerHTML={{ __html: data || "" }}
-                className="p-4"
-              />
-            )}
+            {!isLoading &&
+              !isFetching &&
+              !isError &&
+              lastRequestedType === reportType && (
+                <div
+                  id="report-content"
+                  dangerouslySetInnerHTML={{ __html: data || "" }}
+                  className="p-4"
+                />
+              )}
             <Dialog.Close asChild>
               <Button variant="ghost" className="mt-4">
                 Close
@@ -117,7 +126,7 @@ const RegularReports = () => {
         </Dialog.Portal>
       </Dialog.Root>
 
-      <div className="bg-gray-50 p-6 space-y-6">
+      <div className="p-4 space-y-6">
         <div className="grid grid-cols-1 lg:flex lg:flex-row lg:w-full gap-6">
           <div className="lg:w-2/3">
             <HiringLadder />

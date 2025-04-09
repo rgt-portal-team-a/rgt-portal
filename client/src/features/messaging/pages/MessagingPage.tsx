@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMessages, useConversation, useMarkConversationAsRead } from '@/api/query-hooks/useMessaging';
@@ -13,21 +14,26 @@ export const MessagingPage: React.FC = () => {
   const navigate = useNavigate();
   const [page] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const selectedId = conversationId ? parseInt(conversationId) : undefined;
+  const selectedId = conversationId ? conversationId : undefined;
   const { currentUser } = useAuthContextProvider();
 console.log("selectedId", selectedId);
 
-  const { data: conversationData } = useConversation(selectedId || 0);
-  const { data: messagesData, isLoading: isLoadingMessages } = useMessages(selectedId || 0, page);
+  const { data: conversationData } = useConversation(selectedId || '');
+  const { data: messagesData, isLoading: isLoadingMessages } = useMessages(selectedId || '', page);
   const markAsRead = useMarkConversationAsRead();
 
   const conversation = conversationData?.data;
-  const messages = messagesData?.data?.messages || [];
+  const isOnline = conversationData?.metadata?.isOnline;
+  console.log('====================================');
+  console.log("metadata", conversationData?.metadata);
+  console.log('====================================');
+  const messagesResponse = messagesData?.data;
+  const messages = messagesResponse || [];
   const currentUserId = currentUser?.id;
 
   useEffect(() => {
     if (selectedId) {
-      markAsRead.mutate(selectedId);
+        markAsRead.mutate(selectedId);
     }
   }, [selectedId]);
 
@@ -37,7 +43,7 @@ console.log("selectedId", selectedId);
     }
   }, [messages]);
 
-  const handleConversationSelect = (conversation: { id: number }) => {
+  const handleConversationSelect = (conversation: { id: string }) => {
     navigate(`/emp/messages/${conversation.id}`);
   };
 
@@ -56,6 +62,7 @@ console.log("selectedId", selectedId);
         <div className="flex-1 flex flex-col rounded-xl">
           <ConversationHeader
             conversation={conversation}
+            isOnline={isOnline as boolean}
             onVideoCall={() => {
               // TODO: Implement video call
               console.log('Video call');
@@ -77,7 +84,7 @@ console.log("selectedId", selectedId);
               </div>
             ) : (
               <>
-                {messages.map((message) => (
+                {Array.isArray(messages) && messages.map((message: Message) => (
                   <MessageBubble
                     key={message.id}
                     message={message}
@@ -90,7 +97,7 @@ console.log("selectedId", selectedId);
           </div>
 
           <MessageInput
-            conversationId={selectedId}
+            conversationId={selectedId || ''}
             onSend={() => {
               messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
             }}

@@ -12,7 +12,7 @@ import { useAuthContextProvider } from '@/hooks/useAuthContextProvider';
 import { useParams } from 'react-router-dom';
 
 interface ConversationListProps {
-  selectedId?: number;
+  selectedId?: string;
   onSelect: (conversation: Conversation) => void;
 }
 
@@ -120,7 +120,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({ selectedId, 
                 key={conversation.id}
                 onClick={() => onSelect(conversation)}
                 className={`w-full p-4 flex items-center gap-3 cursor-pointer hover:bg-accent transition-colors ${
-                  (selectedId === conversation.id || parseInt(conversationId || '') === conversation.id) ? 'bg-accent' : ''
+                  (selectedId === conversation.id || conversationId  === conversation.id) ? 'bg-accent' : ''
                 }`}
               >
                 <Avatar>

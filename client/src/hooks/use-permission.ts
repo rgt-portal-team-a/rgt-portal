@@ -16,7 +16,7 @@ export const usePermission = () => {
   ): boolean => {
     if (!currentUser) return false;
 
-    const rolePermissions = ROLES[currentUser.role.name];
+    const rolePermissions = ROLES[currentUser.role.name.toUpperCase()];
 
     if (rolePermissions.$all) return true;
 

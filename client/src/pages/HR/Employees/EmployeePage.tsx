@@ -25,6 +25,7 @@ import { useParams } from "react-router-dom";
 import EmployeeNotFoundCard from "@/components/common/EmployeeNotFoundCard";
 import { useEmployeeDetails } from "@/api/query-hooks/employee.hooks";
 import {calculateSeniority} from "@/utils/employee-helpers"
+import CalendarIcon from "@/assets/icons/CalendarIcon"
 
 const EmployeePage: React.FC = () => {
   const { id } = useParams();
@@ -90,6 +91,12 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Phone",
             value: employee.phone || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -115,6 +122,12 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Personal Email",
             value: employee.contactDetails?.personalEmail || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -122,9 +135,15 @@ const EmployeePage: React.FC = () => {
         {
           id: "work-email",
           position: { x: 920, y: 150 },
-          data: { 
+          data: {
             label: "Work Email",
             value: employee.user?.email || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -135,6 +154,12 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Location",
             value: `${employee.contactDetails?.homeAddress}` || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -145,6 +170,12 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Skills",
             value: employee.skills?.join(", ") || "No skills listed",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -183,6 +214,12 @@ const EmployeePage: React.FC = () => {
           value: employee.hireDate
             ? new Date(employee.hireDate).toLocaleDateString()
             : "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -194,6 +231,12 @@ const EmployeePage: React.FC = () => {
         data: {
           label: "Department",
           value: employee.department?.name || "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -204,6 +247,12 @@ const EmployeePage: React.FC = () => {
         data: {
           label: "Seniority",
           value: calculateSeniority(employee.hireDate) || "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },

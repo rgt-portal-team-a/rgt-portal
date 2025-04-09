@@ -324,8 +324,8 @@ export const useEventForm = (initialFormType = "1") => {
             return {
               message: recognition.title,
               project: item.projectName,
-              recognizedById: currentUserId,
-              recognizedEmployeeId: employeeId,
+              recognizedBy: { id: currentUserId },
+              recognizedEmployee: { id: employeeId },
             };
           });
 

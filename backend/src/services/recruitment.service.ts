@@ -454,6 +454,7 @@ export class RecruitmentService {
         .getRawMany();
       
       let codeInCount = 0;
+      let websiteCount = 0;
       agencyData.forEach((item) => {
         if (item.name === "Codeln") {
           item.name = "CodeIn";
@@ -463,17 +464,34 @@ export class RecruitmentService {
         if (item.name === "CodeIn") {
           codeInCount = codeInCount + parseInt(item.value);
         }
+
+        if (item.name === "website") {
+          item.name = "Website";
+          websiteCount = websiteCount + parseInt(item.value);
+        }
+
+        if (item.name === "Website") {
+          websiteCount = websiteCount + parseInt(item.value);
+        }
+        
+        
+
       });
 
       agencyData = agencyData.filter((item, index, self) =>
         index === self.findIndex((t) => t.name === item.name),
       );
 
+      // remove the website from the agencyData array
+      // agencyData = agencyData.filter((item) => item.name !== "Website" || item.name !== "website");
+
+      // agencyData.push({ name: "Website", value: websiteCount.toString(), percent: 0 });
+
 
       return {
         agencyData: agencyData.map((item) => ({
           ...item,
-          value: item?.name === "CodeIn" ? codeInCount.toString() : item?.value,
+          value: item?.name === "CodeIn" ? codeInCount.toString() : item?.name === "Website" ? websiteCount.toString() : item?.value,
           color: this.getRandomColor(item.name),
         })),
         nspCountData,

@@ -188,3 +188,18 @@ export interface ReportQueryParams{
   type: "employees" | "recruitment";
   format: "html";
 }
+
+
+export interface KairoQueryRequest {
+  query: string;
+}
+
+export interface KairoQueryResponse {
+  queryResponse: string;
+  queryReport: string;
+}
+
+
+export interface NspHiringSuccessInterface{
+  [topic: string]: number
+}

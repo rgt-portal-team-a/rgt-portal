@@ -4,13 +4,11 @@ import {
   MetricCard,
   IMetricCard,
 } from "../../components/Hr/Dashboard/MetricCard";
-import QuickActions from "../../components/Hr/QuickActions";
+import QuickActions from "../../components/Hr/Dashboard/QuickActions";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { useRequestPto } from "@/hooks/usePtoRequests";
 import { calculateMetrics } from "@/utils/metrics";
-import {
-  useRecruitments,
-} from "@/hooks/useRecruitment";
+import { useRecruitments } from "@/hooks/useRecruitment";
 
 export const HRDashboard = () => {
   const {
@@ -21,9 +19,10 @@ export const HRDashboard = () => {
     refetch: refetchEmployees,
   } = useAllEmployees({}, {});
 
-  const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } = useRequestPto();
-  const { data: recruitmentsData, isLoading: isLoadingRecruitments } = useRecruitments();
-
+  const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } =
+    useRequestPto();
+  const { data: recruitmentsData, isLoading: isLoadingRecruitments } =
+    useRecruitments();
 
   const metrics: IMetricCard[] = useMemo(() => {
     const hasEmployeeData = employeeData && employeeData.length > 0;

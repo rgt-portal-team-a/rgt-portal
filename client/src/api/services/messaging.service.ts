@@ -4,9 +4,9 @@ import { ApiResponse } from '../types';
 export interface Message {
   id: number;
   content: string;
-  type: 'TEXT' | 'IMAGE' | 'FILE' | 'AUDIO' | 'VIDEO';
+  type: 'text' | 'image' | 'file' | 'audio' | 'video';
   senderId: number;
-  conversationId: number;
+  conversationId: string;
   fileUrl?: string;
   fileName?: string;
   fileType?: string;
@@ -25,7 +25,7 @@ export interface Message {
 }
 
 export interface Conversation {
-  id: number;
+  id: string;
   name?: string;
   type: 'private' | 'group' | 'department';
   description?: string;
@@ -43,7 +43,7 @@ export interface Conversation {
     profileImage?: string;
   };
   participants: {
-    id: number;
+    id: string;
     username: string;
     email: string;
     profileImage?: string;
@@ -65,8 +65,8 @@ export interface Conversation {
 
 export interface CreateMessageDto {
   content: string;
-  type?: 'TEXT' | 'IMAGE' | 'FILE' | 'AUDIO' | 'VIDEO';
-  conversationId: number;
+  type?: 'text' | 'image' | 'file' | 'audio' | 'video';
+  conversationId: string;
   fileUrl?: string;
   fileName?: string;
   fileType?: string;
@@ -83,7 +83,7 @@ export interface CreateConversationDto {
   description?: string;
   avatar?: string;
   departmentId?: number;
-  participantIds: number[];
+  participantIds: string[];
 }
 
 export interface UpdateConversationDto {
@@ -115,17 +115,17 @@ class MessagingService {
     return response.data;
   }
 
-  async updateMessage(messageId: number, dto: UpdateMessageDto): Promise<ApiResponse<Message>> {
+  async updateMessage(messageId: string, dto: UpdateMessageDto): Promise<ApiResponse<Message>> {
     const response = await axios.put<ApiResponse<Message>>(`${API_URL}/messaging/messages/${messageId}`, dto);
     return response.data;
   }
 
-  async deleteMessage(messageId: number): Promise<ApiResponse<null>> {
+  async deleteMessage(messageId: string): Promise<ApiResponse<null>> {
     const response = await axios.delete<ApiResponse<null>>(`${API_URL}/messaging/messages/${messageId}`);
     return response.data;
   }
 
-  async getMessages(conversationId: number, page = 1, limit = 50): Promise<ApiResponse<{ messages: Message[]; total: number }>> {
+  async getMessages(conversationId: string, page = 1, limit = 50): Promise<ApiResponse<{ messages: Message[]; total: number }>> {
     const response = await axios.get<ApiResponse<{ messages: Message[]; total: number }>>(
       `${API_URL}/messaging/conversations/${conversationId}/messages?page=${page}&limit=${limit}`
     );
@@ -138,17 +138,17 @@ class MessagingService {
     return response.data;
   }
 
-  async updateConversation(conversationId: number, dto: UpdateConversationDto): Promise<ApiResponse<Conversation>> {
+  async updateConversation(conversationId: string, dto: UpdateConversationDto): Promise<ApiResponse<Conversation>> {
     const response = await axios.put<ApiResponse<Conversation>>(`${API_URL}/messaging/conversations/${conversationId}`, dto);
     return response.data;
   }
 
-  async deleteConversation(conversationId: number): Promise<ApiResponse<null>> {
+  async deleteConversation(conversationId: string): Promise<ApiResponse<null>> {
     const response = await axios.delete<ApiResponse<null>>(`${API_URL}/messaging/conversations/${conversationId}`);
     return response.data;
   }
 
-  async getConversation(conversationId: number): Promise<ApiResponse<Conversation>> {
+  async getConversation(conversationId: string): Promise<ApiResponse<Conversation>> {
     const response = await axios.get<ApiResponse<Conversation>>(`${API_URL}/messaging/conversations/${conversationId}`);
     return response.data;
   }
@@ -159,30 +159,30 @@ class MessagingService {
   }
 
   // Participant operations
-  async addParticipants(conversationId: number, dto: ConversationParticipantDto[]): Promise<ApiResponse<null>> {
+  async addParticipants(conversationId: string, dto: ConversationParticipantDto[]): Promise<ApiResponse<null>> {
     const response = await axios.post<ApiResponse<null>>(`${API_URL}/messaging/conversations/${conversationId}/participants`, dto);
     return response.data;
   }
 
-  async removeParticipants(conversationId: number, participantIds: number[]): Promise<ApiResponse<null>> {
+  async removeParticipants(conversationId: string, participantIds: string[]): Promise<ApiResponse<null>> {
     const response = await axios.delete<ApiResponse<null>>(`${API_URL}/messaging/conversations/${conversationId}/participants`, {
       data: { participantIds }
     });
     return response.data;
   }
 
-  async updateParticipant(conversationId: number, participantId: number, dto: UpdateParticipantDto): Promise<ApiResponse<null>> {
+  async updateParticipant(conversationId: string, participantId: string, dto: UpdateParticipantDto): Promise<ApiResponse<null>> {
     const response = await axios.put<ApiResponse<null>>(`${API_URL}/messaging/conversations/${conversationId}/participants/${participantId}`, dto);
     return response.data;
   }
 
   // Read status operations
-  async markConversationAsRead(conversationId: number): Promise<ApiResponse<null>> {
+  async markConversationAsRead(conversationId: string): Promise<ApiResponse<null>> {
     const response = await axios.post<ApiResponse<null>>(`${API_URL}/messaging/conversations/${conversationId}/read`);
     return response.data;
   }
 
-  async getUnreadCount(conversationId: number): Promise<ApiResponse<{ count: number }>> {
+  async getUnreadCount(conversationId: string): Promise<ApiResponse<{ count: number }>> {
     const response = await axios.get<ApiResponse<{ count: number }>>(`${API_URL}/messaging/conversations/${conversationId}/unread-count`);
     return response.data;
   }

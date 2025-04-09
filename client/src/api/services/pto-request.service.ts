@@ -80,13 +80,12 @@ export class PtoRequestService {
   static async fetchUserPtoRequest(): Promise<PtoLeave[] | undefined> {
     try {
       const response = await axios.get(`${API_URL}/my-requests`);
-      console.log("response PtoData:", response.data);
       if (!response.data.success) {
         throw new Error(
           response.data.message || "PTO data fetching unsuccessful."
         );
       }
-      return response.data.data;
+      return response.data.data.reverse();
     } catch (error) {
       console.error("Error fetching pto data:", error);
       throw error;

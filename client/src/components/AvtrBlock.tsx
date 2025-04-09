@@ -1,4 +1,6 @@
+import { AvatarFallback } from "@radix-ui/react-avatar";
 import { Avatar, AvatarImage } from "./ui/avatar";
+import { getAvatarFallback } from "@/lib/helpers";
 
 const AvtrBlock: React.FC<{
   profileImage?: string;
@@ -10,6 +12,9 @@ const AvtrBlock: React.FC<{
     <div className="flex gap-2 items-center">
       <Avatar>
         <AvatarImage src={profileImage} alt={firstName || "AvtrImg"} />
+        <AvatarFallback className="flex items-center justify-center h-full w-full text-white font-semibold text-xs bg-rgtpurple">
+          {getAvatarFallback(firstName as string)}
+        </AvatarFallback>
       </Avatar>
       <div className="">
         <p className="font-bold">

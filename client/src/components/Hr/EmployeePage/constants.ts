@@ -24,7 +24,7 @@ export const nodeStyles = {
     fontSize: "16px",
   },
   detail: {
-    backgroundColor: "#DCC6FF",
+    backgroundColor: "#9333EA",
     padding: "8px 12px",
   },
 };
@@ -309,8 +309,8 @@ export const initialEdges: Edge<EdgeData>[] = [
     target: "seniority",
     sourceHandle: "right",
     targetHandle: "left",
-    // style: customEdgeStyle,
-    type: "customSine",
+    style: customEdgeStyle,
+    type: "custom",
   },
   {
     id: "e-junction3-seniority",

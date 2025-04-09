@@ -27,7 +27,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
           return (
             <CustomSelect
               key={index}
-              placeholder={filter.placeholder}
+              // placeholder={filter.placeholder}
               options={filter.options || []}
               value={filter.value}
               onChange={filter.onChange}

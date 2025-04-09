@@ -1,7 +1,13 @@
-import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, Department, DepartmentQueryParams, UpdateDepartmentDTO } from '@/types/department';
-import { createApiClient } from '../axios';
-import { ApiResponse } from '../types';
-
+import {
+  AddEmployeeToDepartmentDTO,
+  AddEmployeesToDepartmentDTO,
+  CreateDepartmentDTO,
+  Department,
+  DepartmentQueryParams,
+  UpdateDepartmentDTO,
+} from "@/types/department";
+import { createApiClient } from "../axios";
+import { ApiResponse } from "../types";
 
 const departmentApiClient = createApiClient(
   `${
@@ -16,7 +22,7 @@ export const departmentService = {
     data: CreateDepartmentDTO
   ): Promise<CreateDepartmentDTO> => {
     const response = await departmentApiClient.post<CreateDepartmentDTO>(
-      '/',
+      "/",
       data
     );
     return response.data;
@@ -35,10 +41,10 @@ export const departmentService = {
 
   removeEmployeeFromDepartment: async (
     id: string,
-    employeeId: string,
+    employeeId: string
   ): Promise<ApiResponse<Department>> => {
     const response = await departmentApiClient.delete<ApiResponse<Department>>(
-      `/${id}/employees/${employeeId}`,
+      `/${id}/employees/${employeeId}`
     );
     return response.data;
   },
@@ -66,18 +72,20 @@ export const departmentService = {
   getAllDepartments: async (
     params?: DepartmentQueryParams
   ): Promise<Department[]> => {
-
     const queryParams = new URLSearchParams();
 
     if (params?.includeEmployees) {
-      queryParams.append('includeEmployees', 'true');
+      queryParams.append("includeEmployees", "true");
     }
 
-    const url = `/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    console.log("URL", url)
+    const url = `/${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
+    console.log("URL", url);
 
-    const response =
-      await departmentApiClient.get<ApiResponse<Department[]>>(url);
+    const response = await departmentApiClient.get<ApiResponse<Department[]>>(
+      url
+    );
     return response.data.data;
   },
 
@@ -88,13 +96,25 @@ export const departmentService = {
     const queryParams = new URLSearchParams();
 
     if (params?.includeEmployees) {
-      queryParams.append('includeEmployees', 'true');
+      queryParams.append("includeEmployees", "true");
     }
 
-    const url = `/${id}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const url = `/${id}${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`;
 
-    const response =
-      await departmentApiClient.get<ApiResponse<Department>>(url);
+    const response = await departmentApiClient.get<ApiResponse<Department>>(
+      url
+    );
+    return response.data;
+  },
+
+  deleteDepartment: async (id: string): Promise<ApiResponse<Department>> => {
+    console.log("delete department id:", id);
+    const response = await departmentApiClient.delete<ApiResponse<Department>>(
+      `/${id}`
+    );
+    console.log("delete department response:", response.data);
     return response.data;
   },
 };

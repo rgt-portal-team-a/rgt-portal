@@ -7,12 +7,14 @@ import { Conversation } from '@/api/services/messaging.service';
 import { useAuthContextProvider } from '@/hooks/useAuthContextProvider';
 
 interface ConversationHeaderProps {
+  isOnline: boolean;
   conversation: Conversation;
   onVideoCall?: () => void;
   onVoiceCall?: () => void;
 }
 
 export const ConversationHeader: React.FC<ConversationHeaderProps> = ({
+  isOnline,
   conversation,
   onVideoCall,
   onVoiceCall
@@ -30,7 +32,8 @@ export const ConversationHeader: React.FC<ConversationHeaderProps> = ({
 
   const getParticipantStatus = () => {
     if (conversation.type === 'private') {
-      return 'Online'; // TODO: Implement real online status
+      console.log("isOnline", isOnline);
+      return isOnline ? 'Online' : 'Offline';
     }
     return `${conversation.participants.length} participants`;
   };
@@ -69,8 +72,8 @@ export const ConversationHeader: React.FC<ConversationHeaderProps> = ({
 
         <div>
           <h3 className="font-medium">{getConversationName()}</h3>
-          <p className="text-sm text-muted-foreground">
-            {getParticipantStatus()}
+          <p className={"text-sm text-muted-foreground"}>
+                {getParticipantStatus()}
           </p>
         </div>
       </div>

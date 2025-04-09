@@ -28,7 +28,6 @@ export const NewConversationDialog: React.FC = () => {
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const createConversation = useCreateConversation();
   
-  // Fetch all employees for the select field
   const { data: employees = [], isLoading: isLoadingEmployees } = useAllEmployees();
   console.log("employees", employees);
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,10 +37,9 @@ export const NewConversationDialog: React.FC = () => {
       if (tab === 'private') {
         await createConversation.mutateAsync({
           type: 'private',
-          participantIds: [parseInt(selectedRecipient), parseInt(currentUser?.id as unknown as string)]
+          participantIds: [selectedRecipient, currentUser?.id as unknown as string]
         });
       } else {
-        // For group conversations, include the current user as a participant
         const allParticipants = [...selectedParticipants];
         if (currentUser?.id && !allParticipants.includes(currentUser.id.toString())) {
           allParticipants.push(currentUser.id.toString());
@@ -50,7 +48,7 @@ export const NewConversationDialog: React.FC = () => {
         await createConversation.mutateAsync({
           type: 'group',
           name: groupName,
-          participantIds: allParticipants.map(id => parseInt(id))
+          participantIds: allParticipants.map(id => id)
         });
       }
 
