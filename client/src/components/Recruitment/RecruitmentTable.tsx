@@ -1,13 +1,15 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { UserPlus, Columns, Download, Search } from "lucide-react";
+import { UserPlus, Download, Search, Check, Eye } from "lucide-react";
 import { RecruitmentType } from "@/lib/enums";
 import { debounce } from "lodash";
 import { Recruitment } from "@/types/recruitment";
 import { Column } from "@/types/tables";
 import { DataTable } from "../common/DataTable";
 import StepProgress from "../common/StepProgress";
+import { Popover, PopoverContent } from "../ui/popover";
+import { PopoverTrigger } from "@radix-ui/react-popover";
 
 interface RecruitmentTableProps {
   candidates: Recruitment[];
@@ -37,6 +39,35 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
   onSearch,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+
+   const [visibleColumns, setVisibleColumns] = useState<string[]>([
+     "name",
+     "phoneNumber",
+     "dateCreated",
+     "cv",
+     "location",
+     "failStage",
+   ]);
+   const [columnSearchTerm, setColumnSearchTerm] = useState("");
+
+   
+  const toggleArrayState = useCallback(
+    <T,>(setState: React.Dispatch<React.SetStateAction<T[]>>, item: T) => {
+      setState((prev) =>
+        prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+      );
+    },
+    []
+  );
+
+  const toggleColumnVisibility = useCallback(
+    (columnKey: string) => {
+      toggleArrayState(setVisibleColumns, columnKey);
+    },
+    [toggleArrayState]
+  );
+
+ 
 
   const debouncedSearch = useMemo(
     () =>
@@ -151,6 +182,36 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
         ];
   }, [type]);
 
+   const showAllColumns = useCallback(() => {
+     setVisibleColumns(columns.map((col) => col.key));
+   }, [columns]);
+
+   const hideAllColumns = useCallback(() => {
+     setVisibleColumns(["name"]);
+   }, []);
+
+   const resetColumns = useCallback(() => {
+     setVisibleColumns([
+       "name",
+       "phoneNumber",
+       "dateCreated",
+       "cv",
+       "location",
+       "failStage",
+     ]);
+   }, []);
+
+   const filteredColumnOptions = useMemo(() => {
+     return columns.filter((col) =>
+       col.header.toLowerCase().includes(columnSearchTerm.toLowerCase())
+     );
+   }, [columns, columnSearchTerm]);
+
+   // Filter columns based on visibility
+   const visibleColumnsData = useMemo(() => {
+     return columns.filter((col) => visibleColumns.includes(col.key));
+   }, [columns, visibleColumns]);
+
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex flex-col gap-2 lg:gap-0 lg:flex-row justify-between lg:items-center mb-4">
@@ -186,16 +247,82 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
             <UserPlus size={18} className="mr-2" />
             Add New Candidate
           </Button>
-          <Button variant="outline" size="default" className="cursor-pointer">
-            <Columns size={18} className="mr-2" />
-            Columns
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="default"
+                className="cursor-pointer text-slate-500"
+              >
+                <Eye size={25} />
+                Columns
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-64 p-0 rounded-xl bg-gradient-to-tr from-[#FFFBEB] via-[#F2FBFF] to-[#F7FEFF]"
+              align="end"
+            >
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-4">
+                  <button
+                    className="text-sm font-medium text-gray-700"
+                    onClick={() =>
+                      visibleColumns.length === columns.length
+                        ? hideAllColumns()
+                        : showAllColumns()
+                    }
+                  >
+                    {visibleColumns.length === columns.length
+                      ? "Hide All"
+                      : "Show All"}
+                  </button>
+                  <button
+                    className="text-sm text-gray-500 cursor-pointer"
+                    onClick={resetColumns}
+                  >
+                    Reset
+                  </button>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-4 top-3 text-gray-400" size={17} />
+                  <Input
+                    placeholder="Search"
+                    className="pl-10 bg-white shadow-none border rounded-md w-full py-5"
+                    value={columnSearchTerm}
+                    onChange={(e) => setColumnSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto py-1">
+                {filteredColumnOptions.map((column) => (
+                  <div
+                    key={column.key}
+                    className="flex items-center px-4 py-4 hover:bg-gray-100"
+                  >
+                    <button
+                      className={`flex items-center justify-center w-5 h-5 mr-3 rounded ${
+                        visibleColumns.includes(column.key)
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200"
+                      }`}
+                      onClick={() => toggleColumnVisibility(column.key)}
+                    >
+                      {visibleColumns.includes(column.key) && (
+                        <Check className="h-3 w-3" />
+                      )}
+                    </button>
+                    <span className="text-sm">{column.header}</span>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
       <div className="rounded-lg overflow-hidden h-full w-full flex flex-col">
         <DataTable
-          columns={columns}
+          columns={visibleColumnsData}
           data={formatedCandidates}
           dividers={false}
           actionBool={true}

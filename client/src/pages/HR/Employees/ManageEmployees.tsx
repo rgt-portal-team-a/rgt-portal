@@ -79,29 +79,32 @@ export const ManageEmployees: React.FC = () => {
   );
 
   // Column Configuration
-  const allColumns = [
-    { key: "name", header: "Employee Name" },
-    { key: "email", header: "Email" },
-    { key: "phoneNumber", header: "Phone Number" },
-    { key: "birthday", header: "Birth Date" },
-    { key: "age", header: "Age" },
-    { key: "city", header: "City" },
-    { key: "homeAddress", header: "Home Address" },
-    { key: "region", header: "Region" },
-    { key: "country", header: "Country" },
-    { key: "startDate", header: "Start Date" },
-    { key: "endDate", header: "End Date" },
-    { key: "seniority", header: "Seniority" },
-    { key: "skills", header: "Skills" },
-    { key: "ftpt", header: "FT/PT" },
-    { key: "department", header: "Department" },
-    { key: "seniorTeamLead", header: "Team Leader" },
-    { key: "juniorTeamLead", header: "Jr. Team Leader" },
-    { key: "agency", header: "Agency" },
-    { key: "invoiceReceived", header: "Got Invoice" },
-    { key: "paid", header: "Paid" },
-    { key: "onLeave", header: "On Leave" },
-  ];
+  const allColumns = useMemo(
+    () => [
+      { key: "name", header: "Employee Name" },
+      { key: "email", header: "Email" },
+      { key: "phoneNumber", header: "Phone Number" },
+      { key: "birthday", header: "Birth Date" },
+      { key: "age", header: "Age" },
+      { key: "city", header: "City" },
+      { key: "homeAddress", header: "Home Address" },
+      { key: "region", header: "Region" },
+      { key: "country", header: "Country" },
+      { key: "startDate", header: "Start Date" },
+      { key: "endDate", header: "End Date" },
+      { key: "seniority", header: "Seniority" },
+      { key: "skills", header: "Skills" },
+      { key: "ftpt", header: "FT/PT" },
+      { key: "department", header: "Department" },
+      { key: "seniorTeamLead", header: "Team Leader" },
+      { key: "juniorTeamLead", header: "Jr. Team Leader" },
+      { key: "agency", header: "Agency" },
+      { key: "invoiceReceived", header: "Got Invoice" },
+      { key: "paid", header: "Paid" },
+      { key: "onLeave", header: "On Leave" },
+    ],
+    []
+  );
 
   const filteredEmployees = useMemo(() => {
     if (!employees || employees.length === 0) return [];
@@ -293,25 +296,13 @@ export const ManageEmployees: React.FC = () => {
     paginatedGridData,
     totalGridPages,
     currentPage,
-    itemsPerPage,
+    error,
+    refetch,
   ]);
 
   const memoizedRenderEmployeeContent = useMemo(() => {
     return renderEmployeeContent();
-  }, [
-    renderEmployeeContent,
-    currentPage,
-    itemsPerPage,
-    gridSearchTerm,
-    isEmployeesLoading,
-    isEmployeesError,
-    employees,
-    viewMode,
-    visibleColumns,
-    searchByField,
-    searchTerm,
-    totalGridPages,
-  ]);
+  }, [renderEmployeeContent]);
 
   return (
     <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
