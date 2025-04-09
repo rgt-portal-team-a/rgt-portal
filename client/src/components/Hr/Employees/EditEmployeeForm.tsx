@@ -51,6 +51,8 @@ import { toast } from "@/hooks/use-toast";
 import {Employee, RoleType} from "@/types/employee"
 import CustomCountrySelect from "./CustomCountrySelect"
 import CustomStateSelect from "./CustomStateSelect"
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+
 
 
 
@@ -66,6 +68,7 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
   isOpen,
   onClose,
 }) => {
+    const { currentUser } = useAuthContextProvider();
       const {
         data: departments,
         isLoading: isDepartmentsLoading,
@@ -427,9 +430,13 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                       </Label>
                       <Field name="roleId">
                         {({ field, form, meta }: FieldProps) => {
-                          console.log("Role ID Selected", field.value);
-                          return (
-                            <div className="relative">
+                          return (field.value === "2" &&
+                            currentUser?.role?.name === "HR") ||
+                            (field.value === "4" &&
+                              currentUser?.role?.name === "ADMIN") ? (
+                              <div className="border border-gray-200 text-gray-500 text-sm shadow-xs rounded-md py-[14px] px-4">You cannot change your own role</div>
+                          ) : (
+                              <div className="relative">
                               <Select
                                 onValueChange={(value) =>
                                   form.setFieldValue(field.name, value)

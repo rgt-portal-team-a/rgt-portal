@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Trash2Icon } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useGetDepartmentById } from "@/api/query-hooks/department.hooks";
@@ -8,18 +8,10 @@ import ErrorMessage from "@/components/common/ErrorMessage";
 import ProfileAdd from "@/assets/icons/ProfileAdd";
 import LinearRightArrow from "@/assets/icons/LinearRightArrow";
 import DepartmentEmployeeTable from "@/components/Hr/Employees/DepartmentEmployeeTable";
+import {EmployeeSelector} from "@/components/Hr/common/EmployeeSelector";
 import { SideFormModal } from "@/components/common/Modal";
 import { Field, FieldArray, FormikHelpers, FieldProps } from "formik";
 import * as Yup from "yup";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import {
@@ -147,7 +139,7 @@ const DepartmentPage = () => {
               {department?.name} Department
             </h1>
             <div className="text-sm text-gray-400 flex items-center ">
-              <Link to={"/hr/alldepartments"} className={"hover:text-gray-500"}>
+              <Link to={"/admin/alldepartments"} className={"hover:text-gray-500"}>
                 {" "}
                 All Departments{" "}
               </Link>
@@ -203,101 +195,34 @@ const DepartmentPage = () => {
             return (
               <FieldArray name="emails">
                 {({ push, remove }) => {
-                  const filteredUsers = users?.filter(
-                    (user) =>
-                      !values.emails.includes(user.id.toString()) &&
-                      department.managerId.toString() !== user.id.toString()
-                  );
-
                   return (
                     <div className="space-y-4">
                       {values.emails && values.emails.length > 0
                         ? values.emails.map((email, index) => {
                             return (
-                              <div key={index} className="space-y-2">
-                                {" "}
-                                {/* Use email as the key */}
-                                <div className="flex space-x-2">
-                                  <div className="flex-1">
-                                    <Field name={`emails.${index}`}>
-                                      {({ field, form, meta }: FieldProps) => {
-                                        const selectedUser = users?.find(
-                                          (user) =>
-                                            user.id.toString() === field.value
-                                        );
-
-                                        return (
-                                          <div className="relative">
-                                            <Select
-                                              value={field.value}
-                                              onValueChange={(value) =>
-                                                form.setFieldValue(
-                                                  `emails.${index}`,
-                                                  value
-                                                )
-                                              }
-                                            >
-                                              <SelectTrigger className="w-full py-6">
-                                                <SelectValue placeholder="Select An Employee To Add To This Department">
-                                                  {selectedUser
-                                                    ? selectedUser.firstName
-                                                    : "Select an employee"}
-                                                </SelectValue>
-                                              </SelectTrigger>
-                                              <SelectContent
-                                                position="popper"
-                                                className="z-[2000]" // Higher z-index than the modal
-                                              >
-                                                <SelectGroup>
-                                                  <SelectLabel>
-                                                    Select an employee to add to
-                                                    this department
-                                                  </SelectLabel>
-                                                  {filteredUsers &&
-                                                  filteredUsers.length > 0 ? (
-                                                    filteredUsers.map(
-                                                      (item) => (
-                                                        <SelectItem
-                                                          value={item.id.toString()}
-                                                          key={item.id}
-                                                        >
-                                                          {item.firstName}
-                                                        </SelectItem>
-                                                      )
-                                                    )
-                                                  ) : (
-                                                    <SelectItem
-                                                      value="no-employees"
-                                                      disabled
-                                                    >
-                                                      No employees available
-                                                    </SelectItem>
-                                                  )}
-                                                </SelectGroup>
-                                              </SelectContent>
-                                            </Select>
-                                            {meta.touched && meta.error && (
-                                              <div className="text-red-500 text-sm mt-1">
-                                                {meta.error}
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      }}
-                                    </Field>
-                                  </div>
-                                  {values.emails.length > 1 && (
-                                    <Button
-                                      type="button"
-                                      className="py-6 border-red-400 bg-white text-red-400 hover:bg-red-300 hover:text-gray-800"
-                                      variant="outline"
-                                      onClick={() => remove(index)}
-                                      size="sm"
-                                    >
-                                      <Trash2Icon />
-                                    </Button>
+                              <div key={email || index} className="space-y-2">
+                                <Field name={`emails.${index}`}>
+                                  {({ field, form, meta }: FieldProps) => (
+                                    <EmployeeSelector
+                                      field={field}
+                                      form={form}
+                                      meta={meta}
+                                      users={users || []}
+                                      placeholder="Select An Employee To Add To This Department"
+                                      showRemoveButton={
+                                        values.emails.length > 1
+                                      }
+                                      onRemove={() => remove(index)}
+                                      filterFn={(user) =>
+                                        !values.emails.includes(
+                                          user.id.toString()
+                                        ) &&
+                                        department.managerId.toString() !==
+                                          user.id.toString()
+                                      }
+                                    />
                                   )}
-                                </div>
+                                </Field>
                               </div>
                             );
                           })

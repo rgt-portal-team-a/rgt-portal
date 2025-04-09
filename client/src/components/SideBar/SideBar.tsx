@@ -87,7 +87,7 @@ export const SideBar = () => {
   return (
     <section className="space-y-3 flex flex-col items-center h-[610px] overflow-y-auto overflow-x-hidden">
       {(location.pathname === "/emp/feed" ||
-        location.pathname === "/hr/feed") && (
+        location.pathname === "/admin/feed") && (
         <header className="md:flex flex-col items-start hidden">
           <p className="font-semibold text-[24px] text-[#706D8A]">
             Hello, there!

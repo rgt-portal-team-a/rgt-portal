@@ -14,7 +14,6 @@ import { useRequestPto } from "@/hooks/usePtoRequests";
 import Filters, { FilterConfig } from "@/components/common/Filters";
 import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 
-
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import StepProgress from "@/components/common/StepProgress";
 
@@ -71,10 +70,10 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
   const { updatePto, isPtoUpdating } = useRequestPto();
   const { departments } = useDepartmentsData();
 
-
   const isManager =
-    departments?.find((department) => department.id === departmentId)
-      ?.managerId === currentUser?.employee?.id;
+    departments?.find(
+      (department) => Number(department.id) === Number(departmentId)
+    )?.managerId === currentUser?.employee?.id;
 
   const isHr = currentUser?.role.name === "HR";
 
@@ -213,6 +212,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
               <Avtr
                 name={row.employee?.user?.username || row.employee?.firstName}
                 url={row.employee?.user?.profileImage}
+                avtBg="bg-purple-200 text-purple-500"
               />
               <div>
                 <p className="text-[#8A8A8C] font-semibold ">

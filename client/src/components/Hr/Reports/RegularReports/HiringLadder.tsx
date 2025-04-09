@@ -7,9 +7,28 @@ import { useGetHiringLadder } from "@/api/query-hooks/reports.hooks";
 const HiringLadder: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useGetHiringLadder();
+  // const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const total =
     data?.agencyData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
+
+  // const scrollLeft = () => {
+  //   if (scrollContainerRef.current) {
+  //     scrollContainerRef.current.scrollBy({
+  //       left: -200,
+  //       behavior: "smooth",
+  //     });
+  //   }
+  // };
+
+  // const scrollRight = () => {
+  //   if (scrollContainerRef.current) {
+  //     scrollContainerRef.current.scrollBy({
+  //       left: 200,
+  //       behavior: "smooth",
+  //     });
+  //   }
+  // };
 
   if (isLoading) {
     return (
@@ -34,38 +53,38 @@ const HiringLadder: React.FC = () => {
   }
 
   if (isError) {
-      return (
-        <Card className="border-destructive/50">
-          <CardHeader className="flex flex-col md:flex-row items-center justify-between">
-            <CardTitle className="text-destructive text-center md:text-left">
-              Data Fetch Error
-            </CardTitle>
-            <Button
-              variant="destructive"
-              onClick={() => refetch()}
-              disabled={isFetching}
-            >
-              {isFetching ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-2 h-4 w-4" />
-              )}
-              Retry
-            </Button>
-          </CardHeader>
-          <CardContent className="flex items-center justify-center h-64">
-            <div className="flex flex-col items-center text-destructive">
-              <AlertCircle className="h-12 w-12 mb-4" />
-              <p className="text-center mb-2">
-                {error instanceof Error
-                  ? error.message
-                  : "Unable to fetch hiring ladder data"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
+    return (
+      <Card className="border-destructive/50">
+        <CardHeader className="flex flex-col md:flex-row items-center justify-between">
+          <CardTitle className="text-destructive text-center md:text-left">
+            Data Fetch Error
+          </CardTitle>
+          <Button
+            variant="destructive"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            {isFetching ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            Retry
+          </Button>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center text-destructive">
+            <AlertCircle className="h-12 w-12 mb-4" />
+            <p className="text-center mb-2">
+              {error instanceof Error
+                ? error.message
+                : "Unable to fetch hiring ladder data"}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!data || !data.agencyData || data.agencyData.length === 0) {
     return (

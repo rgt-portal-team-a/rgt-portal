@@ -60,7 +60,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
 
   const handleView = useCallback(
     (id: string) => {
-      navigate(`/hr/recruitment/candidate/${id}`);
+      navigate(`/admin/recruitment/candidate/${id}`);
     },
     [navigate]
   );

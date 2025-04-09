@@ -337,7 +337,12 @@ export const BaseLayout = () => {
         </div>
       </ConfirmCancelModal>
 
-      <Kairo />
+      <WithRole
+        roles={["hr", "admin"]}
+        userRole={user?.role.name as string}
+      >
+        <Kairo />
+      </WithRole>
     </div>
   );
 };

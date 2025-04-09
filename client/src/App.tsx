@@ -78,71 +78,6 @@ function App() {
 
         {/* HR routes - accessible by HR and ADMIN only */}
         <Route element={<ProtectedRoute allowedRoles={["HR", "ADMIN"]} />}>
-          <Route path="/hr" element={<BaseLayout />}>
-            <Route index path="dashboard" element={<HRDashboard />} />
-            <Route
-              path="alldepartments"
-              element={
-                <WithPermission
-                  resource="employeeRecords"
-                  action="view"
-                  redirectTo="/hr/dashboard"
-                >
-                  <AllDepartments />
-                </WithPermission>
-              }
-            />
-            <Route
-              path={`alldepartments/department/:id`}
-              element={<DepartmentPage />}
-            />
-            <Route
-              path="manageemployees"
-              element={
-                <WithPermission
-                  resource="employeeRecords"
-                  action="edit"
-                  redirectTo="/hr/dashboard"
-                >
-                  <ManageEmployees />
-                </WithPermission>
-              }
-            />
-            <Route
-              path={`manageemployees/employee/:id`}
-              element={<EmployeePage />}
-            />
-
-            <Route path="feed" element={<Feed />} />
-            <Route path="time-off" element={<TimeOff />} />
-            <Route path="emp-time-off" element={<EmployeeTimeOff />} />
-            <Route path="messages" element={<MessagingPage />} />
-            <Route path="messages/:conversationId" element={<MessagingPage />} />
-            <Route path="events" element={<Events />} />
-
-            {/* Advanced Report routes - accessible by HR and ADMIN */}
-            <Route path="reports">
-              <Route path="regularreport" element={<RegularReports />} />
-              <Route path="advancedreport" element={<AdvancedReports />} />
-            </Route>
-
-            {/* Recruitment routes - accessible by HR and ADMIN */}
-            <Route path="recruitment">
-              <Route
-                path="employee"
-                element={<RecruitmentPage type={RecruitmentType.EMPLOYEE} />}
-              />
-              <Route
-                path="nss"
-                element={<RecruitmentPage type={RecruitmentType.NSS} />}
-              />
-              <Route path="candidate/:id" element={<CandidateDetailView />} />
-            </Route>
-          </Route>
-        </Route>
-
-
-        <Route element={<ProtectedRoute allowedRoles={["HR", "ADMIN"]} />}>
           <Route path="/admin" element={<BaseLayout />}>
             <Route index path="dashboard" element={<HRDashboard />} />
             <Route
@@ -151,7 +86,7 @@ function App() {
                 <WithPermission
                   resource="employeeRecords"
                   action="view"
-                  redirectTo="/hr/dashboard"
+                  redirectTo="/admin/dashboard"
                 >
                   <AllDepartments />
                 </WithPermission>
@@ -167,7 +102,7 @@ function App() {
                 <WithPermission
                   resource="employeeRecords"
                   action="edit"
-                  redirectTo="/hr/dashboard"
+                  redirectTo="/admin/dashboard"
                 >
                   <ManageEmployees />
                 </WithPermission>

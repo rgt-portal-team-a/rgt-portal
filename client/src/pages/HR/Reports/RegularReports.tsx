@@ -20,16 +20,20 @@ const RegularReports = () => {
   const [reportType, setReportType] = useState<"employees" | "recruitment">(
     "recruitment"
   );
+  const [lastRequestedType, setLastRequestedType] = useState<
+    "employees" | "recruitment"
+  >();
 
   const { data, isLoading, isFetching, isError, refetch } = useGenerateReport({
     type: reportType,
     format: "html",
   });
 
-  const handleGenerateReport = async (type: "employees" | "recruitment") => {
+
+  const handleGenerateReport = (type: "employees" | "recruitment") => {
+    setLastRequestedType(type);
     setReportType(type);
     setIsModalOpen(true);
-    refetch();
   };
 
   const handleDownloadPDF = async () => {
@@ -90,26 +94,29 @@ const RegularReports = () => {
             </div>
             <Dialog.Description>
               {(isLoading || isFetching) && (
-                <div className="flex justify-center items-center h-40">
+                <span className="flex justify-center items-center h-40">
                   <Loader2 className="h-8 w-8 animate-spin" />
-                </div>
+                </span>
               )}
               {isError && (
-                <div className="flex justify-center items-center h-40 text-red-500">
+                <span className="flex justify-center items-center h-40 text-red-500">
                   Failed to load report. Please try again.
                   <Button onClick={() => refetch()} variant={"outline"}>
                     Retry
                   </Button>
-                </div>
+                </span>
               )}
             </Dialog.Description>
-            {!isLoading && !isFetching && !isError && (
-              <div
-                id="report-content"
-                dangerouslySetInnerHTML={{ __html: data || "" }}
-                className="p-4"
-              />
-            )}
+            {!isLoading &&
+              !isFetching &&
+              !isError &&
+              lastRequestedType === reportType && (
+                <div
+                  id="report-content"
+                  dangerouslySetInnerHTML={{ __html: data || "" }}
+                  className="p-4"
+                />
+              )}
             <Dialog.Close asChild>
               <Button variant="ghost" className="mt-4">
                 Close

@@ -46,11 +46,11 @@ export const HrSideBar = () => {
       icon: ProfileAdd2,
       label: "Recruitment",
       labelClassName: "ml-3",
-      path: "/hr/recruitment",
+      path: "/admin/recruitment",
       items: [
         {
           label: "FullTime",
-          path: "/hr/recruitment/employee",
+          path: "/admin/recruitment/employee",
           icon: ProfileAdd2,
         },
         { label: "NSP", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
@@ -64,12 +64,12 @@ export const HrSideBar = () => {
       items: [
         {
           label: "Regular Report",
-          path: "/hr/reports/regularreport",
+          path: "/admin/reports/regularreport",
           icon: ChartIcon,
         },
         {
           label: "Advanced Report",
-          path: "/hr/reports/advancedreport",
+          path: "/admin/reports/advancedreport",
           icon: ChartIcon,
         },
       ],
@@ -103,7 +103,7 @@ export const HrSideBar = () => {
         )}
 
         <NavLink
-          to="/hr/dashboard"
+          to="/admin/dashboard"
           end={true}
           className={({ isActive }) => `
             group flex items-center justify-center text-center font-medium text-sm 
