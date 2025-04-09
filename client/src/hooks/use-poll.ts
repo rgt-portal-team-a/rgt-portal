@@ -17,7 +17,7 @@ export const usePoll = (pollId?: number) => {
   const { data: poll, isLoading } = useQuery<Poll>({
     queryKey: ["poll", pollId],
     queryFn: () =>
-      PollService.getPollById(pollId ?? 0).then((res) => res.data as Poll),
+      PollService.getPollById(pollId as number).then((res) => res.data as Poll),
   });
 
   const updatePollData = (newData: Partial<Poll>) => {
@@ -29,7 +29,7 @@ export const usePoll = (pollId?: number) => {
 
   const voteMutation = useMutation({
     mutationFn: (optionId: number) =>
-      PollService.votePoll(pollId ?? 0, optionId),
+      PollService.votePoll(pollId as number, optionId),
     onMutate: async (optionId) => {
       await queryClient.cancelQueries({ queryKey: ["poll", pollId] });
 
@@ -103,7 +103,7 @@ export const usePoll = (pollId?: number) => {
 
   const removeVoteMutation = useMutation({
     mutationFn: (optionId: number) =>
-      PollService.removeVote(pollId ?? 0, optionId),
+      PollService.removeVote(pollId as number, optionId),
     onMutate: async (optionId) => {
       await queryClient.cancelQueries({ queryKey: ["poll", pollId] });
 

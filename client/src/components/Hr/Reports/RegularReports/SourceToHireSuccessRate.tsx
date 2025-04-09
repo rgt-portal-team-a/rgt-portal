@@ -6,6 +6,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Cell,
   ResponsiveContainer,
   TooltipProps,
 } from "recharts";
@@ -127,28 +128,44 @@ const SourceToHireSuccessRate = () => {
   // Render Normal State
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center py-11">
+      <CardHeader className="flex flex-row items-center ">
         <CardTitle>Source-to-Hire Success Rate</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="mb-4">
           <p className="text-2xl font-bold">Total Hires: {totalHires}</p>
         </div>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart
-            data={data.successData}
-            className="text-sm"
-            margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-          >
-            <XAxis dataKey="source" axisLine={false} tickLine={false} />
-            <YAxis axisLine={false} tickLine={false} />
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ fill: "transparent" }}
-            />
-            <Bar dataKey="hires" fill="#ffc107" barSize={40} />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="h-64 sm:h-80 md:h-76 ">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data.successData}
+              className="text-sm"
+              margin={{ top: 20, right: 10, left: 0, bottom: 70 }}
+            >
+              <XAxis
+                dataKey="source"
+                axisLine={false}
+                tickLine={false}
+                interval={0} // Show all labels
+                angle={-45} 
+                textAnchor="end" // Proper alignment for rotated text
+                tick={{ fontSize: 12 }} // Smaller font size
+                padding={{ left: 20, right: 20 }}
+                tickMargin={10}
+              />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "transparent" }}
+              />
+              <Bar dataKey="hires" fill="#ffc107" barSize={40} minPointSize={2}>
+                {data.successData.map((_entry, index) => (
+                  <Cell key={`cell-${index}`} fill={"#ffc107"} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

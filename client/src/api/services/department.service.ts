@@ -65,7 +65,7 @@ export const departmentService = {
 
   getAllDepartments: async (
     params?: DepartmentQueryParams
-  ): Promise<ApiResponse<Department[]>> => {
+  ): Promise<Department[]> => {
 
     const queryParams = new URLSearchParams();
 
@@ -78,7 +78,7 @@ export const departmentService = {
 
     const response =
       await departmentApiClient.get<ApiResponse<Department[]>>(url);
-    return response.data;
+    return response.data.data;
   },
 
   getDepartmentById: async (

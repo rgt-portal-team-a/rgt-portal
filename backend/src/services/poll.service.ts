@@ -7,6 +7,7 @@ import { Employee } from "@/entities/employee.entity";
 import { Logger } from "@/services/logger.service";
 import { CreatePollDto, UpdatePollDto, AddPollOptionDto, CreatePollVoteDto, PollStatsDto } from "@/dtos/poll.dto";
 import { DatabaseService } from "./database.service";
+import { JobType, QueueName, QueueService } from "./queue.service";
 
 export class PollService {
   private pollRepository: Repository<Poll>;
@@ -14,6 +15,7 @@ export class PollService {
   private pollVoteRepository: Repository<PollVote>;
   private employeeRepository: Repository<Employee>;
   private logger: Logger;
+  private queueService: QueueService;
 
   constructor() {
     this.pollRepository = AppDataSource.getRepository(Poll);
@@ -21,6 +23,7 @@ export class PollService {
     this.pollVoteRepository = AppDataSource.getRepository(PollVote);
     this.employeeRepository = AppDataSource.getRepository(Employee);
     this.logger = new Logger("PollService");
+    this.queueService = QueueService.getInstance();
   }
 
   async createPoll(employeeId: number, pollData: CreatePollDto): Promise<Poll | null> {
@@ -65,6 +68,12 @@ export class PollService {
 
       // Step 3: Commit the transaction
       await DatabaseService.commitTransaction(queryRunner);
+
+      await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.POLL_CREATED, {
+        sender: poll.createdBy,
+        poll: poll,
+        recipientId: poll.createdById,
+      });   
 
       // Step 4: Fetch and return the saved Poll with its options
       return this.findById(savedPoll.id);

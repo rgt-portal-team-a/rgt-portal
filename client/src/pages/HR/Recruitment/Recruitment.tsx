@@ -154,7 +154,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
   }
 
   return (
-    <div className="p-6">
+    <div className="">
       {isFetching && !isLoading && (
         <div className="fixed top-4 right-4 bg-white shadow-md rounded-md p-2 flex items-center z-50">
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />

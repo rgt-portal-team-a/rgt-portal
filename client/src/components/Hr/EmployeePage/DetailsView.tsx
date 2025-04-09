@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   ReactFlow,
   Background,
   BackgroundVariant,
   Controls,
+  useReactFlow,
+  ReactFlowProvider,
   Node,
   Edge,
 } from "@xyflow/react";
@@ -25,37 +27,72 @@ const DetailsView: React.FC<DetailsViewProps> = ({
   onEdgesChange,
   onConnect,
   onNodeDragStop,
-}) => (
-  <div style={{ height: "600px" }}>
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onNodeDragStop={onNodeDragStop}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      defaultEdgeOptions={{
-        type: "custom",
-        style: { stroke: "#FFC233", strokeWidth: 2 },
-      }}
-      fitView={true}
-      panOnDrag={false}
-      zoomOnDoubleClick={false}
-      minZoom={1}
-      maxZoom={3}
-      preventScrolling={false}
-    >
-      <Background
-        variant={BackgroundVariant.Dots}
-        gap={20}
-        size={1}
-        color="#F3F4F6"
+}) => {
+  return (
+    <ReactFlowProvider>
+      <FlowCanvas
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeDragStop={onNodeDragStop}
       />
-      <Controls />
-    </ReactFlow>
-  </div>
-);
+    </ReactFlowProvider>
+  );
+};
+
+const FlowCanvas: React.FC<DetailsViewProps> = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodeDragStop,
+}) => {
+  const reactFlowInstance = useReactFlow();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (nodes.length > 0) {
+      setTimeout(() => {
+        reactFlowInstance.fitView({ padding: 0.2 });
+      }, 100);
+    }
+  }, [nodes]);
+
+  return (
+    <div ref={containerRef} style={{ height: "600px" }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeDragStop={onNodeDragStop}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        defaultEdgeOptions={{
+          type: "custom",
+          style: { stroke: "#FFC233", strokeWidth: 2 },
+        }}
+        fitView
+        panOnDrag
+        zoomOnDoubleClick={false}
+        minZoom={1}
+        maxZoom={3}
+        preventScrolling={false}
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1}
+          color="#F3F4F6"
+        />
+        <Controls />
+      </ReactFlow>
+    </div>
+  );
+};
 
 export default DetailsView;

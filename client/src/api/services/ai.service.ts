@@ -1,5 +1,10 @@
 import { createApiClient } from '../axios';
-import { AttritionRequestInterface, AttritionResponseDto } from "@/types/ai";
+import {
+  AttritionRequestInterface,
+  AttritionResponseDto,
+  JobMatchResultsResponse,
+  ReportQueryParams,
+} from "@/types/ai";
 
 
 const aiApiClient = createApiClient(
@@ -19,6 +24,31 @@ export const aiService = {
       "/predict-attrition",
       data
     );
+    return response.data;
+  },
+
+  getAllJobMatchResults: async (): Promise<JobMatchResultsResponse> => {
+    const response = await aiApiClient.get<JobMatchResultsResponse>(
+      "/get-all-job-match-results"
+    );
+    console.log("Job Match from AI SERVICE", response.data)
+    return response.data;
+  },
+
+  generateReport: async (
+    params: ReportQueryParams
+  ) => {
+
+    const queryParams = new URLSearchParams({
+      type: params.type,
+      format: params.format,
+    });
+
+    const url = `/generate-report/?${queryParams.toString()}`;
+    console.log("Generate Report URL", url)
+
+    const response =
+      await aiApiClient.get(url);
     return response.data;
   },
 };

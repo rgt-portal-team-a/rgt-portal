@@ -1,4 +1,4 @@
-import { CustomNode, JunctionNodeRight, JunctionNodeLeft } from "./customNodes";
+import { CustomNode, HeaderNode,  JunctionNodeRight, JunctionNodeLeft } from "./customNodes";
 import {
   CustomEdge,
   CustomBezierEdge,
@@ -13,6 +13,7 @@ import {
 
 export const nodeTypes = {
   custom: CustomNode,
+  header: HeaderNode,
   junctionNodeRight: JunctionNodeRight,
   junctionNodeLeft: JunctionNodeLeft,
 };

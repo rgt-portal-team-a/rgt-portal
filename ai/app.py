@@ -1,23 +1,29 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Body
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
-import io
+from fastapi.responses import JSONResponse, Response, HTMLResponse
+import logging
 import os
 from dotenv import load_dotenv
-import markdown
-from typing import Dict, Any, Optional
-import tempfile
-from pydantic import BaseModel, Field
-from attrition.predictor import EmployeeData, PredictionResponse, predict_attrition
-from smart_match.predict import match_jobs_to_applicant, df
-from datetime import datetime
-from nsp_retention.nsp_analyzer import NSPAnalyzer, NSPVisualizer, generate_recommendations, generate_report
-from nsp_retention.nsp_models import (
-    RecommendationRequest, RecommendationResponse, ReportResponse,
-    AnalysisResponse, )
+from enum import Enum
+import uvicorn
 
-from typing import List, Any, Optional
-from cv_screening.cv_processor import process_cv, create_cv_text
+# Import config
+from config.settings import api_key, DB_CONFIG
+from utils.db import get_db_connection, get_db_cursor
+
+# Import routers directly from their modules
+from routers.health_router import router as health_router
+from routers.recruitment_router import router as recruitment_router
+from routers.attrition_router import router as attrition_router
+from routers.cv_router import router as cv_router
+from routers.query_router import router as query_router
+from routers.scoring_router import router as scoring_router
+from routers.report_router import router as report_router
+
+# Set up logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -25,13 +31,10 @@ app = FastAPI(
     description="AI APIs for RGT Portal",
     version="1.0.0"
 )
-# Load environment variables from .env file
+
+# Load environment variables
 load_dotenv()
 
-# Get the API key
-api_key = os.getenv("GROQ_API_KEY")
-
-analysis_cache = {}
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -41,183 +44,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-class Profile(BaseModel):
-    currentTitle: str
-    currentCompany: str
-    totalYearsInTech: int
-    highestDegree: str
-    programOfStudy: str
-    university: str
-    graduationYear: str
-    technicalSkills: str
-    programmingLanguages: str
-    toolsAndTechnologies: str
-    softSkills: str
-    industries: str
-    certifications: Optional[str] = None
-    keyProjects: str
-    recentAchievements: str
-
-
-class JobRequest(BaseModel):
-    profile: Profile
-    applied_position: str
-
-
-def format_profile(profile: Profile) -> str:
-    profile_str = f"""
-    Current Title: {profile.currentTitle}
-    Current Company: {profile.currentCompany}
-    Experience: {profile.totalYearsInTech} years in tech
-    Education: {profile.highestDegree} in {profile.highestDegree} from {profile.university} ({profile.graduationYear})
-    
-    Technical Skills: {profile.technicalSkills}
-    Programming Languages: {profile.programmingLanguages}
-    Tools & Technologies: {profile.toolsAndTechnologies}
-    
-    Soft Skills: {profile.softSkills}
-    Industries: {profile.industries}
-    
-    Key Projects: {profile.keyProjects}
-    Recent Achievements: {profile.recentAchievements}
-    """
-    if profile.certifications:
-        profile_str += f"\nCertifications: {profile.certifications}"
-
-    return profile_str
-
-
-class NSPDataDirectInput(BaseModel):
-    """Model for direct NSP data input"""
-    records: List[Dict[str, Any]] = Field(
-        ...,
-        description="List of NSP records with Program and Current status",
-        example=[
-            {"programOfStudy": "Computer Science", "currentStatus": "Hired"},
-            {"programOfStudy": "Information Technology",
-                "currentStatus": "Not Hired"},
-            {"programOfStudy": "Computer Engineering",
-                "currentStatus": "Offered Bootcamp"}
-        ]
-    )
-
-# Root endpoint
-
+# Include routers
+app.include_router(health_router)
+app.include_router(recruitment_router)
+app.include_router(attrition_router)
+app.include_router(cv_router)
+app.include_router(query_router)
+app.include_router(scoring_router)
+app.include_router(report_router)
 
 @app.get("/")
 def read_root():
     return {"message": "RGT API Project"}
-# Health check endpoint
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy",  "timestamp": datetime.now().isoformat()}
-# Prediction endpoint
-
-
-@app.post("/upload-cv/")
-async def upload_cv(file: UploadFile = File(...)):
-    """Upload and process a CV file, and return extracted information"""
-    try:
-        # Save the uploaded file to a temporary location
-        temp_file_path = None
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
-            content = await file.read()
-            temp_file.write(content)
-            temp_file_path = temp_file.name
-
-        # Process the CV file
-        cv_info = process_cv(temp_file_path)
-
-        # Clean up the temporary file
-        os.unlink(temp_file_path)
-
-        if "error" in cv_info:
-            raise HTTPException(
-                status_code=400, detail=f"Error processing CV: {cv_info['error']}")
-
-        # Return all extracted information directly
-        return cv_info
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing request: {str(e)}")
-
-
-@app.post("/predict-attrition", response_model=PredictionResponse)
-def predict(employee: EmployeeData):
-    try:
-        # Get prediction
-        prediction = predict_attrition(employee)
-        return prediction
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/predict-match")
-def match_job(request: JobRequest):
-    try:
-        # Convert the structured profile to the string format expected by the matching function
-        profile_str = format_profile(request.profile)
-
-        # Call the matching function
-        best_job = match_jobs_to_applicant(
-            profile_str,
-            request.applied_position,
-            df
-        )
-        return best_job
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/report", response_model=ReportResponse)
-async def generate_full_report(input_data: NSPDataDirectInput):
-    """
-    Generate a full report based on NSP data provided directly in the request.
-
-    Accepts data in the format:
-    {
-        "records": [
-            {"programOfStudy": "Computer Science", "currentStatus": "Hired"},
-            {"programOfStudy": "Information Technology", "currentStatus": "Not Hired"},
-            {"programOfStudy": "Computer Engineering", "currentStatus": "Offered Bootcamp"},
-            ...
-        ]
-    }
-    """
-    try:
-        # Convert input data to DataFrame
-        report_df = pd.DataFrame(input_data.records)
-
-        # Create analyzer
-        analyzer = NSPAnalyzer(report_df)
-
-        # Analyze data
-        subject_outcomes = analyzer.analyze_hiring_success()
-
-        # Generate recommendations asynchronously
-        recommendations = generate_recommendations(
-            subject_outcomes, api_key)
-
-        # Generate report in markdown (plain text)
-        report_markdown = generate_report(subject_outcomes, recommendations)
-
-        # Return plain text report (without converting to HTML)
-        return ReportResponse(
-            report_markdown=report_markdown,
-            report_html=report_markdown  # or simply return the plain text in both fields
-        )
-
-    except Exception as e:
-        import traceback
-        error_detail = f"{str(e)}\n{traceback.format_exc()}"
-        print(error_detail)  # This will appear in your server logs
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000,)
+    # Run the server
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)

@@ -1,19 +1,19 @@
+import { useUpdateEmployee } from "@/api/query-hooks/employee.hooks";
 import {
-    useUpdateEmployee,
-} from "@/api/query-hooks/employee.hooks";
-import { UpdateEmployeeInterface, Employee, EmployeeType,  Agency } from "@/types/employee";
+  UpdateEmployeeInterface,
+  Employee,
+  EmployeeType,
+  Agency,
+} from "@/types/employee";
 import { useCallback } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 import { Country, State } from "react-country-state-city/dist/esm/types";
-import { toast } from "@/hooks/use-toast";
+// import { toast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/api/errorHandler";
 import { EMPLOYEE_TYPES, LEAVE_TYPES } from "@/constants";
 import { EmployeeFormInitialValues } from "./useEmployeeForm";
 import { FormikHelpers } from "formik";
-
-
-
+import toastService from "@/api/services/toast.service";
 
 enum LeaveType {
   QUIT = "quit",
@@ -22,16 +22,21 @@ enum LeaveType {
   OTHER = "other",
 }
 
-
-export const useEmployeeSubmission = (employeeId: number, employee: Employee, countries: Country[], states:State[]) => {
+export const useEmployeeSubmission = (
+  employeeId: number,
+  employee: Employee,
+  countries: Country[],
+  states: State[]
+) => {
   const updateEmployeeMutation = useUpdateEmployee();
-//   const { data: employeeData } = useEmployeeDetails(employeeId.toString());
-    const {sharedState: { departments }} = useSelector(
-        (state: RootState) => state
-    );
+  //   const { data: employeeData } = useEmployeeDetails(employeeId.toString());
+  const { departments } = useDepartmentsData();
 
   const handleSubmit = useCallback(
-    async (values: EmployeeFormInitialValues, { setSubmitting }: FormikHelpers<EmployeeFormInitialValues>) => {
+    async (
+      values: EmployeeFormInitialValues,
+      { setSubmitting }: FormikHelpers<EmployeeFormInitialValues>
+    ) => {
       try {
         const selectedCountry = countries.find((c) => {
           const countryId = Number(values.countryId);
@@ -52,7 +57,7 @@ export const useEmployeeSubmission = (employeeId: number, employee: Employee, co
           phone: values.phone || employee?.phone,
           departmentId: values.department?.id || employee?.departmentId,
           department: values.department?.id
-            ? departments.find(
+            ? departments?.find(
                 (department) => department.id === values.department?.id
               )
             : employee?.department,
@@ -73,7 +78,7 @@ export const useEmployeeSubmission = (employeeId: number, employee: Employee, co
               : EMPLOYEE_TYPES.FULL_TIME;
           })(),
           roleId: values.roleId
-            ? Number(values.roleId )
+            ? Number(values.roleId)
             : Number(employee?.user?.role.id),
           leaveType: (() => {
             // Type guard to ensure correct type
@@ -121,11 +126,7 @@ export const useEmployeeSubmission = (employeeId: number, employee: Employee, co
         setSubmitting(false);
       } catch (error) {
         const errorMessage = getApiErrorMessage(error);
-        toast({
-          title: "Error Editing Employee",
-          description: "Failed To Edit Employee" + errorMessage.message,
-          variant: "destructive",
-        });
+        toastService.error("Failed To Edit Employee" + errorMessage.message);
         setSubmitting(false);
       } finally {
         setSubmitting(false);
@@ -133,7 +134,6 @@ export const useEmployeeSubmission = (employeeId: number, employee: Employee, co
     },
     [employeeId, employee, updateEmployeeMutation]
   );
-  
 
   return {
     handleSubmit,
