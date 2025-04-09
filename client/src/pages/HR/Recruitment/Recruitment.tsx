@@ -151,8 +151,6 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
     );
   }
 
-  console.log("data Failstage:", data?.recruitments)
-
   return (
     <div className="bg-white h-full rounded-md px-4 py-2">
       {isFetching && !isLoading && (

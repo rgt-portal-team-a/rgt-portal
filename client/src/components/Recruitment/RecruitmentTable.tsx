@@ -82,14 +82,14 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-600">
+                <div className="w-full h-full bg-purple-200 flex items-center justify-center text-purple-500">
                   {row.name.charAt(0)}
                 </div>
               )}
             </div>
             <div className="flex flex-col">
-              <span className="font-medium text-gray-800">{row.name}</span>
-              <span className="text-xs text-gray-500">{row.email}</span>
+              <span className="font-semibold text-[12.5px] text-[#8A8A8C]">{row.name}</span>
+              <span className="text-[12px] font-normal text-[#8A8A8C]">{row.email}</span>
             </div>
           </div>
         ),
@@ -186,7 +186,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
             <UserPlus size={18} className="mr-2" />
             Add New Candidate
           </Button>
-          <Button variant="outline" size="default">
+          <Button variant="outline" size="default" className="cursor-pointer">
             <Columns size={18} className="mr-2" />
             Columns
           </Button>
