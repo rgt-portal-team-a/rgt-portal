@@ -16,7 +16,7 @@ export const useCreateSingleRecognition = () => {
   return useMutation({
     mutationFn: ({ data }: { data: CreateRecognitionDto }) =>
       recognitionService.createNewRecognition(data),
-    onSuccess: (_, _variables) => {
+    onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({
         queryKey: ["recognitions"],
@@ -44,7 +44,7 @@ export const useCreateMultipleRecognitions = () => {
   return useMutation({
     mutationFn: ({ data }: { data: CreateRecognitionDto[] }) =>
       recognitionService.createNewRecognitionBulk(data),
-    onSuccess: (_, _variables) => {
+    onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({
         queryKey: ["recognitions"],

@@ -40,7 +40,7 @@ const VerifyEmail = () => {
         // Wait briefly to ensure auth state updates
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        navigate(data.user.role.name === "hr" ? "/hr/feed" : "/emp/feed", {
+        navigate(data.user.role.name === "hr" ? "/admin/feed" : "/emp/feed", {
           replace: true,
           state: { fromVerify: true },
         });

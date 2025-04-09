@@ -1,11 +1,10 @@
-import {IconTypes} from "./types"
+import { IconTypes } from "./types";
 
-
-const GridIcon: React.FC<IconTypes> = ({ color }) => {
+const GridIcon: React.FC<IconTypes> = ({ color, size }) => {
   return (
     <svg
-      width="24"
-      height="25"
+      width={size || "24"}
+      height={size || "25"}
       viewBox="0 0 24 25"
       fill={color ?? "none"}
       xmlns="http://www.w3.org/2000/svg"

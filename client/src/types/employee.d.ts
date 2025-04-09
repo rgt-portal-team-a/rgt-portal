@@ -6,11 +6,12 @@ import { LEAVE_TYPES, WORK_TYPES, EMPLOYEE_TYPES, ROLE_TYPES } from "@/constants
 import { PTORequest } from "./PTOS";
 
 interface IDepartmentCard {
-  id: string | number;
+  id: string;
   employees: Employee[];
   name: string;
   manager?: Employee;
   includeBgImg?: boolean;
+  path?:string
 }
 
 interface IFeed {
@@ -78,7 +79,8 @@ export interface Employee {
   workType?: WorkType | null;
   isJuniorTeamLead?: boolean;
   isSeniorTeamLead?: boolean;
-  position: string | null;
+  position?: string | null;
+  positionStatus?: string | null;
   agency: Agency | null;
   hireDate: Date | null;
   endDate?: Date | null;
@@ -104,6 +106,7 @@ export interface Employee {
   attendanceRecords?: AttendanceRecord[];
   createdPolls?: Poll[];
   pollVotes?: PollVote[];
+  
 }
 
 

@@ -3,6 +3,9 @@ export interface ApiResponse<T> {
     error?:string;
     message: string;
     success: boolean;
+    metadata?: {
+      isOnline?: boolean;
+    };
   }
   
   export interface PaginatedResponse<T> extends ApiResponse<T[]> {

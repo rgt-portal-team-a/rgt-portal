@@ -7,7 +7,6 @@ import { SideFormModal } from "@/components/common/Modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SideModal } from "@/components/ui/side-dialog";
-import { timeOffTableColumns } from "@/constants";
 import { useRequestPto } from "@/hooks/usePtoRequests";
 import { PtoLeave } from "@/types/PTOS";
 import { Field, FieldInputProps, FormikHelpers } from "formik";
@@ -18,6 +17,7 @@ import {
   statusTextMap,
 } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
 import StepProgress from "@/components/common/StepProgress";
+import { Column } from "@/types/tables";
 
 export default function TimeOff() {
   const [appRej, setAppRej] = useState(false);
@@ -32,7 +32,7 @@ export default function TimeOff() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(4);
+  const [pageSize] = useState(5);
 
   const {
     createPto,
@@ -43,13 +43,12 @@ export default function TimeOff() {
     isLoading,
   } = useRequestPto();
 
-  console.log("ptodata:", ptoData)
-
   const formattedPtoData = ptoData?.map((item) => ({
     ...item,
     status:
       statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
-    type: item.type.toUpperCase(),
+    type:
+      item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase(),
     total: `${Math.ceil(
       (new Date(item.endDate as Date).getTime() -
         new Date(item.startDate as Date).getTime()) /
@@ -95,7 +94,6 @@ export default function TimeOff() {
   };
 
   const handleCheckNow = () => {
-    console.log("...checking");
     setIsSuccess(false);
   };
 
@@ -106,6 +104,12 @@ export default function TimeOff() {
     const typeMatch =
       selectedType === "All Types" ||
       item.type.toLowerCase() === selectedType.toLowerCase();
+    console.log(
+      "selectedType",
+      selectedType,
+      item.type.toLowerCase(),
+      typeMatch
+    );
 
     // Filter by status
     const statusMatch =
@@ -125,11 +129,11 @@ export default function TimeOff() {
     return typeMatch && statusMatch && dateMatch;
   });
 
-const paginatedData =
-  filteredPtoData?.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  ) || [];
+  const paginatedData =
+    filteredPtoData?.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    ) || [];
 
   const handleResetFilters = () => {
     setSelectedType("All Types");
@@ -142,8 +146,8 @@ const paginatedData =
       type: "select",
       options: [
         { label: "All Types", value: "All Types" },
-        { label: "Vacation", value: "Vacation" },
-        { label: "Sick", value: "Sick" },
+        { label: "Pto", value: "vacation" },
+        { label: "Sick", value: "sick" },
       ],
       value: selectedType,
       onChange: setSelectedType,
@@ -170,9 +174,50 @@ const paginatedData =
     },
   ];
 
+  const timeOffTableColumns: Column[] = [
+    { key: "total", header: "Total" },
+    { key: "reason", header: "Reason" },
+    {
+      key: "status",
+      header: "Status",
+      cellClassName: (row: Record<string, any>) => {
+        const status = row.status.toLowerCase();
+        return `py-2 text-center w-[150px] lg:w-[250px] truncate ${
+          status === "pending"
+            ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
+            : status.includes("approved")
+            ? "font-semibold text-[#7ABB9E] bg-[#E5F6EF] rounded-md "
+            : status.includes("declined")
+            ? "font-semibold text-[#D92D20] bg-[#FEE4E2] rounded-md "
+            : ""
+        }`;
+      },
+    },
+    {
+      key: "type",
+      header: "Type",
+      render: (row) => {
+        const type = row.type.toLowerCase();
+        return (
+          <div
+            className={`py-2 text-center  w-[150px] lg:w-[200px] ${
+              type === "vacation"
+                ? "font-semibold text-[#6418C3] bg-[#C9ADFF] rounded-md"
+                : type === "sick"
+                ? "font-semibold text-rgtpink bg-pink-200 rounded-md"
+                : ""
+            }`}
+          >
+            {type === "vacation" ? "Pto" : "Sick"}
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
-    <main>
-      <div className="bg-white p-4 rounded-md overflow-auto h-[600px]">
+    <main className="bg-white px-4 py-2 rounded-md overflow-auto h-full">
+      <div className="h-full">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List
@@ -188,7 +233,7 @@ const paginatedData =
 
         <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="max-h-[300px] md:max-h-[450px] overflow-auto">
+        <div className="h-[300px] sm:h-[360px] md:h-[430px] overflow-auto mb-4 md:mb-0">
           <DataTable
             columns={timeOffTableColumns}
             data={paginatedData || []}
@@ -259,7 +304,7 @@ const paginatedData =
                         : "bg-slate-200 text-black"
                     }`}
                   >
-                    Vacation
+                    PTO
                   </button>
                   <button
                     type="button"

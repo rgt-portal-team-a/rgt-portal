@@ -13,6 +13,8 @@ router.get(
   recognitionController.getRecognitions,
 );
 
+router.get("/week", authMiddleware.isAuthenticated, recognitionController.getRecognitionsByWeek);
+
 router.get("/employee/:employeeId", authMiddleware.isAuthenticated, recognitionController.getRecognitionsByEmployee);
 
 router.get("/category/:category", authMiddleware.isAuthenticated, recognitionController.getRecognitionsByCategory);

@@ -7,20 +7,12 @@ import { Field, FieldInputProps, FormikHelpers, FieldProps } from "formik";
 import * as Yup from "yup";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, FileText, Search } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { useCreateDepartment } from "@/api/query-hooks/department.hooks";
 import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 import DepartmentCard from "@/components/DepartmentCard";
 import AllDepartmentsSkeleton from "@/components/Hr/Employees/AllDepartmentsSkeleton";
+import {EmployeeSelector} from "@/components/Hr/common/EmployeeSelector";
 import NoDepartmentsPage from "../../common/NoDepartmentsPage";
 
 const NewDepSchema = Yup.object({
@@ -66,6 +58,8 @@ export const AllDepartments = () => {
 
     setFilteredDepartments(filtered);
   }, [departments, searchQuery]);
+
+  console.log("Filtered Departments: ", filteredDepartments);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -115,8 +109,8 @@ export const AllDepartments = () => {
               <div className="relative w-full">
                 <Input
                   type="text"
-                  placeholder="Search For A Department"
-                  className="pl-5 py-3 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full "
+                  placeholder="Search for a department"
+                  className="pl-5 py-4 rounded-xl bg-gray-50 border outline-none shadow-none h-full w-full "
                   value={searchQuery}
                   onChange={handleSearchChange}
                 />
@@ -126,7 +120,7 @@ export const AllDepartments = () => {
                 onClick={() => setIsModalOpen(true)}
                 className="bg-rgtviolet hover:bg-violet-900 rounded-lg py-6"
               >
-                Create a New Department
+                Add A New Department
               </Button>
             </div>
           </section>
@@ -136,10 +130,11 @@ export const AllDepartments = () => {
               {filteredDepartments.map((department) => (
                 <DepartmentCard
                   key={department.id}
-                  id={`department/${department.id}`}
+                  path={`department/${department.id}`}
+                  id={department.id}
                   name={department.name}
                   employees={department.employees ?? []}
-                  includeBgImg={true}
+                  manager={department.manager}
                 />
               ))}
             </div>
@@ -260,37 +255,14 @@ export const AllDepartments = () => {
 
           <Field name="managerId">
             {({ field, form, meta }: FieldProps) => (
-              <div className="relative">
-                <Select
-                  onValueChange={(value) =>
-                    form.setFieldValue(field.name, value)
-                  }
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="w-full py-6">
-                    <SelectValue placeholder="Select a manager for the department" />
-                  </SelectTrigger>
-                  <SelectContent position="popper" className="z-[2000]">
-                    <SelectGroup>
-                      <SelectLabel>Select a manager</SelectLabel>
-                      {users?.length ? (
-                        users.map((user) => (
-                          <SelectItem key={user.id} value={user.id.toString()}>
-                            {user.firstName} {user.lastName}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-managers" disabled>
-                          No managers available
-                        </SelectItem>
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {meta.touched && meta.error && (
-                  <div className="text-red-500 text-sm mt-1">{meta.error}</div>
-                )}
-              </div>
+              <EmployeeSelector
+                field={field}
+                form={form}
+                meta={meta}
+                users={users || []}
+                placeholder="Select a manager for the department"
+                showEmail={true}
+              />
             )}
           </Field>
         </SideFormModal>

@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import RecruitmentService, {
   CreateRecruitmentDto,
 } from "@/api/services/recruitment.service";
+import { ALL_ROLE_NAMES } from "@/constants";
 
 interface UploadStatus {
   cv: "idle" | "loading" | "success" | "error";
@@ -60,6 +61,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
     enabled: isOpen,
     refetchOnWindowFocus: false,
   });
+
 
   const [extractedData, setExtractedData] = useState<ExtractedCvData | null>(null);
 
@@ -249,10 +251,18 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
   };
 
   const assigneeOptions =
-    employees?.map((emp) => ({
-      value: emp.id,
-      label: `${emp.firstName} ${emp.lastName}`,
-    })) || [];
+    employees
+      ?.filter(
+        (emp) =>
+          emp.user?.role?.name === ALL_ROLE_NAMES.HR ||
+          emp.user?.role?.name === ALL_ROLE_NAMES.ADMIN
+      )
+      .map((emp) => ({
+        value: emp.id,
+        label: `${emp.firstName} ${emp.lastName}`,
+        email: emp.user?.email,
+        profile: emp.user?.profileImage,
+      })) || [];
 
   const getFieldGroups = () => {
     const fullWidthFields = filteredFields.filter(
@@ -320,7 +330,7 @@ export const CreateRecruitment: React.FC<CreateRecruitmentProps> = ({
         size="md"
         contentClassName="flex flex-col text-[#706D8A] p-0"
         headerClassName="text-[#706D8A]"
-        showCloseButton={false}
+        showCloseButton={true}
       >
         <Formik
           initialValues={initialValues}

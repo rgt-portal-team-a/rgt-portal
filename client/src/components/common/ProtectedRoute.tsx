@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { useAuthContextProvider } from "../../hooks/useAuthContextProvider";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ROLE } from "@/types/authUser";
+import { ROLE, ROLE_NAMES } from "@/types/authUser";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 type ProtectedRouteProps = {
-  allowedRoles: ROLE[];
+  allowedRoles: ROLE_NAMES[];
   redirectPath?: string;
   loadingComponent?: React.ReactNode;
   unauthorizedComponent?: React.ReactNode;

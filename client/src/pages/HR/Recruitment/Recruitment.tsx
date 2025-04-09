@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useCallback, useMemo } from "react";
 import { RecruitmentType } from "@/lib/enums";
 import RecruitmentTable from "@/components/Recruitment/RecruitmentTable";
@@ -9,20 +10,13 @@ import {
   RecruitmentFilters,
 } from "@/hooks/useRecruitment";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RecruitmentTableSkeleton from "@/components/Recruitment/RecruitmentTableSekeleton";
+import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
+import toastService from "@/api/services/toast.service";
+import DeleteRippleIcon from "@/components/common/DeleteRippleIcon";
 
 interface RecruitmentPageProps {
   type: RecruitmentType;
@@ -38,7 +32,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "5");
+  const limit = parseInt(searchParams.get("limit") || "6");
 
   const filters = useMemo<RecruitmentFilters>(() => {
     const filterParams: RecruitmentFilters = {};
@@ -66,7 +60,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
 
   const handleView = useCallback(
     (id: string) => {
-      navigate(`/hr/recruitment/candidate/${id}`);
+      navigate(`/admin/recruitment/candidate/${id}`);
     },
     [navigate]
   );
@@ -87,6 +81,10 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
         onSuccess: () => {
           setIsDeleteDialogOpen(false);
           setDeleteId(null);
+          toastService.success("Employee deleted successfully");
+        },
+        onError: (error) => {
+          toastService.error(`Error Deleting employee: ${error}`);
         },
       });
     }
@@ -119,7 +117,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="">
         <RecruitmentTableSkeleton
           rowCount={limit}
           columnCount={type === RecruitmentType.EMPLOYEE ? 9 : 8}
@@ -135,7 +133,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
 
   if (isError) {
     return (
-      <div className="p-6">
+      <div className="">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error loading recruitment data</AlertTitle>
@@ -154,7 +152,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
   }
 
   return (
-    <div className="">
+    <div className="bg-white h-full rounded-md px-4 py-2">
       {isFetching && !isLoading && (
         <div className="fixed top-4 right-4 bg-white shadow-md rounded-md p-2 flex items-center z-50">
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -201,36 +199,25 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
         candidateId={editCandidateId}
       />
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+      <ConfirmCancelModal
+        isOpen={isDeleteDialogOpen}
+        onSubmit={confirmDelete}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        onOpenChange={() => ""}
+        submitText="Delete"
+        isSubmitting={deleteMutation.isPending}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to delete this candidate?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The candidate information will be
-              permanently removed from the system.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <div className="flex flex-col justify-center items-center space-y-2">
+          <DeleteRippleIcon />
+          <p className="text-lg font-semibold text-center">
+            Are you sure you want to delete this candidate?
+          </p>
+          <p className="font-light text-[#535862] text-sm text-center text-wrap w-[300px]">
+            This action cannot be undone. The candidate information will be
+            permanently removed from the system.
+          </p>
+        </div>
+      </ConfirmCancelModal>
     </div>
   );
 };

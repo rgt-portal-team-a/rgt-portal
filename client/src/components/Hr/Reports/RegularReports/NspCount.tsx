@@ -107,15 +107,15 @@ const NspCount: React.FC = () => {
 
   // Render Normal State
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full ">
       <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
         <CardTitle>Hired NSP Count</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-full">
         <div className="text-lg font-bold flex flex-col sm:flex-row gap-4 mb-4">
           <span>Total Count: {totalNspCount}</span>
         </div>
-        <div className="w-full h-64">
+        <div className="w-full h-[165px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.nspCountData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />

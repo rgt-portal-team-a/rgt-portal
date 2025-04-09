@@ -56,11 +56,7 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
       dispatch(
         SETCURRENTUSER({
           currentUser: {
-            ...fetchedUser,
-            role: {
-              ...fetchedUser.role,
-              name: fetchedUser.role.name.toUpperCase(),
-            },
+            ...fetchedUser
           },
         })
       );

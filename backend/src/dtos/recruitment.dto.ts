@@ -46,7 +46,7 @@ export class UpdateRecruitmentDto {
   email?: string;
   phoneNumber?: string;
   type?: RecruitmentType;
-  assignees?: string[];
+  assignees?: number[];
   location?: string;
   firstPriority?: string;
   secondPriority?: string;

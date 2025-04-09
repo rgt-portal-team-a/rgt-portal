@@ -2,6 +2,11 @@ export interface NodeData extends Record<string, unknown> {
   label: string;
   value?: string;
   isHeader?: boolean;
+  icon?: React.ReactNode | React.FC;
+  iconProps?: {
+    className?: string;
+    containerClassName?: string;
+  };
 }
 
 export interface EdgeData extends Record<string, unknown> {

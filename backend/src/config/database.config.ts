@@ -27,6 +27,9 @@ import {
   CommentReply,
   CommentLike,
   JobMatchResult,
+  Conversation,
+  ConversationParticipant,
+  Message,
 } from "../entities";
 
 dotenv.config();
@@ -65,6 +68,9 @@ export const databaseConfig: DataSourceOptions = {
     CommentReply,
     CommentLike,
     JobMatchResult,
+    Conversation,
+    ConversationParticipant,
+    Message,
   ],
   migrations: ["src/migrations/**/*.ts"],
   synchronize: process.env.NODE_ENV !== "development",   

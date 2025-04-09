@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import {  MoreVertical, UserCheck, Trash2 } from "lucide-react";
+import { MoreVertical, UserCheck, Trash2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -68,7 +68,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     }));
   }, [department]);
 
-  console.log("DEparatment:", department)
+  console.log("DEparatment:", department);
   const filteredData = useMemo(() => {
     if (!department.employees) return [];
 
@@ -144,7 +144,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
       try {
         await removeEmployeeFromDepartment.mutateAsync({
           id: selectedEmployeeId,
-          departmentId: department.id,
+          departmentId: parseInt(department.id),
         });
 
         setDeleteModalOpen(false);
@@ -340,7 +340,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         filters={[
           {
             type: "select",
-            placeholder: "All Role",
             options: [
               { label: "All Role", value: "All Role" },
               { label: "Manager", value: "manager" },
@@ -354,7 +353,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
           },
           {
             type: "select",
-            placeholder: "All Work Type",
             options: [
               { label: "All Work Type", value: "All Work Type" },
               { label: "Remote", value: "remote" },
@@ -368,7 +366,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
           },
           {
             type: "select",
-            placeholder: "All Employee Type",
             options: [
               { label: "All Employee Type", value: "All Employee Type" },
               { label: "Full Time", value: "full_time" },
@@ -384,7 +381,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
           },
           {
             type: "select",
-            placeholder: "All Status",
             options: [
               { label: "All Status", value: "All Status" },
               { label: "Available", value: "Available" },
