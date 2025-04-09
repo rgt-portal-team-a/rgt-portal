@@ -137,7 +137,7 @@ const Kairo = () => {
     }
   };
 
-  const sanitizeHtml = (html: any) => {
+  const sanitizeHtml = (html:any) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     

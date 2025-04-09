@@ -16,6 +16,7 @@ import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import StepProgress from "@/components/common/StepProgress";
+import { ALL_ROLE_NAMES } from "@/constants";
 
 export enum PtoStatusType {
   PENDING = "pending",
@@ -75,7 +76,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
       (department) => Number(department.id) === Number(departmentId)
     )?.managerId === currentUser?.employee?.id;
 
-  const isHr = currentUser?.role.name === "HR";
+  const isHr = currentUser?.role.name === ALL_ROLE_NAMES.HR;
 
   const isCurrentUserEmployee =
     selectedEmployee?.employee?.id === currentUser?.employee?.id;
@@ -147,7 +148,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
         const updatedPto = {
           statusReason: selectedEmployee.statusReason,
           status:
-            currentUser?.role.name === "MANAGER"
+            currentUser?.role.name === ALL_ROLE_NAMES.MANAGER
               ? PtoStatusType.MANAGER_APPROVED
               : PtoStatusType.HR_APPROVED,
           departmentId: Number(selectedEmployee.departmentId),
@@ -165,9 +166,9 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
     try {
       if (selectedEmployee && selectedEmployee.id) {
         const updatedPto = {
-          statusReason: currentUser?.role.name === "MANAGER" ? "" : reason,
+          statusReason: currentUser?.role.name === ALL_ROLE_NAMES.MANAGER ? "" : reason,
           status:
-            currentUser?.role.name === "MANAGER"
+            currentUser?.role.name === ALL_ROLE_NAMES.MANAGER
               ? PtoStatusType.MANAGER_DECLINED
               : PtoStatusType.HR_DECLINED,
           departmentId: Number(selectedEmployee.departmentId),

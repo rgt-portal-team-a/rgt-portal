@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Column, ActionObject } from "@/types/tables";
 import { DataTable } from "@/components/common/DataTable";
 import StepProgress from "@/components/common/StepProgress";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import EmployeeManagementTableSkeleton from "./EmployeeManagementTableSkeleton";
 import { EditEmployeeForm } from "./EditEmployeeForm";
 import { Employee, EmployeeType } from "@/types/employee";
@@ -183,7 +183,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     }
 
     // Apply filters
-    let result = employees.filter((employee) => {
+    const result = employees.filter((employee) => {
       // Department filter
       if (
         filter.department !== "All Departments" &&
