@@ -1,7 +1,6 @@
 import CreatePost from "@/components/CreatePost";
 import Post from "@/components/Post";
 import React, { useMemo } from "react";
-import { FeedSkeleton } from "../../FeedSkeleton";
 import PollUI from "@/components/PollUI";
 import WithRole from "@/common/WithRole";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
@@ -10,6 +9,8 @@ import Recognition from "@/components/Recognition";
 import { usePoll } from "@/hooks/use-poll";
 import { usePost } from "@/hooks/use-posts";
 import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
+import PostSkeleton from "@/components/common/PostSkeleton";
 
 const Feed = () => {
   const { currentUser: user } = useAuthContextProvider();
@@ -33,9 +34,9 @@ const Feed = () => {
     });
   }, [posts, polls]);
 
-  if (pollsLoading && postsLoading) {
-    return <FeedSkeleton />;
-  }
+  // if (pollsLoading && postsLoading) {
+  //   return <FeedSkeleton />;
+  // }
 
   return (
     <main className={`flex w-full h-full pb-3 sm:pb-0 lg:space-x-[17px]`}>
@@ -43,9 +44,7 @@ const Feed = () => {
       <div className="flex flex-col h-full flex-1 min-w-0">
         <Recognition
           recognitions={
-            Array.isArray(recognitions?.data)
-              ? recognitions?.data
-              : []
+            Array.isArray(recognitions?.data) ? recognitions?.data : []
           }
           isRecLoading={recsLoading}
         />
@@ -67,11 +66,17 @@ const Feed = () => {
             </WithRole>
 
             <div className="space-y-3">
-              {/* <header className="font-semibold text-sm  px-4 bg-rgtpurple text-white w-fit rounded-xl shadow-md">
+              <header className="font-semibold text-xs py-1  px-4 bg-purple-200 text-rgtpurple w-fit rounded-r">
                 For you
-              </header> */}
+              </header>
               <div className="space-y-5">
-                {mergedFeed.length > 0 ? (
+                {pollsLoading || postsLoading ? (
+                  <>
+                    {pollsLoading && <Skeleton className="h-6 w-1/4 mb-4" />}
+                    {postsLoading &&
+                      [1, 2, 3].map((i) => <PostSkeleton key={i} />)}
+                  </>
+                ) : mergedFeed.length > 0 ? (
                   mergedFeed.map((item) => (
                     <React.Fragment key={item.id}>
                       {item.feedType === "post" ? (
@@ -84,7 +89,7 @@ const Feed = () => {
                     </React.Fragment>
                   ))
                 ) : (
-                  <div className="flex w-full bg-slate-200 h-96 text-rgtpurple font-semibold justify-center items-center">
+                  <div className="flex w-full bg-slate-100 h-96 text-rgtpurple font-semibold justify-center items-center">
                     <p>No posts available</p>
                   </div>
                 )}
