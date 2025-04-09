@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { recruitmentSchema } from "@/lib/recruitmentSchema";
 import { buildInitialValues, buildValidationSchema } from "@/lib/utils";
 import { RecruitmentStatus, FailStage, RecruitmentType } from "@/lib/enums";
+import { ALL_ROLE_NAMES } from "@/constants";
 import { toast } from "@/hooks/use-toast";
 import {
   useUpdateRecruitment,
@@ -163,9 +164,17 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
     return buildInitialValues(filteredFields);
   }, [candidate, filteredFields]);
 
-  const assigneeOptions = employees?.map((emp: any) => ({
-    value: emp.id,
-    label: `${emp.firstName} ${emp.lastName}`,
+  const assigneeOptions =
+    employees
+      ?.filter(
+        (emp) =>
+          emp.user?.role?.name === ALL_ROLE_NAMES.HR || emp.user?.role?.name === ALL_ROLE_NAMES.ADMIN
+      )
+      .map((emp) => ({
+        value: emp.id,
+        label: `${emp.firstName} ${emp.lastName}`,
+        email: emp.user?.email,
+        profile: emp.user?.profileImage
   })) || [];
 
   useEffect(() => {
@@ -479,7 +488,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                           )}
                         </label>
                         {renderField(field, formikProps, {
-                          ...(field.name === "assignee" && {
+                          ...(field.name === "assignees" && {
                             options: assigneeOptions,
                           }),
                         })}

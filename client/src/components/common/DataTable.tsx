@@ -102,16 +102,16 @@ export function DataTable({
         skeleton == "default" ? (
           <DataTableSkeleton columns={columns} actionBool={actionBool} />
         ) : (
-          <EmployeeManagementTableSkeleton columns={columns} />
+          <EmployeeManagementTableSkeleton />
         )
       ) : (
         <Table className={dividers ? "" : "border-none bg-white rounded-md "}>
           {data && data.length > 0 ? (
             <TableHeader>
               <TableRow className={`border-none`}>
-                {tableColumns.map((column) => (
+                {tableColumns.map((column, index) => (
                   <TableHead
-                    key={column.key}
+                    key={index}
                     className={
                       "border-none text-nowrap text-[#A3A7AA] text-xs py-4 text-left"
                     }

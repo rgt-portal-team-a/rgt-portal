@@ -3,7 +3,6 @@ import { Search, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import StepProgress from "@/components/common/StepProgress";
 import { useAllJobMatchResults } from "@/api/query-hooks/ai.hooks";
-import { format } from "date-fns";
 
 export const JobGeniusMatcher: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,7 +12,7 @@ export const JobGeniusMatcher: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useAllJobMatchResults();
 
-  console.log("Job Match Results", data)
+  console.log("Job Match Results", data);
 
   // Prepare candidates data
   const candidates = useMemo(() => {
@@ -61,7 +60,7 @@ export const JobGeniusMatcher: React.FC = () => {
     return (
       <div className="bg-white rounded-[32px] shadow-sm p-6 min-h-[500px] flex flex-col">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">JobGenius Matcher</h2>
+          <h2 className="text-xl font-bold">JobGenius Matcher</h2>
           <Button variant="outline" disabled>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Loading...
@@ -143,22 +142,23 @@ export const JobGeniusMatcher: React.FC = () => {
 
   return (
     <div className="bg-white rounded-[32px] shadow-sm p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">JobGenius Matcher</h2>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center relative">
-            <Search className="h-6 w-6 text-gray-400 absolute left-2" />
-            <input
-              type="text"
-              placeholder="Search candidates"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset to first page when searching
-              }}
-              className="pl-10 pr-3 py-2 border rounded-lg w-full"
-            />
-          </div>
+      <div className="flex flex-col justify-between items-center mb-6 space-y-3 w-full ">
+        <h2 className="text-xl font-semibold text-nowrap w-full">
+          Job Genius Matcher
+        </h2>
+
+        <div className="flex items-center relative w-full">
+          <Search className="h-6 w-6 text-gray-400 absolute left-2" />
+          <input
+            type="text"
+            placeholder="Search candidates"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
+            className="pl-10 pr-3 py-2 border rounded-lg w-full"
+          />
         </div>
       </div>
 
@@ -166,7 +166,7 @@ export const JobGeniusMatcher: React.FC = () => {
         {currentCandidates.map((candidate) => (
           <div
             key={candidate.id}
-            className="rounded-[32px] bg-purple-600 text-white p-4 px-5 flex items-center justify-between"
+            className="rounded-[32px] bg-purple-600 text-white py-4 px-5 flex items-center justify-between"
           >
             <div>
               <div className="font-bold text-xl">{candidate.name}</div>

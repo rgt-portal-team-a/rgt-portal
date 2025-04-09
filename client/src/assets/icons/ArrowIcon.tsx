@@ -6,6 +6,7 @@ const ArrowIcon = ({
 }: {
   className?: ClassNameValue;
   stroke?: string;
+  color?: string;
 }) => {
   return (
     <svg

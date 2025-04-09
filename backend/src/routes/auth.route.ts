@@ -36,7 +36,7 @@ router.get(
             redirectPath = process.env.EMPLOYEE_REDIRECT;
             break;
           case Roles.HR:
-            redirectPath = process.env.HR_REDIRECT;
+            redirectPath = process.env.ADMIN_REDIRECT;
             break;
           default:
             redirectPath = process.env.USER_REDIRECT;

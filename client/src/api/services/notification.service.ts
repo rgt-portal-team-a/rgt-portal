@@ -22,7 +22,9 @@ export const notificationApi = {
   },
 
   markAllAsRead: async (): Promise<void> => {
-    const response = await defaultApiClient.put(`/api/notifications/all/read`);
+    const response = await defaultApiClient.put(
+      `/api/notifications/all/mark-as-read`
+    );
     return response.data;
   },
 

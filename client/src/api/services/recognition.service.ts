@@ -31,8 +31,8 @@ export const recognitionService = {
     return response.data;
   },
 
-    getAllRecognitions: async (): Promise<ApiResponse<EmployeeRecognition>> => {
-        const response = await recognitionApiClient.get<ApiResponse<EmployeeRecognition>>("/");
+    getAllRecognitions: async (): Promise<ApiResponse<EmployeeRecognition[]>> => {
+        const response = await recognitionApiClient.get<ApiResponse<EmployeeRecognition[]>>("/week");
         return response.data;
     },
 };

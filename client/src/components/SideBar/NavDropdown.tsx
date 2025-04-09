@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { ChevronDown, Dot } from "lucide-react";
+import { Dot } from "lucide-react";
 import { IconTypes } from "@/assets/icons/types";
+import ArrowIcon from "@/assets/icons/ArrowIcon";
 
 interface Item {
   path: string;
@@ -88,12 +89,11 @@ const NavDropdown = ({
             >
               {label}
             </span>
-            <ChevronDown
+            <ArrowIcon
               className={`transition-transform duration-200 ${
                 isOpen ? "rotate-180" : ""
               } `}
-              size={24}
-              color={`${hasActiveChild ? activeTabClr : "#706D8A"}`}
+              stroke={`${hasActiveChild ? activeTabClr : "#706D8A"}`}
             />
           </div>
         </div>

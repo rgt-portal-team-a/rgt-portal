@@ -102,7 +102,7 @@ export const poll = [
 
 // export const eventList: IEventList[] = [
 //   {
-    
+
 //     event: "holiday",
 //     date: "Mar 06, 2025",
 //     title: "Independence Day",
@@ -271,40 +271,47 @@ export const employeeCards: EmployeeCardType[] = [
   },
 ];
 
-export const timeOffTableColumns: Column[] = [
-  { key: "total", header: "Total" },
-  { key: "reason", header: "Reason" },
-  {
-    key: "status",
-    header: "Status",
-    cellClassName: (row: Record<string, any>) => {
-      const status = row.status.toLowerCase();
-      return `py-3 text-center w-[150px] lg:w-full truncate ${
-        status === "pending"
-          ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
-          : status.includes("approved")
-          ? "font-semibold text-[#7ABB9E] bg-[#E5F6EF] rounded-md "
-          : status.includes("declined")
-          ? "font-semibold text-[#D92D20] bg-[#FEE4E2] rounded-md "
-          : ""
-      }`;
-    },
-  },
-  {
-    key: "type",
-    header: "Type",
-    cellClassName: (row: Record<string, any>) => {
-      const type = row.type.toLowerCase();
-      return `py-3 text-center  w-[150px] lg:w-full ${
-        type === "vacation"
-          ? "font-semibold text-[#6418C3] bg-[#C9ADFF] rounded-md"
-          : type === "sick"
-          ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
-          : ""
-      }`;
-    },
-  },
-];
+// export const timeOffTableColumns: Column[] = [
+//   { key: "total", header: "Total" },
+//   { key: "reason", header: "Reason" },
+//   {
+//     key: "status",
+//     header: "Status",
+//     cellClassName: (row: Record<string, any>) => {
+//       const status = row.status.toLowerCase();
+//       return `py-2 text-center w-[150px] lg:w-[250px] truncate ${
+//         status === "pending"
+//           ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
+//           : status.includes("approved")
+//           ? "font-semibold text-[#7ABB9E] bg-[#E5F6EF] rounded-md "
+//           : status.includes("declined")
+//           ? "font-semibold text-[#D92D20] bg-[#FEE4E2] rounded-md "
+//           : ""
+//       }`;
+//     },
+//   },
+//   {
+//     key: "type",
+//     header: "Type",
+//     render: (row) => {
+//       // const type = row.type.toLowerCase();
+//       return (
+//         <div
+//           // className={`py-2 text-center  w-[150px] lg:w-[200px] ${
+//           //   row.type.toLowerCase() === "vacation"
+//           //     ? "font-semibold text-[#6418C3] bg-[#C9ADFF] rounded-md"
+//           //     : row.type.toLowerCase() === "sick"
+//           //     ? "font-semibold text-rgtpink bg-pink-200 rounded-md"
+//           //     : ""
+//           // }`}
+//         >
+//           {/* {row.type === "vacation" ? "Pto" : "Sick"} */}
+//           hello
+//         </div>
+//       );
+//     },
+//   },
+// ];
 
 export interface timeOffData {
   id?: number;
@@ -421,7 +428,6 @@ export const dummyProjects: Project[] = [
   },
 ];
 
-
 export const EMPLOYEE_TYPES = {
   FULL_TIME: "full_time",
   PART_TIME: "part_time",
@@ -462,4 +468,12 @@ export const PTOSTATUS_TYPES = {
   HR_DECLINED: "declined",
   MANAGER_APPROVED: "manager_approved",
   MANAGER_DECLINED: "manager_declined",
+} as const;
+
+export const ALL_ROLE_NAMES = {
+  HR: "hr",
+  EMPLOYEE: "emp",
+  MANAGER: "manager",
+  ADMIN: "admin",
+  MARKETER: "marketer",
 } as const;

@@ -8,47 +8,47 @@ import CalendarIcon from "@/assets/icons/CalendarIcon";
 
 export const HrMobileBottomBar = () => {
   const mobileNavItems = [
-    { icon: FeedIcon, label: "Feed", path: "/hr/feed" },
+    { icon: FeedIcon, label: "Feed", path: "/admin/feed" },
     {
       icon: EmployeesIcon,
       label: "Manage",
-      path: "/hr/manageemployees",
+      path: "/admin/manageemployees",
     },
     {
       icon: EmployeesIcon,
       label: "Departments",
-      path: "/hr/alldepartments",
+      path: "/admin/alldepartments",
     },
     {
       icon: TimeIcon,
       label: "My Time",
-      path: "/hr/time-off",
+      path: "/admin/time-off",
     },
     {
       icon: TimeIcon,
       label: "Emp Time",
-      path: "/hr/emp-time-off",
+      path: "/admin/emp-time-off",
     },
     {
       icon: ProfileAdd2,
       label: "FullTime",
-      path: "/hr/recruitment/employee",
+      path: "/admin/recruitment/employee",
     },
     {
       icon: ProfileAdd2,
       label: "NSS",
-      path: "/hr/recruitment/nss",
+      path: "/admin/recruitment/nss",
     },
-    { icon: CalendarIcon, label: "Events", path: "/hr/events" },
+    { icon: CalendarIcon, label: "Events", path: "/admin/events" },
     {
       icon: ChartIcon,
       label: "Regular",
-      path: "/hr/reports/regularreport",
+      path: "/admin/reports/regularreport",
     },
     {
       icon: ChartIcon,
       label: "Advanced",
-      path: "/hr/reports/advancedreport",
+      path: "/admin/reports/advancedreport",
     },
   ];
 

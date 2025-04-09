@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Send, MessageCircle, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import KairoIcon from "@/assets/icons/KairoIcon"
+import { useKairoBotQuery } from "@/api/query-hooks/ai.hooks";
+import KairoIcon from "@/assets/icons/KairoIcon";
+import { toast } from "@/hooks/use-toast";
+import "./Kairo.css"
 
 interface ChatMessage {
   type: "user" | "bot";
@@ -20,9 +24,10 @@ const Kairo = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { type: "bot", content: "How can I help you today?" },
   ]);
-  const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatBotRef = useRef<HTMLDivElement>(null);
+
+  const { mutate: sendQuery, isPending: isLoading } = useKairoBotQuery();
 
   const possibleQueries: PossibleQuery[] = [
     { id: "q1", text: "How many candidates failed this 1st interview" },
@@ -31,24 +36,71 @@ const Kairo = () => {
     { id: "q4", text: "How many leave requests are pending?" },
   ];
 
+  const extractQueryResults = (html: string): string => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const errorHeading = doc.querySelector("h1");
+    if (errorHeading?.textContent?.toLowerCase() === "error") {
+      const errorMessage = doc.querySelector("p strong")?.textContent;
+      const errorDetails = doc.querySelector("pre code")?.textContent;
+      return `Error: ${errorMessage || "Unknown error"}\n${errorDetails || ""}`;
+    }
+
+    // Find all h2 elements
+    const headings = doc.querySelectorAll("h2");
+    let resultsContent = "No results found";
+
+    // Iterate through headings to find the Results section
+    headings.forEach((heading) => {
+      if (heading.textContent?.toLowerCase().includes("results")) {
+        // Get the next sibling element
+        const nextElement = heading.nextElementSibling;
+        if (nextElement) {
+          resultsContent = nextElement.textContent || "No results found";
+        }
+      }
+    });
+
+    return resultsContent;
+  };
+
+
+
   const handleSendMessage = async () => {
     if (!currentQuery.trim()) return;
 
+    // Add user message
     setMessages((prev) => [...prev, { type: "user", content: currentQuery }]);
     setCurrentQuery("");
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          type: "bot",
-          content: `I've received your question about "${currentQuery}". I'm working on getting you an answer.`,
+    sendQuery(
+      { query: currentQuery },
+      {
+        onSuccess: (response) => {
+          // const results = extractQueryResults(response.queryResponse);
+          // setMessages((prev) => [...prev, { type: "bot", content: results }]);
+          setMessages((prev) => [...prev, { type: "bot", content: response.queryResponse }]);
         },
-      ]);
-      setIsLoading(false);
-    }, 1500);
+        onError: (error) => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              type: "bot",
+              content:
+                "Sorry, I couldn't process your request. Please try again.",
+            },
+          ]);
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
+
 
   const handleQueryClick = (query: string) => {
     setCurrentQuery(query);
@@ -85,6 +137,21 @@ const Kairo = () => {
     }
   };
 
+  const sanitizeHtml = (html:any) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    
+    // Remove problematic elements or add classes
+    const tables = doc.querySelectorAll("table");
+    tables.forEach(table => {
+      table.classList.add("chat-table");
+    });
+    
+    return doc.body.innerHTML;
+  };
+
+
+
   return (
     <div className="fixed bottom-12 right-6 z-50" ref={chatBotRef}>
       {isOpen && (
@@ -93,7 +160,7 @@ const Kairo = () => {
           <div className="p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 p-1 rounded-md bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center ">
-                <KairoIcon/>
+                <KairoIcon />
               </div>
               <div className="text-white font-bold">
                 Kairo1{" "}
@@ -128,7 +195,14 @@ const Kairo = () => {
                       : "bg-purple-800 text-white"
                   }`}
                 >
-                  {msg.content}
+                {msg.type === "user" ? (
+                  msg.content
+                ) : (
+                  <div
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(msg.content) || "" }}
+                    className="p-4 chat-content"
+                  />
+                )}
                 </div>
               </div>
             ))}
@@ -216,7 +290,9 @@ const Kairo = () => {
           {isOpen ? (
             <X className="text-white" size={24} />
           ) : (
-            <div className=" p-1 items-center justify-center"><KairoIcon/></div>
+            <div className=" p-1 items-center justify-center">
+              <KairoIcon />
+            </div>
           )}
         </button>
       </div>

@@ -53,8 +53,8 @@ export const useRequestPto = (id?: number) => {
       // Optimistically update the cache
       if (previousPtoData) {
         queryClient.setQueryData<PtoLeave[]>(["ptoData"], (old) => [
-          ...(old || []),
           newPto,
+          ...(old || []),
         ]);
       }
 

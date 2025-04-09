@@ -1,14 +1,12 @@
-import {Project} from "./project"
-import {Employee} from "./employee"
+import { Employee } from "./employee";
 
 export interface CreateRecognitionDto {
-  recognizedById: number;
-  recognizedEmployeeId: number;
+  recognizedBy: { id: number };
+  recognizedEmployee: { id: number };
   project?: string;
   category?: string;
   message: string;
 }
-
 
 export interface EmployeeRecognition {
   id: number;

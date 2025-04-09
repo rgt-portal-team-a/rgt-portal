@@ -1,10 +1,12 @@
 import { NodeData } from "./types";
+import React from "react";
 import {
   Position,
   Node,
   NodeProps,
   Handle,
 } from "@xyflow/react";
+import CalendarIcon from "@/assets/icons/CalendarIcon"
 
 
 const handleStyle = {
@@ -22,9 +24,11 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, string>>> = ({
   isConnectable,
 }) => {
   const isHeader = data.isHeader || false;
+  const Icon = data.icon;
+  const iconProps = data.iconProps || {};
 
   return (
-    <div>
+    <div className="">
       {!isHeader && (
         <Handle
           type="target"
@@ -61,11 +65,23 @@ export const CustomNode: React.FC<NodeProps<Node<NodeData, string>>> = ({
         />
       )}
 
-      <div>
-        <div className="font-medium">{data.label}</div>
-        {data.value && !isHeader && (
-          <div className="text-sm opacity-80">{data.value}</div>
+      <div className="flex items-center space-x-2 ">
+        {/* Text Content */}
+        {Icon && (
+          <div className={`${iconProps.containerClassName}`}>
+            <div className={`${iconProps.className}`}>
+              {React.isValidElement(Icon)
+                ? Icon
+                : React.createElement(Icon as React.FC)}
+            </div>
+          </div>
         )}
+        <div>
+          <div className="font-medium">{data.label}</div>
+          {data.value && !isHeader && (
+            <div className="text-sm opacity-80">{data.value}</div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ const ProfileHeader: React.FC = () => (
     <h1 className="text-2xl font-medium text-slate-600">Employee Profile</h1>
     <div className="flex items-center text-sm text-slate-500">
       {/* <span>Employee Cards</span> */}
-      <Link to="/hr/manageemployees" className={"hover:text-gray-700"}>
+      <Link to="/admin/manageemployees" className={"hover:text-gray-700"}>
         Employee Cards
       </Link>
       <span className="mx-2">&gt;</span>

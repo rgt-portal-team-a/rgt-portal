@@ -5,19 +5,21 @@ import _ from "lodash";
 import { Search } from "lucide-react";
 import StepProgress from "@/components/common/StepProgress";
 import ErrorMessage from "@/components/common/ErrorMessage";
-import {Department} from "@/types/department"
-
+import { Department } from "@/types/department";
+import AllDepartmentsSkeleton from "@/components/Hr/Employees/AllDepartmentsSkeleton";
 
 const Departments = () => {
-  const { departments, departmentsError, refetchDepartments } = useDepartmentsData();
+  const {
+    departments,
+    departmentsError,
+    refetchDepartments,
+    isDepartmentsLoading,
+  } = useDepartmentsData();
   const [inputValue, setInputValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
     []
   );
-
-
-
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,11 +88,6 @@ const Departments = () => {
     setFilteredDepartments(filtered);
   }, [searchTerm, departments]);
 
-  // Update filtered departments when departments change
-  // useEffect(() => {
-  //   setFilteredDepartments(departments);
-  // }, [departments]);
-
   // Calculate total pages
   const totalPages = Math.max(
     1,
@@ -110,7 +107,11 @@ const Departments = () => {
     }
   }, [totalPages, currentPage]);
 
-  if(!departments || departmentsError){
+  if (!departments && isDepartmentsLoading) {
+    return <AllDepartmentsSkeleton />;
+  }
+
+  if (departmentsError) {
     return (
       <ErrorMessage
         title="Error Loading Employee Data"
@@ -121,8 +122,8 @@ const Departments = () => {
   }
 
   return (
-    <main>
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+    <main className="pb-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-6">
         <header className="text-[#706D8A] font-semibold text-xl">
           All Departments
         </header>
@@ -141,12 +142,19 @@ const Departments = () => {
       </div>
 
       <section
-        className="flex flex-wrap gap-4 justify-center sm:justify-start min-h-[400px] overflow-scroll h-[400px] sm:h-[100%]"
+        className="flex flex-wrap gap-4  justify-center sm:justify-start  overflow-scroll  w-full"
         style={{ scrollbarWidth: "none" }}
       >
         {currentItems.length > 0 ? (
           currentItems.map((item, index) => (
-            <DepartmentCard {...item} key={index} />
+            <DepartmentCard
+              employees={item.employees}
+              manager={item.manager}
+              path={`${item.id}`}
+              id={item.id}
+              name={item.name}
+              key={index}
+            />
           ))
         ) : (
           <div className="w-full bg-slate-200 flex items-center justify-center h-96 text-rgtpurple font-semibold">

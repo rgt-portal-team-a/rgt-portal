@@ -144,7 +144,7 @@ export const StayOrStrayPredictor = () => {
 
 
   return (
-    <div className="bg-white rounded-[32px] shadow-sm p-6">
+    <div className="bg-white rounded-[32px] shadow-sm px-4 py-6">
       <div>
         <p>Probability Of An Employee Leaving</p>
       </div>
