@@ -58,7 +58,7 @@ export const useEmployeeSubmission = (
           departmentId: values.department?.id || employee?.departmentId,
           department: values.department?.id
             ? departments?.find(
-                (department) => department.id === values.department?.id
+                (department) => parseInt(department.id) === values.department?.id
               )
             : employee?.department,
           agency: values.agencyName

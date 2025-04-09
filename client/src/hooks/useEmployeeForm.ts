@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { GetCountries, GetState } from "react-country-state-city";
 import { Country, State } from "react-country-state-city/dist/esm/types";
@@ -107,7 +108,7 @@ export const useEmployeeForm = (employee: Employee) => {
 
     return {
       department: {
-        id: employee?.department?.id || 0,
+        id: parseInt(employee?.department?.id || "0"),
         name: employee?.department?.name || "",
       },
       personalEmail: employee?.contactDetails?.personalEmail || "",
