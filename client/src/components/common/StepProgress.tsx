@@ -52,12 +52,12 @@ const StepProgress: React.FC<StepProgressProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center  p-4">
+    <div className="flex items-center justify-center h-full">
       {/* Left Arrow */}
       <button
         onClick={handlePrev}
         disabled={currentPage === 1}
-        className="rounded-md text-purple-500 font-bold cursor-pointer"
+        className="rounded-md text-[#C0AFFF] font-bold cursor-pointer"
       >
         <ChevronLeft className={currentPage === 1 ? "text-gray-300" : ""} />
       </button>
@@ -71,9 +71,9 @@ const StepProgress: React.FC<StepProgressProps> = ({
             ) : (
               <button
                 onClick={() => setCurrentPage(step as number)}
-                className={`w-6 h-6 flex text-sm items-center justify-center rounded-md transition-all ${
+                className={`w-6 h-6 flex text-sm items-center justify-center rounded-md transition-all  ${
                   currentPage === step
-                    ? "bg-purple-500 text-white font-bold"
+                    ? "bg-[#C0AFFF] text-white font-bold shadow-sm shadow-stone-400 "
                     : "text-gray-700"
                 }`}
               >
@@ -88,9 +88,11 @@ const StepProgress: React.FC<StepProgressProps> = ({
       <button
         onClick={handleNext}
         disabled={currentPage === totalPages}
-        className="text-purple-500 font-bold cursor-pointer"
+        className="text-[#C0AFFF] font-bold cursor-pointer"
       >
-        <ChevronRight className={currentPage === totalPages ? "text-gray-300" : ""} />
+        <ChevronRight
+          className={currentPage === totalPages ? "text-gray-300" : ""}
+        />
       </button>
     </div>
   );

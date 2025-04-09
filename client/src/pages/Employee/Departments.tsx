@@ -146,7 +146,7 @@ const Departments = () => {
             <DepartmentCard
               employees={item.employees}
               manager={item.manager}
-              path={`department/${item.id}`}
+              path={`${item.id}`}
               id={item.id}
               name={item.name}
               key={index}

@@ -279,7 +279,7 @@ export const timeOffTableColumns: Column[] = [
     header: "Status",
     cellClassName: (row: Record<string, any>) => {
       const status = row.status.toLowerCase();
-      return `py-3 text-center w-[150px] lg:w-full truncate ${
+      return `py-2 text-center w-[150px] lg:w-[250px] truncate ${
         status === "pending"
           ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
           : status.includes("approved")
@@ -295,11 +295,11 @@ export const timeOffTableColumns: Column[] = [
     header: "Type",
     cellClassName: (row: Record<string, any>) => {
       const type = row.type.toLowerCase();
-      return `py-3 text-center  w-[150px] lg:w-full ${
+      return `py-2 text-center  w-[150px] lg:w-[200px] ${
         type === "vacation"
           ? "font-semibold text-[#6418C3] bg-[#C9ADFF] rounded-md"
           : type === "sick"
-          ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
+          ? "font-semibold text-rgtpink bg-pink-200 rounded-md"
           : ""
       }`;
     },

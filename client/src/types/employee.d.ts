@@ -79,7 +79,8 @@ export interface Employee {
   workType?: WorkType | null;
   isJuniorTeamLead?: boolean;
   isSeniorTeamLead?: boolean;
-  position: string | null;
+  // position: string | null;
+  positionStatus?: string | null;
   agency: Agency | null;
   hireDate: Date | null;
   endDate?: Date | null;

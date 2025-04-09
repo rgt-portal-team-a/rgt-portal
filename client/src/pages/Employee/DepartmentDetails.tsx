@@ -19,11 +19,10 @@ const DepartmentDetails = () => {
   const { currentUser } = useAuthContextProvider();
 
   const [details, setDetails] = useState<IDepartmentCard | null>(null);
-  const [selectedWorkType, setSelectedWorkType] =
-    useState<string>("Work Types");
+  const [selectedWorkType, setSelectedWorkType] = useState<string>("Types");
   const [selectedUserType, setSelectedUserType] =
     useState<string>("All User Types");
-  const [selectStatus, setSelectStatus] = useState<string>("Permanent");
+  const [selectStatus, setSelectStatus] = useState<string>("Position Status");
 
   useEffect(() => {
     const department = departments?.find(
@@ -42,12 +41,10 @@ const DepartmentDetails = () => {
     id: employee.id,
     username: employee.user?.username || "N/A",
     email: employee.user?.email || "N/A",
-    type: employee.employeeType?.split("_").join(" ").toUpperCase() || "N/A",
+    type: "Hybrid".toUpperCase(), // change this to the actual work type if available
     userType: employee.user?.role?.name.toUpperCase() || "N/A",
-    positionStatus: (!employee.position
-      ? "Permanent"
-      : "Nsp"
-    ).toLocaleUpperCase(),
+    positionStatus:
+      employee.employeeType?.split("_").join(" ").toUpperCase() || "N/A",
     ptoRequest: employee.activePtoRequest ? "Active" : "Inactive",
     profileImage: employee.user?.profileImage,
   }));
@@ -60,7 +57,11 @@ const DepartmentDetails = () => {
         <div className="flex items-center gap-1">
           {row && (
             <>
-              <Avtr name={row.username} url={row.profileImage} />
+              <Avtr
+                name={row.username}
+                url={row.profileImage}
+                avtBg="bg-rgtpurple"
+              />
               <div>
                 <p>{row.username}</p>
                 <p>{row.email}</p>
@@ -86,6 +87,10 @@ const DepartmentDetails = () => {
         return `py-2 text-center rounded-md w-32 sm:w-full ${
           lowerCase === "nsp"
             ? "bg-[#FFF7D8] text-rgtyellow"
+            : lowerCase === "full time"
+            ? "bg-[#C9ADFF] text-[#6418C3]"
+            : lowerCase === "part time"
+            ? "bg-pink-200 text-rgtpink"
             : "bg-[#C9ADFF] text-[#6418C3]"
         }`;
       },
@@ -133,18 +138,18 @@ const DepartmentDetails = () => {
   ];
 
   const handleResetFilters = () => {
-    setSelectedWorkType("Work Types");
+    setSelectedWorkType("Types");
     setSelectedUserType("All User Types");
-    setSelectStatus("Permanent");
+    setSelectStatus("Position Status");
   };
 
   const filters: FilterConfig[] = [
     {
       type: "select",
       options: [
-        { label: "Work Types", value: "Work Types" },
-        { label: "Full Time", value: "full time" },
-        { label: "Part Time", value: "part time" },
+        { label: "Types", value: "Types" },
+        { label: "Hybrid", value: "hybrid" },
+        { label: "Remote", value: "remote" },
       ],
       value: selectedWorkType,
       onChange: setSelectedWorkType,
@@ -156,6 +161,7 @@ const DepartmentDetails = () => {
         { label: "Manager", value: "manager" },
         { label: "Employee", value: "employee" },
         { label: "Marketer", value: "marketer" },
+        { label: "HR", value: "hr" },
       ],
       value: selectedUserType,
       onChange: setSelectedUserType,
@@ -164,7 +170,8 @@ const DepartmentDetails = () => {
       type: "select",
       options: [
         { label: "Position Status", value: "Position Status" },
-        { label: "Permanent", value: "permanent" },
+        { label: "Full Time", value: "full time" },
+        { label: "Part Time", value: "part time" },
         { label: "Nsp", value: "nsp" },
       ],
       value: selectStatus,
@@ -174,7 +181,7 @@ const DepartmentDetails = () => {
 
   const filteredData = transformedData?.filter((employee) => {
     const workTypes =
-      selectedWorkType === "Work Types" ||
+      selectedWorkType === "Types" ||
       employee.type.toLowerCase() === selectedWorkType.toLowerCase();
 
     const userTypeMatch =
@@ -182,17 +189,19 @@ const DepartmentDetails = () => {
       employee.userType.toLowerCase() === selectedUserType.toLowerCase();
 
     const status =
-      selectedWorkType === "Position Status" ||
-      employee.positionStatus.toLowerCase() === selectStatus.toLowerCase();
+      selectStatus === "Position Status" ||
+      employee.positionStatus?.toLowerCase() === selectStatus.toLowerCase();
 
-    console.log("position status:");
+    console.log("position status:", employee.positionStatus);
+    console.log("selectedStatus:", selectStatus);
 
     return workTypes && userTypeMatch && status;
   });
 
+
   return (
-    <main className="space-y-2 w-full ">
-      <header className="">
+    <main className="space-y-2 w-full h-full bg-white rounded-md">
+      <header className=" px-4 pt-4">
         <h3 className="text-[#706D8A] font-semibold text-xl">
           {details?.name}
         </h3>
@@ -211,21 +220,7 @@ const DepartmentDetails = () => {
       </header>
 
       {details ? (
-        <div
-          className="w-full flex justify-center sm:block bg-white rounded-md shadow-sm mt-5"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          <style>
-            {`
-                .hide-scrollbar::-webkit-scrollbar {
-                display: none; /* Chrome, Safari, and Opera */
-              }
-              `}
-          </style>
-
+        <div className="w-full flex justify-center sm:block bg-white rounded-md mt-5">
           <div className="py-[10px] px-[20px] w-full">
             <Filters filters={filters} onReset={handleResetFilters} />
             <DataTable
@@ -240,8 +235,6 @@ const DepartmentDetails = () => {
           <p>No data available</p>
         </div>
       )}
-
-      
     </main>
   );
 };

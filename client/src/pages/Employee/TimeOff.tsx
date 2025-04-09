@@ -32,7 +32,7 @@ export default function TimeOff() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(4);
+  const [pageSize] = useState(5);
 
   const {
     createPto,
@@ -43,13 +43,12 @@ export default function TimeOff() {
     isLoading,
   } = useRequestPto();
 
-  console.log("ptodata:", ptoData)
-
   const formattedPtoData = ptoData?.map((item) => ({
     ...item,
     status:
       statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
-    type: item.type.toUpperCase(),
+    type:
+      item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase(),
     total: `${Math.ceil(
       (new Date(item.endDate as Date).getTime() -
         new Date(item.startDate as Date).getTime()) /
@@ -95,7 +94,6 @@ export default function TimeOff() {
   };
 
   const handleCheckNow = () => {
-    console.log("...checking");
     setIsSuccess(false);
   };
 
@@ -125,11 +123,11 @@ export default function TimeOff() {
     return typeMatch && statusMatch && dateMatch;
   });
 
-const paginatedData =
-  filteredPtoData?.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  ) || [];
+  const paginatedData =
+    filteredPtoData?.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    ) || [];
 
   const handleResetFilters = () => {
     setSelectedType("All Types");
@@ -171,8 +169,8 @@ const paginatedData =
   ];
 
   return (
-    <main className="bg-white p-4 rounded-md overflow-auto h-full">
-      <div>
+    <main className="bg-white px-4 py-2 rounded-md overflow-auto h-full">
+      <div className="h-full">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List
@@ -188,7 +186,7 @@ const paginatedData =
 
         <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="max-h-[300px] md:max-h-[450px] overflow-auto">
+        <div className="h-[300px] sm:h-[360px] md:h-[430px] overflow-auto mb-4 md:mb-0">
           <DataTable
             columns={timeOffTableColumns}
             data={paginatedData || []}
