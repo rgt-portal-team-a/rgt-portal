@@ -463,3 +463,11 @@ export const PTOSTATUS_TYPES = {
   MANAGER_APPROVED: "manager_approved",
   MANAGER_DECLINED: "manager_declined",
 } as const;
+
+export const ALL_ROLE_NAMES = {
+  HR: "hr",
+  EMPLOYEE: "emp",
+  MANAGER: "manager",
+  ADMIN: "admin",
+  MARKETER: "marketer",
+} as const;

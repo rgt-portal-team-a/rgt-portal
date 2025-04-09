@@ -31,6 +31,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Check } from "lucide-react";
+import StepProgress from "@/components/common/StepProgress";
+
 
 interface Column {
   key: string;
@@ -72,6 +74,10 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
   const [columnFilterTerm, setColumnFilterTerm] = useState("");
+
+  const itemsPerPage = 5; 
+
+
 
 
   const columns = useMemo(() => {
@@ -275,6 +281,12 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
       });
     });
   }, [candidates, searchTerm, searchByFields]);
+
+  const paginatedCandidates = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredCandidates.slice(startIndex, endIndex);
+  }, [filteredCandidates, currentPage, itemsPerPage]);
 
 
 
@@ -497,66 +509,83 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
               <p className="text-gray-500">No candidates found.</p>
             </div>
           ) : (
-            <Table className="border-collapse min-w-full">
-              <TableHeader>
-                <TableRow className="border-none ">
-                  {filteredColumns.map((column) => (
-                    <TableHead
-                      key={column.key}
-                      className="border-none text-gray-500 text-xs font-medium p-5"
-                    >
-                      {column.header}
-                    </TableHead>
-                  ))}
-                  <TableHead className="border-none text-gray-500 text-xs font-medium p-5">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCandidates.map((candidate) => (
-                  <TableRow
-                    key={candidate.id}
-                    className="border-none hover:bg-gray-50"
-                  >
+            <>
+              <Table className="border-collapse min-w-full">
+                <TableHeader>
+                  <TableRow className="border-none ">
                     {filteredColumns.map((column) => (
-                      <TableCell
-                        key={`${candidate.id}-${column.key}`}
-                        className="border-none text-xs font-semibold text-gray-600 py-4"
+                      <TableHead
+                        key={column.key}
+                        className="border-none text-gray-500 text-xs font-medium p-5"
                       >
-                        <div className={`w-fit`}>
-                          {column.render
-                            ? column.render(candidate)
-                            : candidate[column.key as keyof Recruitment] || "—"}
+                        {column.header}
+                      </TableHead>
+                    ))}
+                    <TableHead className="border-none text-gray-500 text-xs font-medium p-5">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedCandidates.map((candidate) => (
+                    <TableRow
+                      key={candidate.id}
+                      className="border-none hover:bg-gray-50"
+                    >
+                      {filteredColumns.map((column) => (
+                        <TableCell
+                          key={`${candidate.id}-${column.key}`}
+                          className="border-none text-xs font-semibold text-gray-600 py-4"
+                        >
+                          <div className={`w-fit`}>
+                            {column.render
+                              ? column.render(candidate)
+                              : candidate[column.key as keyof Recruitment] ||
+                                "—"}
+                          </div>
+                        </TableCell>
+                      ))}
+                      <TableCell className="border-none">
+                        <div className="flex space-x-1">
+                          <button
+                            className="bg-[#FFA6CD] text-white p-[3px] rounded-md hover:bg-pink-400 duration-300 ease-in transition-colors cursor-pointer"
+                            onClick={() => onView(candidate.id)}
+                          >
+                            <Eye size={14} color="white" />
+                          </button>
+                          <button
+                            className="bg-[#C0AFFF] text-white p-[3px] rounded-md hover:bg-purple-300 duration-300 ease-in transition-colors cursor-pointer"
+                            onClick={() => onEdit(candidate.id)}
+                          >
+                            <Edit size={14} color="white" />
+                          </button>
+                          <button
+                            className="bg-[#EB2E31] text-white p-[3px] rounded-md hover:bg-red-500 duration-300 ease-in cursor-pointer transition-colors"
+                            onClick={() => onDelete(candidate.id)}
+                          >
+                            <Trash2 size={14} color="white" />
+                          </button>
                         </div>
                       </TableCell>
-                    ))}
-                    <TableCell className="border-none">
-                      <div className="flex space-x-1">
-                        <button
-                          className="bg-[#FFA6CD] text-white p-[3px] rounded-md hover:bg-pink-400 duration-300 ease-in transition-colors cursor-pointer"
-                          onClick={() => onView(candidate.id)}
-                        >
-                          <Eye size={14} color="white" />
-                        </button>
-                        <button
-                          className="bg-[#C0AFFF] text-white p-[3px] rounded-md hover:bg-purple-300 duration-300 ease-in transition-colors cursor-pointer"
-                          onClick={() => onEdit(candidate.id)}
-                        >
-                          <Edit size={14} color="white" />
-                        </button>
-                        <button
-                          className="bg-[#EB2E31] text-white p-[3px] rounded-md hover:bg-red-500 duration-300 ease-in cursor-pointer transition-colors"
-                          onClick={() => onDelete(candidate.id)}
-                        >
-                          <Trash2 size={14} color="white" />
-                        </button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {/* Pagination Component */}
+              <div className="flex justify-between items-center p-4">
+                <div className="text-sm text-gray-500">
+                  Showing {paginatedCandidates.length} of{" "}
+                  {filteredCandidates.length} candidates
+                </div>
+                <StepProgress
+                  currentPage={currentPage}
+                  setCurrentPage={onPageChange}
+                  totalPages={Math.ceil(
+                    filteredCandidates.length / itemsPerPage
+                  )}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>

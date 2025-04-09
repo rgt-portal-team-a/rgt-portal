@@ -28,6 +28,7 @@ import AdvancedReports from "./pages/HR/Reports/AdvancedReports";
 import RegularReports from "./pages/HR/Reports/RegularReports";
 import { ProfilePage } from "./pages/common/Profile";
 import { CookiePermissionBanner } from "./common/CookiePermissionBanner";
+import {ALL_ROLE_NAMES} from "@/constants"
 
 function App() {
 
@@ -45,12 +46,11 @@ function App() {
           element={
             <ProtectedRoute
               allowedRoles={[
-                "EMPLOYEE",
-                "MANAGER",
-                "HR",
-                "ADMIN",
-                "MODERATOR",
-                "MARKETER",
+                ALL_ROLE_NAMES.EMPLOYEE,
+                ALL_ROLE_NAMES.MANAGER,
+                ALL_ROLE_NAMES.HR,
+                ALL_ROLE_NAMES.ADMIN,
+                ALL_ROLE_NAMES.MARKETER,
               ]}
             />
           }
@@ -62,12 +62,19 @@ function App() {
             <Route path="messages" element={<MessagingPage />} />
             <Route path="all-departments/:id" element={<DepartmentDetails />} />
             <Route path="time-off" element={<TimeOff />} />
-            <Route path="messages/:conversationId" element={<MessagingPage />} />
+            <Route
+              path="messages/:conversationId"
+              element={<MessagingPage />}
+            />
             <Route path=":id" element={<FindEmployee />} />
             <Route path="profile" element={<ProfilePage />} />
 
             {/* Manager-specific sub-routes */}
-            <Route element={<ProtectedRoute allowedRoles={["MANAGER"]} />}>
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={[ALL_ROLE_NAMES.MANAGER]} />
+              }
+            >
               <Route
                 path="employee-requests"
                 element={<EmployeeTimeOffRequests />}
@@ -77,7 +84,13 @@ function App() {
         </Route>
 
         {/* HR routes - accessible by HR and ADMIN only */}
-        <Route element={<ProtectedRoute allowedRoles={["HR", "ADMIN"]} />}>
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={[ALL_ROLE_NAMES.HR, ALL_ROLE_NAMES.ADMIN]}
+            />
+          }
+        >
           <Route path="/admin" element={<BaseLayout />}>
             <Route index path="dashboard" element={<HRDashboard />} />
             <Route
@@ -117,7 +130,10 @@ function App() {
             <Route path="time-off" element={<TimeOff />} />
             <Route path="emp-time-off" element={<EmployeeTimeOff />} />
             <Route path="messages" element={<MessagingPage />} />
-            <Route path="messages/:conversationId" element={<MessagingPage />} />
+            <Route
+              path="messages/:conversationId"
+              element={<MessagingPage />}
+            />
             <Route path="events" element={<Events />} />
 
             {/* Advanced Report routes - accessible by HR and ADMIN */}
