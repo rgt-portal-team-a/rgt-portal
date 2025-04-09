@@ -296,7 +296,7 @@ export const timeOffTableColumns: Column[] = [
     cellClassName: (row: Record<string, any>) => {
       const type = row.type.toLowerCase();
       return `py-2 text-center  w-[150px] lg:w-[200px] ${
-        type === "vacation"
+        type === "pto"
           ? "font-semibold text-[#6418C3] bg-[#C9ADFF] rounded-md"
           : type === "sick"
           ? "font-semibold text-rgtpink bg-pink-200 rounded-md"

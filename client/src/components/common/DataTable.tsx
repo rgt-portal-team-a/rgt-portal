@@ -109,9 +109,9 @@ export function DataTable({
           {data && data.length > 0 ? (
             <TableHeader>
               <TableRow className={`border-none`}>
-                {tableColumns.map((column) => (
+                {tableColumns.map((column, index) => (
                   <TableHead
-                    key={column.key}
+                    key={index}
                     className={
                       "border-none text-nowrap text-[#A3A7AA] text-xs py-4 text-left"
                     }

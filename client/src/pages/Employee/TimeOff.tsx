@@ -48,7 +48,7 @@ export default function TimeOff() {
     status:
       statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
     type:
-      item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase(),
+      item.type === "sick" ?item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase() : item.type === "vacation" ? "Pto" : item.type,
     total: `${Math.ceil(
       (new Date(item.endDate as Date).getTime() -
         new Date(item.startDate as Date).getTime()) /
@@ -140,8 +140,8 @@ export default function TimeOff() {
       type: "select",
       options: [
         { label: "All Types", value: "All Types" },
-        { label: "Vacation", value: "Vacation" },
-        { label: "Sick", value: "Sick" },
+        { label: "Pto", value: "vacation" },
+        { label: "Sick", value: "sick" },
       ],
       value: selectedType,
       onChange: setSelectedType,
@@ -257,7 +257,7 @@ export default function TimeOff() {
                         : "bg-slate-200 text-black"
                     }`}
                   >
-                    Vacation
+                    PTO
                   </button>
                   <button
                     type="button"

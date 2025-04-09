@@ -6,10 +6,15 @@ import { Search } from "lucide-react";
 import StepProgress from "@/components/common/StepProgress";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import { Department } from "@/types/department";
+import AllDepartmentsSkeleton from "@/components/Hr/Employees/AllDepartmentsSkeleton";
 
 const Departments = () => {
-  const { departments, departmentsError, refetchDepartments } =
-    useDepartmentsData();
+  const {
+    departments,
+    departmentsError,
+    refetchDepartments,
+    isDepartmentsLoading,
+  } = useDepartmentsData();
   const [inputValue, setInputValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
@@ -83,11 +88,6 @@ const Departments = () => {
     setFilteredDepartments(filtered);
   }, [searchTerm, departments]);
 
-  // Update filtered departments when departments change
-  // useEffect(() => {
-  //   setFilteredDepartments(departments);
-  // }, [departments]);
-
   // Calculate total pages
   const totalPages = Math.max(
     1,
@@ -107,7 +107,11 @@ const Departments = () => {
     }
   }, [totalPages, currentPage]);
 
-  if (!departments || departmentsError) {
+  if (!departments && isDepartmentsLoading) {
+    return <AllDepartmentsSkeleton />;
+  }
+
+  if (departmentsError) {
     return (
       <ErrorMessage
         title="Error Loading Employee Data"
