@@ -98,7 +98,7 @@ const HiringLadder: React.FC = () => {
   }
 
   return (
-    <Card>
+    <Card className="h-[300px]">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>The Hiring Ladder: Top Performing Agencies</CardTitle>
       </CardHeader>
@@ -123,11 +123,11 @@ const HiringLadder: React.FC = () => {
             />
           ))}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4 w-full">
+        <div className="flex gap-4 mt-4 w-full h-full overflow-x-scroll">
           {data.agencyData.map((agency, index) => (
             <div
               key={index}
-              className="flex flex-col gap-2 min-w-[100px] p-2 bg-gray-50 rounded-lg"
+              className="flex flex-col gap-2 p-2 bg-gray-50 rounded-lg"
             >
               <div className="flex gap-2 items-center">
                 <div
