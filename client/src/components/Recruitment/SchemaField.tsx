@@ -13,7 +13,7 @@ import {
 import { FormField } from "@/types/recruitment";
 import { useExtractCvDetails } from "@/hooks/useRecruitment";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import Avtr from "../Avtr";
 
 export interface ExtractedCvData {
   name?: string;
@@ -44,7 +44,9 @@ export const renderField = (
 
       if (fieldName === "cv") {
         try {
-          const extractedData = await extractCvMutation.mutateAsync(file) as ExtractedCvData;
+          const extractedData = (await extractCvMutation.mutateAsync(
+            file
+          )) as ExtractedCvData;
           console.log("Extracted CV data:", extractedData);
 
           if (extractedData) {
@@ -117,7 +119,10 @@ export const renderField = (
                   <SelectGroup>
                     {(additionalProps.options || field.options)?.map(
                       (option: any, index: number) => {
-                        const value = typeof option === "object" ? option.value.toString() : option.toString();
+                        const value =
+                          typeof option === "object"
+                            ? option.value.toString()
+                            : option.toString();
                         const isSelected = selectedValues.includes(value);
                         return (
                           <SelectItem
@@ -128,39 +133,37 @@ export const renderField = (
                               flex items-center space-x-2 w-full
                             `}
                           >
-<div className="flex items-center justify-between w-full space-x-4">
-                    {/* Avatar Section */}
-                    {typeof option === "object" && option.profile && (
-                      <Avatar className="shrink-0">
-                        <AvatarImage
-                          src={option.profile}
-                          alt={option.label ?? ""}
-                        />
-                        <AvatarFallback>
-                          {option.label}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    
-                    {/* Label and Email Section */}
-                    <div className="flex-grow flex flex-col">
-                      <div className="flex items-center space-x-2">
-                        <p className="flex-grow">
-                          {typeof option === "object"
-                            ? option.label
-                            : option}
-                        </p>
-                        {isSelected && (
-                          <span className="text-green-500 ml-2">✓</span>
-                        )}
-                      </div>
-                      {typeof option === "object" && option.email && (
-                        <p className="text-sm text-gray-500">
-                          {option.email}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                            <div className="flex items-center justify-between w-full space-x-4">
+                              {/* Avatar Section */}
+                              {typeof option === "object" && option.profile && (
+                                <Avtr
+                                  url={option.profile}
+                                  name={option.label}
+                                  avtBg="bg-purple-200 text-purple-500"
+                                />
+                              )}
+
+                              {/* Label and Email Section */}
+                              <div className="flex-grow flex flex-col">
+                                <div className="flex items-center space-x-2">
+                                  <p className="flex-grow">
+                                    {typeof option === "object"
+                                      ? option.label
+                                      : option}
+                                  </p>
+                                  {isSelected && (
+                                    <span className="text-green-500 ml-2">
+                                      ✓
+                                    </span>
+                                  )}
+                                </div>
+                                {typeof option === "object" && option.email && (
+                                  <p className="text-sm text-gray-500">
+                                    {option.email}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
                           </SelectItem>
                         );
                       }
@@ -220,7 +223,9 @@ export const renderField = (
           <div className="bg-gray-100 rounded-md p-2 text-center text-gray-500">
             {values[field.name]
               ? typeof values[field.name] === "string"
-                ? values[field.name].substring(values[field.name].lastIndexOf("/") + 1)
+                ? values[field.name].substring(
+                    values[field.name].lastIndexOf("/") + 1
+                  )
                 : (values[field.name] as File)?.name
               : field.placeholder || `Upload ${field.label}`}
           </div>

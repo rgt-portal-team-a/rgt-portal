@@ -8,8 +8,7 @@ import { Recruitment } from "@/types/recruitment";
 import { Column } from "@/types/tables";
 import { DataTable } from "../common/DataTable";
 import StepProgress from "../common/StepProgress";
-import { Popover, PopoverContent } from "../ui/popover";
-import { PopoverTrigger } from "@radix-ui/react-popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface RecruitmentTableProps {
   candidates: Recruitment[];

@@ -488,7 +488,7 @@ export const EditRecruitment: React.FC<EditRecruitmentProps> = ({
                           )}
                         </label>
                         {renderField(field, formikProps, {
-                          ...(field.name === "assignee" && {
+                          ...(field.name === "assignees" && {
                             options: assigneeOptions,
                           }),
                         })}
