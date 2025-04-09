@@ -12,8 +12,8 @@ export enum ConversationType {
 
 @Entity("conversations")
 export class Conversation {
-  @PrimaryGeneratedColumn({ type: "bigint" })
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @Column({ type: "varchar", nullable: true })
   name!: string;

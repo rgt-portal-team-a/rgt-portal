@@ -10,8 +10,8 @@ export enum MessageType {
 
 @Entity("messages")
 export class Message {
-  @PrimaryGeneratedColumn({ type: "bigint" })
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @Column({ type: "text" })
   content!: string;
@@ -47,8 +47,8 @@ export class Message {
   @JoinColumn({ name: "sender_id" })
   sender!: User;
 
-  @Column({ type: "bigint" })
-  conversationId!: number;
+  @Column({ type: "uuid" })
+  conversationId!: string;
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;

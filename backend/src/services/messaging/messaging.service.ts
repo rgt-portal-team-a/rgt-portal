@@ -25,6 +25,11 @@ export class MessagingService {
     this.departmentRepository = AppDataSource.getRepository(Department);
   }
 
+  public getUserOnlineStatus = async (userId: number): Promise<boolean> => {
+    const socketService = getSocketService();
+    return socketService.getUserOnlineStatus(userId);
+  }
+
   // Message operations
   async createMessage(userId: number, dto: CreateMessageDto): Promise<Message> {
     const participant = await this.conversationParticipantRepository.findOne({
@@ -58,8 +63,8 @@ export class MessagingService {
       const socketService = getSocketService();
       
       conversation.participants.forEach(participant => {
-        if (participant.id !== userId) {
-          socketService.emitToUser(participant.id, "new_message", {
+        if (participant.user.id !== userId) {
+          socketService.emitToUser(participant.user.id, "new_message", {
             message: savedMessage,
             conversation: conversation
           });
@@ -70,7 +75,7 @@ export class MessagingService {
     return savedMessage;
   }
 
-  async updateMessage(userId: number, messageId: number, dto: UpdateMessageDto): Promise<Message> {
+  async updateMessage(userId: number, messageId: string, dto: UpdateMessageDto): Promise<Message> {
     const message = await this.messageRepository.findOne({
       where: { id: messageId }
     });
@@ -93,7 +98,7 @@ export class MessagingService {
       const socketService = getSocketService();
       
       conversation.participants.forEach(participant => {
-        socketService.emitToUser(participant.id, "message_updated", {
+        socketService.emitToUser(participant.user.id, "message_updated", {
           message: updatedMessage,
           conversationId: message.conversationId
         });
@@ -103,7 +108,7 @@ export class MessagingService {
     return updatedMessage;
   }
 
-  async deleteMessage(userId: number, messageId: number): Promise<void> {
+  async deleteMessage(userId: number, messageId: string): Promise<void> {
     const message = await this.messageRepository.findOne({
       where: { id: messageId }
     });
@@ -125,7 +130,7 @@ export class MessagingService {
       const socketService = getSocketService();
       
       conversation.participants.forEach(participant => {
-        socketService.emitToUser(participant.id, "message_deleted", {
+        socketService.emitToUser(participant.user.id, "message_deleted", {
           messageId,
           conversationId: message.conversationId
         });
@@ -133,7 +138,7 @@ export class MessagingService {
     }
   }
 
-  async getMessagesByConversationId(userId: number, conversationId: number, page = 1, limit = 50): Promise<{ messages: Message[]; total: number }> {
+  async getMessagesByConversationId(userId: number, conversationId: string, page = 1, limit = 50): Promise<{ messages: Message[]; total: number }> {
     const participant = await this.conversationParticipantRepository.findOne({
       where: { userId, conversationId }
     });
@@ -224,7 +229,7 @@ export class MessagingService {
     return savedConversation;
   }
 
-  async updateConversation(userId: number, conversationId: number, dto: UpdateConversationDto): Promise<Conversation> {
+  async updateConversation(userId: number, conversationId: string, dto: UpdateConversationDto): Promise<Conversation> {
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId }
     });
@@ -261,7 +266,7 @@ export class MessagingService {
     return updatedConversation;
   }
 
-  async deleteConversation(userId: number, conversationId: number): Promise<void> {
+  async deleteConversation(userId: number, conversationId: string): Promise<void> {
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId }
     });
@@ -292,7 +297,8 @@ export class MessagingService {
     });
   }
 
-  async getConversationById(conversationId: number): Promise<Conversation | null> {
+  async getConversationById(conversationId: string): Promise<Conversation | null> {
+    console.log("conversationId", conversationId);
     return this.conversationRepository.findOne({
       where: { id: conversationId },
       relations: ["participants", "participants.user", "department"]
@@ -333,17 +339,17 @@ export class MessagingService {
 
     const conversations = await this.conversationRepository.find({
       where: { id: In(conversationIds), type: ConversationType.PRIVATE },
-      relations: ["participants"]
+      relations: ["participants", "participants.user"]
     });
 
     return conversations.find(conversation => {
-      const participantIds = conversation.participants.map(p => p.id);
+      const participantIds = conversation.participants.map(p => p.user.id);
       return participantIds.includes(userId1) && participantIds.includes(userId2);
     }) || null;
   }
 
   // Participant operations
-  async addParticipants(userId: number, conversationId: number, dto: ConversationParticipantDto[]): Promise<void> {
+  async addParticipants(userId: number, conversationId: string, dto: ConversationParticipantDto[]): Promise<void> {
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId }
     });
@@ -397,7 +403,7 @@ export class MessagingService {
     });
   }
 
-  async removeParticipants(userId: number, conversationId: number, participantIds: number[]): Promise<void> {
+  async removeParticipants(userId: number, conversationId: string, participantIds: number[]): Promise<void> {
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId }
     });
@@ -439,7 +445,7 @@ export class MessagingService {
     });
   }
 
-  async updateParticipant(userId: number, conversationId: number, participantId: number, dto: UpdateParticipantDto): Promise<void> {
+  async updateParticipant(userId: number, conversationId: string, participantId: string, dto: UpdateParticipantDto): Promise<void> {
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId }
     });
@@ -455,9 +461,8 @@ export class MessagingService {
     if (!adminParticipant) {
       throw new Error("You don't have permission to update participants in this conversation");
     }
-
     await this.conversationParticipantRepository.update(
-      { userId: participantId, conversationId },
+      { userId: Number(participantId), conversationId },
       dto
     );
 
@@ -476,7 +481,7 @@ export class MessagingService {
     });
   }
 
-  async markConversationAsRead(userId: number, conversationId: number): Promise<void> {
+  async markConversationAsRead(userId: number, conversationId: string): Promise<void> {
     const participant = await this.conversationParticipantRepository.findOne({
       where: { userId, conversationId }
     });
@@ -491,7 +496,7 @@ export class MessagingService {
     );
   }
 
-  async getUnreadCount(userId: number, conversationId: number): Promise<number> {
+  async getUnreadCount(userId: number, conversationId: string): Promise<number> {
     const participant = await this.conversationParticipantRepository.findOne({
       where: { userId, conversationId }
     });

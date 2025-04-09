@@ -139,7 +139,7 @@ export class Recruitment {
   employee?: Employee;
 
   @OneToMany(() => EmergencyContact, (emergencyContact) => emergencyContact.recruitment)
-  emergencyContacts!: EmergencyContact[];
+  emergencyContacts?: EmergencyContact[];
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;

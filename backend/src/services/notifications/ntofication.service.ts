@@ -57,6 +57,7 @@ export class NotificationService {
   }
 
   async markAllAsRead(userId: number): Promise<Notification[]> {
+    console.log("markAllAsRead", userId);
     const notifications = await this.notificationRepository.find({
       where: { recipientId: userId },
     });

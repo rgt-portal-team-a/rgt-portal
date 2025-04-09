@@ -103,5 +103,10 @@ export class SocketService {
   public emitToAll = async (event: string, data: any): Promise<void> => {
     this.io.emit(event, data);
   }
-}
 
+  public getUserOnlineStatus = async (userId: number): Promise<boolean> => {
+    console.log("socket service", this.userSocketMap);
+    const userSockets = this.userSocketMap.get(userId) || [];
+    return userSockets.length > 0;
+  }
+}

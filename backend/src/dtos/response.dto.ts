@@ -6,5 +6,6 @@ export interface ApiResponse<T> {
     page?: number;
     totalPages?: number;
     total?: number;
+    isOnline?: boolean;
   };
 }

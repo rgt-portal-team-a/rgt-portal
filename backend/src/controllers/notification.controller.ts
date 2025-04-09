@@ -59,9 +59,11 @@ export class NotificationController {
     try {
       const userId = (req.user as any).id;
       const notifications = await this.notificationService.markAllAsRead(userId);
+      console.log("notifications", notifications);
       res.status(200).json({ notifications });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to mark all notifications as read" });
+    } catch (error: any) {
+      console.error("Failed to mark all notifications as read", error);
+      res.status(500).json({ message: "Failed to mark all notifications as read", error: error.message });
     }
   };
 

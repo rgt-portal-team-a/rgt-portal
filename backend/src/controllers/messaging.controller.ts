@@ -41,9 +41,9 @@ export class MessagingController {
   public updateMessage = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const messageId = parseInt(req.params.id);
+      const messageId = req.params.id;
       
-      if (isNaN(messageId)) {
+      if (!messageId) {
         res.status(400).json({
           success: false,
           message: "Invalid message ID",
@@ -84,9 +84,9 @@ export class MessagingController {
   public deleteMessage = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const messageId = parseInt(req.params.id);
+      const messageId = req.params.id;
       
-      if (isNaN(messageId)) {
+      if (!messageId) {
         res.status(400).json({
           success: false,
           message: "Invalid message ID",
@@ -125,11 +125,11 @@ export class MessagingController {
   public getMessages = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 50;
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",
@@ -189,9 +189,9 @@ export class MessagingController {
   public updateConversation = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",
@@ -232,9 +232,9 @@ export class MessagingController {
   public deleteConversation = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",
@@ -273,9 +273,10 @@ export class MessagingController {
   public getConversation = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
+      console.log("conversationId", conversationId);
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",
@@ -292,10 +293,21 @@ export class MessagingController {
         });
         return;
       }
+
+      let isOnline = false;
+      // get the conversation participants and find the user online status of the other user not the current user if the conversation is private
+      if (conversation.type === "private") {
+        const participants = conversation.participants;
+        const otherParticipant = participants.find((participant) => participant.userId !== userId);
+        isOnline = await this.messagingService.getUserOnlineStatus(otherParticipant?.userId || 0);
+      }
       
       const response: ApiResponse<typeof conversation> = {
         success: true,
         data: conversation,
+        metadata: {
+            isOnline: isOnline,
+        },
         message: "Conversation retrieved successfully",
       };
       
@@ -337,9 +349,9 @@ export class MessagingController {
   public addParticipants = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",
@@ -380,10 +392,10 @@ export class MessagingController {
   public removeParticipants = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
       const participantIds: number[] = req.body.participantIds;
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",
@@ -430,10 +442,10 @@ export class MessagingController {
   public updateParticipant = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
-      const participantId = parseInt(req.params.participantId);
+      const conversationId = req.params.id;
+      const participantId = req.params.participantId;
       
-      if (isNaN(conversationId) || isNaN(participantId)) {
+      if (!conversationId || !participantId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID or participant ID",
@@ -474,9 +486,9 @@ export class MessagingController {
   public markConversationAsRead = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",
@@ -515,9 +527,9 @@ export class MessagingController {
   public getUnreadCount = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = (req.user as any).id;
-      const conversationId = parseInt(req.params.id);
+      const conversationId = req.params.id;
       
-      if (isNaN(conversationId)) {
+      if (!conversationId) {
         res.status(400).json({
           success: false,
           message: "Invalid conversation ID",

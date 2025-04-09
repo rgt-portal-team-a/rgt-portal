@@ -4,8 +4,8 @@ import { Conversation } from "./conversation.entity";
 
 @Entity("conversation_participants")
 export class ConversationParticipant {
-  @PrimaryGeneratedColumn({ type: "bigint" })
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @Column({ type: "bigint" })
   userId!: number;
@@ -14,8 +14,8 @@ export class ConversationParticipant {
   @JoinColumn({ name: "user_id" })
   user!: User;
 
-  @Column({ type: "bigint" })
-  conversationId!: number;
+  @Column({ type: "uuid" })
+  conversationId!: string;
 
   @ManyToOne(() => Conversation)
   @JoinColumn({ name: "conversation_id" })

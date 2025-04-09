@@ -12,8 +12,9 @@ export class CreateMessageDto {
   @IsEnum(MessageType)
   type?: MessageType;
 
-  @IsNumber({}, { message: "Conversation ID is required" })
-  conversationId!: number;
+  @IsString()
+  @IsNotEmpty({ message: "Conversation ID is required" })
+  conversationId!: string;
 
   @IsOptional()
   @IsString()
@@ -39,7 +40,7 @@ export class UpdateMessageDto {
 }
 
 export class MessageResponseDto {
-  id!: number;
+  id!: string;
   content!: string;
   type!: MessageType;
   isRead!: boolean;
@@ -102,7 +103,7 @@ export class UpdateConversationDto {
 }
 
 export class ConversationResponseDto {
-  id!: number;
+  id!: string;
   name?: string;
   type!: ConversationType;
   description?: string;
