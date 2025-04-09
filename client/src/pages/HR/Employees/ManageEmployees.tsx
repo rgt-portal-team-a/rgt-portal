@@ -315,9 +315,7 @@ export const ManageEmployees: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
-      {/* <section className="flex flex-col md:flex-row justify-end w-full items-start md:items-center py-1"> */}
       <div className="w-full flex flex-col-reverse md:flex-row sm:items-center md:items-start lg:items-center gap-2 px-2">
-        {/* Search Input - will stack vertically on small screens */}
         {viewMode === "table" ? (
           <div className="flex items-center w-full gap-2 lg:flex-nowrap ">
             <div className="relative w-[400px]">
@@ -334,7 +332,6 @@ export const ManageEmployees: React.FC = () => {
               />
             </div>
 
-            {/* Popover Buttons - will wrap on small screens */}
             {/* Search Fields Popover */}
             <Popover>
               <PopoverTrigger asChild>
@@ -481,7 +478,10 @@ export const ManageEmployees: React.FC = () => {
                 value={gridSearchTerm}
                 onChange={(e) => setGridSearchTerm(e.target.value)}
               />
-              <Search className="absolute right-4 top-4 text-gray-400" size={18} />
+              <Search
+                className="absolute right-4 top-4 text-gray-400"
+                size={18}
+              />
             </div>
           </div>
         )}
@@ -494,7 +494,6 @@ export const ManageEmployees: React.FC = () => {
           />
         </div>
       </div>
-      {/* </section> */}
 
       <div className="flex flex-col h-[450] overflow-auto">
         {memoizedRenderEmployeeContent}
