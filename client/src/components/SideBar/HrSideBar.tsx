@@ -53,7 +53,7 @@ export const HrSideBar = () => {
           path: "/admin/recruitment/employee",
           icon: ProfileAdd2,
         },
-        { label: "NSP", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
+        { label: "NSP", path: "/admin/recruitment/nss", icon: ProfileAdd2 },
       ],
     },
     { icon: CalendarIcon, label: "Events", path: "events" },

@@ -135,7 +135,7 @@ export const SideModal = ({
         >
           {showCloseButton && (
             <Dialog.Close asChild>
-              <div className="flex w-full p-2">
+              <div className="flex w-full p-2 sm:hidden">
                 <X
                   className="-rotate-90 bg-white rounded-full p-2 shadow-md top-10 border shadow-slate-600 hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer"
                   size={35}

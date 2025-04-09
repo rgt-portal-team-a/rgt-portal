@@ -1,5 +1,6 @@
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader, Loader2 } from "lucide-react";
 
 export interface IMetricCard {
   title: string;
@@ -10,33 +11,33 @@ export interface IMetricCard {
 }
 export type ColorType = keyof typeof colors;
 
-  // Color mapping for different card types
+// Color mapping for different card types
 const colors = {
-    purple: {
-      footerBg: 'bg-purple-600',
-      iconBg: 'bg-purple-600',
-      iconColor: 'text-purple-100',
-      chartColor: '#9333ea'
-    },
-    pink: {
-      footerBg: 'bg-pink-500',
-      iconBg: 'bg-pink-500',
-      iconColor: 'text-pink-100',
-      chartColor: '#ec4899'
-    },
-    blue: {
-      footerBg: 'bg-sky-400',
-      iconBg: 'bg-sky-400',
-      iconColor: 'text-sky-100',
-      chartColor: '#38bdf8'
-    },
-    yellow: {
-      footerBg: 'bg-amber-400',
-      iconBg: 'bg-amber-400',
-      iconColor: 'text-amber-100',
-      chartColor: '#fbbf24'
-    }
-  };
+  purple: {
+    footerBg: "bg-purple-600",
+    iconBg: "bg-purple-600",
+    iconColor: "text-purple-100",
+    chartColor: "#9333ea",
+  },
+  pink: {
+    footerBg: "bg-pink-500",
+    iconBg: "bg-pink-500",
+    iconColor: "text-pink-100",
+    chartColor: "#ec4899",
+  },
+  blue: {
+    footerBg: "bg-sky-400",
+    iconBg: "bg-sky-400",
+    iconColor: "text-sky-100",
+    chartColor: "#38bdf8",
+  },
+  yellow: {
+    footerBg: "bg-amber-400",
+    iconBg: "bg-amber-400",
+    iconColor: "text-amber-100",
+    chartColor: "#fbbf24",
+  },
+};
 
 export const MetricCard = ({
   title,
@@ -92,7 +93,14 @@ export const MetricCard = ({
         </div>
 
         <div className="flex justify-between items-center mt-5">
-          <h2 className="text-4xl font-bold text-gray-800">{value}</h2>
+          <h2 className="text-4xl font-bold text-gray-800">
+            {value.includes("Loading") ? (
+              // <Loader2 className="animate-spin" size={24} />
+              <span className="animate-pulse text-slate-500 text-xl">---</span>
+            ) : (
+              value
+            )}
+          </h2>
           <ChartLine />
         </div>
       </CardContent>
