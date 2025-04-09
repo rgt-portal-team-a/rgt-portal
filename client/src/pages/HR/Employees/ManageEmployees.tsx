@@ -305,7 +305,7 @@ export const ManageEmployees: React.FC = () => {
   }, [renderEmployeeContent]);
 
   return (
-    <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
+    <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md w-full">
       <div className="w-full flex flex-col-reverse md:flex-row sm:items-center md:items-start lg:items-center gap-2 px-2">
         {viewMode === "table" ? (
           <div className="flex items-center w-full gap-2 lg:flex-nowrap ">
@@ -460,7 +460,7 @@ export const ManageEmployees: React.FC = () => {
             </Popover>
           </div>
         ) : (
-          <div className="w-full ">
+          <div className="w-full">
             <div className="relative w-[400px] ">
               <Input
                 type="text"
@@ -486,7 +486,7 @@ export const ManageEmployees: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col h-[450] overflow-auto">
+      <div className="flex flex-col h-full overflow-auto bg-blue-600">
         {memoizedRenderEmployeeContent}
       </div>
     </div>

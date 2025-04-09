@@ -430,7 +430,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   ];
 
   return (
-    <div className="flex bg-white flex-col items-center w-full rounded-3xl overflow-auto px-4 pt-4 h-[450px] md:h-[500px]">
+    <div className="flex bg-white flex-col items-center w-full h-[100%] rounded-3xl overflow-auto px-4 pt-4">
       <div className="w-full">
         {/* <div className="flex ">
           <h1 className="text-lg sm:text-xl font-medium text-gray-700">
@@ -488,7 +488,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       {loading ? (
         <EmployeeManagementTableSkeleton />
       ) : (
-        <div className="w-full h-[200px] sm:h-[300px] lg:h-[333px]">
+        <div className="w-full h-full bg-orange-600">
           <DataTable
             columns={visibleColumnsData}
             data={paginationData.paginatedData}
