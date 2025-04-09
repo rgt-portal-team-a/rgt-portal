@@ -20,6 +20,7 @@ import LogoutIcon from "@/assets/icons/LogoutIcon";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import HrMobileBottomBar from "@/components/SideBar/HrMobileBottomBar";
 import Kairo from "@/components/KairoChatbot/Kairo";
+import { ALL_ROLE_NAMES } from "@/constants";
 
 export const BaseLayout = () => {
   const { currentUser: user, logout } = useAuthContextProvider();
@@ -116,7 +117,7 @@ export const BaseLayout = () => {
           {/* Mobile profile dropdown */}
           <div
             className={`${
-              user?.role.name === "HR" ? "sm:ml-4 pr-1 w-full" : "sm:hidden"
+              user?.role.name === ALL_ROLE_NAMES.HR ? "sm:ml-4 pr-1 w-full" : "sm:hidden"
             } relative`}
             ref={profileDropdownRef}
           >

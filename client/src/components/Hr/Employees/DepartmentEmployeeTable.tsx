@@ -144,7 +144,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
       try {
         await removeEmployeeFromDepartment.mutateAsync({
           id: selectedEmployeeId,
-          departmentId: department.id,
+          departmentId: parseInt(department.id),
         });
 
         setDeleteModalOpen(false);

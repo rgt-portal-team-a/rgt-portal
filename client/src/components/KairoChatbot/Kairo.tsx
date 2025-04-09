@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Send, MessageCircle, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -136,7 +137,7 @@ const Kairo = () => {
     }
   };
 
-  const sanitizeHtml = (html) => {
+  const sanitizeHtml = (html:any) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     

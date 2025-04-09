@@ -1,6 +1,5 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader, Loader2 } from "lucide-react";
 
 export interface IMetricCard {
   title: string;
