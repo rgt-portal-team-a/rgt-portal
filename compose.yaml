@@ -40,6 +40,17 @@ services:
     networks:
       - rgt-portal-network
 
+  traefik:
+    image: traefik:v2.9
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./acme.json:/acme.json
+    networks:
+      - rgt-portal-network
   backend:
     container_name: backend
     build:
@@ -68,7 +79,7 @@ services:
       context: ./client/
       args:
         - VITE_NODE_ENV=${VITE_NODE_ENV}
-        - VITE_API_URL=${VITE_DEV_BASE_URL}
+        - VITE_API_URL=${VITE_API_URL}
         - VITE_BASE_URL=${VITE_BASE_URL}
     restart: unless-stopped
     ports:
@@ -80,10 +91,32 @@ services:
       VITE_NODE_ENV: ${VITE_NODE_ENV:-production}
       VITE_BASE_URL: ${VITE_BASE_URL}
       VITE_API_URL: ${VITE_API_URL}
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.frontend.rule=Host(rgtportal.gotdns.ch)'
+      - 'traefik.http.routers.frontend.entrypoints=websecure'
+      - 'traefik.http.routers.frontend.tls.certresolver=myresolver'
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--spider', 'http://localhost']
+      interval: 30s
+      timeout: 10s
+      retries: 5
     env_file:
       - .env
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    # volumes:
+    #   - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - rgt-portal-network
+
+  ai:
+    container_name: ai
+    build:
+      context: ./ai/
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
     networks:
       - rgt-portal-network
 

@@ -25,7 +25,7 @@ ENV VITE_BASE_URL=$VITE_BASE_URL
 RUN npm run build
 
 # Stage 2: Production
-FROM nginx:stable-alpine AS production
+FROM nginx:alpine AS production
 
 # Set working directory
 WORKDIR /usr/share/nginx/html

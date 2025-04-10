@@ -1,0 +1,18 @@
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: christian@reallygreattech.com
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web
