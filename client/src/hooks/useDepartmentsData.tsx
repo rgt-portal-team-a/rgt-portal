@@ -32,9 +32,10 @@ export const useDepartmentsData = () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
       toastService.success("Department deleted successfully!");
     },
-    onError: (error) => {
-      toastService.error(`Error deleting department: ${error}`);
-    },
+		onError: (error: any) => {
+			toastService.error(error?.response?.data?.error || "Error deleting department");
+		},
+
   });
 
   const updateDepartmentMutation = useMutation({

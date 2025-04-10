@@ -15,10 +15,10 @@ export class Department {
   @Column({ nullable: true, type: "bigint" })
   managerId!: number;
 
-  @ManyToOne(() => Employee)
+  @ManyToOne(() => Employee, { onDelete: 'SET NULL' })
   @JoinColumn({ name: "manager_id" })
   manager!: Employee;
 
-  @OneToMany(() => Employee, (employee) => employee.department)
+  @OneToMany(() => Employee, (employee) => employee.department, { cascade: true })
   employees!: Employee[];
 }

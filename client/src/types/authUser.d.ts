@@ -7,7 +7,7 @@ import {
   ROLE_TYPES,
   ALL_ROLE_NAMES,
 } from "@/constants";
-
+import { UserStatus } from "@/lib/enums";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type ROLE = "HR" | "MANAGER" | "EMPLOYEE" | "ADMIN" | "MODERATOR" | "MARKETER";
@@ -38,6 +38,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   phone?:string
+  status: UserStatus
 }
 
 interface ResponseUser {
