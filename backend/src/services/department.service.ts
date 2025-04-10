@@ -1,5 +1,5 @@
 import { AppDataSource } from "@/database/data-source";
-import { Repository, QueryRunner } from "typeorm";
+import { Repository, QueryRunner, IsNull, Not } from "typeorm";
 import { Department } from "@/entities/department.entity";
 import { Employee } from "@/entities/employee.entity";
 import { CreateDepartmentDto, UpdateDepartmentDto } from "@/dtos/department.dto";
@@ -8,18 +8,22 @@ import { Logger } from "@/services/logger.service";
 import { NotificationService } from "./notifications/ntofication.service";
 import { NotificationTemplates } from "./notifications/templates";
 import { User } from "@/entities/user.entity";
+import { Roles } from "@/defaults/role";
+import { Role } from "@/entities/role.entity";
 
 export class DepartmentService {
   private departmentRepository: Repository<Department>;
   private employeeRepository: Repository<Employee>;
   private logger: Logger;
   private notificationService: NotificationService;
+  private roleRepository: Repository<Role>;
 
   constructor() {
     this.departmentRepository = AppDataSource.getRepository(Department);
     this.employeeRepository = AppDataSource.getRepository(Employee);
     this.logger = new Logger("DepartmentService");
     this.notificationService = new NotificationService();
+    this.roleRepository = AppDataSource.getRepository(Role);
   }
 
   async findAll(relations: string[] = ["manager"]): Promise<Department[]> {
@@ -96,31 +100,41 @@ export class DepartmentService {
         throw new Error("Manager not found");
       }
 
+      const existingManager = await this.employeeRepository.findOne({ where: { id: departmentData.managerId, departmentId: Not(IsNull()), user: { role: { name: Roles.MANAGER } } } });
+      if (existingManager) {
+        throw new Error("Manager is already a manager for another department or manager belongs to other department");
+      }
+
       const existingDepartment = await this.findByName(departmentData.name);
       if (existingDepartment) {
         throw new Error("Department with this name already exists");
       }
 
       queryRunner = await DatabaseService.createTransaction();
-
       const department = this.departmentRepository.create(departmentData);
+      department.manager = manager;
+
       const savedDepartment = await queryRunner.manager.save(Department, department);
 
+      await queryRunner.manager.update(Employee, manager.id, {
+        departmentId: savedDepartment.id,
+        department: { id: savedDepartment.id },
+      });
 
-
-      await DatabaseService.commitTransaction(queryRunner);
-
-      // Send notification to the manager about department creation
       if (manager.user) {
         await this.notificationService.createNotification(NotificationTemplates.departmentCreated(savedDepartment, manager));
       }
 
-      return this.findById(savedDepartment.id) as Promise<Department>;
+      await DatabaseService.commitTransaction(queryRunner);
+
+      return await this.departmentRepository.findOne({
+        where: { id: savedDepartment.id },
+        relations: ["manager", "manager.user", "manager.user.role"]
+      }) as Department;
     } catch (error) {
       if (queryRunner) {
         await DatabaseService.rollbackTransaction(queryRunner);
       }
-      this.logger.error("Error creating department:", error);
       throw error;
     }
   }
@@ -164,7 +178,7 @@ export class DepartmentService {
     }
   }
 
-  async delete(id: number): Promise<void> {
+  async updateManager(id: number, managerId: number): Promise<Department> {
     let queryRunner: QueryRunner | null = null;
 
     try {
@@ -173,8 +187,50 @@ export class DepartmentService {
         throw new Error("Department not found");
       }
 
-      if (department.employees && department.employees.length > 0) {
-        throw new Error("Cannot delete department with assigned employees");
+      const manager = await this.employeeRepository.findOne({ 
+        where: { id: managerId },
+        relations: ["user", "user.role"]
+      });
+      
+      if (!manager) {
+        throw new Error("Manager not found");
+      }
+
+      if (!manager.user) {
+        throw new Error("Manager must have an associated user account");
+      }
+
+      queryRunner = await DatabaseService.createTransaction();
+
+      await queryRunner.manager.update(Department, id, { 
+        managerId,
+        manager: { id: managerId }
+      });
+
+      const role = await this.roleRepository.findOne({ where: { name: Roles.MANAGER } });
+      if (role) {
+        await queryRunner.manager.update(User, manager.user.id, { role: { id: role.id } });
+      }
+
+      await DatabaseService.commitTransaction(queryRunner);
+
+      return this.findById(id) as Promise<Department>;
+    } catch (error) {
+      if (queryRunner) {
+        await DatabaseService.rollbackTransaction(queryRunner);
+      }
+      this.logger.error(`Error updating manager for department ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async delete(id: number): Promise<void> {
+    let queryRunner: QueryRunner | null = null;
+
+    try {
+      const department = await this.findById(id);
+      if (!department) {
+        throw new Error("Department not found");
       }
 
       queryRunner = await DatabaseService.createTransaction();

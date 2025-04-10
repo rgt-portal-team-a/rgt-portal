@@ -39,6 +39,17 @@ export const departmentService = {
     return response.data;
   },
 
+  updateManager: async (
+    id: string,
+    data: { managerId: number }
+  ): Promise<ApiResponse<Department>> => {
+    const response = await departmentApiClient.put<ApiResponse<Department>>(
+      `/${id}/manager`,
+      data
+    );
+    return response.data;
+  },
+
   removeEmployeeFromDepartment: async (
     id: string,
     employeeId: string

@@ -16,6 +16,7 @@ import {
 import { FieldProps } from "formik";
 import { Employee } from "@/types/employee";
 import { Trash2Icon, UserIcon } from "lucide-react"; 
+import { ALL_ROLE_NAMES } from "@/constants";
 
 interface EmployeeSelectorProps {
   field: FieldProps["field"];
