@@ -9,7 +9,6 @@ import Recognition from "@/components/Recognition";
 import { usePoll } from "@/hooks/use-poll";
 import { usePost } from "@/hooks/use-posts";
 import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
-import { Skeleton } from "@/components/ui/skeleton";
 import PostSkeleton from "@/components/common/PostSkeleton";
 
 const Feed = () => {
@@ -39,7 +38,9 @@ const Feed = () => {
   // }
 
   return (
-    <main className={`flex w-full h-full pb-3 sm:pb-0 lg:space-x-[17px]`}>
+    <main
+      className={`flex w-full h-full pb-3 sm:pb-0 lg:space-x-[17px]`}
+    >
       {/* main screen */}
       <div className="flex flex-col h-full flex-1 min-w-0">
         <Recognition
@@ -50,11 +51,11 @@ const Feed = () => {
         />
 
         <div
-          className="space-y-[18px] h-[80%] flex-1 overflow-y-auto mt-4"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
+          className=" h-full flex-1 overflow-y-auto mt-4"
+          // style={{
+          //   scrollbarWidth: "none",
+          //   msOverflowStyle: "none",
+          // }}
         >
           {/* Posts section */}
           <section className="space-y-7 bg-white rounded-2xl">
@@ -72,9 +73,9 @@ const Feed = () => {
               <div className="space-y-5">
                 {pollsLoading || postsLoading ? (
                   <>
-                    {pollsLoading && <Skeleton className="h-6 w-1/4 mb-4" />}
-                    {postsLoading &&
-                      [1, 2, 3].map((i) => <PostSkeleton key={i} />)}
+                    {[1, 2, 3].map((i) => (
+                      <PostSkeleton key={i} />
+                    ))}
                   </>
                 ) : mergedFeed.length > 0 ? (
                   mergedFeed.map((item) => (

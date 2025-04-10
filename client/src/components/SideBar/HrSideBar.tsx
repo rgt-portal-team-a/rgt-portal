@@ -77,7 +77,7 @@ export const HrSideBar = () => {
   ];
 
   return (
-    <div className="h-[610px]">
+    <div className="h-full">
       {/* Mobile Menu Button */}
       <button
         className="sm:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"

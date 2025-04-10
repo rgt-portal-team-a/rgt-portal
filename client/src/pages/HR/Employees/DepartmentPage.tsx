@@ -132,8 +132,8 @@ const DepartmentPage = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6">
-        <section className="flex lg:flex-row flex-col justify-between w-full gap-2 lg:gap-0 lg:items-center py-1">
+      <div className="flex flex-col bg-white rounded-md h-full">
+        <section className="flex lg:flex-row flex-col justify-between w-full gap-2 lg:gap-0 lg:items-center pt-2 px-3">
           <div className="flex flex-col h-full">
             <h1 className="text-xl font-medium text-gray-600">
               {department?.name} Department
@@ -169,7 +169,7 @@ const DepartmentPage = () => {
           </div>
         </section>
 
-        <div>
+        <div className="h-full overflow-auto">
           <DepartmentEmployeeTable
             department={department}
             filterByName={searchName}

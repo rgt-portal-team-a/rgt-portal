@@ -37,6 +37,8 @@ const Recognition = ({
     "🎖️",
   ];
 
+  const centerItems = recognitions && recognitions.length <= 4;
+
   const getRandomEmoji = () => {
     const randomIndex = Math.floor(Math.random() * emojis.length);
     return emojis[randomIndex];
@@ -81,19 +83,14 @@ const Recognition = ({
       )}
 
       <div
-        className="w-full flex gap-4 overflow-x-scroll justify-center"
+        className={`w-full flex gap-4 overflow-x-scroll ${
+          centerItems ? "justify-center" : ""
+        }`}
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
       >
-        <style>
-          {`
-                .hide-scrollbar::-webkit-scrollbar {
-                display: none; /* Chrome, Safari, and Opera */
-              }
-              `}
-        </style>
         {isRecLoading && (
           <div className="flex items-center justify-center gap-2 h-20 w-20">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
