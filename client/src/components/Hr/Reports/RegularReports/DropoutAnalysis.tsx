@@ -29,7 +29,8 @@ const DropoutAnalysis: React.FC = () => {
 
   console.log("Dropout Data", data?.dropoutData);
 
-  const total = data?.dropoutData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
+  const total =
+    data?.dropoutData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({
@@ -151,13 +152,15 @@ const DropoutAnalysis: React.FC = () => {
     <Card className="border-none shadow-none relative">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Dropout Analysis</CardTitle>
-        
       </CardHeader>
       <CardContent className="relative">
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
-              data={data.dropoutData}
+              data={data.dropoutData.map((item) => ({
+                ...item,
+                value: Number(item.value), // Convert string to number
+              }))}
               cx="50%"
               cy="50%"
               innerRadius={100}

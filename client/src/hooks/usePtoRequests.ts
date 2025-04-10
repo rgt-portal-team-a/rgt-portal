@@ -1,8 +1,8 @@
 import { PtoRequestService } from "@/api/services/pto-request.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "./use-toast";
 import { PtoLeave } from "@/types/PTOS";
 import { PtoStatusType } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
+import toastService from "@/api/services/toast.service";
 
 export const useRequestPto = (id?: number) => {
   const queryClient = useQueryClient();
@@ -27,6 +27,18 @@ export const useRequestPto = (id?: number) => {
       return PtoRequestService.fetchDepartmentPtos(String(id));
     },
   });
+
+  // fetching manager departments
+  const { data: managerDepartments, isLoading: isManagerDepartmentsLoading } =
+    useQuery({
+      queryKey: ["managerDepartments", id],
+      queryFn: () => {
+        if (!id) {
+          return Promise.resolve([]);
+        }
+        return PtoRequestService.fetchManagerDepartmentPtos(id);
+      },
+    });
 
   const createPtoRequestMutation = useMutation({
     mutationFn: (newPto: PtoLeave) =>
@@ -54,11 +66,7 @@ export const useRequestPto = (id?: number) => {
         queryClient.setQueryData(["ptoData"], context.previousPtoData);
       }
 
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toastService.error(error.message);
     },
     onSuccess: () => {
       // Invalidate queries to refetch and sync with the server
@@ -66,10 +74,7 @@ export const useRequestPto = (id?: number) => {
       queryClient.invalidateQueries({ queryKey: ["departmentPtoData"] });
       queryClient.invalidateQueries({ queryKey: ["allPtoData"] });
 
-      toast({
-        title: "Success",
-        description: "PTO created successfully",
-      });
+      toastService.success("PTO created successfully");
     },
   });
 
@@ -123,23 +128,14 @@ export const useRequestPto = (id?: number) => {
       if (context?.previousAllPtoData) {
         queryClient.setQueryData(["allPtoData"], context.previousAllPtoData);
       }
-
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toastService.error(error.message);
     },
     onSuccess: () => {
       // Invalidate queries to refetch and sync with the server
       queryClient.invalidateQueries({ queryKey: ["ptoData"] });
       queryClient.invalidateQueries({ queryKey: ["departmentPtoData"] });
       queryClient.invalidateQueries({ queryKey: ["allPtoData"] });
-
-      toast({
-        title: "Success",
-        description: "PTO deleted",
-      });
+      toastService.success("PTO deleted successfully!");
     },
   });
 
@@ -203,12 +199,7 @@ export const useRequestPto = (id?: number) => {
       if (context?.previousAllPtoData) {
         queryClient.setQueryData(["allPtoData"], context.previousAllPtoData);
       }
-
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toastService.error(error.message);
     },
     onSuccess: () => {
       // Invalidate queries to refetch and sync with the server
@@ -216,10 +207,7 @@ export const useRequestPto = (id?: number) => {
       queryClient.invalidateQueries({ queryKey: ["departmentPtoData"] });
       queryClient.invalidateQueries({ queryKey: ["allPtoData"] });
 
-      toast({
-        title: "Success",
-        description: "PTO updated successfully",
-      });
+      toastService.success("PTO updated successfully");
     },
   });
 
@@ -258,5 +246,7 @@ export const useRequestPto = (id?: number) => {
     isDepartmentPtoLoading,
     updatePto,
     isPtoUpdating: updatePtoRequestMutation.isPending,
+    managerDepartments,
+    isManagerDepartmentsLoading,
   };
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IEventList } from "./components/EventList";
 import { IAnnouncementCard, EmployeeCardType } from "./types/employee";
@@ -99,23 +100,24 @@ export const poll = [
   },
 ];
 
-export const eventList: IEventList[] = [
-  {
-    event: "holiday",
-    date: "Mar 06, 2025",
-    title: "Independence Day",
-  },
-  {
-    event: "meeting",
-    date: "Apr 25, 2025",
-    title: "Group Meetup",
-  },
-  {
-    event: "birthday",
-    date: "Jun 25, 2025",
-    title: "Fatimah's Birthday",
-  },
-];
+// export const eventList: IEventList[] = [
+//   {
+    
+//     event: "holiday",
+//     date: "Mar 06, 2025",
+//     title: "Independence Day",
+//   },
+//   {
+//     event: "meeting",
+//     date: "Apr 25, 2025",
+//     title: "Group Meetup",
+//   },
+//   {
+//     event: "birthday",
+//     date: "Jun 25, 2025",
+//     title: "Fatimah's Birthday",
+//   },
+// ];
 
 export interface IEvent {
   id: string;
@@ -189,32 +191,32 @@ export const hrannouncements: IAnnouncementItem[] = [
   },
 ];
 
-export const announcements: IAnnouncementCard[] = [
-  {
-    title: "RGT University",
-    date: new Date(),
-  },
-  {
-    title: "New Policy Update",
-    date: new Date(),
-  },
-  {
-    title: "RGT University",
-    date: new Date(),
-  },
-  {
-    title: "New Policy Update",
-    date: new Date(),
-  },
-  {
-    title: "RGT University",
-    date: new Date(),
-  },
-  {
-    title: "New Policy Update",
-    date: new Date(),
-  },
-];
+// export const announcements: IAnnouncementCard[] = [
+//   {
+//     title: "RGT University",
+//     date: new Date(),
+//   },
+//   {
+//     title: "New Policy Update",
+//     date: new Date(),
+//   },
+//   {
+//     title: "RGT University",
+//     date: new Date(),
+//   },
+//   {
+//     title: "New Policy Update",
+//     date: new Date(),
+//   },
+//   {
+//     title: "RGT University",
+//     date: new Date(),
+//   },
+//   {
+//     title: "New Policy Update",
+//     date: new Date(),
+//   },
+// ];
 
 const imgSrc = "https://randomuser.me/api/portraits/med/women/75.jpg";
 
@@ -277,7 +279,7 @@ export const timeOffTableColumns: Column[] = [
     header: "Status",
     cellClassName: (row: Record<string, any>) => {
       const status = row.status.toLowerCase();
-      return `py-3 text-center ${
+      return `py-3 text-center w-[150px] lg:w-full truncate ${
         status === "pending"
           ? "font-semibold text-[#F9B500] bg-[#FFF7D8] rounded-md"
           : status.includes("approved")
@@ -293,7 +295,7 @@ export const timeOffTableColumns: Column[] = [
     header: "Type",
     cellClassName: (row: Record<string, any>) => {
       const type = row.type.toLowerCase();
-      return `py-3 text-center ${
+      return `py-3 text-center  w-[150px] lg:w-full ${
         type === "vacation"
           ? "font-semibold text-[#6418C3] bg-[#C9ADFF] rounded-md"
           : type === "sick"

@@ -17,6 +17,7 @@ import {
   PtoStatusType,
   statusTextMap,
 } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
+import StepProgress from "@/components/common/StepProgress";
 
 export default function TimeOff() {
   const [appRej, setAppRej] = useState(false);
@@ -30,6 +31,9 @@ export default function TimeOff() {
   const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(4);
+
   const {
     createPto,
     ptoData,
@@ -38,6 +42,8 @@ export default function TimeOff() {
     deletePto,
     isLoading,
   } = useRequestPto();
+
+  console.log("ptodata:", ptoData)
 
   const formattedPtoData = ptoData?.map((item) => ({
     ...item,
@@ -119,7 +125,11 @@ export default function TimeOff() {
     return typeMatch && statusMatch && dateMatch;
   });
 
-  console.log("filtered DAta:", filteredPtoData);
+const paginatedData =
+  filteredPtoData?.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  ) || [];
 
   const handleResetFilters = () => {
     setSelectedType("All Types");
@@ -161,8 +171,8 @@ export default function TimeOff() {
   ];
 
   return (
-    <main className="sm:px-4">
-      <div className="bg-white p-4 rounded-md overflow-auto">
+    <main>
+      <div className="bg-white p-4 rounded-md overflow-auto h-[600px]">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List
@@ -178,10 +188,10 @@ export default function TimeOff() {
 
         <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="max-h-[430px] overflow-auto">
+        <div className="max-h-[300px] md:max-h-[450px] overflow-auto">
           <DataTable
             columns={timeOffTableColumns}
-            data={filteredPtoData || []}
+            data={paginatedData || []}
             actionBool={true}
             actionObj={[
               {
@@ -203,6 +213,15 @@ export default function TimeOff() {
             loading={isLoading}
           />
         </div>
+        {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
+          <div className="">
+            <StepProgress
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={Math.ceil((filteredPtoData?.length || 0) / pageSize)}
+            />
+          </div>
+        )}
       </div>
 
       {/* modal for a new Time off request */}
@@ -221,7 +240,7 @@ export default function TimeOff() {
           <Field name="type">
             {({
               field,
-              form: { touched, errors },
+              form: { setFieldValue },
             }: {
               field: FieldInputProps<string>;
               form: any;
@@ -231,30 +250,29 @@ export default function TimeOff() {
                   Leave Type
                 </label>
                 <div className="flex gap-4">
-                  <label className="flex items-center text-[#737276] text-xs font-medium">
-                    <input
-                      type="radio"
-                      {...field}
-                      value="vacation"
-                      checked={field.value === "vacation"}
-                      className="mr-2"
-                    />
+                  <button
+                    type="button"
+                    onClick={() => setFieldValue("type", "vacation")}
+                    className={`px-4 py-2 rounded-md text-xs font-medium ${
+                      field.value === "vacation"
+                        ? "bg-rgtpink text-white"
+                        : "bg-slate-200 text-black"
+                    }`}
+                  >
                     Vacation
-                  </label>
-                  <label className="flex items-center text-[#737276] text-xs font-medium">
-                    <input
-                      type="radio"
-                      {...field}
-                      value="sick"
-                      checked={field.value === "sick"}
-                      className="mr-2"
-                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFieldValue("type", "sick")}
+                    className={`px-4 py-2 rounded-md text-xs font-medium ${
+                      field.value === "sick"
+                        ? "bg-rgtpink text-white"
+                        : "bg-slate-200 text-black"
+                    }`}
+                  >
                     Sick
-                  </label>
+                  </button>
                 </div>
-                {touched.type && errors.type && (
-                  <div className="text-red-500 text-xs mt-1">{errors.type}</div>
-                )}
               </div>
             )}
           </Field>
@@ -276,7 +294,6 @@ export default function TimeOff() {
                     placeholder="From"
                     value={field.value}
                     onChange={(val) => setFieldValue("startDate", val)}
-                    
                   />
                   {touched.startDate && errors.startDate && (
                     <div className="text-red-500 text-xs mt-1">

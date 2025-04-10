@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { toast } from "./use-toast";
 import { RecruitmentStatus } from "@/lib/enums";
+import toastService from "@/api/services/toast.service";
 
 export interface Recruitment {
   id: string;
@@ -13,7 +14,7 @@ export interface Recruitment {
   type: string;
   currentStatus: RecruitmentStatus;
   statusDueDate?: string;
-  assignee?: string;
+  assignees?: any[];
   notified?: boolean;
   location?: string;
   firstPriority?: string;
@@ -21,9 +22,13 @@ export interface Recruitment {
   university?: string;
   position?: string;
   source?: string;
+  programOfStudy?: string;
+  graduationYear?: number;
   failStage?: string;
   failReason?: string;
   notes?: string;
+  predictedScore?: number;
+  predictedDropOff?: number;
   createdAt: string;
   updatedAt: string;
   createdBy?: {
@@ -32,7 +37,7 @@ export interface Recruitment {
     profileImage?: string;
     email: string;
   };
-  employee?: any; 
+  employee?: any;
 }
 
 export interface RecruitmentResponse {
@@ -119,7 +124,7 @@ export const useRecruitments = (
     enabled,
     retry: 1,
   });
-}; 
+};
 
 export const useUpdateRecruitment = () => {
   const queryClient = useQueryClient();
@@ -146,21 +151,14 @@ export const useUpdateRecruitment = () => {
       return response.data.data;
     },
     onSuccess: (_, variables) => {
-      toast({
-        title: "Success",
-        description: "Recruitment updated successfully",
-      })
+      toastService.success("Recruitment updated successfully");
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
       queryClient.invalidateQueries({
         queryKey: ["recruitment", variables.id],
       });
     },
-      onError: (error: Error) => {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        })
+    onError: (error: Error) => {
+      toastService.success(error.message);
     },
   });
 };
@@ -186,12 +184,8 @@ export const useDeleteRecruitment = () => {
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
       queryClient.removeQueries({ queryKey: ["recruitment", id] });
     },
-      onError: (error: Error) => {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        })
+    onError: (error: Error) => {
+      toastService.error(error.message);
     },
   });
 };
@@ -217,7 +211,6 @@ export const useRecruitment = (id: string | null, enabled = true) => {
   });
 };
 
-
 export const useUpdateRecruitmentStatus = () => {
   const queryClient = useQueryClient();
 
@@ -234,26 +227,17 @@ export const useUpdateRecruitmentStatus = () => {
         );
       }
 
-
-
       return response.data.data;
     },
     onSuccess: (_, variables) => {
-      toast({
-        title: "Success",
-        description: "Recruitment status updated successfully",
-      });
+      toastService.success("Recruitment status updated successfully");
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
       queryClient.invalidateQueries({
         queryKey: ["recruitment", variables.id],
       });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toastService.error(error.message);
     },
   });
 };
@@ -294,25 +278,16 @@ export const useExtractCvDetails = () => {
       );
 
       if (!response.data) {
-        throw new Error(
-          "Failed to extract CV details"
-        );
+        throw new Error("Failed to extract CV details");
       }
 
       return response.data;
     },
     onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "CV details extracted successfully",
-      });
+      toastService.success("CV details extracted successfully");
     },
     onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toastService.success(error.message);
     },
   });
 };

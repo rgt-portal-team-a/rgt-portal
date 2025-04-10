@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Yup from "yup";
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Field, Form as FormikForm, Formik, FieldInputProps } from "formik";
 import { useLogin } from '@/api/query-hooks/auth.hooks';
@@ -10,6 +12,8 @@ import { GoogleAuthButton } from "@/components/Login/GoogleAuthButton";
 import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import rgtpatternimg1 from "@/assets/images/rgtpatternimg1.svg";
 import loginMainImg from "@/assets/images/WomanAndBackground.png";
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+
 
 interface FormValues {
   email: string;
@@ -23,12 +27,37 @@ const LoginSchema = Yup.object({
 const Login = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const { currentUser } = useAuthContextProvider();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const error = params.get('error');
+    if (error) {
+      console.log('Error from URL:', error); 
+      setLoginError(error);
+      toast({
+        title: 'Authentication Error',
+        description: error,
+        // variant: 'destructive',
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location]);
+
+  if (currentUser) {
+    const from = location.state?.from?.pathname || "/emp/feed";
+    navigate(from, { replace: true });
+    return;
+  }
+
 
   const { mutate, isPending } = useLogin({
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
       if (data.requiresOtp) {
-        navigate('/verify-email', { state: { email: data.message, otpId: data.otpId, userId: data.userId } });
+        navigate('/verify-email', { state: { email: data.userEmail, otpId: data.otpId, userId: data.userId } });
       }
       else {
         navigate('/emp/feed', { replace: true });
@@ -74,13 +103,10 @@ const Login = () => {
 
           {/* Welcome Text */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Welcome Back
-            </h1>
-            <p className="text-gray-500 text-sm">
-              get into your account to begin.
-            </p>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome</h1>
+            <p className="text-gray-500 text-sm">get into your account</p>
           </div>
+
 
           <Formik
             initialValues={initialFormValues}
@@ -103,8 +129,8 @@ const Login = () => {
                           {...field}
                           className={`w-full py-2 px-4 border border-gray-300 rounded-md ${
                             touched.email && errors.email
-                              ? 'border-red-500'
-                              : ''
+                              ? "border-red-500"
+                              : ""
                           }`}
                         />
                         {touched.email && errors.email && (
@@ -122,7 +148,7 @@ const Login = () => {
                   className="w-full py-2 px-4 bg-rgtpink hover:bg-pink-500 text-white rounded-md"
                   disabled={isPending}
                 >
-                  {isPending ? 'Signing in...' : 'Sign in'}
+                  {isPending ? "Signing in..." : "Sign in"}
                 </Button>
               </FormikForm>
             )}
@@ -145,19 +171,18 @@ const Login = () => {
 
       {/* Right Side: Pattern and Image - Hidden on mobile */}
       <div className="hidden px-auto md:flex w-full  md:w-1/2 lg:w-1/2  xl:w-1/2 2xl:w-1/2 bg-purpleaccent2 text-center pb-20 flex-col justify-center order-1 md:order-2">
-            <div className="relative  flex justify-center h-fit ">
-              <img 
-                src={loginMainImg} 
-                alt="MainLogin Image"
-                className="xl:scale-130"
-              />
-              <img 
-                src={rgtpatternimg1}
-                className="absolute right-1/5 md:right-1/8 top-0"
-              />
-            </div>
+        <div className="relative  flex justify-center h-fit ">
+          <img
+            src={loginMainImg}
+            alt="MainLogin Image"
+            className="xl:scale-130"
+          />
+          <img
+            src={rgtpatternimg1}
+            className="absolute right-1/5 md:right-1/8 top-0"
+          />
+        </div>
       </div>
-
     </div>
   );
 };

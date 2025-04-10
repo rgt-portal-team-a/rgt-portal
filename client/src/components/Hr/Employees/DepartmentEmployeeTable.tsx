@@ -1,13 +1,6 @@
 import { useState, useMemo } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { X, MoreVertical, UserCheck, Trash2 } from "lucide-react";
+import {  MoreVertical, UserCheck, Trash2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -20,9 +13,10 @@ import { usePermission } from "@/hooks/use-permission";
 import { Employee, EmployeeType } from "@/types/employee";
 import { Department } from "@/types/department";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
-import { useRemoveEmployeeFromDepartment } from "@/api/query-hooks/employee.hooks"
-import { useUpdateDepartment } from "@/api/query-hooks/department.hooks"
-
+import { useRemoveEmployeeFromDepartment } from "@/api/query-hooks/employee.hooks";
+import { useUpdateDepartment } from "@/api/query-hooks/department.hooks";
+import Filters from "@/components/common/Filters";
+import Avtr from "@/components/Avtr";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
   full_time: "FT",
@@ -47,7 +41,9 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   filterByName,
   department,
 }) => {
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [managerModalOpen, setManagerModalOpen] = useState<boolean>(false);
   const [employeeModalOpen, setEmployeeModalOpen] = useState<boolean>(false);
@@ -72,9 +68,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     }));
   }, [department]);
 
-
-
-
+  console.log("DEparatment:", department)
   const filteredData = useMemo(() => {
     if (!department.employees) return [];
 
@@ -87,8 +81,9 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         employee.lastName?.toLowerCase().includes(filterByName.toLowerCase());
 
       const roleMatch =
-        filter.role === "All Role" || (filter.role === "manager" && employee.isDepartmentManager) ||
-        (filter.role === "member" && !employee.isDepartmentManager) ;
+        filter.role === "All Role" ||
+        (filter.role === "manager" && employee.isDepartmentManager) ||
+        (filter.role === "member" && !employee.isDepartmentManager);
 
       const workTypeMatch =
         filter.workType === "All Work Type" ||
@@ -143,12 +138,12 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   };
 
   const handleDeleteEmployee = async () => {
-    console.log("SelectedEMployeeId", selectedEmployeeId)
-    console.log("Selected DepartmentId",  department.id)
+    console.log("SelectedEMployeeId", selectedEmployeeId);
+    console.log("Selected DepartmentId", department.id);
     if (selectedEmployeeId && department.id) {
       try {
         await removeEmployeeFromDepartment.mutateAsync({
-          id: selectedEmployeeId, 
+          id: selectedEmployeeId,
           departmentId: department.id,
         });
 
@@ -160,7 +155,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     }
   };
 
-
   const columns: Column[] = [
     {
       key: "name",
@@ -168,10 +162,10 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
       render: (row: any) => (
         <div className="flex items-center">
           <div className="w-8 h-8 rounded-full overflow-hidden mr-3">
-            <img
-              src={row.photoUrl || "/default-avatar.png"}
-              alt={row.firstName || "Employee"}
-              className="w-full h-full object-cover"
+            <Avtr
+              url={row.user?.profileImage}
+              name={row.firstName}
+              avtBg="bg-purple-200 text-purple-700"
             />
           </div>
           <div>
@@ -249,8 +243,8 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
           data: {
             name: department.name,
             description: department.description,
-            managerId: selectedEmployeeId
-          }
+            managerId: selectedEmployeeId,
+          },
         });
 
         setManagerModalOpen(false);
@@ -269,7 +263,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
             name: department.name,
             description: department.description,
             // managerId: null
-          }
+          },
         });
 
         setManagerModalOpen(false);
@@ -279,8 +273,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
       }
     }
   };
-
-
 
   const EmployeeActionMenu = ({
     row,
@@ -342,94 +334,71 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   };
 
   return (
-    <div className="rounded-lg bg-white py-6">
+    <div className="rounded-lg bg-white py-6 px-3">
       {/* Filter Section */}
-      <div className="flex mb-4 px-[22px] gap-3 justify-between items-center">
-        {/* Role Filter */}
-        <Select
-          value={filter.role}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, role: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Role">All Role</SelectItem>
-            <SelectItem value="manager">Manager</SelectItem>
-            <SelectItem value="member">Member</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Work Type Filter */}
-        <Select
-          value={filter.workType}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, workType: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Work Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Work Type">All Work Type</SelectItem>
-            <SelectItem value="remote">Remote</SelectItem>
-            <SelectItem value="hybrid">Hybrid</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Employee Type Filter */}
-        <Select
-          value={filter.employeeType}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, employeeType: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Employee Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Employee Type">All Employee Type</SelectItem>
-            <SelectItem value="full_time">Full Time</SelectItem>
-            <SelectItem value="part_time">Part Time</SelectItem>
-            <SelectItem value="contractor">Contractor</SelectItem>
-            <SelectItem value="nsp">NSP</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Status Filter */}
-        <Select
-          value={filter.status}
-          onValueChange={(value) => {
-            setFilter((prev) => ({ ...prev, status: value }));
-            setCurrentPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All Status">All Status</SelectItem>
-            <SelectItem value="Available">Available</SelectItem>
-            <SelectItem value="Busy">Busy</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Reset Filter Button */}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={resetFilter}
-          className="border-none rounded-lg bg-gray-100 text-gray-500 hover:text-black font-normal w-[100px] py-[25px]"
-        >
-          <X className="h-4 w-4" />
-          Reset
-        </Button>
-      </div>
+      <Filters
+        filters={[
+          {
+            type: "select",
+            placeholder: "All Role",
+            options: [
+              { label: "All Role", value: "All Role" },
+              { label: "Manager", value: "manager" },
+              { label: "Member", value: "member" },
+            ],
+            value: filter.role,
+            onChange: (value) => {
+              setFilter((prev) => ({ ...prev, role: value }));
+              setCurrentPage(1);
+            },
+          },
+          {
+            type: "select",
+            placeholder: "All Work Type",
+            options: [
+              { label: "All Work Type", value: "All Work Type" },
+              { label: "Remote", value: "remote" },
+              { label: "Hybrid", value: "hybrid" },
+            ],
+            value: filter.workType,
+            onChange: (value) => {
+              setFilter((prev) => ({ ...prev, workType: value }));
+              setCurrentPage(1);
+            },
+          },
+          {
+            type: "select",
+            placeholder: "All Employee Type",
+            options: [
+              { label: "All Employee Type", value: "All Employee Type" },
+              { label: "Full Time", value: "full_time" },
+              { label: "Part Time", value: "part_time" },
+              { label: "Contractor", value: "contractor" },
+              { label: "NSP", value: "nsp" },
+            ],
+            value: filter.employeeType,
+            onChange: (value) => {
+              setFilter((prev) => ({ ...prev, employeeType: value }));
+              setCurrentPage(1);
+            },
+          },
+          {
+            type: "select",
+            placeholder: "All Status",
+            options: [
+              { label: "All Status", value: "All Status" },
+              { label: "Available", value: "Available" },
+              { label: "Busy", value: "Busy" },
+            ],
+            value: filter.status,
+            onChange: (value) => {
+              setFilter((prev) => ({ ...prev, status: value }));
+              setCurrentPage(1);
+            },
+          },
+        ]}
+        onReset={resetFilter}
+      />
 
       {paginatedData.length > 0 ? (
         <>
@@ -499,9 +468,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         }}
         title="Update Department Manager?"
         className="text-center"
-        submitText={
-          updateDepartment.isPending ? "Updating..." : "Update"
-        }
+        submitText={updateDepartment.isPending ? "Updating..." : "Update"}
         isSubmitting={updateDepartment.isPending}
         onSubmit={handleUpdateManager}
         onCancel={() => {
@@ -534,9 +501,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         }}
         title="Update Department Employee?"
         className="text-center"
-        submitText={
-          updateDepartment.isPending ? "Updating..." : "Update"
-        }
+        submitText={updateDepartment.isPending ? "Updating..." : "Update"}
         isSubmitting={updateDepartment.isPending}
         onSubmit={handleUpdateEmployee}
         onCancel={() => {

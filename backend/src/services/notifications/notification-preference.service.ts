@@ -2,13 +2,13 @@ import { Repository } from "typeorm";
 import { NotificationPreference } from "@/entities/notification-preference.entity";
 import { NotificationPreferenceDto } from "@/dtos/notification.dto";
 import { NotificationChannel, NotificationType } from "@/entities/notification.entity";
-import { Logger } from "@/services/logger.service";
+import { logger } from "@/config/logger.config";
 
 export class NotificationPreferenceService {
-  private logger: Logger;
+  // private logger: Logger;
 
   constructor(private notificationPrefRepository: Repository<NotificationPreference>) {
-    this.logger = new Logger("NotificationPreferenceService");
+    // logger = new Logger("NotificationPreferenceService");
   }
 
   async getUserPreferences(userId: number): Promise<NotificationPreference[]> {
@@ -56,7 +56,7 @@ export class NotificationPreferenceService {
    */
   async initializeUserPreferences(userId: number): Promise<void> {
     try {
-      this.logger.info(`Initializing notification preferences for user ${userId}`);
+      logger.info(`Initializing notification preferences for user ${userId}`);
 
       // Get existing preferences
       const existingPreferences = await this.getUserPreferences(userId);
@@ -73,14 +73,14 @@ export class NotificationPreferenceService {
       // Only create preferences for types that don't exist yet
       for (const pref of defaultPreferences) {
         if (!existingTypes.has(pref.notificationType)) {
-          this.logger.info(`Creating notification preference for user ${userId} type ${pref.notificationType}`);
+          logger.info(`Creating notification preference for user ${userId} type ${pref.notificationType}`);
           await this.notificationPrefRepository.save(this.notificationPrefRepository.create(pref));
         }
       }
 
-      this.logger.info(`Successfully initialized notification preferences for user ${userId}`);
+      logger.info(`Successfully initialized notification preferences for user ${userId}`);
     } catch (error) {
-      this.logger.error(`Error initializing notification preferences for user ${userId}:`, error);
+      logger.error(`Error initializing notification preferences for user ${userId}:`, error);
       throw error;
     }
   }

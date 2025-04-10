@@ -2,12 +2,15 @@ import { Repository } from "typeorm";
 import { AppDataSource } from "@/database/data-source";
 import { CreateCommentLikeDto } from "@/dtos/post.dto";
 import { CommentLike } from "@/entities/post-comment-like.entity";
+import { QueueService, QueueName, JobType } from "./queue.service";
 
 export class CommentLikeService {
   private likeRepository: Repository<CommentLike>;
+  private queueService: QueueService;
 
   constructor() {
     this.likeRepository = AppDataSource.getRepository(CommentLike);
+    this.queueService = QueueService.getInstance();
   }
 
   async findByCommentId(commentId: number): Promise<CommentLike[]> {
@@ -40,6 +43,14 @@ export class CommentLikeService {
     }
 
     const like = this.likeRepository.create(likeDto);
+
+    await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.COMMENT_LIKED, {
+      sender: like.employee,
+      commentAuthorId: like.comment?.authorId,
+      commentContent: like.comment?.content,
+      postId: like.comment?.post.id,
+    });
+
     return this.likeRepository.save(like);
   }
 

@@ -15,7 +15,7 @@ import MarketingIcon from "@/assets/icons/MarketingIcon";
 const DepartmentCard: React.FC<IDepartmentCard> = ({
   employees,
   name,
-  leadName,
+  manager,
   id,
 }) => {
   const maxVisible = 3;
@@ -25,58 +25,54 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
 
   // might change later to pick image based on what hr types in during department creation.
   const renderDepartmentIcon = () => {
-    switch (name.toLowerCase()) {
-      case "design":
-        return (
-          <div>
-            <DesignIcon />
-          </div>
-        );
-      case "ui/ux":
-        return <DesignIcon />;
-      case "blockchain":
-        return (
-          <div>
-            <BlckChainIcon />
-          </div>
-        );
-      case "full stack":
-        return (
-          <div>
-            <FullStackIcon />
-          </div>
-        );
-      case "pm":
-        return (
-          <div>
-            <PMIcon />
-          </div>
-        );
-      case "ai":
-        return (
-          <div>
-            <AIIcon />
-          </div>
-        );
-      case "qa":
-        return <QAIcon />;
-      case "mobile dev":
-        return <MobileIcon />;
-      case "marketing":
-        return <MarketingIcon />;
+    const patterns = {
+      design: /design|ui\/ux/i,
+      blockchain: /block\s*chain|blockchain/i,
+      fullstack: /full\s*stack|fullstack/i,
+      pm: /\bpm\b|project\s*manager/i,
+      ai: /\bai\b|artificial\s*intelligence/i,
+      qa: /\bqa\b|quality\s*assurance/i,
+      mobile: /mobile\s*dev/i,
+      marketing: /marketing/i,
+    };
+
+    if (patterns.design.test(name)) {
+      return <DesignIcon />;
     }
+    if (patterns.blockchain.test(name)) {
+      return <BlckChainIcon />;
+    }
+    if (patterns.fullstack.test(name)) {
+      return <FullStackIcon />;
+    }
+    if (patterns.pm.test(name)) {
+      return <PMIcon />;
+    }
+    if (patterns.ai.test(name)) {
+      return <AIIcon />;
+    }
+    if (patterns.qa.test(name)) {
+      return <QAIcon />;
+    }
+    if (patterns.mobile.test(name)) {
+      return <MobileIcon />;
+    }
+    if (patterns.marketing.test(name)) {
+      return <MarketingIcon />;
+    }
+    return null;
   };
 
   return (
     <div
       key={id}
-      className="relative flex flex-col space-y-2 bg-white rounded-md p-2 md:min-w-64 md:w-[375px] w-full sm:w-[275px]  shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden"
+      className="relative flex flex-col space-y-2 bg-white rounded-md p-2 lg:min-w-64 lg:w-[32%] lg:h-fit w-full h-[150px] shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden"
     >
       <div className="pb-4 border-b-[1px]  border-gray-200">
         <header className="text-[#706D8A] text-[20px] font-semibold flex justify-between items-center">
           <div className="flex items-center space-x-1">
             {renderDepartmentIcon()}
-            <p className="w-44 text-nowrap truncate">{name}</p>
+            <p className="max-w-44 text-nowrap truncate">{name}</p>
           </div>
           <NavLink to={`${id}`}>
             <ArrowIcon
@@ -85,11 +81,11 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
             />
           </NavLink>
         </header>
-        <div className="flex ">
+        <div className="flex">
           <div>
-            {leadName && (
-              <p className=" text-[#C9ADFF] font-semibold text-[15.09px]">
-                Manager - {leadName}
+            {manager && manager.firstName && manager.lastName && (
+              <p className=" text-[#C9ADFF] font-semibold text-[15.09px] max-w-60 xl:max-w-72 truncate">
+                Manager - {manager?.firstName + " " + manager?.lastName}
               </p>
             )}
             <p className="text-[#A2A1A8] text-sm">{totalEmployees} Members</p>
@@ -105,7 +101,7 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
                 index={index}
                 url={employee.user?.profileImage as string}
                 name={getAvatarFallback(employee)}
-                className="w-9 h-9 rounded-full absolute borde-0 border-3 text-white font-semibold text-sm"
+                className="w-9 h-9 rounded-full absolute border-3 border-[#E328AF] text-white font-semibold text-sm"
                 avtBg="bg-[#E328AF]"
               />
             ))}
@@ -121,16 +117,6 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
           </div>
         )}
       </div>
-
-      {/* Background Image (Gradient Splash)
-      {includeBgImg && (
-        <div className="absolute  translate-x-56 top-1/7 h-full w-1/2  pointer-events-none opacity-50 ">
-          <img
-            src={"/RGT PATTERN 1.svg"}
-            style={{ width: "130px", height: "135px" }}
-          />
-        </div>
-      )} */}
     </div>
   );
 };

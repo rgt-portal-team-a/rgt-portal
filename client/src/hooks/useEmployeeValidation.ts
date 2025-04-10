@@ -1,7 +1,7 @@
 import * as Yup from "yup";
 import {
   EMPLOYEE_TYPES,
-  // LEAVE_TYPES,
+  LEAVE_TYPES,
   ROLE_TYPES,
 } from "@/constants";
 
@@ -26,15 +26,15 @@ const validationSchema = Yup.object().shape({
       then: (schema) =>
         schema.required("End date is required when leave type is selected"),
     }),
-  // leaveType: Yup.string()
-  //   .oneOf(Object.values(LEAVE_TYPES), "Invalid leave type")
-  //   .nullable(),
-  // leaveExplanation: Yup.string().when("leaveType", {
-  //   is: (val: string) => val && val !== "",
-  //   then: (schema) =>
-  //     schema.required("Explanation is required when leave reason is provided"),
-  //   otherwise: (schema) => schema.nullable(),
-  // }),
+  leaveType: Yup.string()
+    .oneOf(Object.values(LEAVE_TYPES), "Invalid leave type")
+    .nullable(),
+  leaveExplanation: Yup.string().when("leaveType", {
+    is: (val: string) => val && val !== "",
+    then: (schema) =>
+      schema.required("Explanation is required when leave reason is provided"),
+    otherwise: (schema) => schema.nullable(),
+  }),
   notes: Yup.string().nullable(),
   homeAddress: Yup.string().nullable(),
   countryId: Yup.number().nullable(),

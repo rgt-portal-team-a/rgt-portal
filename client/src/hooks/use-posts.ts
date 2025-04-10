@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PostService } from "@/api/services/posts.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "./use-toast";
+import toastService from "@/api/services/toast.service";
 
-export const usePost = (postId?: number) => {
+export const usePost = () => {
   const queryClient = useQueryClient();
 
   const { data: posts, isLoading: postsLoading } = useQuery({
@@ -11,25 +12,31 @@ export const usePost = (postId?: number) => {
   });
 
   const deletePostMutation = useMutation({
-    mutationFn: (postId: number) => PostService.deletPost(postId),
+    mutationFn: (postId: number) => PostService.deletePost(postId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts", postId] });
-      toast({
-        title: "Success",
-        description: "Post deleted successfully!",
-        duration: 500,
-        variant: "success",
-      });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      toastService.success("Post deleted successfully!");
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Error deleting post:${error}`,
-        duration: 500,
-        variant: "destructive",
-      });
+      toastService.error(`Error deleting post:${error}`);
     },
   });
+
+  const updatePostMutation = useMutation({
+    mutationFn: ({ id, postData }: { id: number; postData: IPost }) =>
+      PostService.updatePost(id, postData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      toastService.success("Post updated successfully!");
+    },
+    onError: (error) => {
+      toastService.error(`Error updating post: ${error}`);
+    },
+  });
+
+  const updatePost = async (id: number, postData: any) => {
+    await updatePostMutation.mutateAsync({ id, postData });
+  };
 
   const deletePost = async (id: number) => {
     await deletePostMutation.mutateAsync(id);
@@ -40,5 +47,7 @@ export const usePost = (postId?: number) => {
     deletePost,
     postsLoading,
     isPostDeleting: deletePostMutation.isPending,
+    updatePost,
+    isPostUpdating: updatePostMutation.isPending,
   };
 };

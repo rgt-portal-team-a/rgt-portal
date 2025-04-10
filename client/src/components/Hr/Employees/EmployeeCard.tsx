@@ -4,7 +4,7 @@ import { Phone, Mail } from 'lucide-react';
 
 const EmployeeCard = ({ employee }: { employee: Employee}) => {
   return (
-    <Card className="overflow-hidden w-[280px] h-[210px]  rounded-[12px] ">
+    <Card className="overflow-hidden w-full md:w-[280px] h-[210px]  rounded-[12px] ">
       <CardContent className="p-6 flex flex-col gap-2">
         <div className="flex mb-4">
           <div className="w-[73px] h-[72px] rounded-xl overflow-hidden mr-4">
