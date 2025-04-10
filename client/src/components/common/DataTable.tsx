@@ -105,7 +105,7 @@ export function DataTable({
           <EmployeeManagementTableSkeleton />
         )
       ) : (
-        <Table className={dividers ? "" : "border-none bg-white rounded-md "}>
+        <Table className={dividers ? "" : "border-none bg-white rounded-md"}>
           {data && data.length > 0 ? (
             <TableHeader>
               <TableRow className={`border-none`}>

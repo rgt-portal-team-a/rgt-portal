@@ -64,6 +64,7 @@ const DatePicker: React.FC<IDatePicker> = ({
           selected={date}
           onSelect={handleDateChange}
           initialFocus
+          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
           classNames={{
             day_selected:
               "bg-[#C0AFFF] text-white hover:bg-[#C0AFFF] focus:bg-[#C0AFFF]",

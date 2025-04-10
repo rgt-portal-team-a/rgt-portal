@@ -54,9 +54,9 @@ export const HRDashboard = () => {
   ]);
 
   return (
-    <div className="flex flex-col-reverse gap-6 md:flex-row h-full w-full">
+    <div className="flex flex-col-reverse gap-3 md:flex-row h-full w-full">
       <div
-        className="flex flex-col gap-[17px] space-y-10 md:w-[70%] overflow-y-auto"
+        className="flex flex-col gap-[17px] space-y-5 w-full overflow-y-auto"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -84,7 +84,7 @@ export const HRDashboard = () => {
         </div>
       </div>
 
-      <section className="md:flex justify-center h-fit md:right-0 md:top-0 hidden md:w-[30%] overflow-y-auto">
+      <section className="lg:flex justify-center h-full hidden flex-1">
         <QuickActions />
       </section>
     </div>

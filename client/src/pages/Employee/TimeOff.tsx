@@ -233,7 +233,7 @@ export default function TimeOff() {
 
         <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="h-[300px] sm:h-[360px] md:h-[430px] overflow-auto mb-4 md:mb-0">
+        <div className="overflow-auto flex-grow">
           <DataTable
             columns={timeOffTableColumns}
             data={paginatedData || []}

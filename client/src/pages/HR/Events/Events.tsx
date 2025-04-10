@@ -61,14 +61,14 @@ const Events = () => {
           </div>
         </section>
 
-        <section className="flex sm:flex-col md:flex-row gap-4 h-full">
+        <section className="flex sm:flex-col lg:flex-row gap-4 h-full">
           {/* calendar */}
-          <div className="hidden md:flex justify-center w-[35%] overflow-hidden h-[530px]">
+          <div className="hidden lg:flex justify-center w-[35%] h-[85%]">
             <Upcoming_SpecialCard />
           </div>
 
           {/* Events Calendar Section */}
-          <div className="flex md:w-[70%] h-full">
+          <div className="flex lg:w-[70%] h-[90%]">
             <EventsCalendar events={processedEvents || []} />
           </div>
         </section>

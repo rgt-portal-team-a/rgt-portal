@@ -1,9 +1,9 @@
 // QuickActions.tsx
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { EventModal } from "../Events/EventModal";
+import RewardIcon from "@/assets/icons/RewardIcon";
 
 const quickActions = [
   {
@@ -36,36 +36,36 @@ export default function QuickActions() {
 
   return (
     <>
-      <Card className="py-[19px] rounded-2xl shadow-sm h-[412px] w-[400px]">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4 px-[28px]">
+      <Card className="rounded-2xl shadow-sm h-fit w-full p-4">
+        <CardTitle className="text-lg font-semibold text-gray-700 pb-4">
           Quick Actions
-        </h2>
-        <CardContent className="space-y-4">
+        </CardTitle>
+        <CardContent className="p-0 space-y-8 w-full">
           {quickActions.map((action, index) => (
             <div
               key={index}
-              className="flex items-center w-full justify-between py-3 px-2 rounded-lg transition duration-300"
+              className="flex items-center w-full justify-between rounded-lg transition duration-300"
             >
               <div className="flex gap-3">
                 <div
-                  className={`w-18 flex items-center justify-center rounded-lg ${action.color}`}
+                  className={`w-15 h-14 flex items-center justify-center rounded-lg ${action.color}`}
                 >
-                  <img src={"/Award.svg"} className="w-6 h-6" />
+                  <RewardIcon color={action.color} size={24} />
                 </div>
-                <div className="text-left flex flex-col">
-                  <h3 className="text-md font-semibold text-gray-700">
+                <div className="text-left flex flex-col lg:w-44">
+                  <h3 className="text-md font-semibold text-gray-700 text-nowrap">
                     {action.title}
                   </h3>
-                  <p className="text-sm text-gray-500">{action.description}</p>
+                  <p className="text-xs font-normal text-gray-500 ">{action.description}</p>
                 </div>
               </div>
-              <Button
-                variant={"outline"}
-                className="rounded-full p-4 hover:bg-gray-100 transition duration-300"
+              <div
+                // variant={"ghost"}
+                className="bg-transparent border-none shadow-none transition duration-300 "
                 onClick={() => handleActionClick(action.title)}
               >
-                <Plus className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600 transition duration-300" />
-              </Button>
+                <Plus size={24} className="cursor-pointer hover:text-gray-600 transition duration-300" />
+              </div>
             </div>
           ))}
         </CardContent>
