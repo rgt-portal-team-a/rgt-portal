@@ -47,7 +47,7 @@ class SystemMetrics(Base):
 def get_database_url(use_ssl: bool = True) -> str:
     """Construct the database connection URL from environment variables with optional SSL"""
     # Get each value from environment variables with fallback defaults
-    db_user = os.getenv('DB_USER', 'postgres')
+    db_user = os.getenv('DB_USERNAME', 'postgres')
     db_password = os.getenv('DB_PASSWORD', '')
     db_host = os.getenv('DB_HOST', 'localhost')
     db_port = os.getenv('DB_PORT', '5432')

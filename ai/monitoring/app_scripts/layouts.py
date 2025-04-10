@@ -155,6 +155,7 @@ def create_time_selector():
                         {'label': 'Last 6 hours', 'value': '6'},
                         {'label': 'Last 24 hours', 'value': '24'},
                         {'label': 'Last 7 days', 'value': '168'},
+                        {'label': 'Last Month', 'value': '720'},
                         {'label': 'Custom', 'value': 'custom'}
                     ],
                     value='24',
@@ -162,7 +163,7 @@ def create_time_selector():
                     className="mb-3",
                     style={
                         'borderRadius': '6px',
-                        'color': '#000000',  # Black text for dropdown value
+                        'color': '#000000',  
                     },
                     # Styling for the dropdown menu
                     optionHeight=50,
@@ -223,3 +224,4 @@ def get_custom_styles():
             'borderColor': colors['dark']
         }
     }
+

@@ -534,8 +534,8 @@ def render_model_tab(data):
             html.P(f"Technical details: {str(e)}")
         ], color="danger")
     
-    
-def render_system_tab(data):
+
+def render_system_tab(data):    
     """Render the content for the System Metrics tab"""
     try:
         system_df = pd.read_json(StringIO(data['system']), orient='split')
@@ -616,3 +616,4 @@ def render_anomaly_tab(data):
                 "Coming soon - machine learning based anomaly detection", color="info")
         ])
     ])
+    
