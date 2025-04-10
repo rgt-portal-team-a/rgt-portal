@@ -3,6 +3,7 @@ import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
 import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
 import { Employee } from "@/entities/employee.entity";
+import { UserStatus } from "@/entities/user.entity";
 
 export class UserService {
   private userRepository: Repository<User>;
@@ -78,6 +79,13 @@ export class UserService {
   async findByRole(roleName: string): Promise<User[]> {
     return this.userRepository.find({
       where: { role: { name: roleName } },
+      relations: ["role", "employee"]
+    });
+  }
+
+  async findByStatus(status: UserStatus): Promise<User[]> {
+    return this.userRepository.find({
+      where: { status },
       relations: ["role", "employee"]
     });
   }

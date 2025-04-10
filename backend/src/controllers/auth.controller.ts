@@ -2,16 +2,11 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { UserService } from "@/services/user.service";
 import { googleConfig } from "@/config/google-oauth.config";
-import { EmployeeService } from "@/services/employee.service";
-import { NotificationPreferenceService } from "@/services/notifications/notification-preference.service";
-import { AppDataSource } from "@/database/data-source";
-import { NotificationPreference } from "@/entities/notification-preference.entity";
 import { QueueService, QueueName, JobType } from "@/services/queue.service";
 import { Roles } from "@/defaults/role";
+import { UserStatus } from "@/entities/user.entity";
 
 const userService = new UserService();
-const employeeService = new EmployeeService();
-const notificationPreferenceService = new NotificationPreferenceService(AppDataSource.getRepository(NotificationPreference));
 const queueService = QueueService.getInstance();
 
 passport.use(
@@ -39,18 +34,10 @@ passport.use(
             username: profile.displayName,
             profileImage: profile.photos?.[0].value,
             role: { id: googleConfig.defaultRoleId },
+            status: UserStatus.AWAITING
           });
 
-          await employeeService.create({
-            user: { id: user.id },
-            firstName: profile.name?.givenName || profile.displayName.split(" ")[0],
-            lastName: profile.name?.familyName || profile.displayName.split(" ").slice(1).join(" "),
-          });
-
-          // Initialize notification preferences for the new user
-          await notificationPreferenceService.initializeUserPreferences(user.id);
-
-          // send notifications for onboarding
+          // Send notifications to HR for onboarding
           const hrUsers = await userService.findByRole(Roles.HR);
           for (const hrUser of hrUsers) {
             await queueService.addJob(
