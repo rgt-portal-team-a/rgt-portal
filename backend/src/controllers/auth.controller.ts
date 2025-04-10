@@ -20,7 +20,11 @@ passport.use(
       try {
         const email = profile.emails?.[0].value;
 
-        if (!email || !email.endsWith(googleConfig.allowedDomain)) {
+        // if (!email || !email.endsWith(googleConfig.allowedDomain)) {
+        //   return done(null, false, { message: "Invalid email domain. Please use a @reallygreattech.com email address." });
+        // }
+
+        if (!email) {
           return done(null, false, { message: "Invalid email domain. Please use a @reallygreattech.com email address." });
         }
 
