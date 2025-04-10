@@ -1,6 +1,6 @@
 import psutil
 import plotly.graph_objs as go
-from monitoring.app_scripts.constants import colors
+from constants import colors
 
 
 def update_live_metrics():

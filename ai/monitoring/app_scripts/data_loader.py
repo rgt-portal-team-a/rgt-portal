@@ -2,7 +2,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 from sqlalchemy import func, case
-from monitoring.app_scripts.database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
+from database import Session, EndpointMetrics, ModelMetrics, SystemMetrics
 
 
 def load_data(time_range, start_date, end_date):
@@ -13,27 +13,38 @@ def load_data(time_range, start_date, end_date):
         # Calculate time filter
         if time_range == 'custom':
             start_date = datetime.strptime(start_date[:10], '%Y-%m-%d')
-            end_date = datetime.strptime(
-                end_date[:10], '%Y-%m-%d') + timedelta(days=1)
-            time_filter = (EndpointMetrics.timestamp >= start_date) & (
-                EndpointMetrics.timestamp <= end_date)
+            end_date = datetime.strptime(end_date[:10], '%Y-%m-%d') + timedelta(days=1)
+            time_filter = (EndpointMetrics.timestamp >= start_date) & (EndpointMetrics.timestamp <= end_date)
         else:
             hours = int(time_range)
             time_filter = EndpointMetrics.timestamp >= datetime.now() - timedelta(hours=hours)
 
-        # Endpoint metrics
-        endpoint_data = session.query(
-            EndpointMetrics.endpoint,
-            func.date_trunc('hour', EndpointMetrics.timestamp).label(
-                'time_bucket'),
-            func.avg(EndpointMetrics.response_time).label('avg_response_time'),
-            func.count().label('request_count'),
-            func.sum(case((EndpointMetrics.status_code >= 400, 1), else_=0)).label(
-                'error_count')
-        ).filter(time_filter).group_by(
-            EndpointMetrics.endpoint,
-            func.date_trunc('hour', EndpointMetrics.timestamp)
-        ).all()
+        if time_range == '720':  # One month
+            # For monthly view, group by day instead of hour
+            endpoint_data = session.query(
+                EndpointMetrics.endpoint,
+                func.date_trunc('day', EndpointMetrics.timestamp).label('time_bucket'),
+                func.avg(EndpointMetrics.response_time).label('avg_response_time'),
+                func.count().label('request_count'),
+                func.sum(case((EndpointMetrics.status_code >= 400, 1), else_=0)).label('error_count')
+            ).filter(time_filter).group_by(
+                EndpointMetrics.endpoint,
+                func.date_trunc('day', EndpointMetrics.timestamp)
+            ).all()
+        else:
+            # Endpoint metrics
+            endpoint_data = session.query(
+                EndpointMetrics.endpoint,
+                func.date_trunc('hour', EndpointMetrics.timestamp).label(
+                    'time_bucket'),
+                func.avg(EndpointMetrics.response_time).label('avg_response_time'),
+                func.count().label('request_count'),
+                func.sum(case((EndpointMetrics.status_code >= 400, 1), else_=0)).label(
+                    'error_count')
+            ).filter(time_filter).group_by(
+                EndpointMetrics.endpoint,
+                func.date_trunc('hour', EndpointMetrics.timestamp)
+            ).all()
 
         # Model metrics
         model_data = session.query(

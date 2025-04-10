@@ -32,7 +32,7 @@ def predict_attrition_endpoint(employee: EmployeeData):
                 "actual": float(employee.attrition) if hasattr(employee, 'attrition') else None
             }
         )
-
+                                                                                    
         return result
     except Exception as e:
         metrics_collector.track_request(
