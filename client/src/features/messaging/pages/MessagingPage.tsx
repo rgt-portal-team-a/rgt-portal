@@ -78,7 +78,7 @@ console.log("selectedId", selectedId);
               <div className="flex items-center justify-center h-full text-muted-foreground">
                 Loading messages...
               </div>
-            ) : messages.length === 0 ? (
+            ) : messagesResponse && messagesResponse.messages.length === 0 ? (
               <div className="flex items-center justify-center h-full text-muted-foreground">
                 No messages yet. Start a conversation!
               </div>
