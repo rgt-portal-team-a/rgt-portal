@@ -472,7 +472,7 @@ export const PTOSTATUS_TYPES = {
 
 export const ALL_ROLE_NAMES = {
   HR: "hr",
-  EMPLOYEE: "empployee",
+  EMPLOYEE: "employee",
   MANAGER: "manager",
   ADMIN: "admin",
   MARKETER: "marketer",
