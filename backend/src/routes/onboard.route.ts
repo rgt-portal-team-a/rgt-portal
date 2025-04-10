@@ -15,7 +15,7 @@ router.use(authMiddleware.hasRole([Roles.HR, Roles.ADMIN]));
 router.get("/awaiting", onboardController.getAwaitingUsers);
 
 router.post(
-  "/onboard",
+  "/",
   validateDto(OnboardUserDto),
   onboardController.onboardUser
 );
