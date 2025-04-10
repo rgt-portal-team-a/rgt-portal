@@ -55,13 +55,30 @@ def predict_attrition(employee: EmployeeData) -> PredictionResponse:
     if not model_bundle:
         raise Exception("Model could not be loaded")
 
-    # Assume the model bundle is a dict with keys: 'model', 'r2', 'accuracy'
-    model = model_bundle.get("model")
-    r2 = model_bundle.get("r2")
-    acc = model_bundle.get("accuracy")
+    # Fix: Check the structure of model_bundle and access appropriately
+    if isinstance(model_bundle, dict):
+        # If model_bundle is a dictionary
+        model = model_bundle.get("model")
+        r2 = model_bundle.get("r2", 0.0)
+        acc = model_bundle.get("accuracy", 0.0)
+    else:
+        # If model_bundle is the model itself
+        model = model_bundle
+        r2 = getattr(model, "r2_score", 0.0)
+        acc = getattr(model, "accuracy", 0.0)
 
     input_data = preprocess_data(employee)
-    probability = int(float(model.predict_proba(input_data)[0][1]) * 100)
+    
+    # Handle different prediction methods
+    try:
+        probability = float(model.predict_proba(input_data)[0][1]) * 100
+    except (AttributeError, IndexError):
+        # Fallback if predict_proba is not available or returns unexpected format
+        try:
+            raw_prediction = model.predict(input_data)[0]
+            probability = 100.0 if raw_prediction > 0.5 else 0.0
+        except:
+            raise Exception("Failed to make prediction with model")
 
     if probability >= 75:
         risk_level = "High Risk"

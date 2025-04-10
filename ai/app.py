@@ -66,7 +66,7 @@ async def get_metrics():
     }
 
 
-@app.get("/")
+@app.get("/read")
 def read_root():
     return {"message": "RGT API Project"}
 
