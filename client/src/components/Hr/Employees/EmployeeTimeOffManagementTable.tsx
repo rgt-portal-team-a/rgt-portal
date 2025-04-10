@@ -280,7 +280,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
 
   return (
     <>
-      <div className=" flex bg-white flex-col items-center  overflow-auto">
+      <div className=" flex bg-white flex-col items-center overflow-auto">
         {/* Filter Section */}
         <div className="px-[22px] w-full">
           {filters && onReset && (
@@ -288,7 +288,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           )}
         </div>
 
-        <div className="px-[22px] w-full h-[200px] sm:h-[320px] md:h-[370px]">
+        <div className="px-[22px] w-full">
           <DataTable
             columns={columns}
             data={paginatedData}
@@ -298,7 +298,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           />
         </div>
 
-        <div className=" flex justify-center ">
+        <div className="flex justify-center p-2 w-full">
           <StepProgress
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}

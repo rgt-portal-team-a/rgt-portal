@@ -56,12 +56,12 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   }, [ptoRequestData]);
 
   const [itemsPerPage, setItemsPerPage] = useState<number>(
-    window.innerWidth >= 768 ? 4 : 2
+    window.innerWidth >= 768 ? 5 : 4
   );
 
   useEffect(() => {
     const handleResize = () => {
-      setItemsPerPage(window.innerWidth >= 768 ? 4 : 2);
+      setItemsPerPage(window.innerWidth >= 768 ? 5 : 4);
     };
 
     window.addEventListener("resize", handleResize);
@@ -488,7 +488,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       {loading ? (
         <EmployeeManagementTableSkeleton />
       ) : (
-        <div className="w-full h-full bg-orange-600">
+        <div className="w-full flex-grow ">
           <DataTable
             columns={visibleColumnsData}
             data={paginationData.paginatedData}
@@ -501,7 +501,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
       {/* Step Progress (Pagination) */}
       {!loading && (
-        <div className="w-full">
+        <div className="w-full p-4">
           <StepProgress
             currentPage={paginationData.currentPage}
             setCurrentPage={setCurrentPage}

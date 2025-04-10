@@ -50,7 +50,7 @@ const RegularReports = () => {
   };
 
   return (
-    <div className="flex flex-col gap-[15px] bg-white rounded-md">
+    <div className="flex flex-col gap-[15px] bg-white rounded-md h-full">
       <section className="flex flex-col md:flex-row justify-between w-full items-center px-4 pt-4 ">
         <div className="flex flex-col w-full pb-4 md:pb-0">
           <h1 className="text-xl font-semibold text-[#706D8A]">Reports</h1>
@@ -126,7 +126,7 @@ const RegularReports = () => {
         </Dialog.Portal>
       </Dialog.Root>
 
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 overflow-auto">
         <div className="grid grid-cols-1 lg:flex lg:flex-row lg:w-full gap-6">
           <div className="lg:w-2/3">
             <HiringLadder />

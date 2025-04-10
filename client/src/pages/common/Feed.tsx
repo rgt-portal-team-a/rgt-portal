@@ -52,10 +52,10 @@ const Feed = () => {
 
         <div
           className=" h-full flex-1 overflow-y-auto mt-4"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
+          // style={{
+          //   scrollbarWidth: "none",
+          //   msOverflowStyle: "none",
+          // }}
         >
           {/* Posts section */}
           <section className="space-y-7 bg-white rounded-2xl">
