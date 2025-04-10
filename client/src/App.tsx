@@ -29,6 +29,7 @@ import RegularReports from "./pages/HR/Reports/RegularReports";
 import { ProfilePage } from "./pages/common/Profile";
 import { CookiePermissionBanner } from "./common/CookiePermissionBanner";
 import {ALL_ROLE_NAMES} from "@/constants"
+import { EmployeeOnboarding } from "./pages/HR/Employees/EmployeeOnboarding";
 
 function App() {
 
@@ -118,6 +119,20 @@ function App() {
                   redirectTo="/admin/dashboard"
                 >
                   <ManageEmployees />
+                </WithPermission>
+              }
+            />
+            
+
+            <Route
+              path="onboardingroom"
+              element={
+                <WithPermission
+                  resource="employeeRecords"
+                  action="edit"
+                  redirectTo="/admin/dashboard"
+                >
+                  <EmployeeOnboarding />
                 </WithPermission>
               }
             />
