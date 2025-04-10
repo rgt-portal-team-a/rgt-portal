@@ -186,21 +186,23 @@ export const BaseLayout = () => {
         <div className="flex w-full justify-end gap-3">
           <div className="relative w-full flex justify-end gap-1">
             {/* Center section with search */}
-            <div className="relative w-full flex items-center">
-              <Search className="absolute left-2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search employees..."
-                className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none w-full"
-                value={searchQuery}
-                onChange={handleOnChange}
-                onFocus={() => setIsDropdownVisible(!!searchQuery)}
-                onBlur={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                    setIsDropdownVisible(false);
-                  }
-                }}
-              />
+            <div className="relative w-full flex items-center lg:justify-end ">
+              <div className="lg:w-[40%] w-full relative">
+                <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search employees..."
+                  className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none w-full"
+                  value={searchQuery}
+                  onChange={handleOnChange}
+                  onFocus={() => setIsDropdownVisible(!!searchQuery)}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                      setIsDropdownVisible(false);
+                    }
+                  }}
+                />
+              </div>
               {/* Dropdown for search results */}
               {isDropdownVisible && (
                 <div
@@ -273,9 +275,7 @@ export const BaseLayout = () => {
       </header>
       {/* sm:h-[695px] */}
       <div className="flex w-screen h-screen px-[13px] gap-[17px] pb-2 bg-amber-40">
-        <div
-          className="text-center sm:pt-[78px] hidden sm:block"
-        >
+        <div className="text-center sm:pt-[78px] hidden sm:block">
           <WithRole
             roles={["hr", "admin"]}
             userRole={user?.role.name as string}
