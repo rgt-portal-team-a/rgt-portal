@@ -1,55 +1,46 @@
 import pickle
 import pandas as pd
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel, validator
+from sklearn.metrics import r2_score, accuracy_score
 
-# Model for input data validation
-
-
+# Pydantic model for input data validation
 class EmployeeData(BaseModel):
     age: int
     region: str
     work_mode: str
     skills: List[str]
     department: str
-    duration: float  # Duration in months (decimal value * 10)
+    duration: float  # Duration in months
 
     @validator('work_mode')
     def validate_work_mode(cls, v, values):
-        """Automatically set work_mode to Remote if region is not Greater Accra"""
         if 'region' in values and values['region'].lower() != "greater accra":
             return "Remote"
         return v
 
-# Model for prediction response
-
-
+# Response model including prediction and model metrics
 class PredictionResponse(BaseModel):
     attrition_probability: float
     risk_level: str
     assessment: str
+    r2_score: float
+    accuracy: float
 
-# Load the model
-
-
-def load_model():
+# Load the model with metrics if stored
+def load_model(): 
     try:
         with open('attrition/best_tuned_model.pkl', 'rb') as file:
-            model = pickle.load(file)
-        return model
+            model_bundle = pickle.load(file)
+        return model_bundle
     except Exception as e:
         print(f"Error loading model: {e}")
         return None
 
-# Preprocess the input data
-
-
+# Preprocess input data
 def preprocess_data(employee: EmployeeData):
-    # Convert skills list to comma-separated string
     skills_str = ",".join(employee.skills) if employee.skills else "None"
-
-    # Create DataFrame from input data
-    input_data = pd.DataFrame({
+    return pd.DataFrame({
         'age': [employee.age],
         'region': [employee.region],
         'work_mode': [employee.work_mode],
@@ -57,24 +48,21 @@ def preprocess_data(employee: EmployeeData):
         'department': [employee.department],
         'duration': [employee.duration]
     })
-    return input_data
 
-# Make prediction
-
-
+# Predict attrition and include model metrics
 def predict_attrition(employee: EmployeeData) -> PredictionResponse:
-    # Load model
-    model = load_model()
-    if not model:
+    model_bundle = load_model()
+    if not model_bundle:
         raise Exception("Model could not be loaded")
 
-    # Preprocess data
-    input_data = preprocess_data(employee)
+    # Assume the model bundle is a dict with keys: 'model', 'r2', 'accuracy'
+    model = model_bundle.get("model")
+    r2 = model_bundle.get("r2")
+    acc = model_bundle.get("accuracy")
 
-    # Get prediction probability
+    input_data = preprocess_data(employee)
     probability = int(float(model.predict_proba(input_data)[0][1]) * 100)
 
-    # Determine risk level and assessment
     if probability >= 75:
         risk_level = "High Risk"
         assessment = "This employee has a high probability of leaving the organization soon."
@@ -85,9 +73,10 @@ def predict_attrition(employee: EmployeeData) -> PredictionResponse:
         risk_level = "Low Risk"
         assessment = "This employee has a low probability of leaving in the near future."
 
-    # Return prediction results
     return PredictionResponse(
         attrition_probability=probability,
         risk_level=risk_level,
-        assessment=assessment
+        assessment=assessment,
+        r2_score=r2,
+        accuracy=acc
     )
