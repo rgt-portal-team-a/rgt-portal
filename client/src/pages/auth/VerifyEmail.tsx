@@ -10,6 +10,7 @@ import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+import { UserStatus } from "@/lib/enums";
 
 const VerifyEmail = () => {
   const inputRefs = [
@@ -37,13 +38,16 @@ const VerifyEmail = () => {
         setIsVerifying(true);
         await queryClient.invalidateQueries({ queryKey: ["user"] });
 
-        // Wait briefly to ensure auth state updates
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        navigate(data.user.role.name === "hr" ? "/admin/feed" : "/emp/feed", {
-          replace: true,
-          state: { fromVerify: true },
-        });
+        if (data.user.status === UserStatus.ACTIVE) {
+          navigate(data.user.role.name === "hr" ? "/admin/feed" : "/emp/feed", {
+            replace: true,
+            state: { fromVerify: true },
+          });
+        } else {
+          navigate("/wait-room", { replace: true });
+        }
 
         toast({
           title: "Success",

@@ -34,7 +34,7 @@ export class User {
   @Column({ 
     type: "enum", 
     enum: UserStatus, 
-    default: UserStatus.AWAITING 
+    default: UserStatus.ACTIVE 
   })
   status!: UserStatus;
 
