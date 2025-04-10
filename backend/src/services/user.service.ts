@@ -75,4 +75,11 @@ export class UserService {
     });
   }
 
+  async findByRole(roleName: string): Promise<User[]> {
+    return this.userRepository.find({
+      where: { role: { name: roleName } },
+      relations: ["role", "employee"]
+    });
+  }
+
 }
