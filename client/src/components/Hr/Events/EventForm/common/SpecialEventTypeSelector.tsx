@@ -15,7 +15,10 @@ export const SpecialEventTypeSelector = React.memo(
           <Button
             key={eventType.id}
             type="button"
-            onClick={() => onSelect(eventType.id)}
+            onClick={() => {
+              console.log("Selecting An Event With Id", eventType.id, eventType.label)
+              onSelect(eventType.id)
+            }}
             className={`
             ${
               selectedType === eventType.id

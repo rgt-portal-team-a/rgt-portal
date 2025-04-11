@@ -1,8 +1,7 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { User, OnboardUserDto, UpdateUserStatus } from "@/types/authUser";
 import { onboardingService } from "../services/onboarding.service";
 import toastService from "../services/toast.service";
-import { queryClient } from "@/features/data-access/rbacQuery";
 
 
 export const useAllAwaitingUsers = () => {
@@ -13,7 +12,7 @@ export const useAllAwaitingUsers = () => {
 };
 
 export const useOnboardUser = () => {
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data : OnboardUserDto ) =>
       onboardingService.onboardUser(data),
@@ -31,6 +30,8 @@ export const useOnboardUser = () => {
 
 
 export const changeStatus = () => {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: (data: UpdateUserStatus) =>
       onboardingService.changeStatus(data),
