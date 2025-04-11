@@ -49,7 +49,7 @@ export class AiController {
     }
   }
 
-  // KAIRO CHATBOT API WHICH TAKES A QUERY FROM FORMS AND RETURNS A RESPONSE
+  // KAIRO CHATBOT 
   async kairoChatbot(req: Request, res: Response): Promise<void> {
     try {
       const { query } = req.body;
@@ -85,7 +85,6 @@ export class AiController {
         throw new Error(`Candidate with ID ${candidate_id} not found`);
       }
 
-      // Format dates to YYYY-MM-DD
       const formatDate = (date: Date | null | undefined): string | null => {
         if (!date) return null;
         return date instanceof Date ? date.toISOString().split('T')[0] : new Date(date).toISOString().split('T')[0];
@@ -111,6 +110,7 @@ export class AiController {
       // update the candidates's predicted dropoff
       candidate.predictedDropOff = `${response?.data?.[0]?.probability}`;
       candidate.predictedDropOffStage = response?.data?.[0]?.predicted_stage;
+
       await AppDataSource.getRepository(Recruitment).save(candidate);
 
       return response.data;
@@ -161,7 +161,6 @@ export class AiController {
         applied_position: candidate.position || candidate.firstPriority,
       });
 
-      // update the candidates's predicted score
       candidate.predictedScore = response?.data?.match_score;
       await AppDataSource.getRepository(Recruitment).save(candidate);
 
