@@ -18,6 +18,7 @@ import {
 } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
 import StepProgress from "@/components/common/StepProgress";
 import { Column } from "@/types/tables";
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 
 export default function TimeOff() {
   const [appRej, setAppRej] = useState(false);
@@ -27,6 +28,7 @@ export default function TimeOff() {
   const [selectedPtoId, setSelectedPtoId] = useState<number | undefined>(
     undefined
   );
+  const {currentUser} = useAuthContextProvider()
   const [selectedType, setSelectedType] = useState<string>("All Types");
   const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -34,6 +36,7 @@ export default function TimeOff() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
 
+  console.log("user requests:", currentUser)
   const {
     createPto,
     ptoData,
@@ -268,15 +271,17 @@ export default function TimeOff() {
               loading={isLoading}
             />
           </div>
-        {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
-          <div>
-            <StepProgress
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={Math.ceil((filteredPtoData?.length || 0) / pageSize)}
-            />
-          </div>
-        )}
+          {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
+            <div>
+              <StepProgress
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalPages={Math.ceil(
+                  (filteredPtoData?.length || 0) / pageSize
+                )}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -291,7 +296,7 @@ export default function TimeOff() {
           back={true}
           isSubmitting={isPtoLoading}
           submitBtnText="Create"
-          buttonClassName="px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpink rounded-md hover:bg-pink-500"
+          buttonClassName="px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpin rounded-md hover:bg-pink-500"
         >
           <Field name="type">
             {({
@@ -303,7 +308,7 @@ export default function TimeOff() {
             }) => (
               <div className="pb-1">
                 <label className="block text-xs font-medium pb-1 text-[#737276]">
-                  Leave Type
+                  Time off Type
                 </label>
                 <div className="flex gap-4">
                   <button
@@ -326,9 +331,20 @@ export default function TimeOff() {
                         : "bg-slate-200 text-black"
                     }`}
                   >
-                    Sick
+                    Sick Leave
                   </button>
                 </div>
+                {currentUser?.employee.sickDaysBalance !== 0 ? (
+                  <p className="text-[#F9B500] text-sm pt-2">
+                    You have {currentUser?.employee.sickDaysBalance} of 15
+                    requests left
+                  </p>
+                ) : (
+                  <p className="text-[#D92D20] text-sm pt-2">
+                    You have used all your 15 requests...Next reset is in 200
+                    days
+                  </p>
+                )}
               </div>
             )}
           </Field>
