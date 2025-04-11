@@ -16,17 +16,20 @@ router.get(
   (req, res, next) => {
     passport.authenticate("google", (err: Error | null, user: any, info: any) => {
       if (err) {
+        console.error("Google OAuth error", { error: err });
         return next(err);
       }
       if (!user) {
         return res.redirect(`${clientURL}${process.env.FAILURE_REDIRECT}?error=${encodeURIComponent(info?.message || 'Authentication failed')}`);
       }
+
       req.logIn(user, (err) => {
         if (err) {
+          console.error("Login error", { error: err });
           return next(err);
         }
 
-        if (user.status === UserStatus.AWAITING) {
+        if (user?.status === UserStatus.AWAITING) {
           return res.redirect(`${clientURL}/wait-room`);
         }
 
