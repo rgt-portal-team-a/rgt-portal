@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
@@ -48,6 +48,12 @@ import { useDepartments } from "@/api/query-hooks/department.hooks";
 import {useEmployeeOnboardingForm} from "@/hooks/useEmployeeOnboardingForm"
 import { useEmployeeValidation } from "@/hooks/useEmployeeValidation";
 import { useEmployeeOnboardingSubmission } from "@/hooks/useEmployeeOnboardingSubmission";
+import {changeStatus} from "@/api/query-hooks/onboarding.hooks"
+import { toast } from "@/hooks/use-toast";
+import { UserStatus } from "@/lib/enums";
+import { Textarea } from "@/components/ui/textarea";
+
+
 
 
 
@@ -60,7 +66,9 @@ export const EmployeeOnboarding: React.FC = () => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [reason, setReason] = useState("");
   const { onboardingValidationSchema } = useEmployeeValidation();
+  const changeStatusMutation = changeStatus();
 
     const {
         data: departments,
@@ -93,169 +101,20 @@ export const EmployeeOnboarding: React.FC = () => {
     }
 
 
-//   const dummyUsersData = {
-//     success: true,
-//     users: [
-//       {
-//         id: 1,
-//         email: "enchill.beckham@company.com",
-//         username: "enchill_b",
-//         firstName: "Enchill",
-//         lastName: "Beckham",
-//         profileImage: "https://randomuser.me/api/portraits/men/1.jpg",
-//         employee: {
-//           id: 101,
-//           position: "Junior Developer",
-//           department: "Engineering",
-//         },
-//         role: {
-//           id: 1,
-//           name: "Candidate",
-//           permissions: [],
-//         },
-//         createdAt: "2024-04-10T10:30:00Z",
-//         updatedAt: "2024-04-10T10:30:00Z",
-//         phone: "+1234567890",
-//       },
-//       {
-//         id: 2,
-//         email: "liam.carter@company.com",
-//         username: "liam_c",
-//         firstName: "Liam",
-//         lastName: "Carter",
-//         profileImage: "https://randomuser.me/api/portraits/men/2.jpg",
-//         employee: {
-//           id: 102,
-//           position: "Product Manager",
-//           department: "Product",
-//         },
-//         role: {
-//           id: 1,
-//           name: "Candidate",
-//           permissions: [],
-//         },
-//         createdAt: "2024-04-09T15:45:00Z",
-//         updatedAt: "2024-04-09T15:45:00Z",
-//         phone: "+1987654321",
-//       },
-//       {
-//         id: 3,
-//         email: "ava.thompson@company.com",
-//         username: "ava_t",
-//         firstName: "Ava",
-//         lastName: "Thompson",
-//         profileImage: "https://randomuser.me/api/portraits/women/1.jpg",
-//         employee: {
-//           id: 103,
-//           position: "UI/UX Designer",
-//           department: "Design",
-//         },
-//         role: {
-//           id: 1,
-//           name: "Candidate",
-//           permissions: [],
-//         },
-//         createdAt: "2024-04-08T09:20:00Z",
-//         updatedAt: "2024-04-08T09:20:00Z",
-//         phone: "+1456789012",
-//       },
-//       {
-//         id: 4,
-//         email: "noah.patel@company.com",
-//         username: "noah_p",
-//         firstName: "Noah",
-//         lastName: "Patel",
-//         profileImage: "https://randomuser.me/api/portraits/men/3.jpg",
-//         employee: {
-//           id: 104,
-//           position: "Backend Engineer",
-//           department: "Engineering",
-//         },
-//         role: {
-//           id: 1,
-//           name: "Candidate",
-//           permissions: [],
-//         },
-//         createdAt: "2024-04-07T14:15:00Z",
-//         updatedAt: "2024-04-07T14:15:00Z",
-//         phone: "+1345678901",
-//       },
-//       {
-//         id: 5,
-//         email: "ethan.garcia@company.com",
-//         username: "ethan_g",
-//         firstName: "Ethan",
-//         lastName: "Garcia",
-//         profileImage: "https://randomuser.me/api/portraits/men/4.jpg",
-//         employee: {
-//           id: 105,
-//           position: "Marketing Specialist",
-//           department: "Marketing",
-//         },
-//         role: {
-//           id: 1,
-//           name: "Candidate",
-//           permissions: [],
-//         },
-//         createdAt: "2024-04-06T11:40:00Z",
-//         updatedAt: "2024-04-06T11:40:00Z",
-//         phone: "+1234567890",
-//       },
-//       {
-//         id: 6,
-//         email: "romeo.adja@company.com",
-//         username: "romeo_a",
-//         firstName: "Romeo",
-//         lastName: "Adja",
-//         profileImage: "https://randomuser.me/api/portraits/men/5.jpg",
-//         employee: {
-//           id: 106,
-//           position: "Sales Representative",
-//           department: "Sales",
-//         },
-//         role: {
-//           id: 1,
-//           name: "Candidate",
-//           permissions: [],
-//         },
-//         createdAt: "2024-04-05T16:30:00Z",
-//         updatedAt: "2024-04-05T16:30:00Z",
-//         phone: "+1567890123",
-//       },
-//       {
-//         id: 7,
-//         email: "collins.adams@company.com",
-//         username: "collins_a",
-//         firstName: "Collins",
-//         lastName: "Adams",
-//         profileImage: "https://randomuser.me/api/portraits/men/6.jpg",
-//         employee: {
-//           id: 107,
-//           position: "HR Coordinator",
-//           department: "Human Resources",
-//         },
-//         role: {
-//           id: 1,
-//           name: "Candidate",
-//           permissions: [],
-//         },
-//         createdAt: "2024-04-04T13:25:00Z",
-//         updatedAt: "2024-04-04T13:25:00Z",
-//         phone: "+1678901234",
-//       },
-//     ],
-//   };
-
   const { data: usersData, isLoading, isError, error } = useAllAwaitingUsers();
 
   // Filter and paginate users
-  const filteredUsers =
-    usersData?.users.filter(
-      (user) =>
-        user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
+  const filteredUsers = useMemo(
+    () =>
+      usersData?.users.filter(
+        (user) =>
+          user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      ) || [],
+    [usersData?.users, searchQuery]
+  );
+
 
   const itemsPerPage = 6;
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -267,9 +126,33 @@ export const EmployeeOnboarding: React.FC = () => {
     );
 
     
-    const handleDelete = async (id: number) => {
-        setDeleteId(id);
+    const handleDelete = async (user: User) => {
+        setDeleteId(user.id);
+        setSelectedUser(user);
         setShowDeleteModal(true);
+    };
+
+    const handleOnboardReject = async () => {
+      try {
+        if(selectedUser){
+          console.log("Deleting Event with Id", selectedUser.id);
+          await changeStatusMutation.mutateAsync({userId: selectedUser?.id, status: UserStatus.INACTIVE, reason: reason});
+          setShowDeleteModal(false);
+        }else{
+          toast({
+            title: "No Onboarding User Selected",
+            description: "Failed To Select Onboarding User" ,
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        console.log("Error Deleting Onboarding User", err);
+        toast({
+          title: "Error Deleting Onboarding User",
+          description: "Failed To Delete Onboarding User" + err,
+          variant: "destructive",
+        });
+      }
     };
 
   // Render user card
@@ -306,7 +189,7 @@ export const EmployeeOnboarding: React.FC = () => {
           <Button
             variant="outline"
             className="text-cancelred bg-redaccent3  border-0 shadow-none hover:bg-red-300 hover:text-red-500 transition-colors ease-in-out duration-300"
-            onClick={() => handleDelete(user.id)}
+            onClick={() => handleDelete(user)}
           >
             Reject
           </Button>
@@ -1124,12 +1007,8 @@ export const EmployeeOnboarding: React.FC = () => {
       <ConfirmCancelModal
         isOpen={showDeleteModal}
         onCancel={() => setShowDeleteModal(false)}
-        onSubmit={() =>
-          console.log(
-            "Removing User with Id " + deleteId + "from the awaiting room"
-          )
-        }
-        isSubmitting={false}
+        onSubmit={handleOnboardReject}
+        isSubmitting={changeStatusMutation.isPending}
         submitText="Confirm"
         onOpenChange={() => setShowDeleteModal(false)}
       >
@@ -1137,9 +1016,18 @@ export const EmployeeOnboarding: React.FC = () => {
           <DeleteRippleIcon />
           <p className="text-lg font-semibold">Reject ?</p>
           <p className="font-light text-[#535862] text-sm text-center text-wrap w-[300px]">
-            Are you sure you want to delete this event? This action cannot be
+            Are you sure you want to reject this user? This action cannot be
             undone.
           </p>
+          <p className="text-sm text-gray-500">Provide a Reason </p>
+          <span className="text-xs text-gray-500">(optional)</span>
+          <Textarea
+            className="w-full"
+            rows={2}
+            value={reason}
+            onChange={(e: any) => setReason(e.target.value)}
+            placeholder="Enter reason here..."
+          />
         </div>
       </ConfirmCancelModal>
     </>

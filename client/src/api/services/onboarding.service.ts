@@ -1,4 +1,4 @@
-import { User, OnboardUserDto } from "@/types/authUser";
+import { User, OnboardUserDto, UpdateUserStatus } from "@/types/authUser";
 import { createApiClient } from "../axios";
 import { ApiResponse } from "../types";
 
@@ -11,14 +11,21 @@ const onboardingApiClient = createApiClient(
 );
 
 export const onboardingService = {
-
-  getAllAwaitingUsers: async (): Promise<{success: boolean, users: User[]}> => {
+  getAllAwaitingUsers: async (): Promise<{
+    success: boolean;
+    users: User[];
+  }> => {
     const response = await onboardingApiClient.get(`/awaiting`);
     return response.data;
   },
   onboardUser: async (data: OnboardUserDto): Promise<ApiResponse<User>> => {
-    const response = await onboardingApiClient.post(`/`,data);
+    const response = await onboardingApiClient.post(`/`, data);
     return response.data;
   },
-
+  changeStatus: async (
+    data: UpdateUserStatus
+  ): Promise<ApiResponse<User>> => {
+    const response = await onboardingApiClient.post(`/status`, data);
+    return response.data;
+  },
 };

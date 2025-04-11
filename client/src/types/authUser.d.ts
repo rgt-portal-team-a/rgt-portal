@@ -60,3 +60,9 @@ export interface OnboardUserDto {
   employee: UpdateEmployeeInterface;
   roleId?: number;
 }
+
+export interface UpdateUserStatus{
+  userId: number;
+  status: UserStatus;
+  reason: string;
+}

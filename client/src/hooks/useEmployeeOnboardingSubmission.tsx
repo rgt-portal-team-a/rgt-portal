@@ -1,4 +1,3 @@
-import { useUpdateEmployee } from "@/api/query-hooks/employee.hooks";
 import {
   UpdateEmployeeInterface,
   EmployeeType,
@@ -21,7 +20,6 @@ export const useEmployeeOnboardingSubmission = (
   countries: Country[],
   states: State[]
 ) => {
-  const updateEmployeeMutation = useUpdateEmployee();
   const onBoardingMutation = useOnboardUser();
 
   const handleSubmit = useCallback(
@@ -50,8 +48,8 @@ export const useEmployeeOnboardingSubmission = (
         // Transform form values to UpdateEmployeeInterface
         const onboardEmployeeDto: UpdateEmployeeInterface = {
           user: { id: userId },
-          firstName: values.firstName ,
-          lastName: values.lastName ,
+          firstName: values.firstName,
+          lastName: values.lastName,
           phone: values.phone,
           departmentId: values.department?.id,
           hireDate: values.hireDate,
@@ -76,7 +74,7 @@ export const useEmployeeOnboardingSubmission = (
         console.log(" Onboard DTO", {
           userId: userId,
           employee: onboardEmployeeDto,
-          roleId: Number(values.roleId)
+          roleId: Number(values.roleId),
         });
         await onBoardingMutation.mutateAsync({
           userId: userId,
@@ -92,11 +90,11 @@ export const useEmployeeOnboardingSubmission = (
         setSubmitting(false);
       }
     },
-    [userId, newUser, updateEmployeeMutation]
+    [userId, newUser, onBoardingMutation]
   );
 
   return {
     handleSubmit,
-    isSubmitting: updateEmployeeMutation.isPending,
+    isSubmitting: onBoardingMutation.isPending,
   };
 };
