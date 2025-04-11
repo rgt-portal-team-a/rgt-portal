@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, Body
-from pydantic import ValidationError
+from pydantic import ValidationError, Field, BaseModel
 import pandas as pd
 from models.profile import JobRequest
 from models.nsp import NSPDataDirectInput
@@ -10,7 +10,7 @@ from nsp_retention.nsp_analyzer import NSPAnalyzer, generate_recommendations, ge
 from nsp_retention.nsp_models import ReportResponse
 from dropoff_final.predict import DropoffPredictor, RawCandidateData, PredictionResult
 from typing import List, Optional, Union, Optional
-from utils.db import get_db_connection, get_db_cursor, Field
+from utils.db import get_db_connection, get_db_cursor
 import os
 import logging
 
