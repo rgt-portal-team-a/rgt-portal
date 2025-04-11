@@ -1,20 +1,21 @@
 import { IconTypes } from "./types";
 
 const KairoIcon: React.FC<IconTypes> = ({
-//   color,
-//   size = 31,
-//   fill,
-//   className,
-//   stroke,
+  color,
+  size = 31,
+  fill,
+  className,
+  stroke,
 }) => {
   return (
     <svg
-      width="37"
-      height="43"
+      width={size || "37"}
+      height={size || "43"}
       viewBox="0 0 37 43"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
+      className={`${className}`}
     >
       <rect
         width="37"

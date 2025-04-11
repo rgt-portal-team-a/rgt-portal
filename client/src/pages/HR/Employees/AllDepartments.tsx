@@ -90,6 +90,9 @@ export const AllDepartments = () => {
     return <AllDepartmentsSkeleton/>
   }
 
+
+  console.log("")
+
   return (
     <>
       {/* Main Content */}
