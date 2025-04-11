@@ -17,7 +17,7 @@ export const onboardingService = {
     return response.data;
   },
   onboardUser: async (data: OnboardUserDto): Promise<ApiResponse<User>> => {
-    const response = await onboardingApiClient.post(`/onboard`,data);
+    const response = await onboardingApiClient.post(`/`,data);
     return response.data;
   },
 

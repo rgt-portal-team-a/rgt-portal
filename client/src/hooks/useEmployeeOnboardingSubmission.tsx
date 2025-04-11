@@ -49,7 +49,7 @@ export const useEmployeeOnboardingSubmission = (
 
         // Transform form values to UpdateEmployeeInterface
         const onboardEmployeeDto: UpdateEmployeeInterface = {
-          // user: { id: userId },
+          user: { id: userId },
           firstName: values.firstName ,
           lastName: values.lastName ,
           phone: values.phone,
@@ -75,7 +75,7 @@ export const useEmployeeOnboardingSubmission = (
         // Call the update mutation
         console.log(" Onboard DTO", {
           userId: userId,
-          onboardEmployeeDto: onboardEmployeeDto,
+          employee: onboardEmployeeDto,
           roleId: Number(values.roleId)
         });
         await onBoardingMutation.mutateAsync({
