@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { User, OnboardUserDto, UpdateUserStatus } from "@/types/authUser";
 import { onboardingService } from "../services/onboarding.service";
 import toastService from "../services/toast.service";
@@ -12,11 +12,14 @@ export const useAllAwaitingUsers = () => {
 };
 
 export const useOnboardUser = () => {
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data : OnboardUserDto ) =>
       onboardingService.onboardUser(data),
     onSuccess: (data, _variables) => {
+      queryClient.invalidateQueries({ queryKey: ["awaiting-users"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
       toastService.success(data.message || "User Onboarded created successfully");
     },
     onError: (error) => {
@@ -27,10 +30,15 @@ export const useOnboardUser = () => {
 
 
 export const changeStatus = () => {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: (data: UpdateUserStatus) =>
       onboardingService.changeStatus(data),
     onSuccess: (data, _variables) => {
+      queryClient.invalidateQueries({ queryKey: ["awaiting-users"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
       toastService.success(data.message || "User Status Changed successfully");
     },
     onError: (error) => {

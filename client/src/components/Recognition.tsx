@@ -37,8 +37,6 @@ const Recognition = ({
     "🎖️",
   ];
 
-  const centerItems = recognitions && recognitions.length <= 4;
-
   const getRandomEmoji = () => {
     const randomIndex = Math.floor(Math.random() * emojis.length);
     return emojis[randomIndex];
@@ -51,7 +49,7 @@ const Recognition = ({
 
   return (
     <section
-      className="bg-rgtpurple min-h-32 rounded-[20px] text-white flex flex-col  w-full p-3 space-y-1 items-center justify-center"
+      className="bg-rgtpurple min-h-32 rounded-[20px] text-white flex flex-col  w-full p-3 space-y-1 items-center justify-center "
       style={{
         backgroundImage: `url(${confetti})`,
         backgroundSize: "contain",
@@ -83,19 +81,25 @@ const Recognition = ({
       )}
 
       <div
-        className={`w-full flex gap-4 overflow-x-scroll ${
-          centerItems ? "justify-center" : ""
-        }`}
+        className="flex gap-2 w-full px-4 py-2 relative"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
+          overflowX: "auto",
         }}
       >
+        <div
+          className="flex-shrink-0 invisible"
+          style={{ width: "calc(10% - 50px)" }}
+        ></div>
+
         {isRecLoading && (
-          <div className="flex items-center justify-center gap-2 h-20 w-20">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
-              <AvatarSkeleton key={i} />
-            ))}
+          <div className="w-full flex justify-center">
+            <div className="flex items-center justify-center gap-2 h-20 w-20">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
+                <AvatarSkeleton key={i} />
+              ))}
+            </div>
           </div>
         )}
         {recognitions &&
@@ -109,7 +113,6 @@ const Recognition = ({
                   className="flex flex-col items-center justify-center"
                   key={index}
                 >
-                  {/* <p className="font-bold text-sm text-gold-600">{item.project}</p> */}
                   <div
                     className={`border-3 rounded-full p-1 flex w-fit items-center justify-center relative ${
                       randomColor.name === "pink"
@@ -147,6 +150,10 @@ const Recognition = ({
               );
             }
           )}
+        <div
+          className="flex-shrink-0 invisible"
+          style={{ width: "calc(10% - 50px)" }}
+        ></div>
       </div>
     </section>
   );

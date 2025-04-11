@@ -51,7 +51,7 @@ export type FormValues =
 
 // Specific interfaces for each form type
 interface SpecialEventFormValues {
-  formType: "1";
+  formType: "1"|"2";
   eventType: string;
   holidayName?: string;
   employeeId?: string;
@@ -252,6 +252,7 @@ export const useEventForm = (initialFormType = "1") => {
     switch (values.formType) {
       case "1": {
         // Special Event (Holiday or Birthday)
+        console.log("Special Event Values", values);
         const specialEvent = values as SpecialEventFormValues;
         const startOfDay = new Date(specialEvent.date);
         startOfDay.setHours(0, 0, 0, 0);

@@ -270,7 +270,7 @@ export const ManageEmployees: React.FC = () => {
         />
       </div>
     ) : (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 pt-5 justify-center items-center px-4">
         <div className="flex flex-wrap gap-4">
           {paginatedGridData.map((employee) => (
             <EmployeeCard key={employee.id} employee={employee} />
@@ -306,10 +306,18 @@ export const ManageEmployees: React.FC = () => {
 
   return (
     <div className="flex flex-col pt-[10px] h-full bg-white rounded-md w-full">
-      <div className="w-full flex flex-col-reverse md:flex-row sm:items-center md:items-start lg:items-center gap-2 px-2">
+      <div className="w-full flex flex-col md:flex-row sm:items-center md:items-start lg:items-center gap-2 px-4 pb-1">
         {viewMode === "table" ? (
-          <div className="flex items-center flex-wrap w-full gap-2 lg:flex-nowrap ">
-            <div className="relative min-w-[300px]">
+          <div className="flex items-center flex-wrap w-full gap-2 lg:flex-nowrap lg:justify-end">
+            <div className="w-full">
+              <header className="text-[#706D8A] text-xl font-semibold">
+                RGT TEAM
+              </header>
+              <p className="text-[#706D8A] font-normal text-[13px]">
+                This is the data of all employees
+              </p>
+            </div>
+            <div className="relative min-w-[300px] ">
               <Input
                 type="text"
                 placeholder="Search Employee"
@@ -478,7 +486,7 @@ export const ManageEmployees: React.FC = () => {
         )}
 
         {/* View Mode Toggle - adjust size for mobile */}
-        <div className="w-full md:w-[100px] flex justify-end">
+        <div className="w-full md:w-[100px] flex justify-start lg:justify-end">
           <ViewModeToggle
             viewMode={viewMode}
             onViewModeChange={handleViewModeChange}

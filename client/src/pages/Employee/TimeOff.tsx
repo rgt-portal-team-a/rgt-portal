@@ -18,6 +18,7 @@ import {
 } from "@/components/Hr/Employees/EmployeeTimeOffManagementTable";
 import StepProgress from "@/components/common/StepProgress";
 import { Column } from "@/types/tables";
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 
 export default function TimeOff() {
   const [appRej, setAppRej] = useState(false);
@@ -27,6 +28,7 @@ export default function TimeOff() {
   const [selectedPtoId, setSelectedPtoId] = useState<number | undefined>(
     undefined
   );
+  const { currentUser } = useAuthContextProvider();
   const [selectedType, setSelectedType] = useState<string>("All Types");
   const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -34,6 +36,7 @@ export default function TimeOff() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
 
+  console.log("user requests:", currentUser);
   const {
     createPto,
     ptoData,
@@ -43,18 +46,26 @@ export default function TimeOff() {
     isLoading,
   } = useRequestPto();
 
-  const formattedPtoData = ptoData?.map((item) => ({
-    ...item,
-    status:
-      statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
-    type:
-      item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase(),
-    total: `${Math.ceil(
-      (new Date(item.endDate as Date).getTime() -
-        new Date(item.startDate as Date).getTime()) /
-        (1000 * 60 * 60 * 24)
-    )} days`,
-  }));
+  const formattedPtoData = ptoData
+    ?.map((item) => ({
+      ...item,
+      status:
+        statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
+      type:
+        item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase(),
+      total: `${
+        Math.ceil(
+          (new Date(item.endDate as Date).getTime() -
+            new Date(item.startDate as Date).getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) + 1
+      } days`,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt as Date).getTime() -
+        new Date(a.createdAt as Date).getTime()
+    );
 
   const initialFormValues = {
     type: "vacation",
@@ -86,6 +97,7 @@ export default function TimeOff() {
     try {
       await createPto(values as PtoLeave);
       setIsModalOpen(false);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error creating PTO:", error);
     } finally {
@@ -216,8 +228,8 @@ export default function TimeOff() {
   ];
 
   return (
-    <main className="bg-white px-4 py-2 rounded-md overflow-auto h-full">
-      <div className="h-full">
+    <main className="bg-white px-4 py-4 rounded-md overflow-auto h-full relative">
+      <div className="h-full flex flex-col">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List
@@ -231,42 +243,46 @@ export default function TimeOff() {
           </Button>
         </header>
 
-        <Filters filters={filters} onReset={handleResetFilters} />
+        <div className="flex flex-col justify-between flex-grow">
+          <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="overflow-auto flex-grow">
-          <DataTable
-            columns={timeOffTableColumns}
-            data={paginatedData || []}
-            actionBool={true}
-            actionObj={[
-              {
-                name: "view",
-                action: (rowData) => {
-                  setAppRej(!appRej);
-                  setSelectedPtoId(rowData);
+          <div className="overflow-auto">
+            <DataTable
+              columns={timeOffTableColumns}
+              data={paginatedData || []}
+              actionBool={true}
+              actionObj={[
+                {
+                  name: "view",
+                  action: (rowData) => {
+                    setAppRej(!appRej);
+                    setSelectedPtoId(rowData);
+                  },
                 },
-              },
-              {
-                name: "delete",
-                action: () => setIsDeletePTO(true),
-              },
-            ]}
-            showDelete={isDeletePTO}
-            setShowDelete={setIsDeletePTO}
-            isDeleteLoading={isPtoDeleting}
-            onDelete={deletePto}
-            loading={isLoading}
-          />
-        </div>
-        {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
-          <div className="">
-            <StepProgress
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={Math.ceil((filteredPtoData?.length || 0) / pageSize)}
+                {
+                  name: "delete",
+                  action: () => setIsDeletePTO(true),
+                },
+              ]}
+              showDelete={isDeletePTO}
+              setShowDelete={setIsDeletePTO}
+              isDeleteLoading={isPtoDeleting}
+              onDelete={deletePto}
+              loading={isLoading}
             />
           </div>
-        )}
+          {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
+            <div>
+              <StepProgress
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalPages={Math.ceil(
+                  (filteredPtoData?.length || 0) / pageSize
+                )}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* modal for a new Time off request */}
@@ -280,7 +296,11 @@ export default function TimeOff() {
           back={true}
           isSubmitting={isPtoLoading}
           submitBtnText="Create"
-          buttonClassName="px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpink rounded-md hover:bg-pink-500"
+          buttonClassName={`px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpink ${
+            currentUser?.employee.sickDaysBalance === 0
+              ? "opacity-50 pointer-events-none"
+              : ""
+          } rounded-md hover:bg-pink-500`}
         >
           <Field name="type">
             {({
@@ -291,8 +311,8 @@ export default function TimeOff() {
               form: any;
             }) => (
               <div className="pb-1">
-                <label className="block text-xs font-medium pb-1 text-[#737276]">
-                  Leave Type
+                <label className="block text-xs font-medium  pb-1 text-[#737276]">
+                  Time off Type
                 </label>
                 <div className="flex gap-4">
                   <button
@@ -315,9 +335,20 @@ export default function TimeOff() {
                         : "bg-slate-200 text-black"
                     }`}
                   >
-                    Sick
+                    Sick Leave
                   </button>
                 </div>
+                {currentUser?.employee.sickDaysBalance !== 0 ? (
+                  <p className="text-[#F9B500] text-sm pt-2">
+                    You have {currentUser?.employee.sickDaysBalance} of 15
+                    requests left
+                  </p>
+                ) : (
+                  <p className="text-[#D92D20] text-sm pt-2">
+                    You have used all your 15 requests...Next reset is in 200
+                    days
+                  </p>
+                )}
               </div>
             )}
           </Field>

@@ -5,7 +5,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Field, Form as FormikForm, Formik, FieldInputProps } from "formik";
 import { useLogin } from "@/api/query-hooks/auth.hooks";
-import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoogleAuthButton } from "@/components/Login/GoogleAuthButton";
@@ -13,6 +12,7 @@ import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import rgtpatternimg1 from "@/assets/images/rgtpatternimg1.svg";
 import loginMainImg from "@/assets/images/WomanAndBackground.png";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+import toastService from "@/api/services/toast.service";
 
 interface FormValues {
   email: string;
@@ -27,8 +27,32 @@ const Login = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const [loginError, setLoginError] = useState<string | null>(null);
+  const [, setLoginError] = useState<string | null>(null);
   const { currentUser } = useAuthContextProvider();
+
+  const { mutate, isPending } = useLogin({
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      if (data.requiresOtp) {
+        navigate("/verify-email", {
+          state: {
+            email: data.userEmail,
+            otpId: data.otpId,
+            userId: data.userId,
+          },
+        });
+      } else {
+        navigate("/emp/feed", { replace: true });
+        toastService.success("Login successful");
+      }
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to login. Please check your credentials.";
+      toastService.error(`${errorMessage}`);
+    },
+  });
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -36,11 +60,7 @@ const Login = () => {
     if (error) {
       console.log("Error from URL:", error);
       setLoginError(error);
-      toast({
-        title: "Authentication Error",
-        description: error,
-        // variant: 'destructive',
-      });
+      toastService.error(`${error}`);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [location]);
@@ -50,32 +70,6 @@ const Login = () => {
     navigate(from, { replace: true });
     return;
   }
-
-  const { mutate, isPending } = useLogin({
-    onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      if (data.requiresOtp) {
-        navigate('/verify-email', { state: { email: data.userEmail, otpId: data.otpId, userId: data.userId } });
-      }
-      else {
-        navigate('/emp/feed', { replace: true });
-        toast({
-          title: "Success",
-          description: "Login successful",
-        });
-      }
-    },
-    onError: (error: any) => {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to login. Please check your credentials.";
-
-      toast({
-        title: "Error",
-        description: errorMessage,
-      });
-    },
-  });
 
   const initialFormValues = {
     email: "",
