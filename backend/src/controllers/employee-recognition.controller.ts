@@ -34,6 +34,25 @@ export class EmployeeRecognitionController {
     }
   };
 
+  public getRecognitionsByWeek = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const recognitions = await this.recognitionService.findAllByWeek();
+      const response: ApiResponse<typeof recognitions> = {
+        success: true,
+        data: recognitions,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      this.logger.error("Error fetching recognitions by week:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch recognitions by week",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  };
+  
+
   public getRecognitionsByEmployee = async (req: Request, res: Response): Promise<void> => {
     try {
       const employeeId = parseInt(req.params.employeeId);

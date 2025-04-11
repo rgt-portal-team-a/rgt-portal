@@ -19,8 +19,8 @@ const NspCount: React.FC = () => {
   // Render Loading State
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
           <CardTitle>Hired NSP Count</CardTitle>
           <Button variant="outline" disabled>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -40,8 +40,8 @@ const NspCount: React.FC = () => {
   // Render Error State
   if (isError) {
     return (
-      <Card className="border-destructive/50">
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="w-full max-w-4xl mx-auto border-destructive/50">
+        <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
           <CardTitle className="text-destructive">Data Fetch Error</CardTitle>
           <Button
             variant="destructive"
@@ -73,8 +73,8 @@ const NspCount: React.FC = () => {
   // Render Empty State
   if (!data || !data.nspCountData || data.nspCountData.length === 0) {
     return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
           <CardTitle>Hired NSP Count</CardTitle>
           <Button
             variant="outline"
@@ -107,24 +107,24 @@ const NspCount: React.FC = () => {
 
   // Render Normal State
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="w-full ">
+      <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
         <CardTitle>Hired NSP Count</CardTitle>
-
       </CardHeader>
-      <CardContent>
-        <div className="text-lg font-bold flex gap-4 mb-4">
-          Total Count: {totalNspCount}
-          {/* <p className="text-green-500">+12%</p> */}
+      <CardContent className="h-full">
+        <div className="text-lg font-bold flex flex-col sm:flex-row gap-4 mb-4">
+          <span>Total Count: {totalNspCount}</span>
         </div>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={data.nspCountData}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="year" />
-            <Tooltip />
-            <Bar dataKey="value" fill="#E328AF" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="w-full h-[165px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data.nspCountData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="year" />
+              <Tooltip />
+              <Bar dataKey="value" fill="#E328AF" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

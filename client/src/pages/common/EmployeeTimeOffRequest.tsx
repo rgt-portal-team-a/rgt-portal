@@ -9,9 +9,11 @@ import { useState } from "react";
 const EmployeeTimeOffRequest = ({
   data,
   isDataLoading,
+  departmentName,
 }: {
   data: PtoLeave[] | undefined;
   isDataLoading: boolean;
+  departmentName?: string;
 }) => {
   const [filter, setFilter] = useState<FilterState>({
     type: "All Type",
@@ -66,8 +68,6 @@ const EmployeeTimeOffRequest = ({
     },
   ];
 
-  console.log("data:", data);
-
   const filterData = (data: PtoLeave[] | undefined): PtoLeave[] => {
     if (!data) return [];
 
@@ -106,9 +106,18 @@ const EmployeeTimeOffRequest = ({
 
       if (
         filter.searchQuery &&
-        !item.employee?.user?.username
-          .toLowerCase()
-          .includes(filter.searchQuery.toLowerCase())
+        !(
+          item.employee?.user?.username
+            .toLowerCase()
+            .includes(filter.searchQuery.toLowerCase()) ||
+          item.employee?.firstName
+            ?.toLowerCase()
+            .includes(filter.searchQuery.toLowerCase()) ||
+          item.employee?.lastName
+            ?.toLowerCase()
+            .toLowerCase()
+            .includes(filter.searchQuery.toLowerCase())
+        )
       ) {
         return false;
       }
@@ -120,24 +129,22 @@ const EmployeeTimeOffRequest = ({
   const filteredData = filterData(data);
 
   return (
-    <>
-      <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
-        <section className="space-y-2 flex flex-col sm:flex-row sm:justify-between w-full sm:items-center py-1 pl-4">
-          <h1 className="text-lg sm:text-xl font-medium text-gray-600 text-nowrap">
-            Employee TimeOff Requests
-          </h1>
-        </section>
+    <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white rounded-md">
+      <section className="space-y-2 flex flex-col sm:flex-row sm:justify-between w-full sm:items-center py-1 pl-4">
+        <h1 className="text-lg sm:text-xl font-medium text-gray-600 text-nowrap">
+          {departmentName ?? "Employee TimeOff Requests"}
+        </h1>
+      </section>
 
-        {/* Manage Employees Table Section */}
+      {/* Manage Employees Table Section */}
 
-        <EmployeeTimeOffManagementTable
-          initialData={filteredData || []}
-          isDataLoading={isDataLoading}
-          filters={filterConfigs}
-          onReset={resetFilter}
-        />
-      </div>
-    </>
+      <EmployeeTimeOffManagementTable
+        initialData={filteredData || []}
+        isDataLoading={isDataLoading}
+        filters={filterConfigs}
+        onReset={resetFilter}
+      />
+    </div>
   );
 };
 

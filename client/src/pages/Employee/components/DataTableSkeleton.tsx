@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -41,8 +42,7 @@ const DataTableSkeleton = ({
                 key={column.key}
                 className="border-none text-xs font-semibold text-[#898989] text-nowrap "
               >
-                <div className="w-18 p-2 px-4 h-6 bg-gray-200 rounded animate-pulse">
-                </div>
+                <Skeleton className="w-32 p-2 px-4 h-6 rounded animate-pulse"/>
               </TableCell>
             ))}
           </TableRow>

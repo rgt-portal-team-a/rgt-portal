@@ -47,9 +47,9 @@ export class SocketService {
   private setupEventHandlers(): void {
     try {
       this.io.on("connection", async (socket) => {
-        console.log("Socket connected:", socket);
+        // console.log("Socket connected:", socket);
         const userId = socket.data?.user?.id;
-        console.log("userId in socket connection", socket.data?.user);
+        // console.log("userId in socket connection", socket.data?.user);
         if (!this.userSocketMap.has(userId)) {
           this.userSocketMap.set(userId, []);
         }
@@ -90,12 +90,12 @@ export class SocketService {
   }
 
     public emitToUser =  (userId: number, event: string, data: any) => {
-      console.log("userId", userId);
-      console.log("all sockets", this.userSocketMap);
+        // console.log("userId", userId);
+        // console.log("all sockets", this.userSocketMap);
     const userSockets = this.userSocketMap.get(userId) || [];
-    console.log("userSockets", userSockets);
+    // console.log("userSockets", userSockets);
     userSockets.forEach((socketId) => {
-      console.log("socketId", socketId);
+      // console.log("socketId", socketId);
       this.io.to(socketId).emit(event, data);
     });
   }
@@ -103,5 +103,10 @@ export class SocketService {
   public emitToAll = async (event: string, data: any): Promise<void> => {
     this.io.emit(event, data);
   }
-}
 
+  public getUserOnlineStatus = async (userId: number): Promise<boolean> => {
+    console.log("socket service", this.userSocketMap);
+    const userSockets = this.userSocketMap.get(userId) || [];
+    return userSockets.length > 0;
+  }
+}

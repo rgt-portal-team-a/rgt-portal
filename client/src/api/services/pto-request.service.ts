@@ -80,7 +80,6 @@ export class PtoRequestService {
   static async fetchUserPtoRequest(): Promise<PtoLeave[] | undefined> {
     try {
       const response = await axios.get(`${API_URL}/my-requests`);
-      console.log("response PtoData:", response.data);
       if (!response.data.success) {
         throw new Error(
           response.data.message || "PTO data fetching unsuccessful."
@@ -130,5 +129,21 @@ export class PtoRequestService {
       console.log("Error fetching department ptos:", error);
       throw error;
     }
+  }
+
+  static async fetchManagerDepartmentPtos(managerId:number):Promise<PtoLeave[] | undefined> {
+     try {
+       const response = await axios.get(
+         `http://localhost:8000/api/departments/manager/${managerId}`
+       );
+       console.log("response ManagerIdPtos:", response.data);
+       if (!response.data.success) {
+         throw new Error(response.data.message || "manager ptos fetch unsuccessful");
+       }
+       return response.data.data.reverse();
+     } catch (error) {
+       console.log("Error fetching manager ptos:", error);
+       throw error;
+     }
   }
 }

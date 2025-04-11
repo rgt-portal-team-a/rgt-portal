@@ -1,25 +1,17 @@
-import AnnouncementCard from "@/components/AnnouncementCard";
 import CreatePost from "@/components/CreatePost";
-import EventList from "@/components/EventList";
 import Post from "@/components/Post";
-import React, { useMemo, useState } from "react";
-import { FeedSkeleton } from "../../FeedSkeleton";
+import React, { useMemo } from "react";
 import PollUI from "@/components/PollUI";
 import WithRole from "@/common/WithRole";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
-import ArrowIcon from "@/assets/icons/ArrowIcon";
 import { useGetAllRecognitions } from "@/api/query-hooks/recognition.hooks";
 import Recognition from "@/components/Recognition";
 import { usePoll } from "@/hooks/use-poll";
 import { usePost } from "@/hooks/use-posts";
-import { useAllEvents } from "@/api/query-hooks/event.hooks";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import EnhancedCalendar from "@/components/Hr/Events/EnhancedCalendar";
+import Upcoming_SpecialCard from "@/components/common/Upcoming_SpecialCard.tsx";
+import PostSkeleton from "@/components/common/PostSkeleton";
 
 const Feed = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
   const { currentUser: user } = useAuthContextProvider();
 
   const { data: recognitions, isLoading: recsLoading } =
@@ -27,14 +19,6 @@ const Feed = () => {
 
   const { polls, pollsLoading } = usePoll();
   const { posts, postsLoading } = usePost();
-
-  const {
-    data: eventsData,
-    isLoading: isEventsLoading,
-    isError: isEventsError,
-    error: eventsError,
-    refetch: refetchEvents,
-  } = useAllEvents();
 
   const mergedFeed = useMemo(() => {
     const postsWithType =
@@ -49,38 +33,14 @@ const Feed = () => {
     });
   }, [posts, polls]);
 
-  if (pollsLoading && postsLoading && isEventsLoading) {
-    return <FeedSkeleton />;
-  }
-
-  if (!eventsData || !eventsData.success || isEventsError) {
-    console.error("Events Data Error", eventsError);
-    return (
-      <ErrorMessage
-        title="Error Loading Events Data"
-        error={eventsError}
-        refetchFn={refetchEvents}
-      />
-    );
-  }
-
-  const processedEvents = eventsData.data.map((event) => ({
-    ...event,
-    startTime: new Date(event.startTime),
-    endTime: new Date(event.endTime),
-  }));
-
-  // Separate events by type
-  const specialEvents = processedEvents.filter(
-    (event) => event.type === "holiday" || event.type === "birthday"
-  );
-
-  const announcements = processedEvents.filter(
-    (event) => event.type === "announcement"
-  );
+  // if (pollsLoading && postsLoading) {
+  //   return <FeedSkeleton />;
+  // }
 
   return (
-    <main className={`flex w-full h-full pb-3`}>
+    <main
+      className={`flex w-full h-full pb-3 sm:pb-0 lg:space-x-[17px]`}
+    >
       {/* main screen */}
       <div className="flex flex-col h-full flex-1 min-w-0">
         <Recognition
@@ -91,27 +51,33 @@ const Feed = () => {
         />
 
         <div
-          className="space-y-[18px] h-[80%] flex-1 overflow-y-auto mt-4"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
+          className=" h-full flex-1 overflow-y-auto mt-4"
+          // style={{
+          //   scrollbarWidth: "none",
+          //   msOverflowStyle: "none",
+          // }}
         >
           {/* Posts section */}
           <section className="space-y-7 bg-white rounded-2xl">
             <WithRole
-              roles={["hr", "marketer", "admin", "manager"]}
+              roles={["hr", "marketer", "admin"]}
               userRole={user?.role.name as string}
             >
               <CreatePost />
             </WithRole>
 
             <div className="space-y-3">
-              {/* <header className="font-semibold text-sm  px-4 bg-rgtpurple text-white w-fit rounded-xl shadow-md">
+              <header className="font-semibold text-xs py-1  px-4 bg-purple-200 text-rgtpurple w-fit rounded-r">
                 For you
-              </header> */}
+              </header>
               <div className="space-y-5">
-                {mergedFeed.length > 0 ? (
+                {pollsLoading || postsLoading ? (
+                  <>
+                    {[1, 2, 3].map((i) => (
+                      <PostSkeleton key={i} />
+                    ))}
+                  </>
+                ) : mergedFeed.length > 0 ? (
                   mergedFeed.map((item) => (
                     <React.Fragment key={item.id}>
                       {item.feedType === "post" ? (
@@ -124,7 +90,7 @@ const Feed = () => {
                     </React.Fragment>
                   ))
                 ) : (
-                  <div className="flex w-full bg-slate-200 h-96 text-rgtpurple font-semibold justify-center items-center">
+                  <div className="flex w-full bg-slate-100 h-96 text-rgtpurple font-semibold justify-center items-center">
                     <p>No posts available</p>
                   </div>
                 )}
@@ -134,76 +100,12 @@ const Feed = () => {
         </div>
       </div>
       {/* calendar */}
-      <section
-        className="hidden custom1:flex flex-col w-[380px] pl-4 h-full overflow-auto"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
+      <div
+        className="hidden xl:block h-[100%] w-[400px] overflow-y-scroll"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <div className="pt-5 space-y-3 h-fit  bg-white rounded-t-2xl w-full flex flex-col items-center">
-          <p className="font-bold text-lg text-[#706D8A] px-4 w-full">
-            Upcoming Events
-          </p>
-          <EnhancedCalendar
-            events={processedEvents}
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-          />
-
-          <div className="px-4 py-[24px] bg-white rounded-lg space-y-5 w-full">
-            <div className="flex items-center justify-between">
-              <p className="text-[#706D8A] font-[700] text-lg">
-                Special Events
-              </p>
-
-              <ArrowIcon className="hover:bg-slate-200 rounded-full transition-all duration-300 ease-in rotate-360 cursor-pointer" />
-            </div>
-
-            <div className="flex flex-col space-y-5">
-              {specialEvents.length > 0 ? (
-                specialEvents.map((event, index) => (
-                  <EventList
-                    key={index}
-                    event={event.type === "holiday" ? "holiday" : "birthday"}
-                    date={event.startTime.toLocaleDateString()}
-                    title={event.title}
-                    className={`${
-                      specialEvents.length - 1 === index ? "border-b-0" : ""
-                    }`}
-                  />
-                ))
-              ) : (
-                <p className="text-gray-500 text-center">No special events</p>
-              )}
-            </div>
-          </div>
-
-          <div className="px-4 bg-white rounded-lg space-y-2 w-full">
-            <div className="flex items-center justify-between pb-4">
-              <p className="font-semibold text-[#706D8A] text-lg">
-                Announcements
-              </p>
-              <ArrowIcon className="hover:bg-slate-200 rounded-full transition-all duration-300 ease-in rotate-360 cursor-pointer" />
-            </div>
-            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 ">
-              {announcements.length > 0 ? (
-                announcements.map((announcement) => (
-                  <AnnouncementCard
-                    key={announcement.id}
-                    date={new Date(announcement.startTime)}
-                    title={announcement.title}
-                  />
-                ))
-              ) : (
-                <p className="text-gray-500 text-center col-span-full">
-                  No announcements
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+        <Upcoming_SpecialCard />
+      </div>
     </main>
   );
 };

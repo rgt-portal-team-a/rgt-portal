@@ -46,14 +46,14 @@ export const HrSideBar = () => {
       icon: ProfileAdd2,
       label: "Recruitment",
       labelClassName: "ml-3",
-      path: "/hr/recruitment",
+      path: "/admin/recruitment",
       items: [
         {
           label: "FullTime",
-          path: "/hr/recruitment/employee",
+          path: "/admin/recruitment/employee",
           icon: ProfileAdd2,
         },
-        { label: "NSS", path: "/hr/recruitment/nss", icon: ProfileAdd2 },
+        { label: "NSP", path: "/admin/recruitment/nss", icon: ProfileAdd2 },
       ],
     },
     { icon: CalendarIcon, label: "Events", path: "events" },
@@ -64,12 +64,12 @@ export const HrSideBar = () => {
       items: [
         {
           label: "Regular Report",
-          path: "/hr/reports/regularreport",
+          path: "/admin/reports/regularreport",
           icon: ChartIcon,
         },
         {
           label: "Advanced Report",
-          path: "/hr/reports/advancedreport",
+          path: "/admin/reports/advancedreport",
           icon: ChartIcon,
         },
       ],
@@ -77,7 +77,7 @@ export const HrSideBar = () => {
   ];
 
   return (
-    <>
+    <div className="h-full">
       {/* Mobile Menu Button */}
       <button
         className="sm:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"
@@ -89,14 +89,10 @@ export const HrSideBar = () => {
       {/* Sidebar */}
       <nav
         className={`
-          fixed sm:relative z-40 md:w-[280px] h-full text-center bg-white flex-col rounded-xl
+          fixed sm:relative z-40 md:w-[280px] h-full text-center bg-white flex-col rounded-[24px]
           transition-all duration-300 ease-in-out
           ${mobileMenuOpen ? "left-0" : "-left-full sm:left-0"}
         `}
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
       >
         {/* Overlay for mobile */}
         {mobileMenuOpen && (
@@ -107,7 +103,7 @@ export const HrSideBar = () => {
         )}
 
         <NavLink
-          to="/hr/dashboard"
+          to="/admin/dashboard"
           end={true}
           className={({ isActive }) => `
             group flex items-center justify-center text-center font-medium text-sm 
@@ -138,7 +134,7 @@ export const HrSideBar = () => {
           )}
         </NavLink>
 
-        <div className="pb-2.5 w-full text-center flex flex-col gap-3 overflow-y-auto h-[calc(100%-60px)]">
+        <div className="pb-2.5 w-full text-center flex flex-col gap-3 overflow-y-auto h-[calc(100%-70px)]">
           {navItems.map((item, index) =>
             item.items ? (
               <NavDropdown
@@ -171,9 +167,13 @@ export const HrSideBar = () => {
                     {isActive ? (
                       <item.icon color="#9810fa" size={26} />
                     ) : (
-                      <item.icon size={24} color="gray" />
+                      <item.icon size={24} color="#706D8A" />
                     )}
-                    <span className="text-base text-slate-500 font-semibold">
+                    <span
+                      className={`text-base text-[#706D8A] font-semibold ${
+                        isActive ? "text-[#9810fa]" : ""
+                      }`}
+                    >
                       {item.label}
                     </span>
                   </>
@@ -183,6 +183,6 @@ export const HrSideBar = () => {
           )}
         </div>
       </nav>
-    </>
+    </div>
   );
 };

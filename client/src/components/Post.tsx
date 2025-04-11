@@ -18,7 +18,7 @@ import DeleteIcon2 from "@/assets/icons/DeleteIcon2";
 import ConfirmCancelModal from "./common/ConfirmCancelModal";
 import DeleteRippleIcon from "./common/DeleteRippleIcon";
 import { usePost } from "@/hooks/use-posts";
-// import { usePost } from "@/hooks/use-posts";
+import { EditPost } from "./EditPost";
 
 const Post: React.FC<IFeed> = ({ post }) => {
   const { currentUser } = useAuthContextProvider();
@@ -30,8 +30,9 @@ const Post: React.FC<IFeed> = ({ post }) => {
   const [showMore, setShowMore] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  const { deletePost, isPostDeleting } = usePost();
+  const { deletePost, isPostDeleting} = usePost();
 
   // clicking outside of update and delete post container
   useEffect(() => {
@@ -65,6 +66,7 @@ const Post: React.FC<IFeed> = ({ post }) => {
 
   const handleDelete = async (id: number) => {
     await deletePost(id);
+    setShowDeleteModal(false);
   };
 
   const formatText = (text: string | undefined) => {
@@ -122,8 +124,6 @@ const Post: React.FC<IFeed> = ({ post }) => {
     return <PostSkeleton />;
   }
 
-  // console.log("StatsComments:", stats.comments);
-
   return (
     <div className="flex flex-col p-4 rounded-lg shadow-md w-full bg-white">
       {post && currentUser && (
@@ -138,10 +138,12 @@ const Post: React.FC<IFeed> = ({ post }) => {
               roles={["hr", "marketer", "manager"]}
               userRole={currentUser.role.name}
             >
-              <MoreVertical
-                className="more-vertical-icon text-[#CBD5E1] hover:text-[#8d949c] transition-colors duration-300 ease-in cursor-pointer"
-                onClick={() => setShowMore(!showMore)}
-              />
+              {Number(post.author?.id) === Number(currentUser.id) && (
+                <MoreVertical
+                  className="more-vertical-icon text-[#CBD5E1] hover:text-[#8d949c] transition-colors duration-300 ease-in cursor-pointer"
+                  onClick={() => setShowMore(!showMore)}
+                />
+              )}
             </WithRole>
             {showMore && (
               <div
@@ -151,7 +153,10 @@ const Post: React.FC<IFeed> = ({ post }) => {
               >
                 <p
                   className="flex border-b w-full items-center justify-center py-2 px-3 cursor-pointer hover:bg-slate-100 transition-all duration-300"
-                  onClick={() => console.log("update")}
+                  onClick={() => {
+                    setShowEditModal(true);
+                    setShowMore(false);
+                  }}
                 >
                   <EditIcon />
                 </p>
@@ -165,6 +170,17 @@ const Post: React.FC<IFeed> = ({ post }) => {
               </div>
             )}
           </section>
+
+          {/* Edit Modal */}
+          {showEditModal && (
+            <EditPost
+              postId={post.id}
+              initialContent={post.content}
+              initialMedia={post.media || []}
+              onClose={() => setShowEditModal(false)}
+              onSuccess={() => setShowEditModal(false)}
+            />
+          )}
 
           <section className="pt-3 space-y-3">
             <p className="text-sm">{formatText(post?.content)}</p>

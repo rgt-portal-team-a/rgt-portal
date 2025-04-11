@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
 import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
@@ -66,6 +66,20 @@ export class UserService {
 
   async delete(id: number): Promise<void> {
     await this.userRepository.delete(id);
+  }
+
+  // find all users whose ids are in a given list of usersids
+  async findUsersByIds(userIds: number[]): Promise<User[]> {
+    return this.userRepository.find({
+      where: { id: In(userIds) },
+    });
+  }
+
+  async findByRole(roleName: string): Promise<User[]> {
+    return this.userRepository.find({
+      where: { role: { name: roleName } },
+      relations: ["role", "employee"]
+    });
   }
 
 }

@@ -8,16 +8,16 @@ import { User } from "@/types/authUser";
 import { authService } from "@/api/services/auth.service";
 import { toast } from "@/hooks/use-toast";
 
-// Define proper types for the context
 interface AuthContextType {
   currentUser: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isVerifying: boolean;
   error: Error | null;
   logout: () => Promise<void>;
+  setIsVerifying: (isVerifying: boolean) => void;
 }
 
-// Create context with a default value matching the type
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
@@ -28,23 +28,18 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: RootState) => state.authState);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  // Use React Query for fetching user data
   const { data: fetchedUser, status, error: fetchError } = useCurrentUser();
 
-  // Handle logout
   const logout = async () => {
     try {
-      // Call your logout API here if needed
       await authService.logout();
-
-      // Update Redux state
       dispatch(SETCURRENTUSER({ currentUser: null }));
       dispatch(LOGOUT());
-
-      // Optionally clear any tokens from localStorage
       localStorage.removeItem("token");
+      setIsVerifying(false);
     } catch (error) {
       setError(error instanceof Error ? error : new Error("Failed to logout"));
       toast({
@@ -55,19 +50,13 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Effect to sync React Query data with Redux
   useEffect(() => {
     if (status === "success" && fetchedUser?.id) {
       console.log(`${fetchedUser.username} is loggedIn🎉`);
-      console.log(`Fetched User is loggedIn🎉`, fetchedUser);
       dispatch(
         SETCURRENTUSER({
           currentUser: {
-            ...fetchedUser,
-            role: {
-              ...fetchedUser.role,
-              name: fetchedUser.role.name.toUpperCase(),
-            },
+            ...fetchedUser
           },
         })
       );
@@ -79,32 +68,30 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
           ? fetchError
           : new Error("Failed to fetch user")
       );
+      toast({
+        title: "Authentication Error",
+        description: "Failed to authenticate. Please try logging in again.",
+        variant: "destructive",
+      });
       setIsLoading(false);
     } else if (status === "pending") {
       setIsLoading(true);
     } else {
       setIsLoading(false);
-      logout();
     }
   }, [status, fetchedUser, fetchError, dispatch]);
 
-  // Construct the context value
   const contextValue: AuthContextType = {
     currentUser: currentUser || null,
     isLoading,
     isAuthenticated: !!currentUser,
+    isVerifying,
     error,
     logout,
+    setIsVerifying,
   };
 
-  // Show loading state only during initial load
-  if (isLoading && !currentUser) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner label="Fetching User data..." size={60} />
-      </div>
-    );
-  }
+
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

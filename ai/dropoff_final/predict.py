@@ -21,23 +21,16 @@ STAGE_LABELS_REVERSE = {v: k for k, v in FAIL_STAGE_LABELS.items()}
 
 
 class RawCandidateData(BaseModel):
-    date: str = Field(..., description="Application date in YYYY-MM-DD format")
-    highestDegree: str = Field(..., description="Highest education level",
-                               alias="highestDegree")
-    statusDueDate: str = Field(
-        ..., description="Status due date in YYYY-MM-DD format", alias="statusDueDate")
-    seniorityLevel: Optional[str] = Field("Mid", description="Seniority level (defaults to Mid if missing)",
-                                          alias="seniorityLevel")
-    totalYearsInTech: str = Field(
-        ..., description="Total years in tech field", alias="totalYearsInTech")
-    Job_1_Duration: Optional[str] = Field(
-        "0", description="Duration of job 1 (defaults to 0 if missing)")
-    Job_2_Duration: Optional[str] = Field(
-        "0", description="Duration of job 2 (defaults to 0 if missing)")
-    Job_3_Duration: Optional[str] = Field(
-        "0", description="Duration of job 3 (defaults to 0 if missing)")
-    source: str = Field(..., description="Source of the application")
-    position: str = Field(..., description="Position applying to")
+    date: Optional[str] = Field(None, description="Application date in YYYY-MM-DD format")
+    highestDegree: Optional[str] = Field(None, description="Highest education level")
+    statusDueDate: Optional[str] = Field(None, description="Status due date in YYYY-MM-DD format")
+    seniorityLevel: Optional[str] = Field("Mid", description="Seniority level (defaults to Mid if missing)")
+    totalYearsInTech: Optional[str] = Field(None, description="Total years in tech field")
+    Job_1_Duration: Optional[str] = Field("0", description="Duration of job 1 (defaults to 0 if missing)")
+    Job_2_Duration: Optional[str] = Field("0", description="Duration of job 2 (defaults to 0 if missing)")
+    Job_3_Duration: Optional[str] = Field("0", description="Duration of job 3 (defaults to 0 if missing)")
+    source: Optional[str] = Field(None, description="Source of the application")
+    position: Optional[str] = Field(None, description="Position applying to")
 
     @validator('date', 'statusDueDate', pre=True)
     def validate_date_format(cls, v):

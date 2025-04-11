@@ -6,10 +6,13 @@ import { EmployeeService } from "@/services/employee.service";
 import { NotificationPreferenceService } from "@/services/notifications/notification-preference.service";
 import { AppDataSource } from "@/database/data-source";
 import { NotificationPreference } from "@/entities/notification-preference.entity";
+import { QueueService, QueueName, JobType } from "@/services/queue.service";
+import { Roles } from "@/defaults/role";
 
 const userService = new UserService();
 const employeeService = new EmployeeService();
 const notificationPreferenceService = new NotificationPreferenceService(AppDataSource.getRepository(NotificationPreference));
+const queueService = QueueService.getInstance();
 
 passport.use(
   new GoogleStrategy(
@@ -23,7 +26,7 @@ passport.use(
         const email = profile.emails?.[0].value;
 
         if (!email || !email.endsWith(googleConfig.allowedDomain)) {
-          return done(null, false, { message: "Invalid email domain" });
+          return done(null, false, { message: "Invalid email domain. Please use a @reallygreattech.com email address." });
         }
 
         let user = await userService.findByEmail(email);
@@ -46,6 +49,19 @@ passport.use(
 
           // Initialize notification preferences for the new user
           await notificationPreferenceService.initializeUserPreferences(user.id);
+
+          // send notifications for onboarding
+          const hrUsers = await userService.findByRole(Roles.HR);
+          for (const hrUser of hrUsers) {
+            await queueService.addJob(
+              QueueName.NOTIFICATIONS,
+              JobType.NEW_USER_SIGNUP,
+              {
+                newUser: user,
+                recipientId: hrUser.id
+              }
+            );
+          }
         }
 
         return done(null, user);

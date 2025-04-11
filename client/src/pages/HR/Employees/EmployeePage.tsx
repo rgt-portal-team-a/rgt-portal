@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import {
   useNodesState,
@@ -11,7 +11,6 @@ import {
 import "@xyflow/react/dist/style.css";
 import { Employee } from "@/types/employee"; 
 import {
-  initialNodes,
   initialEdges,
   customEdgeStyle,
   nodeStyles,
@@ -26,6 +25,7 @@ import { useParams } from "react-router-dom";
 import EmployeeNotFoundCard from "@/components/common/EmployeeNotFoundCard";
 import { useEmployeeDetails } from "@/api/query-hooks/employee.hooks";
 import {calculateSeniority} from "@/utils/employee-helpers"
+import CalendarIcon from "@/assets/icons/CalendarIcon"
 
 const EmployeePage: React.FC = () => {
   const { id } = useParams();
@@ -40,6 +40,17 @@ const EmployeePage: React.FC = () => {
     isError: isEmployeeError,
   } = useEmployeeDetails(id);
 
+  useEffect(() => {
+    if (employee) {
+      setNodes([
+        personalDetailsNode,
+        workDetailsNode,
+        ...generatePersonalDetailNodes(employee),
+        ...generateWorkDetailNodes(employee),
+      ]);
+    }
+  }, [employee]); 
+
   const [activeTab, setActiveTab] = useState<"details" | "activity">("details");
 
   // Dynamic node generation
@@ -48,7 +59,7 @@ const EmployeePage: React.FC = () => {
       id: "personal-details",
       position: { x: 600, y: 30 },
       data: { label: "Personal Details", isHeader: true },
-      type: "custom",
+      type: "header",
       draggable: false,
       style: { ...nodeStyles.common, ...nodeStyles.header },
       sourcePosition: Position.Right,
@@ -61,7 +72,7 @@ const EmployeePage: React.FC = () => {
       id: "work-details",
       position: { x: 600, y: 370 },
       data: { label: "Work Details", isHeader: true },
-      type: "custom",
+      type: "header",
       draggable: false,
       style: { ...nodeStyles.common, ...nodeStyles.header },
       sourcePosition: Position.Right,
@@ -80,6 +91,12 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Phone",
             value: employee.phone || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -105,6 +122,28 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Personal Email",
             value: employee.contactDetails?.personalEmail || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
+          },
+          type: "custom",
+          style: { ...nodeStyles.common, ...nodeStyles.detail },
+        },
+        {
+          id: "work-email",
+          position: { x: 920, y: 150 },
+          data: {
+            label: "Work Email",
+            value: employee.user?.email || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -115,6 +154,12 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Location",
             value: `${employee.contactDetails?.homeAddress}` || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -125,6 +170,12 @@ const EmployeePage: React.FC = () => {
           data: {
             label: "Skills",
             value: employee.skills?.join(", ") || "No skills listed",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -163,6 +214,12 @@ const EmployeePage: React.FC = () => {
           value: employee.hireDate
             ? new Date(employee.hireDate).toLocaleDateString()
             : "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -174,6 +231,12 @@ const EmployeePage: React.FC = () => {
         data: {
           label: "Department",
           value: employee.department?.name || "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -184,17 +247,25 @@ const EmployeePage: React.FC = () => {
         data: {
           label: "Seniority",
           value: calculateSeniority(employee.hireDate) || "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
       },
     ];
 
+    console.log("Work Details Nodes", nodes)
+
     return nodes;
   }, []);
 
   // Generate dynamic nodes and edges
-  const [nodes, _setNodes, onNodesChange] = useNodesState(
+  const [nodes, setNodes, onNodesChange] = useNodesState(
     // employee
     //   ? 
       [
@@ -206,8 +277,12 @@ const EmployeePage: React.FC = () => {
       // : initialNodes
   );
 
+  console.log("All Nodes", nodes);
+
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    employee ? initialEdges : [] // You might want to generate dynamic edges here too
+    // employee ? 
+    initialEdges 
+    // : [] // You might want to generate dynamic edges here too
   );
 
   const onConnect = useCallback(

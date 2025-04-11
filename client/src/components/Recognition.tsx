@@ -37,6 +37,8 @@ const Recognition = ({
     "🎖️",
   ];
 
+  const centerItems = recognitions && recognitions.length <= 4;
+
   const getRandomEmoji = () => {
     const randomIndex = Math.floor(Math.random() * emojis.length);
     return emojis[randomIndex];
@@ -58,14 +60,20 @@ const Recognition = ({
       }}
     >
       {recognitions && recognitions.length > 0 ? (
-        <header className="">
-          <p className="font-semibold text-xl md:text-2xl text-center">
-            Employees of the Week!!
-          </p>
-          <p className="font-semibold text-xs sm:text-sm text-center">
-            Theme of the week: Dedication... Let's Lock in
-          </p>
-        </header>
+        <div className="relative">
+          <header className="">
+            <p className="font-semibold text-xl md:text-2xl text-center">
+              Employees of the Week!!
+            </p>
+            <p className="font-semibold text-xs sm:text-sm text-center">
+              Theme of the week: Dedication... Let's Lock in
+            </p>
+          </header>
+
+          {/* <div className="bg-rgtpurple cursor-pointer absolute top-0 -right-20 p-2 rounded-lg text-sm font-semibold border">
+            <p>See all</p>
+          </div> */}
+        </div>
       ) : (
         !isRecLoading && (
           <div className="flex items-center w-full font-bold justify-center h-20">
@@ -75,19 +83,14 @@ const Recognition = ({
       )}
 
       <div
-        className="w-full flex gap-4 overflow-x-scroll"
+        className={`w-full flex gap-4 overflow-x-scroll ${
+          centerItems ? "justify-center" : ""
+        }`}
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
       >
-        <style>
-          {`
-                .hide-scrollbar::-webkit-scrollbar {
-                display: none; /* Chrome, Safari, and Opera */
-              }
-              `}
-        </style>
         {isRecLoading && (
           <div className="flex items-center justify-center gap-2 h-20 w-20">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
@@ -125,7 +128,8 @@ const Recognition = ({
                         (item.recognizedEmployee?.user?.username as string) ??
                         `#${index}`
                       }
-                      className={`w-[50px] h-[50px] `}
+                      className={`w-[50px] h-[50px]`}
+                      avtBg="bg-rgtpurple"
                     />
 
                     <span
@@ -137,7 +141,7 @@ const Recognition = ({
                   </div>
                   <p className="font-semibold text-xs  sm:text-sm text-nowrap text-center">
                     {item.recognizedEmployee?.firstName ?? `User #${index}`} -
-                     <span className="text-orange-500">{item.project}</span>
+                    <span className="text-orange-500">{item.project}</span>
                   </p>
                 </div>
               );

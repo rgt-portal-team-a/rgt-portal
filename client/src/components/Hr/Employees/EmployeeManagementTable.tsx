@@ -2,21 +2,16 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Column, ActionObject } from "@/types/tables";
 import { DataTable } from "@/components/common/DataTable";
 import StepProgress from "@/components/common/StepProgress";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import EmployeeManagementTableSkeleton from "./EmployeeManagementTableSkeleton";
 import { EditEmployeeForm } from "./EditEmployeeForm";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Employee, EmployeeType } from "@/types/employee";
 import { Link } from "react-router-dom";
 import { TeamLeadToggle } from "./TeamLeadToggle";
 import { AgencyCheckboxToggle } from "./AgencyCheckboxToggle";
+import Filters from "@/components/common/Filters";
+import { useRequestPto } from "@/hooks/usePtoRequests";
+import Avtr from "@/components/Avtr";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
   full_time: "FT",
@@ -46,6 +41,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { allPtoData: ptoRequestData } = useRequestPto();
   const [activeSection, _setActiveSection] = useState<string>("personal");
   const [filter, setFilter] = useState({
     department: "All Departments",
@@ -53,7 +49,24 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     onLeave: "All Employees",
   });
 
-  const itemsPerPage = 5;
+  const approvedPtoEmployeeIds = useMemo(() => {
+    return new Set(
+      ptoRequestData?.filter((request) => request.status === "approved").map((request) => request?.employee?.id)
+    );
+  }, [ptoRequestData]);
+
+  const [itemsPerPage, setItemsPerPage] = useState<number>(
+    window.innerWidth >= 768 ? 5 : 4
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(window.innerWidth >= 768 ? 5 : 4);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const paginationData = useMemo(() => {
     const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
@@ -96,12 +109,11 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     return `${diffInYears} years`;
   }, []);
 
-  // Determine if an employee is on leave
   const isOnLeave = useCallback(
-    (leaveType: string | null | undefined): boolean => {
-      return !!leaveType;
+    (employeeId: number): boolean => {
+      return approvedPtoEmployeeIds.has(employeeId);
     },
-    []
+    [approvedPtoEmployeeIds]
   );
 
   const getEmployeeFieldValue = useCallback(
@@ -128,7 +140,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
           employeeTypeLabels[emp.employeeType as EmployeeType] || "",
         department: (emp) => emp.department?.name || "",
         agency: (emp) => emp.agency?.name || "",
-        onLeave: (emp) => (isOnLeave(emp.leaveType) ? "On Leave" : "Active"),
+        onLeave: (emp) => (isOnLeave(emp.id) ? "On Leave" : "Active"),
       };
 
       // Precise age calculation function
@@ -171,7 +183,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     }
 
     // Apply filters
-    let result = employees.filter((employee) => {
+    const result = employees.filter((employee) => {
       // Department filter
       if (
         filter.department !== "All Departments" &&
@@ -190,7 +202,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
       // Leave status filter
       if (filter.onLeave !== "All Employees") {
-        const onLeaveStatus = isOnLeave(employee.leaveType);
+        const onLeaveStatus = isOnLeave(employee.id);
         if (
           (filter.onLeave === "On Leave" && !onLeaveStatus) ||
           (filter.onLeave === "Not On Leave" && onLeaveStatus)
@@ -212,7 +224,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     });
 
     setFilteredEmployees(result);
-  }, [filter, employees, searchTerm, searchByField, getEmployeeFieldValue]);
+  }, [filter, employees, searchTerm, searchByField, getEmployeeFieldValue, isOnLeave]);
 
   // Load employee data
   useEffect(() => {
@@ -230,15 +242,16 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       key: "name",
       header: "Employee Name",
       render: (row) => (
-        <Link to={`/hr/manageemployees/employee/${row.id}`}>
+        <Link to={`/admin/manageemployees/employee/${row.id}`}>
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden mr-2 bg-gray-200">
-              {row.photoUrl ? (
-                <img
-                  src={row.photoUrl}
-                  alt={`${row.firstName} ${row.lastName}`}
-                  className="w-full h-full object-cover"
-                />
+              {row.user.profileImage ? (
+                // <img
+                //   src={row.photoUrl}
+                //   alt={`${row.firstName} ${row.lastName}`}
+                //   className="w-full h-full object-cover"
+                // />
+                <Avtr url={row.user.profileImage} name={row.user.username} />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-purple-200 text-purple-700">
                   {row.firstName?.charAt(0) || "N/A"}
@@ -390,7 +403,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       header: "On Leave",
       render: (row) => (
         <div className="flex justify-center">
-          {isOnLeave(row.leaveType) ? (
+          {isOnLeave(row.id) ? (
             <div className="w-6 h-6 rounded-md bg-green-500 flex items-center justify-center">
               <Check className="text-white" size={16} />
             </div>
@@ -400,17 +413,6 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
         </div>
       ),
     },
-    // {
-    //   key: "actions",
-    //   header: "Action",
-    //   render: (_row) => (
-    //     <div className="flex space-x-2">
-    //       <button className="cursor-pointer w-8 h-8 bg-purple-400 rounded-md flex items-center justify-center">
-    //         <Pencil className="text-white" size={16} />
-    //       </button>
-    //     </div>
-    //   ),
-    // },
   ];
 
   const visibleColumnsData = columnsToShow
@@ -428,90 +430,65 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   ];
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-sm">
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-medium text-gray-700">
+    <div className="flex bg-white flex-col items-center w-full h-[100%] rounded-3xl overflow-auto px-4 pt-4">
+      <div className="w-full">
+        {/* <div className="flex ">
+          <h1 className="text-lg sm:text-xl font-medium text-gray-700">
             Employee Management
           </h1>
-        </div>
+        </div> */}
 
         {/* Filter Section */}
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-center mb-6">
-          <div className="flex w-full gap-1 md:gap-3 justify-between items-center my-4 md:my-8">
-            {/* Department Filter */}
-            <Select
-              value={filter.department}
-              onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, department: value }))
-              }
-            >
-              <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-                <SelectValue placeholder="All Departments" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All Departments">All Departments</SelectItem>
-                {departments.map((department) => (
-                  <SelectItem key={department.id} value={department.name}>
-                    {department.name.toUpperCase()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Employment Type Filter */}
-            <Select
-              value={filter.employmentType}
-              onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, employmentType: value }))
-              }
-            >
-              <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All Types">All Types</SelectItem>
-                <SelectItem value="full_time">Full-time</SelectItem>
-                <SelectItem value="part_time">Part-time</SelectItem>
-                <SelectItem value="contractor">Contractor</SelectItem>
-                <SelectItem value="nsp">NSP</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* On Leave Filter */}
-            <Select
-              value={filter.onLeave}
-              onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, onLeave: value }))
-              }
-            >
-              <SelectTrigger className="w-[320px] py-[25px] rounded-lg text-gray-500 hover:text-black font-normal bg-gray-100 border-none">
-                <SelectValue placeholder="All Employees" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All Employees">All Employees</SelectItem>
-                <SelectItem value="On Leave">On Leave</SelectItem>
-                <SelectItem value="Not On Leave">Not On Leave</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Reset Filter Button */}
-            <Button
-              variant="outline"
-              onClick={resetFilter}
-              className="border-none rounded-lg bg-gray-100 text-gray-500 hover:text-black font-normal w-[100px] h-[50px] flex items-center justify-center"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Reset
-            </Button>
-          </div>
+        <div className="w-full">
+          <Filters
+            filters={[
+              {
+                type: "select",
+                options: [
+                  { label: "All Departments", value: "All Departments" },
+                  ...departments.map((department) => ({
+                    label: department.name.toUpperCase(),
+                    value: department.name,
+                  })),
+                ],
+                value: filter.department,
+                onChange: (value) =>
+                  setFilter((prev) => ({ ...prev, department: value })),
+              },
+              {
+                type: "select",
+                options: [
+                  { label: "All Types", value: "All Types" },
+                  { label: "Full-time", value: "full_time" },
+                  { label: "Part-time", value: "part_time" },
+                  { label: "Contractor", value: "contractor" },
+                  { label: "NSP", value: "nsp" },
+                ],
+                value: filter.employmentType,
+                onChange: (value) =>
+                  setFilter((prev) => ({ ...prev, employmentType: value })),
+              },
+              {
+                type: "select",
+                options: [
+                  { label: "All Employees", value: "All Employees" },
+                  { label: "On Leave", value: "On Leave" },
+                  { label: "Not On Leave", value: "Not On Leave" },
+                ],
+                value: filter.onLeave,
+                onChange: (value) =>
+                  setFilter((prev) => ({ ...prev, onLeave: value })),
+              },
+            ]}
+            onReset={resetFilter}
+          />
         </div>
       </div>
 
       {loading ? (
         <EmployeeManagementTableSkeleton />
       ) : (
-        <div className="overflow-x-auto">
+        <div className="w-full flex-grow ">
           <DataTable
             columns={visibleColumnsData}
             data={paginationData.paginatedData}
@@ -524,11 +501,13 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
       {/* Step Progress (Pagination) */}
       {!loading && (
-        <StepProgress
-          currentPage={paginationData.currentPage}
-          setCurrentPage={setCurrentPage}
-          totalPages={paginationData.totalPages}
-        />
+        <div className="w-full p-4">
+          <StepProgress
+            currentPage={paginationData.currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={paginationData.totalPages}
+          />
+        </div>
       )}
 
       {selectedEmployeeId && (

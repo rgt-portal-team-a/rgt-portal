@@ -9,13 +9,21 @@ import { Logger } from "@/services/logger.service";
 import { CreateRecruitmentDto, UpdateRecruitmentDto, RecruitmentFilterDto } from "@/dtos/recruitment.dto";
 import { FailStage, RecruitmentStatus } from "@/defaults/enum";
 import { CreateEmployeeDto } from "@/dtos/employee.dto";
-
+import { QueueName, JobType } from "./queue.service";
+import { QueueService } from "@/services/queue.service";
+import axios from "axios";
+import { JobMatchResult } from "@/entities/job-match-result.entity";
+import { BadRequestError } from "@/utils/error";
+import { CandidateMatchResponseDto } from "@/dtos/ai.dto";
 export class RecruitmentService {
   private recruitmentRepository: Repository<Recruitment>;
   private employeeRepository: Repository<Employee>;
   private userRepository: Repository<User>;
   private emergencyContactRepository: Repository<EmergencyContact>;
   private databaseService: DatabaseService;
+  private jobMatchResultRepository: Repository<JobMatchResult>;
+
+  private queueService: QueueService;
   private logger: Logger;
 
   constructor() {
@@ -23,7 +31,9 @@ export class RecruitmentService {
     this.employeeRepository = AppDataSource.getRepository(Employee);
     this.userRepository = AppDataSource.getRepository(User);
     this.emergencyContactRepository = AppDataSource.getRepository(EmergencyContact);
+    this.jobMatchResultRepository = AppDataSource.getRepository(JobMatchResult);
     this.databaseService = new DatabaseService();
+    this.queueService = QueueService.getInstance();
     this.logger = new Logger("RecruitmentService");
   }
 
@@ -120,12 +130,21 @@ export class RecruitmentService {
     }
   }
 
-  async findById(id: string, relations: string[] = ["createdBy", "employee", "emergencyContacts"]): Promise<Recruitment | null> {
+  async findById(id: string, relations: string[] = ["createdBy", "employee", "emergencyContacts"]): Promise<any | null> {
+    // TODO: find all the employees assigned to the recruitment using the assignees column
+
     try {
-      return this.recruitmentRepository.findOne({
+      const recruitment = await this.recruitmentRepository.findOne({
         where: { id },
         relations,
       });
+
+      const assignees = await this.employeeRepository.find({
+        where: { id: In(recruitment?.assignees || []) },
+        relations: ["user"],
+      });
+
+      return { ...recruitment, assignees };
     } catch (error) {
       this.logger.error(`Error fetching recruitment with ID ${id}:`, error);
       throw error;
@@ -137,9 +156,13 @@ export class RecruitmentService {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
     try {
-      const recruitments = recruitmentData.map((data) => this.recruitmentRepository.create(data));
+      const recruitments = recruitmentData.map((data) => {
+        return this.recruitmentRepository.create({
+          ...data,
+          assignees: data.assignees ? data.assignees.map(Number) : undefined,
+        });
+      });
       const savedRecruitments = await queryRunner.manager.save(recruitments);
       await queryRunner.commitTransaction();
       return savedRecruitments;
@@ -161,16 +184,17 @@ export class RecruitmentService {
         throw new Error("User not found");
       }
 
-      if (data.assignee) {
-        const assignee = await this.employeeRepository.findOne({ where: { id: parseInt(data.assignee) } });
-        if (!assignee) {
-          throw new Error("Assigned employee not found");
+      if (data.assignees) {
+        const assignees = await this.employeeRepository.find({ where: { id: In(data.assignees) } });
+        if (assignees.length !== data.assignees.length) {
+          throw new Error("Assigned employees not found");
         }
       }
 
       const recruitment = this.recruitmentRepository.create({
         ...data,
         createdBy: user,
+        assignees: data.assignees ? data.assignees.map(Number) : undefined,
       });
 
       const savedRecruitment = await queryRunner.manager.save(recruitment);
@@ -188,6 +212,14 @@ export class RecruitmentService {
 
       await queryRunner.commitTransaction();
 
+      await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_DROP_OFF_RESPONSE, {
+        recruitmentId: savedRecruitment.id,
+      });
+
+      await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_SCORE_RESPONSE, {
+        recruitmentId: savedRecruitment.id,
+      });
+
       return this.findById(savedRecruitment.id) as Promise<Recruitment>;
     } catch (error) {
       this.logger.error("Error creating recruitment:", error);
@@ -200,47 +232,42 @@ export class RecruitmentService {
 
   async update(id: string, data: UpdateRecruitmentDto): Promise<Recruitment> {
     const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
     try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-
       const recruitment = await this.findById(id);
       if (!recruitment) {
         throw new Error("Recruitment not found");
       }
 
-      if (data.assignee) {
-        const assignee = await this.employeeRepository.findOne({ where: { id: parseInt(data.assignee) } });
-        if (!assignee) {
-          throw new Error("Assigned employee not found");
-        }
-      }
-
-      Object.assign(recruitment, data);
-
-      await queryRunner.manager.save(recruitment);
-
       if (data.emergencyContacts) {
-        if (recruitment.emergencyContacts?.length > 0) {
-          await queryRunner.manager.remove(recruitment.emergencyContacts);
+     
+        if (recruitment.emergencyContacts?.length) {
+          await this.emergencyContactRepository.delete({ recruitment: { id } });
         }
 
         const emergencyContacts = data.emergencyContacts.map((contact) =>
           this.emergencyContactRepository.create({
             ...contact,
-            recruitment,
+            recruitment: { id },
           }),
         );
-
         await queryRunner.manager.save(emergencyContacts);
       }
+
+      const { emergencyContacts: _, ...updateData } = data;
+
+      if (updateData.assignees) {
+        updateData.assignees = updateData.assignees.map(Number);
+      }
+
+      await queryRunner.manager.update(Recruitment, id, updateData);
 
       await queryRunner.commitTransaction();
 
       return this.findById(id) as Promise<Recruitment>;
     } catch (error) {
-      this.logger.error(`Error updating recruitment with ID ${id}:`, error);
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
@@ -255,23 +282,14 @@ export class RecruitmentService {
         throw new Error("Recruitment not found");
       }
 
-      recruitment.currentStatus = status;
+      const updateData: Partial<Recruitment> = {
+        currentStatus: status,
+      };
 
       if (status === RecruitmentStatus.NOT_HIRED && failStage) {
-        recruitment.failStage = failStage;
-        recruitment.failReason = failReason;
+        updateData.failStage = failStage;
+        updateData.failReason = failReason;
       }
-
-      //   if (status === RecruitmentStatus.HIRED && !recruitment.employee) {
-      //     const employee = this.employeeRepository.create({
-      //       name: recruitment.name,
-      //       email: recruitment.email,
-      //       phoneNumber: recruitment.phoneNumber,
-      //     });
-
-      //     const savedEmployee = await this.employeeRepository.save(employee);
-      //     recruitment.employee = savedEmployee;
-      //   }
 
       if (
         ![
@@ -284,10 +302,18 @@ export class RecruitmentService {
       ) {
         const dueDate = new Date();
         dueDate.setDate(dueDate.getDate() + 7);
-        recruitment.statusDueDate = dueDate;
+        updateData.statusDueDate = dueDate;
       }
 
-      return this.recruitmentRepository.save(recruitment);
+      await this.recruitmentRepository.update(id, updateData);
+
+      if (status === RecruitmentStatus.NOT_HIRED) {
+        await this.queueService.addJob(QueueName.PREDICTIONS, JobType.SAVE_PREDICT_MATCH_RESPONSE, {
+          recruitmentId: id,
+        });
+      }
+
+      return this.findById(id) as Promise<Recruitment>;
     } catch (error) {
       this.logger.error(`Error updating status for recruitment with ID ${id}:`, error);
       throw error;
@@ -412,7 +438,7 @@ export class RecruitmentService {
         });
       }
 
-      const agencyData = await queryBuilder
+      let agencyData = await queryBuilder
         .select("recruitment.source", "name")
         .addSelect("COUNT(recruitment.id)", "value")
         .addSelect("COUNT(CASE WHEN recruitment.currentStatus = :hiredStatus THEN 1 END) * 100.0 / COUNT(recruitment.id)", "percent")
@@ -426,10 +452,46 @@ export class RecruitmentService {
         .groupBy("year")
         .orderBy("year", "ASC")
         .getRawMany();
+      
+      let codeInCount = 0;
+      let websiteCount = 0;
+      agencyData.forEach((item) => {
+        if (item.name === "Codeln") {
+          item.name = "CodeIn";
+          codeInCount = codeInCount + parseInt(item.value);
+        }
+
+        if (item.name === "CodeIn") {
+          codeInCount = codeInCount + parseInt(item.value);
+        }
+
+        if (item.name === "website") {
+          item.name = "Website";
+          websiteCount = websiteCount + parseInt(item.value);
+        }
+
+        if (item.name === "Website") {
+          websiteCount = websiteCount + parseInt(item.value);
+        }
+        
+        
+
+      });
+
+      agencyData = agencyData.filter((item, index, self) =>
+        index === self.findIndex((t) => t.name === item.name),
+      );
+
+      // remove the website from the agencyData array
+      // agencyData = agencyData.filter((item) => item.name !== "Website" || item.name !== "website");
+
+      // agencyData.push({ name: "Website", value: websiteCount.toString(), percent: 0 });
+
 
       return {
         agencyData: agencyData.map((item) => ({
           ...item,
+          value: item?.name === "CodeIn" ? codeInCount.toString() : item?.name === "Website" ? websiteCount.toString() : item?.value,
           color: this.getRandomColor(item.name),
         })),
         nspCountData,

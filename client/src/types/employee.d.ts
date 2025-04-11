@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { ClassNameValue } from "tailwind-merge";
 import { Poll } from "./polls";
 import { User } from "./authUser";
 import { Department } from "./department";
@@ -7,20 +6,13 @@ import { LEAVE_TYPES, WORK_TYPES, EMPLOYEE_TYPES, ROLE_TYPES } from "@/constants
 import { PTORequest } from "./PTOS";
 
 interface IDepartmentCard {
-  id: string | number;
+  id: string;
   employees: Employee[];
   name: string;
-  leadName?: string;
+  manager?: Employee;
   includeBgImg?: boolean;
+  path?:string
 }
-
-// interface IDepartmentMembers {
-//   id: number;
-//   name: string;
-//   avtr: { url: string; fallBack: string };
-//   department: string;
-//   role: string;
-// }
 
 interface IFeed {
   poll?: Poll;
@@ -31,6 +23,7 @@ interface IFeed {
 interface IAnnouncementCard {
   title: string;
   date: Date;
+  id: number;
 }
 
 interface IAvtrComponent {
@@ -66,8 +59,8 @@ interface EmployeeCardType {
 
 export type EmployeeType = (typeof EMPLOYEE_TYPES)[keyof typeof EMPLOYEE_TYPES];
 export type WorkType = (typeof WORK_TYPES)[keyof typeof WORK_TYPES];
-export type LeaveType = (typeof LEAVE_TYPES)[keyof typeof LEAVE_TYPES];
 export type RoleType = (typeof ROLE_TYPES)[keyof typeof ROLE_TYPES];
+export type LeaveType = (typeof LEAVE_TYPES)[keyof typeof LEAVE_TYPES];
 
 
 
@@ -86,7 +79,8 @@ export interface Employee {
   workType?: WorkType | null;
   isJuniorTeamLead?: boolean;
   isSeniorTeamLead?: boolean;
-  position: string | null;
+  position?: string | null;
+  positionStatus?: string | null;
   agency: Agency | null;
   hireDate: Date | null;
   endDate?: Date | null;
@@ -112,6 +106,7 @@ export interface Employee {
   attendanceRecords?: AttendanceRecord[];
   createdPolls?: Poll[];
   pollVotes?: PollVote[];
+  
 }
 
 

@@ -2,6 +2,7 @@ import cron from "node-cron";
 import { BirthdayNotificationService } from "./notifications/birthday-notification.service";
 import { Logger } from "./logger.service";
 import { EventService } from "./event.service";
+import { PtoRequestService } from "./pto-request.service";
 
 export interface ScheduledTask {
   name: string;
@@ -15,7 +16,7 @@ export class SchedulerService {
   private birthdayNotificationService: BirthdayNotificationService;
   private logger: Logger;
   private eventService: EventService;
-
+  private ptoRequestService: PtoRequestService;
   constructor() {
     this.tasks = new Map();
     // with default config: notify admins and HRs 1 day in advance
@@ -24,6 +25,7 @@ export class SchedulerService {
       daysInAdvance: 1,
     });
     this.eventService = new EventService();
+    this.ptoRequestService = new PtoRequestService();
     this.logger = new Logger("SchedulerService");
   }
 
@@ -48,6 +50,14 @@ export class SchedulerService {
         cronExpression: "0 0,12,18 * * *", // Run at midnight, 12:00 PM, and 6:00 PM
         task: async () => {
           await this.eventService.scheduleEventReminders();
+        },
+        enabled: true,
+      },
+      {
+        name: "reset-pto-balance",
+        cronExpression: "0 0 1 1 *", //TODO: Run at midnight of the first day of January every year
+        task: async () => {
+          await this.ptoRequestService.resetPtoBalance();
         },
         enabled: true,
       },

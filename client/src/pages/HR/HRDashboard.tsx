@@ -4,13 +4,11 @@ import {
   MetricCard,
   IMetricCard,
 } from "../../components/Hr/Dashboard/MetricCard";
-import QuickActions from "../../components/Hr/QuickActions";
+import QuickActions from "../../components/Hr/Dashboard/QuickActions";
 import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { useRequestPto } from "@/hooks/usePtoRequests";
 import { calculateMetrics } from "@/utils/metrics";
-import {
-  useRecruitments,
-} from "@/hooks/useRecruitment";
+import { useRecruitments } from "@/hooks/useRecruitment";
 
 export const HRDashboard = () => {
   const {
@@ -21,25 +19,24 @@ export const HRDashboard = () => {
     refetch: refetchEmployees,
   } = useAllEmployees({}, {});
 
-  // const { data: ptoRequestData, isLoading: isPTOLoading } = useGetAllPTOS();
-  const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } = useRequestPto();
-  const { data: recruitmentsData, isLoading: isLoadingRecruitments } = useRecruitments();
-
+  const { allPtoData: ptoRequestData, isAllPtosLoading: isPTOLoading } =
+    useRequestPto();
+  const { data: recruitmentsData, isLoading: isLoadingRecruitments } =
+    useRecruitments();
 
   const metrics: IMetricCard[] = useMemo(() => {
     const hasEmployeeData = employeeData && employeeData.length > 0;
     const hasPTOData = ptoRequestData && ptoRequestData.length > 0;
-    const hasRecruitmentData =  recruitmentsData?.recruitments && recruitmentsData?.recruitments.length > 0;
+    const hasRecruitmentData =
+      recruitmentsData?.recruitments &&
+      recruitmentsData?.recruitments.length > 0;
 
     const shouldShowLoading =
-      isEmployeesLoading &&
-      !hasEmployeeData &&
-      isPTOLoading &&
-      !hasPTOData &&
-      !hasRecruitmentData &&
-      isLoadingRecruitments;
+      (isEmployeesLoading && !hasEmployeeData) ||
+      (isPTOLoading && !hasPTOData) ||
+      (isLoadingRecruitments && !hasRecruitmentData);
 
-      console.log("Recruitments.recruitments", recruitmentsData?.recruitments)
+    console.log("Recruitments.recruitments", recruitmentsData?.recruitments);
 
     return calculateMetrics({
       employees: employeeData,
@@ -47,12 +44,19 @@ export const HRDashboard = () => {
       ptoRequests: ptoRequestData,
       recruitments: recruitmentsData?.recruitments,
     });
-  }, [employeeData, isEmployeesLoading, ptoRequestData, isPTOLoading]);
+  }, [
+    employeeData,
+    isEmployeesLoading,
+    ptoRequestData,
+    isPTOLoading,
+    recruitmentsData?.recruitments,
+    isLoadingRecruitments,
+  ]);
 
   return (
-    <div className="flex flex-col-reverse gap-6 md:flex-row h-full w-full">
+    <div className="flex flex-col-reverse gap-3 md:flex-row h-full w-full">
       <div
-        className="flex flex-col gap-[17px] space-y-10 md:w-[70%] overflow-y-auto"
+        className="flex flex-col gap-[17px] space-y-5 w-full overflow-y-auto"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -80,7 +84,7 @@ export const HRDashboard = () => {
         </div>
       </div>
 
-      <section className="md:flex justify-center h-fit md:right-0 md:top-0 hidden md:w-[30%] overflow-y-auto">
+      <section className="lg:flex justify-center h-full hidden flex-1">
         <QuickActions />
       </section>
     </div>

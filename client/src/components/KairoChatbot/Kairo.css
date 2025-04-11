@@ -1,0 +1,18 @@
+#report-content {
+  all: unset;  /* Reset to default values instead of inherit */
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+  word-break: break-word;
+}
+
+#report-content * {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+#report-content pre, #report-content code {
+  white-space: pre-wrap;
+  overflow-x: auto;
+}

@@ -1,24 +1,16 @@
-import { useState, useMemo, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { LineChart, Line } from "recharts";
-import { PieChart, Pie, Cell } from "recharts";
 import { RefreshCw, Loader2, AlertCircle } from "lucide-react";
 import { Employee, WorkType } from "@/types/employee";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useAllEmployees } from "@/api/query-hooks/employee.hooks";
 import { usePredictAttrition } from "@/api/query-hooks/ai.hooks";
 import { AttritionRequestInterface, AttritionResponseDto } from "@/types/ai";
 import { WORK_TYPES } from "@/constants";
+import { WhyTheyWalked } from "./WhyTheyWalked";
+import { TurnoverByTenure } from "./TurnoverByTenure";
+import { TurnoverRate } from "./TurnoverRate";
+import { TurnoverTrend } from "./TurnoverTrend";
 
 export const StayOrStrayPredictor = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,7 +20,14 @@ export const StayOrStrayPredictor = () => {
     null
   );
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const { employees } = useSelector((state: RootState) => state.sharedState);
+  const {
+    data: employees,
+    isLoading: isEmployeesLoading,
+    isError: isEmployeesError,
+    error: employeeError,
+    refetch: refetchEmployees,
+  } = useAllEmployees({}, {});
+
   const [predictionResult, setPredictionResult] = useState<AttritionResponseDto | null>(null);
 
   const { mutate: predictAttrition, isPending } = usePredictAttrition();
@@ -143,42 +142,12 @@ export const StayOrStrayPredictor = () => {
   };
 
 
-  // Sample data for charts
-  const musicalChairsData = [
-    { name: "Jan", value: 80 },
-    { name: "Feb", value: 40 },
-    { name: "Mar", value: 60 },
-    { name: "Apr", value: 90 },
-    { name: "May", value: 30 },
-  ];
-
-  const turnoverData = [
-    { name: "Engineering", value: 70 },
-    { name: "Design", value: 50 },
-    { name: "Product", value: 85 },
-    { name: "Marketing", value: 60 },
-    { name: "Sales", value: 40 },
-  ];
-
-  const whyTheyWalkedData = [
-    { name: "Compensation", value: 35 },
-    { name: "Management", value: 25 },
-    { name: "Work-life Balance", value: 40 },
-  ];
-
-  const goodbyeGraphData = [
-    { name: "Jan", value: 40 },
-    { name: "Feb", value: 60 },
-    { name: "Mar", value: 30 },
-    { name: "Apr", value: 70 },
-    { name: "May", value: 50 },
-    { name: "Jun", value: 65 },
-  ];
-
-  const pieColors = ["#8571F4", "#C686F8", "#E8CFFC"];
 
   return (
-    <div className="bg-white rounded-[32px] shadow-sm p-6">
+    <div className="bg-white rounded-[32px] shadow-sm px-4 py-6">
+      <div>
+        <p>Probability Of An Employee Leaving</p>
+      </div>
       {/* Header and Buttons (keep existing) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 border-1 rounded-[12px] p-4 items-center">
         <div className="col-span-2">
@@ -213,7 +182,7 @@ export const StayOrStrayPredictor = () => {
                   searchResults.map((employee) => (
                     <div
                       key={employee.id}
-                      className="p-2 w-full flex hover:bg-gray-100 cursor-pointer text-sm text-slate-500 font-semibold text-wrap block justify-between"
+                      className="p-2 w-full flex hover:bg-gray-100 cursor-pointer text-sm text-slate-500 font-semibold text-wrap justify-between"
                       onClick={() => handleEmployeeSelect(employee)}
                     >
                       <span>
@@ -271,103 +240,13 @@ export const StayOrStrayPredictor = () => {
 
       {/* Existing Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-[24px] shadow-lg ">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Musical Chairs...The Corporate Edition
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={musicalChairsData}>
-                  <Bar dataKey="value" fill="#6418C3" />
-                  <Tooltip />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <TurnoverByTenure />
 
-        <Card className="rounded-[24px] shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Turnover Roulette
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart layout="vertical" data={turnoverData}>
-                  <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" hide />
-                  <Bar dataKey="value" fill="#5ECFFF" />
-                  <Tooltip />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <TurnoverRate />
 
-        <Card className="rounded-[24px] shadow-lg ">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Why They Walked
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48 flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={whyTheyWalkedData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={60}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
-                    }
-                  >
-                    {whyTheyWalkedData.map((_entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={pieColors[index % pieColors.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <WhyTheyWalked />
 
-        <Card className="rounded-[24px] shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Goodbye Graphed...overtime
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={goodbyeGraphData}>
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#e91e63"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                  />
-                  <Tooltip />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <TurnoverTrend />
       </div>
     </div>
   );

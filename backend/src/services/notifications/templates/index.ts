@@ -7,8 +7,24 @@ import { NotificationPayload } from "@/dtos/notification.dto";
 import { NotificationType } from "@/entities/notification.entity";
 import { Department } from "@/entities/department.entity";
 import { Employee } from "@/entities/employee.entity";
+import { Poll } from "@/entities/poll.entity";
 
 export class NotificationTemplates {
+
+  static postCreated(sender: User, post: Post, recipientId: number): NotificationPayload {
+    return {
+      type: NotificationType.POST_CREATED,
+      recipientId,
+      senderId: sender.id,
+      title: "New Post Created",
+      content: `${sender.username} created a new post`,
+      data: {
+        postId: post.id,
+        postTitle: post.content ? post.content.substring(0, 50) : "Post",
+      },
+    };
+  }
+
   static postLiked(sender: User, post: Post): NotificationPayload {
     return {
       type: NotificationType.POST_LIKED,
@@ -18,7 +34,7 @@ export class NotificationTemplates {
       content: `${sender.username} liked your post`,
       data: {
         postId: post.id,
-        postTitle: post.content.substring(0, 50),
+        postTitle: post.content ? post.content.substring(0, 50) : "Post",
       },
     };
   }
@@ -29,10 +45,10 @@ export class NotificationTemplates {
       recipientId: post.authorId,
       senderId: sender.id,
       title: "New Comment on Your Post",
-      content: `${sender.username} commented on your post: "${commentContent.substring(0, 50)}${commentContent.length > 50 ? "..." : ""}"`,
+      content: `${sender.username} commented on your post: "${commentContent?.substring(0, 50)}${commentContent?.length > 50 ? "..." : ""}"`,
       data: {
         postId: post.id,
-        postTitle: post.content.substring(0, 50),
+        postTitle: post.content ? post.content.substring(0, 50) : "Post",
         commentContent,
       },
     };
@@ -44,7 +60,7 @@ export class NotificationTemplates {
       recipientId: parentCommentAuthorId,
       senderId: sender.id,
       title: "New Reply to Your Comment",
-      content: `${sender.username} replied to your comment: "${commentContent.substring(0, 50)}${commentContent.length > 50 ? "..." : ""}"`,
+      content: `${sender.username} replied to your comment: "${commentContent?.substring(0, 50)}${commentContent?.length > 50 ? "..." : ""}"`,
       data: {
         postId,
         commentContent,
@@ -58,7 +74,7 @@ export class NotificationTemplates {
       recipientId: commentAuthorId,
       senderId: sender.id,
       title: "New Like on Your Comment",
-      content: `${sender.username} liked your comment: "${commentContent.substring(0, 50)}${commentContent.length > 50 ? "..." : ""}"`,
+      content: `${sender.username} liked your comment: "${commentContent?.substring(0, 50)}${commentContent?.length > 50 ? "..." : ""}"`,
       data: {
         postId,
         commentContent,
@@ -176,7 +192,7 @@ export class NotificationTemplates {
       recipientId,
       senderId: sender.id,
       title: "Employee Recognition",
-      content: `${sender.username} recognized your work: "${message.substring(0, 50)}${message.length > 50 ? "..." : ""}"`,
+      content: `${sender.username} recognized your work: "${message?.substring(0, 50)}${message?.length > 50 ? "..." : ""}"`,
       data: {
         message,
       },
@@ -189,7 +205,7 @@ export class NotificationTemplates {
       recipientId,
       senderId: sender.id,
       title: "New Poll Created",
-      content: `A new poll "${pollTitle}" has been created`,
+      content: `A new poll "${pollTitle}" has been created by ${sender?.username}`,
       data: {
         pollId,
         pollTitle,
@@ -259,6 +275,20 @@ export class NotificationTemplates {
         employeeId: employee.id,
         employeeName: `${employee.firstName} ${employee.lastName}`,
       },
+    };
+  }
+
+  static newUserSignup(newUser: User): NotificationPayload {
+    return {
+      type: NotificationType.EMPLOYEE_RECOGNITION,
+      recipientId: 0,
+      title: "New User Signup",
+      content: `A new user ${newUser.username} (${newUser.email}) has signed up and needs to be onboarded.`,
+      data: {
+        userId: newUser.id,
+        username: newUser.username,
+        email: newUser.email
+      }
     };
   }
 }

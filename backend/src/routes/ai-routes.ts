@@ -31,14 +31,6 @@ aiRouter.post(
 );
 
 aiRouter.post(
-  "/predict-match",
-  authMiddleware.isAuthenticated,
-  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
-  validateDto(CandidateMatchRequestDto),
-  aiController.predictMatch.bind(aiController)
-);
-
-aiRouter.post(
   "/extract-cv",
   authMiddleware.isAuthenticated,
   authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
@@ -59,6 +51,20 @@ aiRouter.get(
   authMiddleware.isAuthenticated,
   authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
   aiController.getProgramOfStudyHired.bind(aiController)
+);
+
+aiRouter.get(
+  "/generate-report",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
+  aiController.generateReport.bind(aiController)
+);
+
+aiRouter.post(
+  "/kairo-chatbot",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.HR, Roles.ADMIN]),
+  aiController.kairoChatbot.bind(aiController)
 );
 
 export default aiRouter;

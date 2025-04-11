@@ -17,7 +17,7 @@ export class CreateRecruitmentDto {
   type?: RecruitmentType;
   currentStatus?: RecruitmentStatus;
   statusDueDate?: Date;
-  assignee?: string;
+  assignees?: string[];
   location?: string;
   firstPriority?: string;
   secondPriority?: string;
@@ -46,7 +46,7 @@ export class UpdateRecruitmentDto {
   email?: string;
   phoneNumber?: string;
   type?: RecruitmentType;
-  assignee?: string;
+  assignees?: number[];
   location?: string;
   firstPriority?: string;
   secondPriority?: string;

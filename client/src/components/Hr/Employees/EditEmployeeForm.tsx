@@ -39,19 +39,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { useDepartments } from "@/api/query-hooks/department.hooks";
 import "react-country-state-city/dist/react-country-state-city.css";
 import { Country, State } from "react-country-state-city/dist/esm/types";
 import SkillsSelector from "./SkillsSelector";
 import {useEmployeeForm} from "@/hooks/useEmployeeForm"
 import { useEmployeeValidation } from "@/hooks/useEmployeeValidation";
 import { useEmployeeSubmission } from "@/hooks/useEmployeeSubmission";
-import { LEAVE_TYPES, EMPLOYEE_TYPES, ROLE_TYPES  } from "@/constants";
+import {
+  LEAVE_TYPES,
+  EMPLOYEE_TYPES,
+  ROLE_TYPES,
+  ALL_ROLE_NAMES,
+} from "@/constants";
 import { toast } from "@/hooks/use-toast";
 import {Employee, RoleType} from "@/types/employee"
 import CustomCountrySelect from "./CustomCountrySelect"
 import CustomStateSelect from "./CustomStateSelect"
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
+
 
 
 
@@ -67,9 +73,14 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
   isOpen,
   onClose,
 }) => {
-    const { departments } = useSelector(
-        (state: RootState) => state.sharedState
-    );
+    const { currentUser } = useAuthContextProvider();
+      const {
+        data: departments,
+        isLoading: isDepartmentsLoading,
+        isError: isDepartmentsError,
+        error: departmentsError,
+        refetch: refetchDepartments,
+      } = useDepartments({ includeEmployees: true });
     const { data: employeeData, isLoading:isEmployeeLoading, isError:isEmployeeError, error:getEmployeeError } = useEmployeeDetails(employeeId.toString());
     const employee = employeeData || {} as Employee;
     console.log("EMPLOYEE", employee);
@@ -100,7 +111,17 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
         return;
     }
 
-    if (isEmployeeLoading ) {
+    if(!departments || isDepartmentsError ){
+        console.log("Cannot Get Departments");
+        toast({
+            title: "Error Getting Departments",
+            description: "Failed To Get Departments" + departmentsError,
+            variant: "destructive",
+        });
+        return;
+    }
+
+    if (isEmployeeLoading || isDepartmentsLoading) {
       return (
         <SideModal
           isOpen={isOpen}
@@ -414,9 +435,13 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                       </Label>
                       <Field name="roleId">
                         {({ field, form, meta }: FieldProps) => {
-                          console.log("Role ID Selected", field.value);
-                          return (
-                            <div className="relative">
+                          return (field.value === "2" &&
+                            currentUser?.role?.name === ALL_ROLE_NAMES.HR) ||
+                            (field.value === "4" &&
+                              currentUser?.role?.name === ALL_ROLE_NAMES.ADMIN) ? (
+                              <div className="border border-gray-200 text-gray-500 text-sm shadow-xs rounded-md py-[14px] px-4">You cannot change your own role</div>
+                          ) : (
+                              <div className="relative">
                               <Select
                                 onValueChange={(value) =>
                                   form.setFieldValue(field.name, value)

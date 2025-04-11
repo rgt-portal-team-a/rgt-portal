@@ -47,8 +47,9 @@ export class Recruitment {
   @Column({ type: "date", nullable: true })
   statusDueDate!: Date;
 
-  @Column({ nullable: true, type: "varchar" })
-  assignee!: string;
+  // TODO: CHANGE A LIST OF EMPLOYEES TO A LIST OF EMPLOYEE IDS 
+  @Column({ nullable: true, type: "bigint", array: true })
+  assignees!: number[];
 
   @Column({ nullable: true, type: "boolean" })
   notified!: boolean;
@@ -79,6 +80,18 @@ export class Recruitment {
 
   @Column({ nullable: true, type: "varchar" })
   graduationYear?: string;
+
+  @Column({ nullable: true, type: "varchar" })
+  seniorityLevel?: string;
+
+  @Column({ nullable: true, type: "varchar" })
+  totalYearsInTech?: string;
+
+  @Column({ nullable: true, type: "varchar" })
+  predictedDropOff?: string;
+
+  @Column({ nullable: true, type: "varchar" })
+  predictedScore?: string;
 
   @Column({ type: "text", array: true, nullable: true })
   technicalSkills?: string[];
@@ -126,7 +139,7 @@ export class Recruitment {
   employee?: Employee;
 
   @OneToMany(() => EmergencyContact, (emergencyContact) => emergencyContact.recruitment)
-  emergencyContacts!: EmergencyContact[];
+  emergencyContacts?: EmergencyContact[];
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;

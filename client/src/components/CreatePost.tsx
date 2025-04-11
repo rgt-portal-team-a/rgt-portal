@@ -7,7 +7,6 @@ import { Button } from "./ui/button";
 import { PostService } from "@/api/services/posts.service";
 import { FileUploadService } from "@/api/services/file.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/hooks/use-toast";
 import SendIcon from "@/assets/icons/SendIcon";
 import { PollService } from "@/api/services/poll.service";
 import CustomSelect from "./common/Select";
@@ -18,8 +17,10 @@ import PollIcon from "@/assets/icons/PollIcon";
 import VideoIcon from "@/assets/icons/VideoIcon";
 import PhotoIcon from "@/assets/icons/PhotoIcon";
 // import Globe from "@/assets/icons/Globe";
+import "react-toastify/dist/ReactToastify.css";
+import toastService from "@/api/services/toast.service";
 
-interface UploadStatus {
+export interface UploadStatus {
   images?: "idle" | "loading" | "success" | "error";
   videos?: "idle" | "loading" | "success" | "error";
 }
@@ -168,22 +169,14 @@ const CreatePost = () => {
       setSubmissionStatus("loading");
       return PostService.createPost(postData);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       setSubmissionStatus("success");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      toast({
-        title: "Success",
-        description: "Post created successfully",
-      });
-      console.log("data:", data);
+      toastService.success("Post created succesfully");
     },
     onError: (error: Error) => {
       setSubmissionStatus("error");
-      toast({
-        title: "Error",
-        description: "Failed to create post: " + error.message,
-        variant: "destructive",
-      });
+      toastService.error("Failed to create post: " + error.message);
     },
   });
 
@@ -192,27 +185,21 @@ const CreatePost = () => {
       setSubmissionStatus("loading");
       return PollService.createPoll(pollData);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       setSubmissionStatus("success");
       queryClient.invalidateQueries({ queryKey: ["polls"] });
-      toast({
-        title: "Success",
-        description: "Poll created successfully",
-      });
-      console.log("data:", data);
+      toastService.success("Poll created succesfully");
     },
     onError: (error: Error) => {
       setSubmissionStatus("error");
-      toast({
-        title: "Error",
-        description: "Failed to create poll: " + error.message,
-        variant: "destructive",
-      });
+      toastService.error("Failed to create poll: " + error.message);
     },
   });
 
   const handlePollClick = () => {
     setPoll(!poll);
+    setPollInfo(initialPollData);
+    setError(null);
     setMessage("");
     setImages([]);
     setVideos([]);
@@ -220,29 +207,17 @@ const CreatePost = () => {
 
   const validatePoll = () => {
     if (!pollInfo.description.trim()) {
-      toast({
-        title: "Error",
-        description: "Poll question is required",
-        variant: "destructive",
-      });
+      toastService.error("Poll question is required");
       return false;
     }
 
     if (pollInfo.options.length < 2) {
-      toast({
-        title: "Error",
-        description: "Poll needs at least 2 options",
-        variant: "destructive",
-      });
+      toastService.error("Poll needs at least 2 options");
       return false;
     }
 
     if (pollInfo.options.some((option) => !option.text.trim())) {
-      toast({
-        title: "Error",
-        description: "All poll options must have text",
-        variant: "destructive",
-      });
+      toastService.error("All poll options must have text");
       return false;
     }
 
@@ -312,11 +287,7 @@ const CreatePost = () => {
         };
 
         if (!postData.content && mediaUrls.length <= 0) {
-          toast({
-            title: "Error",
-            description: "Please enter some content or upload media.",
-            variant: "destructive",
-          });
+          toastService.error("Please enter some content or upload media.");
           return;
         }
 
@@ -399,8 +370,15 @@ const CreatePost = () => {
           </>
         ) : (
           <div className="w-full space-y-2">
-            <div>
-              <label className="font-semibold text-sm">Question</label>
+            <div className="w-full">
+              <div className="flex justify-between  pb-2">
+                <label className="font-semibold text-sm">Question</label>
+                <X
+                  size={24}
+                  className="transition-all duration-300 ease-in p-1 cursor-pointer bg-pink-200 text-rgtpink rounded-md"
+                  onClick={handlePollClick}
+                />
+              </div>
               <Input
                 placeholder="Write poll question..."
                 className="shadow-none w-full border-1 border-rgtpink"
@@ -516,7 +494,7 @@ const CreatePost = () => {
                         ? "multiple_choice"
                         : ""
                     }
-                    className="w-fit h-full border-2 rounded-sm bg-slate-200 p-2"
+                    className="w-fit h-full border rounded-sm bg-white text-black p-2"
                     onChange={(value) =>
                       setPollInfo({
                         ...pollInfo,
@@ -671,15 +649,14 @@ const CreatePost = () => {
           </div>
         </div>
         <button
-          // className="flex-1 bg-green-600"
-          className="flex-1 flex bg-purpleaccent2 rounded-br-2xl hover:bg-[#dfd2f8] transition-colors duration-300 ease-in cursor-pointer items-center justify-center"
+          className="flex-1 flex bg-purpleaccent2 rounded-br-2xl hover:bg-[#dfd2f8] transition-colors duration-300 ease-in cursor-pointer items-center justify-center group"
           onClick={submitPost}
           disabled={isSubmitting}
         >
           {isSubmitting ? (
             <Loader size={20} className="animate-spin text-slate-500" />
           ) : (
-            <SendIcon className="p-4 rounded-br-2xl cursor-pointer w-16 h-16  hover:fill-rgtpink transition-all duration-300 ease-in fill-[#2D264B]" />
+            <SendIcon className="p-4 rounded-br-2xl cursor-pointer w-16 h-16 fill-[#2D264B] group-hover:fill-rgtpink transition-colors duration-300 ease-in rotate-45" />
           )}
         </button>
       </div>

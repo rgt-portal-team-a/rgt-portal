@@ -7,7 +7,7 @@ import {
   NotificationType,
 } from "@/types/notifications";
 import { notificationApi } from "@/api/services/notification.service";
-import { toast } from "@/hooks/use-toast";
+import toastService from "@/api/services/toast.service";
 
 export const useNotificationPreferences = () => {
   const queryClient = useQueryClient();
@@ -65,11 +65,7 @@ export const useNotificationPreferences = () => {
       const typedContext = context as
         | { previousPreferences?: NotificationPreference[] }
         | undefined;
-      toast({
-        variant: "destructive",
-        title: "Update failed",
-        description: error.message,
-      });
+      toastService.error(`Update Failed: ${error.message}`);
       queryClient.setQueryData(
         ["notificationPreferences", user?.id],
         typedContext?.previousPreferences || []

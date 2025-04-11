@@ -52,7 +52,8 @@ export function DataTable({
                       <button
                         key="view"
                         className="bg-[#FFA6CD] text-white p-1 rounded-md hover:bg-pink-400 duration-300 ease-in transition-colors cursor-pointer"
-                        onClick={() => action.action(row.id)}>
+                        onClick={() => action.action(row.id)}
+                      >
                         <img src="/Show.svg" />
                       </button>
                     );
@@ -61,7 +62,8 @@ export function DataTable({
                       <button
                         key="edit"
                         className="bg-[#C0AFFF] text-white p-1 rounded-md hover:bg-purple-300 duration-300 ease-in transition-colors cursor-pointer"
-                        onClick={() => action.action(row.id, row)}>
+                        onClick={() => action.action(row.id, row)}
+                      >
                         <img src="/Edit 2.svg" alt="edit" />
                       </button>
                     );
@@ -78,7 +80,8 @@ export function DataTable({
                             } else {
                               action.action(row.id, row);
                             }
-                          }}>
+                          }}
+                        >
                           <img src="/Delete.svg" alt="delete" />
                         </button>
                       </>
@@ -99,29 +102,33 @@ export function DataTable({
         skeleton == "default" ? (
           <DataTableSkeleton columns={columns} actionBool={actionBool} />
         ) : (
-          <EmployeeManagementTableSkeleton columns={columns} />
+          <EmployeeManagementTableSkeleton />
         )
       ) : (
-        <Table className={dividers ? "" : "border-none bg-white rounded-md "}>
-          <TableHeader>
-            <TableRow className={`border-none`}>
-              {tableColumns.map((column) => (
-                <TableHead
-                  key={column.key}
-                  className={
-                    "border-none text-nowrap text-[#A3A7AA] text-xs py-4 text-left"
-                  }>
-                  {column.header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
+        <Table className={dividers ? "" : "border-none bg-white rounded-md"}>
+          {data && data.length > 0 ? (
+            <TableHeader>
+              <TableRow className={`border-none`}>
+                {tableColumns.map((column, index) => (
+                  <TableHead
+                    key={index}
+                    className={
+                      "border-none text-nowrap text-[#A3A7AA] text-xs py-4 text-left"
+                    }
+                  >
+                    {column.header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+          ) : null}
           <TableBody>
             {data && data.length > 0 ? (
               data.map((row: { [key: string]: any }, rowIndex) => (
                 <TableRow
                   key={rowIndex}
-                  className={`${dividers ? "" : "border-none"}`}>
+                  className={`${dividers ? "" : "border-none"}`}
+                >
                   {tableColumns.map((column) => (
                     <TableCell
                       key={column.key}
@@ -129,13 +136,15 @@ export function DataTable({
                         dividers
                           ? ""
                           : "border-none text-xs font-semibold text-[#898989] text-nowrap py-4"
-                      }`}>
+                      }`}
+                    >
                       <div
                         className={`${
                           typeof column.cellClassName === "function"
                             ? column.cellClassName(row)
                             : column.cellClassName ?? ""
-                        } ${column.render ? "flex gap-2" : ""}`}>
+                        } ${column.render ? "flex gap-2" : ""}`}
+                      >
                         {column.render ? column.render(row) : row[column.key]}
                       </div>
                     </TableCell>
@@ -146,7 +155,8 @@ export function DataTable({
               <TableRow>
                 <TableCell
                   colSpan={tableColumns.length}
-                  className="text-center py-8 text-slate-500 font-semibold text-sm">
+                  className="text-center py-8 text-slate-500 font-semibold text-sm"
+                >
                   <p>No data available</p>
                 </TableCell>
               </TableRow>
@@ -168,7 +178,8 @@ export function DataTable({
           if (setShowDelete) {
             setShowDelete(false);
           }
-        }}>
+        }}
+      >
         <div className="flex flex-col justify-center items-center space-y-2">
           <DeleteRippleIcon />
           <p className="text-lg font-semibold">Delete PTO</p>

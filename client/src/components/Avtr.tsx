@@ -16,12 +16,12 @@ const Avtr: React.FC<IAvtr> = ({ className, index = 0, url, name, avtBg }) => {
       className={`border-2 border-white ${className}`}
       style={{
         transform: `translateX(${index * 24}px)`, // Adjust overlap spacing
-        zIndex: `${100 - index}`, // Higher z-index for first items
+        zIndex: `${index}`, // Higher z-index for first items
       }}
     >
       <AvatarImage src={url} alt={name} className="h-full w-full" />
       <AvatarFallback
-        className={`h-full w-full text-white font-semibold text-sm bg-rgtpurple ${avtBg}`}
+        className={`h-full w-full text-white font-semibold text-xs ${avtBg}`}
       >
         {getAvatarFallback(name)}
       </AvatarFallback>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQueryClient } from "@tanstack/react-query";
 import { Formik, Form as FormikForm } from "formik";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ import rgtPattern from "@/assets/images/RGT PATTERN 1.png";
 import rgtIcon from "@/assets/images/RGT TRANSPARENT 1.png";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 
 const VerifyEmail = () => {
   const inputRefs = [
@@ -24,21 +26,42 @@ const VerifyEmail = () => {
   const location = useLocation();
   const otpId = location.state?.otpId || "";
   const userId = location.state?.userId || "";
-
+  const email = location.state?.email || "";
   const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useVerifyOtp({
-    onSuccess: (data: any) => {
-      console.log("Verification successful:", data);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+  const { setIsVerifying } = useAuthContextProvider();
 
-      navigate(`${data.user.role.name === "hr" ? "/hr/feed" : "/emp/feed"}`, { replace: true });
-      toast({
-        title: "Success",
-        description: "Email verified successfully",
-      });
+  const { mutate, isPending } = useVerifyOtp({
+    onSuccess: async (data: any) => {
+      try {
+        setIsVerifying(true);
+        await queryClient.invalidateQueries({ queryKey: ["user"] });
+
+        // Wait briefly to ensure auth state updates
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        navigate(data.user.role.name === "hr" ? "/admin/feed" : "/emp/feed", {
+          replace: true,
+          state: { fromVerify: true },
+        });
+
+        toast({
+          title: "Success",
+          description: "Email verified successfully",
+        });
+      } catch (error) {
+        console.error("Navigation error:", error);
+        toast({
+          title: "Error",
+          description: "Verification succeeded but navigation failed",
+          variant: "destructive",
+        });
+      } finally {
+        setIsVerifying(false);
+      }
     },
     onError: (error: any) => {
+      setIsVerifying(false);
       console.log("Verification error:", error);
       const errorMessage =
         error.response?.data?.message ||
@@ -46,6 +69,7 @@ const VerifyEmail = () => {
       toast({
         title: "Error",
         description: errorMessage,
+        variant: "destructive",
       });
     },
   });
@@ -118,18 +142,18 @@ const VerifyEmail = () => {
       <div className="bg-white flex flex-col justify-center items-center px-4 sm:px-8 py-8 md:py-0 flex-grow order-2 md:order-1">
         <div className="w-full max-w-md space-y-6">
           {/* Logo */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-4">
             <img src={rgtIcon} alt="Logo" className="h-12 md:h-auto" />
           </div>
 
           {/* Title */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Email Verification?
+            <h1 className="text-3xl md:text-[38px] font-semibold mb-1">
+              Almost there...
             </h1>
-            <p className="text-gray-500 text-sm">
-              we sent a reset link to your email, open it and type in the 6
-              digit OTP to proceed
+            <p className="text-gray-500 text-sm font-light text-nowrap">
+              we sent a temporary login code to{" "}
+              <span className="font-medium">{email}</span>
             </p>
           </div>
 
@@ -174,7 +198,7 @@ const VerifyEmail = () => {
                 onClick={handleResendOtp}
                 className="text-pink-500 hover:text-pink-600 font-medium"
               >
-                Resent OTP
+                Resend OTP
               </button>
             </p>
           </div>

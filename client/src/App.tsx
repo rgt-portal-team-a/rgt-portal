@@ -20,26 +20,18 @@ import CreatePassword from "./pages/auth/CreatePassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import Events from "./pages/HR/Events/Events";
 import DepartmentPage from "@/pages/HR/Employees/DepartmentPage";
-// import Messages from "./pages/common/Messages";
+import { MessagingPage } from "@/features/messaging";
 import FindEmployee from "./pages/common/FindEmployee";
 import EmployeePage from "@/pages/HR/Employees/EmployeePage";
 import EmployeeTimeOffRequests from "./pages/Manager/ManagerEmployeeTimeOff";
 import AdvancedReports from "./pages/HR/Reports/AdvancedReports";
 import RegularReports from "./pages/HR/Reports/RegularReports";
 import { ProfilePage } from "./pages/common/Profile";
+import { CookiePermissionBanner } from "./common/CookiePermissionBanner";
+import {ALL_ROLE_NAMES} from "@/constants"
 
 function App() {
-  const getCookie = (name: string) => {
-    const cookies = document.cookie.split("; ");
-    console.log("cookies", document.cookie);
 
-    const cookie = cookies.find((row) => row.startsWith(name + "="));
-    return cookie ? cookie.split("=")[1] : null;
-  };
-
-  const sessionID = getCookie("sessionID");
-
-  console.log("sessionID", sessionID);
   return (
     <BrowserRouter>
       <Routes>
@@ -54,12 +46,11 @@ function App() {
           element={
             <ProtectedRoute
               allowedRoles={[
-                "EMPLOYEE",
-                "MANAGER",
-                "HR",
-                "ADMIN",
-                "MODERATOR",
-                "MARKETER",
+                ALL_ROLE_NAMES.EMPLOYEE,
+                ALL_ROLE_NAMES.MANAGER,
+                ALL_ROLE_NAMES.HR,
+                ALL_ROLE_NAMES.ADMIN,
+                ALL_ROLE_NAMES.MARKETER,
               ]}
             />
           }
@@ -68,14 +59,22 @@ function App() {
             <Route index path="feed" element={<Feed />} />
             <Route path="events-calendar" element={<EventsCalendar />} />
             <Route path="all-departments/" element={<Departments />} />
+            <Route path="messages" element={<MessagingPage />} />
             <Route path="all-departments/:id" element={<DepartmentDetails />} />
             <Route path="time-off" element={<TimeOff />} />
-            {/* <Route path="messages" element={<Messages />} /> */}
+            <Route
+              path="messages/:conversationId"
+              element={<MessagingPage />}
+            />
             <Route path=":id" element={<FindEmployee />} />
             <Route path="profile" element={<ProfilePage />} />
 
             {/* Manager-specific sub-routes */}
-            <Route element={<ProtectedRoute allowedRoles={["MANAGER"]} />}>
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={[ALL_ROLE_NAMES.MANAGER]} />
+              }
+            >
               <Route
                 path="employee-requests"
                 element={<EmployeeTimeOffRequests />}
@@ -85,8 +84,14 @@ function App() {
         </Route>
 
         {/* HR routes - accessible by HR and ADMIN only */}
-        <Route element={<ProtectedRoute allowedRoles={["HR", "ADMIN"]} />}>
-          <Route path="/hr" element={<BaseLayout />}>
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={[ALL_ROLE_NAMES.HR, ALL_ROLE_NAMES.ADMIN]}
+            />
+          }
+        >
+          <Route path="/admin" element={<BaseLayout />}>
             <Route index path="dashboard" element={<HRDashboard />} />
             <Route
               path="alldepartments"
@@ -94,7 +99,7 @@ function App() {
                 <WithPermission
                   resource="employeeRecords"
                   action="view"
-                  redirectTo="/hr/dashboard"
+                  redirectTo="/admin/dashboard"
                 >
                   <AllDepartments />
                 </WithPermission>
@@ -110,7 +115,7 @@ function App() {
                 <WithPermission
                   resource="employeeRecords"
                   action="edit"
-                  redirectTo="/hr/dashboard"
+                  redirectTo="/admin/dashboard"
                 >
                   <ManageEmployees />
                 </WithPermission>
@@ -118,13 +123,17 @@ function App() {
             />
             <Route
               path={`manageemployees/employee/:id`}
-              element={<EmployeePage/>}
+              element={<EmployeePage />}
             />
 
             <Route path="feed" element={<Feed />} />
             <Route path="time-off" element={<TimeOff />} />
             <Route path="emp-time-off" element={<EmployeeTimeOff />} />
-            {/* <Route path="messages" element={<Messages />} /> */}
+            <Route path="messages" element={<MessagingPage />} />
+            <Route
+              path="messages/:conversationId"
+              element={<MessagingPage />}
+            />
             <Route path="events" element={<Events />} />
 
             {/* Advanced Report routes - accessible by HR and ADMIN */}
@@ -151,6 +160,7 @@ function App() {
         {/* 404 route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <CookiePermissionBanner />
     </BrowserRouter>
   );
 }
