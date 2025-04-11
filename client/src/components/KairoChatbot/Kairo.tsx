@@ -30,11 +30,13 @@ const Kairo = () => {
   const { mutate: sendQuery, isPending: isLoading } = useKairoBotQuery();
 
   const possibleQueries: PossibleQuery[] = [
-    { id: "q1", text: "How many candidates failed this 1st interview" },
-    { id: "q2", text: "What's the average employee tenure?" },
-    { id: "q3", text: "Show me upcoming birthdays" },
-    { id: "q4", text: "How many leave requests are pending?" },
+    { id: "q1", text: "Show candidates by status" },
+    { id: "q2", text: "What are our top recruitment sources" },
+    { id: "q3", text: "How many candidates applied each month" },
+    { id: "q4", text: "Show candidates with programming skills" },
+    { id: "q5", text: " what role was applied for the most" },
   ];
+
 
   const extractQueryResults = (html: string): string => {
     const parser = new DOMParser();

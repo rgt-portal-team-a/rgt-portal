@@ -3,14 +3,18 @@ import { User } from "../entities/user.entity";
 import { AppDataSource } from "@/database/data-source";
 import { CreateUserDto, UpdateUserDto } from "@/dtos/user.dto";
 import { Employee } from "@/entities/employee.entity";
+import { UserStatus } from "@/entities/user.entity";
+import { Logger } from "@/services/logger.service";
 
 export class UserService {
   private userRepository: Repository<User>;
   private employeeRepository: Repository<Employee>;
+  private logger: Logger;
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
     this.employeeRepository = AppDataSource.getRepository(Employee);
+    this.logger = new Logger("UserService");
   }
 
   async findAll(): Promise<User[]> {
@@ -24,8 +28,6 @@ export class UserService {
       where: { id },
       relations: ["role", "employee"],
     });
-    console.log(user);
-
     return user;
   }
 
@@ -47,8 +49,8 @@ export class UserService {
     await queryRunner.startTransaction();
 
     try {
-      const users = userData.map((data) => this.userRepository.create(data));
-      const savedUsers = await queryRunner.manager.save(users);
+      const users = userData.map(data => this.userRepository.create(data));
+      const savedUsers = await this.userRepository.save(users);
       await queryRunner.commitTransaction();
       return savedUsers;
     } catch (error) {
@@ -60,8 +62,24 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
-    await this.userRepository.update(id, updateUserDto);
-    return this.findById(id);
+    try {
+      const user = await this.findById(id);
+      if (!user) {
+        return null;
+      }
+
+      // Merge the update data with the existing user
+      const updatedUser = this.userRepository.merge(user, updateUserDto);
+      
+      // Save the updated user
+      const savedUser = await this.userRepository.save(updatedUser);
+      
+      this.logger.debug("Updated user", { userId: id, additionalInfo: { username: savedUser.username } });
+      return savedUser;
+    } catch (error) {
+      this.logger.error("Error updating user", { userId: id, error });
+      throw error;
+    }
   }
 
   async delete(id: number): Promise<void> {
@@ -72,13 +90,21 @@ export class UserService {
   async findUsersByIds(userIds: number[]): Promise<User[]> {
     return this.userRepository.find({
       where: { id: In(userIds) },
+      relations: ["role", "employee"],
     });
   }
 
   async findByRole(roleName: string): Promise<User[]> {
     return this.userRepository.find({
       where: { role: { name: roleName } },
-      relations: ["role", "employee"]
+      relations: ["role", "employee"],
+    });
+  }
+
+  async findByStatus(status: UserStatus): Promise<User[]> {
+    return this.userRepository.find({
+      where: { status },
+      relations: ["role", "employee"],
     });
   }
 

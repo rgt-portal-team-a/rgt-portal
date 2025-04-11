@@ -14,6 +14,7 @@ import DepartmentCard from "@/components/DepartmentCard";
 import AllDepartmentsSkeleton from "@/components/Hr/Employees/AllDepartmentsSkeleton";
 import {EmployeeSelector} from "@/components/Hr/common/EmployeeSelector";
 import NoDepartmentsPage from "../../common/NoDepartmentsPage";
+import { ALL_ROLE_NAMES } from "@/constants";
 
 const NewDepSchema = Yup.object({
   name: Yup.string()
@@ -265,6 +266,7 @@ export const AllDepartments = () => {
                 users={users || []}
                 placeholder="Select a manager for the department"
                 showEmail={true}
+                filterFn={(user) => user?.user?.role?.name === ALL_ROLE_NAMES.MANAGER}
               />
             )}
           </Field>

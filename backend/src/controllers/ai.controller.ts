@@ -35,11 +35,8 @@ export class AiController {
     }
   }
 
-  // GENERATE REPORT FOR EMPLOYEE OR RECRUITMENT USING THE AI ENDPOINT
   async generateReport(req: Request, res: Response): Promise<void> {
-    console.log('====================================');
-    console.log("ai endpoint", this.aiEndpoint);
-    console.log('====================================');
+
     const { type, format } = req.query;
     try {
       const response = await axios.get<any>(`${this.aiEndpoint}/api/${type}?format=${format || "html"}`);
@@ -49,7 +46,6 @@ export class AiController {
     }
   }
 
-  // KAIRO CHATBOT API WHICH TAKES A QUERY FROM FORMS AND RETURNS A RESPONSE
   async kairoChatbot(req: Request, res: Response): Promise<void> {
     try {
       const { query } = req.body;
@@ -85,7 +81,6 @@ export class AiController {
         throw new Error(`Candidate with ID ${candidate_id} not found`);
       }
 
-      // Format dates to YYYY-MM-DD
       const formatDate = (date: Date | null | undefined): string | null => {
         if (!date) return null;
         return date instanceof Date ? date.toISOString().split('T')[0] : new Date(date).toISOString().split('T')[0];
@@ -94,7 +89,7 @@ export class AiController {
       const requestData = [{
         date: formatDate(candidate.createdAt),
         highestDegree: candidate.highestDegree,
-        statusDueDate: formatDate(candidate.statusDueDate || candidate.date),
+        statusDueDate: formatDate(candidate.statusDueDate || candidate.createdAt),
         seniorityLevel: "Mid",
         totalYearsInTech: 2,
         source: candidate.source,
@@ -103,11 +98,15 @@ export class AiController {
 
       console.log(requestData);
 
-      const response = await axios.post(`${process.env.AI_API_ENDPOINT}/predict-dropoff`, requestData); 
+      const response = await axios.post(`${process.env.AI_API_ENDPOINT}/predict-dropoff`, {
+        applicants: requestData
+      }); 
       console.log(response.data);
 
       // update the candidates's predicted dropoff
-      candidate.predictedDropOff = response?.data?.dropoff_probability;
+      candidate.predictedDropOff = `${response?.data?.[0]?.probability}`;
+      candidate.predictedDropOffStage = response?.data?.[0]?.predicted_stage;
+
       await AppDataSource.getRepository(Recruitment).save(candidate);
 
       return response.data;
@@ -158,7 +157,6 @@ export class AiController {
         applied_position: candidate.position || candidate.firstPriority,
       });
 
-      // update the candidates's predicted score
       candidate.predictedScore = response?.data?.match_score;
       await AppDataSource.getRepository(Recruitment).save(candidate);
 

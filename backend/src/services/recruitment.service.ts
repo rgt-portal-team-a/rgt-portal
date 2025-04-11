@@ -447,7 +447,7 @@ export class RecruitmentService {
         .getRawMany();
 
       const nspCountData = await queryBuilder
-        .select("to_char(recruitment.createdAt, 'YYYY')", "year")
+        .select("to_char(recruitment.date, 'YYYY')", "year")
         .addSelect("COUNT(recruitment.id)", "value")
         .groupBy("year")
         .orderBy("year", "ASC")

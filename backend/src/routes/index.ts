@@ -17,3 +17,4 @@ export { default as aiRoutes } from "./ai-routes";
 export { default as employeeAnalyticsRoutes } from "./employee-analytics.route";
 export { default as queueRoutes } from "./queue.routes";
 export { default as conversationRoutes } from "./messaging.route";
+export { default as onboardRoutes } from "./onboard.route";

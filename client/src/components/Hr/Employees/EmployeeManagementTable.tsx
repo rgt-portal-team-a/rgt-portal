@@ -51,7 +51,9 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
   const approvedPtoEmployeeIds = useMemo(() => {
     return new Set(
-      ptoRequestData?.filter((request) => request.status === "approved").map((request) => request?.employee?.id)
+      ptoRequestData
+        ?.filter((request) => request.status === "approved")
+        .map((request) => request?.employee?.id)
     );
   }, [ptoRequestData]);
 
@@ -224,7 +226,14 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     });
 
     setFilteredEmployees(result);
-  }, [filter, employees, searchTerm, searchByField, getEmployeeFieldValue, isOnLeave]);
+  }, [
+    filter,
+    employees,
+    searchTerm,
+    searchByField,
+    getEmployeeFieldValue,
+    isOnLeave,
+  ]);
 
   // Load employee data
   useEffect(() => {
@@ -246,12 +255,11 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden mr-2 bg-gray-200">
               {row.user.profileImage ? (
-                // <img
-                //   src={row.photoUrl}
-                //   alt={`${row.firstName} ${row.lastName}`}
-                //   className="w-full h-full object-cover"
-                // />
-                <Avtr url={row.user.profileImage} name={row.user.username} />
+                <Avtr
+                  url={row.user.profileImage}
+                  name={row.user.username}
+                  avtBg="bg-purple-200 text-purple-700"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-purple-200 text-purple-700">
                   {row.firstName?.charAt(0) || "N/A"}

@@ -4,6 +4,7 @@ import { NodeData, EdgeData } from "./types";
 export const customEdgeStyle: React.CSSProperties = {
   stroke: "#FFC233",
   strokeWidth: 2,
+  // zIndex: 2,
 };
 
 // Define node styles
@@ -17,9 +18,9 @@ export const nodeStyles = {
     fontWeight: "medium",
   },
   header: {
-    backgroundColor: "#C4A9F8",
+    // backgroundColor: "#C4A9F8",
     padding: "12px 16px",
-    color: "#6E3CBC",
+    // color: "#6E3CBC",
     fontWeight: "bold",
     fontSize: "16px",
   },
@@ -160,7 +161,7 @@ export const initialEdges: Edge<EdgeData>[] = [
     source: "personal-details",
     sourceHandle: "left",
     targetHandle: "right",
-    style: customEdgeStyle,
+    style: { ...customEdgeStyle, zIndex: 10 },
     type: "custom",
   },
   {
@@ -169,7 +170,7 @@ export const initialEdges: Edge<EdgeData>[] = [
     source: "personal-details",
     sourceHandle: "right",
     targetHandle: "left",
-    style: customEdgeStyle,
+    style: { ...customEdgeStyle },
     type: "custom",
   },
   {
@@ -179,12 +180,12 @@ export const initialEdges: Edge<EdgeData>[] = [
     sourceHandle: "left", // bottom handle
     targetHandle: "top",
     // style: customEdgeStyle,
-    type: "corner",
-    data: {
-      cornerRadius: 90,
-      strokeColor: "#FFC107",
-      strokeWidth: 2,
-    },
+    type: "cornerEdge",
+    // data: {
+    //   cornerRadius: 90,
+    //   strokeColor: "#FFC107",
+    //   strokeWidth: 2,
+    // },
   },
   {
     id: "e-junction1-junction2",
@@ -248,12 +249,12 @@ export const initialEdges: Edge<EdgeData>[] = [
     sourceHandle: "right",
     targetHandle: "top",
     style: customEdgeStyle,
-    type: "corner",
-    data: {
-      cornerRadius: 90,
-      strokeColor: "#FFC107",
-      strokeWidth: 2,
-    },
+    type: "cornerEdge",
+    // data: {
+    //   cornerRadius: 90,
+    //   strokeColor: "#FFC107",
+    //   strokeWidth: 2,
+    // },
   },
 
   // Work details connections
@@ -273,12 +274,12 @@ export const initialEdges: Edge<EdgeData>[] = [
     sourceHandle: "left",
     targetHandle: "top",
     // style: customEdgeStyle,
-    type: "corner",
-    data: {
-      cornerRadius: 90,
-      strokeColor: "#FFC107",
-      strokeWidth: 2,
-    },
+    type: "cornerEdge",
+    // data: {
+    //   cornerRadius: 90,
+    //   strokeColor: "#FFC107",
+    //   strokeWidth: 2,
+    // },
   },
   {
     id: "e-junction3-work-details",
@@ -332,11 +333,11 @@ export const initialEdges: Edge<EdgeData>[] = [
     sourceHandle: "right",
     targetHandle: "top",
     style: customEdgeStyle,
-    type: "corner",
-    data: {
-      cornerRadius: 90,
-      strokeColor: "#FFC107",
-      strokeWidth: 2,
-    },
+    type: "cornerEdge",
+    // data: {
+    //   cornerRadius: 90,
+    //   strokeColor: "#FFC107",
+    //   strokeWidth: 2,
+    // },
   },
 ];

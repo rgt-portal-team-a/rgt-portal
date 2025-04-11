@@ -91,6 +91,9 @@ export class Recruitment {
   predictedDropOff?: string;
 
   @Column({ nullable: true, type: "varchar" })
+  predictedDropOffStage?: string;
+
+  @Column({ nullable: true, type: "varchar" })
   predictedScore?: string;
 
   @Column({ type: "text", array: true, nullable: true })
