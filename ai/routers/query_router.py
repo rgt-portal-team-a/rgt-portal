@@ -85,12 +85,8 @@ Query not successful, ask information about the recruitment data.
 
         # Initialize markdown content with query results
         markdown_content = f"""
-# Query Results
 
-## SQL Query
-```sql
-{sql_query}
-```
+
 
 ## Results
 """
