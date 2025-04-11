@@ -135,7 +135,7 @@ const Post: React.FC<IFeed> = ({ post }) => {
               profileImage={post.author?.profileImage as string}
             />
             <WithRole
-              roles={["hr", "marketer", "manager"]}
+              roles={["hr", "marketer"]}
               userRole={currentUser.role.name}
             >
               {Number(post.author?.id) === Number(currentUser.id) && (
@@ -206,7 +206,7 @@ const Post: React.FC<IFeed> = ({ post }) => {
           >
             <div className="flex flex-col justify-center items-center space-y-2">
               <DeleteRippleIcon />
-              <p className="text-lg font-semibold">Delete post?</p>
+              <p className="text-lg font-semibold">Delete Post?</p>
               <p className="font-light text-[#535862] text-sm text-center text-wrap w-[300px]">
                 Are you sure you want to delete this post? This action cannot be
                 undone.

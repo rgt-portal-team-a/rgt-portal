@@ -3,10 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../state/store";
 import { useCurrentUser } from "@/api/query-hooks/auth.hooks";
 import { LOGOUT, SETCURRENTUSER } from "@/state/authState/authSlice";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { User } from "@/types/authUser";
 import { authService } from "@/api/services/auth.service";
-import { toast } from "@/hooks/use-toast";
+import toastService from "@/api/services/toast.service";
 
 interface AuthContextType {
   currentUser: User | null;
@@ -42,11 +41,7 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
       setIsVerifying(false);
     } catch (error) {
       setError(error instanceof Error ? error : new Error("Failed to logout"));
-      toast({
-        title: "Error",
-        description: "Failed to Log out of portal",
-        variant: "destructive",
-      });
+      toastService.error("Failed to Log out of portal");
     }
   };
 
@@ -56,7 +51,7 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
       dispatch(
         SETCURRENTUSER({
           currentUser: {
-            ...fetchedUser
+            ...fetchedUser,
           },
         })
       );
@@ -68,11 +63,10 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
           ? fetchError
           : new Error("Failed to fetch user")
       );
-      toast({
-        title: "Authentication Error",
-        description: "Failed to authenticate. Please try logging in again.",
-        variant: "destructive",
-      });
+
+      toastService.error(
+        "Failed to authenticate. Please try logging in again."
+      );
       setIsLoading(false);
     } else if (status === "pending") {
       setIsLoading(true);
@@ -90,8 +84,6 @@ const AuthContextProvider = ({ children }: AuthProviderProps) => {
     logout,
     setIsVerifying,
   };
-
-
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

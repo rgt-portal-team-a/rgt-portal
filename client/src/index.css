@@ -185,6 +185,14 @@ body {
     @apply bg-gray-400 rounded hover:bg-gray-500;
   }
 
+  /* Remove scrollbar buttons/arrows */
+  ::-webkit-scrollbar-button {
+    @apply hidden; /* This removes the arrows */
+    display: none; /*Alternative approach*/
+    width: 0;
+    height: 0;
+  }
+
   /* Firefox styles */
   * {
     scrollbar-width: thin;

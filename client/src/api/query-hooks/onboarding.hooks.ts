@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { User, OnboardUserDto, UpdateUserStatus } from "@/types/authUser";
 import { onboardingService } from "../services/onboarding.service";
 import toastService from "../services/toast.service";
+import { queryClient } from "@/features/data-access/rbacQuery";
 
 
 export const useAllAwaitingUsers = () => {
@@ -18,6 +19,8 @@ export const useOnboardUser = () => {
       onboardingService.onboardUser(data),
     onSuccess: (data, _variables) => {
       queryClient.invalidateQueries({ queryKey: ["awaiting-users"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
       toastService.success(data.message || "User Onboarded created successfully");
     },
     onError: (error) => {
@@ -35,6 +38,8 @@ export const changeStatus = () => {
       onboardingService.changeStatus(data),
     onSuccess: (data, _variables) => {
       queryClient.invalidateQueries({ queryKey: ["awaiting-users"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
       toastService.success(data.message || "User Status Changed successfully");
     },
     onError: (error) => {
