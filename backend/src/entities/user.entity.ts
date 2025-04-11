@@ -2,6 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn
 import { Role } from "./role.entity";
 import { Employee } from "./employee.entity";
 
+export enum UserStatus {
+  AWAITING = "awaiting",
+  ACTIVE = "active",
+  INACTIVE = "inactive"
+}
+
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn({ type: "bigint" })
@@ -24,6 +30,13 @@ export class User {
 
   @Column({ unique: true, type: "varchar" })
   email!: string;
+
+  @Column({ 
+    type: "enum", 
+    enum: UserStatus, 
+    default: UserStatus.ACTIVE 
+  })
+  status!: UserStatus;
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;

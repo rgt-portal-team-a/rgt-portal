@@ -1,8 +1,8 @@
-import { toast } from "@/hooks/use-toast";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { CreateRecognitionDto } from "@/types/recognition";
 import { recognitionService } from "../services/recognition.service";
-
+import toastService from "../services/toast.service";
 export const useGetAllRecognitions = () => {
   return useQuery({
     queryKey: ["recognitions"],
@@ -22,18 +22,10 @@ export const useCreateSingleRecognition = () => {
         queryKey: ["recognitions"],
         exact: false,
       });
-      toast({
-        title: "Success",
-        description: "Recognition created successfully",
-      });
+      toastService.success("Recognition created successfully");
     },
-    onError: (error) => {
-      console.log("Recognition Creation Error", error.message);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error creating recognition");
     },
   });
 };
@@ -50,18 +42,10 @@ export const useCreateMultipleRecognitions = () => {
         queryKey: ["recognitions"],
         exact: false,
       });
-      toast({
-        title: "Success",
-        description: "Recognitions created successfully",
-      });
+      toastService.success("Recognitions created successfully");
     },
-    onError: (error) => {
-      console.log("Recognition Creation Error", error.message);
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error creating recognition");
     },
   });
 };

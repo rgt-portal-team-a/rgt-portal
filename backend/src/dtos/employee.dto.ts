@@ -34,8 +34,16 @@ export class CreateEmployeeDto {
   hireDate?: Date;
 
   @IsOptional()
+  @IsDate({ message: "Birth date must be a valid date" })
+  birthDate?: Date;
+
+  @IsOptional()
   @IsObject({ message: "Contact details must be an object" })
   contactDetails?: Record<string, any>;
+
+  @IsOptional()
+  @IsEnum(EmployeeType, { message: "Employee type must be a valid employee type" })
+  employeeType?: EmployeeType;
 
   @IsOptional()
   @IsObject({ message: "Agency must be an object" })

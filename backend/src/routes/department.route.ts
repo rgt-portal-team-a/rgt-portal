@@ -49,4 +49,11 @@ departmentRouter.delete(
   departmentController.removeEmployeeFromDepartment,
 );
 
+departmentRouter.put(
+  "/:id/manager",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.ADMIN, Roles.HR]),
+  departmentController.updateManager,
+);
+
 export default departmentRouter;

@@ -217,7 +217,7 @@ const DepartmentPage = () => {
                                         !values.emails.includes(
                                           user.id.toString()
                                         ) &&
-                                        department.managerId.toString() !==
+                                        department?.managerId?.toString() !==
                                           user.id.toString()
                                       }
                                     />
