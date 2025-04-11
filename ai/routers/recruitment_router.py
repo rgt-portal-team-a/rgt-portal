@@ -8,7 +8,8 @@ from nsp_retention.nsp_analyzer import NSPAnalyzer, generate_recommendations, ge
 from nsp_retention.nsp_models import ReportResponse
 from config.settings import api_key
 from dropoff_final.predict import DropoffPredictor, RawCandidateData, PredictionResult
-from typing import List
+from typing import List, Optional
+from utils.db import get_db_connection, get_db_cursor
 import os
 import logging
 
@@ -70,3 +71,6 @@ async def predict_dropoff_endpoint(applicants: List[RawCandidateData]):
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+   
