@@ -1,5 +1,4 @@
 import {
-  UpdateEmployeeInterface,
   EmployeeType,
 } from "@/types/employee";
 import { useCallback } from "react";
@@ -46,13 +45,14 @@ export const useEmployeeOnboardingSubmission = (
         const selectedState = states.find((s) => s.id === values.stateId);
 
         // Transform form values to UpdateEmployeeInterface
-        const onboardEmployeeDto: UpdateEmployeeInterface = {
+        const onboardEmployeeDto = {
           user: { id: userId },
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
           departmentId: values.department?.id,
-          hireDate: values.hireDate,
+          hireDate: values.hireDate ? new Date(values.hireDate) : undefined,
+          birthDate: values.birthDate ? new Date(values.birthDate) : undefined,
           employeeType: (() => {
             const type = values.employeeType;
             return Object.values(EMPLOYEE_TYPES).includes(type as EmployeeType)
@@ -65,32 +65,26 @@ export const useEmployeeOnboardingSubmission = (
             country: selectedCountry?.name || "",
             region: selectedState?.name || "",
             city: values.city,
-          },
-          birthDate: values.birthDate,
-          // roleId: Number(values.roleId),
+          }
+        };
+
+        // Prepare the request payload
+        const requestPayload = {
+          userId: Number(userId),
+          employee: onboardEmployeeDto,
+          roleId: values.roleId ? Number(values.roleId) : undefined
         };
 
         // Call the update mutation
-        console.log(" Onboard DTO", {
-          userId: userId,
-          employee: onboardEmployeeDto,
-          roleId: Number(values.roleId),
-        });
-        await onBoardingMutation.mutateAsync({
-          userId: userId,
-          employee: onboardEmployeeDto,
-          roleId: Number(values.roleId),
-        });
+        await onBoardingMutation.mutateAsync(requestPayload);
         setSubmitting(false);
       } catch (error) {
         const errorMessage = getApiErrorMessage(error);
-        toastService.error("Failed To Onboard User" + errorMessage.message);
-        setSubmitting(false);
-      } finally {
+        toastService.error("Failed To Onboard User: " + errorMessage.message);
         setSubmitting(false);
       }
     },
-    [userId, newUser, onBoardingMutation]
+    [userId, newUser, onBoardingMutation, countries, states]
   );
 
   return {

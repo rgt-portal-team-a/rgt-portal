@@ -5,9 +5,11 @@ import { googleConfig } from "@/config/google-oauth.config";
 import { QueueService, QueueName, JobType } from "@/services/queue.service";
 import { Roles } from "@/defaults/role";
 import { UserStatus } from "@/entities/user.entity";
+import { Logger } from "@/services/logger.service";
 
 const userService = new UserService();
 const queueService = QueueService.getInstance();
+const logger = new Logger("AuthController");
 
 passport.use(
   new GoogleStrategy(
@@ -33,9 +35,11 @@ passport.use(
 
         if (!user) {
           isNewUser = true;
+          // Generate username from email if displayName is not available
+          const username = profile.displayName || email.split('@')[0];
           user = await userService.create({
             email,
-            username: profile.displayName,
+            username,
             profileImage: profile.photos?.[0].value,
             role: { id: googleConfig.defaultRoleId },
             status: UserStatus.AWAITING
@@ -57,6 +61,7 @@ passport.use(
 
         return done(null, user);
       } catch (error) {
+        logger.error("Error in Google OAuth strategy", { error });
         return done(error as Error);
       }
     },

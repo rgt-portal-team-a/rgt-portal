@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -994,7 +995,7 @@ export const EmployeeOnboarding: React.FC = () => {
                         Processing...
                       </span>
                     ) : (
-                      "Edit"
+                      "Finish Onboarding"
                     )}
                   </button>
                 </div>

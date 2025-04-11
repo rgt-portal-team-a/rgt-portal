@@ -115,7 +115,7 @@ export class Employee {
   @OneToMany(() => EmployeeRecognition, (recognition) => recognition.recognizedEmployee)
   receivedRecognitions!: EmployeeRecognition[];
 
-  @OneToOne(() => User, (user) => user.employee, { cascade: true })
+  @OneToOne(() => User, (user) => user.employee)
   @JoinColumn({ name: "user_id" })
   user!: User;
 
