@@ -30,7 +30,7 @@ router.get(
           return res.redirect(`${clientURL}/wait-room`);
         }
 
-        const userRole = user.role.name;
+        const userRole = user?.role?.name;
         let redirectPath;
         switch (userRole) {
           case Roles.ADMIN:
