@@ -3,6 +3,7 @@ from pydantic import ValidationError
 import pandas as pd
 from models.profile import JobRequest
 from models.nsp import NSPDataDirectInput
+from config.settings import api_key
 from utils.profiles import format_profile
 from smart_match.predict import match_jobs_to_applicant, df
 from nsp_retention.nsp_analyzer import NSPAnalyzer, generate_recommendations, generate_report
