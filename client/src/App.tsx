@@ -26,9 +26,11 @@ import EmployeePage from "@/pages/HR/Employees/EmployeePage";
 import EmployeeTimeOffRequests from "./pages/Manager/ManagerEmployeeTimeOff";
 import AdvancedReports from "./pages/HR/Reports/AdvancedReports";
 import RegularReports from "./pages/HR/Reports/RegularReports";
+import WaitRoom from "./pages/auth/WaitRoom";
 import { ProfilePage } from "./pages/common/Profile";
 import { CookiePermissionBanner } from "./common/CookiePermissionBanner";
 import {ALL_ROLE_NAMES} from "@/constants"
+import { EmployeeOnboarding } from "./pages/HR/Employees/EmployeeOnboarding";
 
 function App() {
 
@@ -40,6 +42,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/set-password" element={<CreatePassword />} />
+
+
 
         {/* Employee routes - accessible by all roles */}
         <Route
@@ -55,6 +59,7 @@ function App() {
             />
           }
         >
+          <Route path="/wait-room" element={<WaitRoom />} />
           <Route path="/emp" element={<BaseLayout />}>
             <Route index path="feed" element={<Feed />} />
             <Route path="events-calendar" element={<EventsCalendar />} />
@@ -118,6 +123,20 @@ function App() {
                   redirectTo="/admin/dashboard"
                 >
                   <ManageEmployees />
+                </WithPermission>
+              }
+            />
+            
+
+            <Route
+              path="onboardingroom"
+              element={
+                <WithPermission
+                  resource="employeeRecords"
+                  action="edit"
+                  redirectTo="/admin/dashboard"
+                >
+                  <EmployeeOnboarding />
                 </WithPermission>
               }
             />

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { eventService } from "../services/event.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "../types";

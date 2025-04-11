@@ -14,7 +14,7 @@ import { Employee, EmployeeType } from "@/types/employee";
 import { Department } from "@/types/department";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import { useRemoveEmployeeFromDepartment } from "@/api/query-hooks/employee.hooks";
-import { useUpdateDepartment } from "@/api/query-hooks/department.hooks";
+import { useUpdateDepartment, useUpdateManager } from "@/api/query-hooks/department.hooks";
 import Filters from "@/components/common/Filters";
 import Avtr from "@/components/Avtr";
 
@@ -58,6 +58,8 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   });
   const removeEmployeeFromDepartment = useRemoveEmployeeFromDepartment();
   const updateDepartment = useUpdateDepartment();
+
+  const updateManager = useUpdateManager();
 
   const preparedData = useMemo(() => {
     if (!department.employees) return [];
@@ -234,11 +236,9 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   const handleUpdateManager = async () => {
     if (selectedEmployeeId && department.id) {
       try {
-        await updateDepartment.mutateAsync({
+        await updateManager.mutateAsync({
           id: department.id.toString(),
           data: {
-            name: department.name,
-            description: department.description,
             managerId: selectedEmployeeId,
           },
         });
@@ -246,6 +246,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         setManagerModalOpen(false);
         setSelectedEmployeeId(null);
       } catch (error) {
+        
         console.error("Failed to update manager", error);
       }
     }

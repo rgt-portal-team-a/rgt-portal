@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRbacQuery, usePrefetchWithPermission } from '@/features/data-access/rbacQuery';
 import { employeeService } from '../services/employee.service';
 import {  useMutation, useQueryClient, UseQueryOptions, QueryKey} from '@tanstack/react-query';
 import { Agency, Employee, UpdateEmployeeInterface } from "@/types/employee";
 import { toast } from '@/hooks/use-toast';
 import { useMemo } from 'react';
+import toastService from '../services/toast.service';
 
 
 export const useAllEmployees = (
@@ -69,12 +72,8 @@ export const useUpdateEmployee = () => {
         description: "Employee updated successfully",
       });
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error updating employee");
     },
   });
 };
@@ -94,12 +93,8 @@ export const useUpdateEmployeeAgency = () => {
         description: "Employee Agency updated successfully",
       });
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error updating employee agency");
     },
   });
 };
@@ -124,12 +119,8 @@ export const useRemoveEmployeeFromDepartment = () => {
         description: "Employee removed from department successfully",
       });
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error removing employee from department");
     },
   });
 };

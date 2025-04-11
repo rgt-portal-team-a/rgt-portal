@@ -9,8 +9,8 @@ from smart_match.predict import match_jobs_to_applicant, df
 from nsp_retention.nsp_analyzer import NSPAnalyzer, generate_recommendations, generate_report
 from nsp_retention.nsp_models import ReportResponse
 from dropoff_final.predict import DropoffPredictor, RawCandidateData, PredictionResult
-from typing import List, Dict, Any, Union, Optional
-from pydantic import BaseModel, Field
+from typing import List, Optional, Union, Optional
+from utils.db import get_db_connection, get_db_cursor, Field
 import os
 import logging
 
