@@ -28,7 +28,7 @@ export interface UploadStatus {
 const CreatePost = () => {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<{
-    employee: { id: number; firstName: string; lastName: string };
+    employee: { id: number; firstName: string | null; lastName: string | null };
     profileImage?: string;
   } | null>(null);
   console.log("user:", user);

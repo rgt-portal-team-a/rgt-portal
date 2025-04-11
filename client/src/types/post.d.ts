@@ -3,8 +3,8 @@ interface CreatePostDto {
   content: string;
   author?: {
     id: number;
-    firstName: string;
-    lastName: string;
+    firstName: string | null;
+    lastName: string | null;
     profileImage?: string;
   };
 }
