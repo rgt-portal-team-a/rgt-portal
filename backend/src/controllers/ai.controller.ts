@@ -106,6 +106,7 @@ export class AiController {
       // update the candidates's predicted dropoff
       candidate.predictedDropOff = `${response?.data?.[0]?.probability}`;
       candidate.predictedDropOffStage = response?.data?.[0]?.predicted_stage;
+
       await AppDataSource.getRepository(Recruitment).save(candidate);
 
       return response.data;
