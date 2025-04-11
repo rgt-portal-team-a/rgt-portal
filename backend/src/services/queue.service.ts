@@ -52,6 +52,7 @@ export enum JobType {
   // Employee related notifications
   EMPLOYEE_RECOGNITION = "employee:recognition",
   EMPLOYEE_BIRTHDAY = "employee:birthday",
+  NEW_USER_SIGNUP = "user:signup",
 
   // Poll related notifications
   POLL_CREATED = "poll:created",
@@ -266,9 +267,12 @@ export class QueueService {
       case JobType.EMPLOYEE_BIRTHDAY:
         await this.processEmployeeBirthdayNotification(payload);
         break;
+      case JobType.NEW_USER_SIGNUP:
+        await this.processNewUserSignupNotification(payload);
+        break;
       case JobType.SAVE_PREDICT_MATCH_RESPONSE:
         await this.processJobMatchPrediction(payload);
-
+        break;
       default:
         throw new Error(`Unknown notification type: ${type}`);
     }
@@ -550,6 +554,14 @@ export class QueueService {
   private async generateParticipationReport(payload: { employeeId: number; startDate: Date; endDate: Date }): Promise<void> {
     // Implement report generation logic here
     this.logger.info(`Generating participation report for employee ${payload.employeeId}`);
+  }
+
+  private async processNewUserSignupNotification(payload: { newUser: User; recipientId: number }): Promise<void> {
+    const { newUser, recipientId } = payload;
+    const notification = NotificationTemplates.newUserSignup(newUser);
+    notification.recipientId = recipientId;
+    await this.notificationService.createNotification(notification);
+    this.logger.info(`Successfully sent new user signup notification to HR user ${recipientId}`);
   }
 
   public async addJob(queueName: QueueName, jobType: JobType, payload: any, options: Queue.JobOptions = {}): Promise<void> {
