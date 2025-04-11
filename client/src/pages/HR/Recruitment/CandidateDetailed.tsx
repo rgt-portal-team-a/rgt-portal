@@ -654,13 +654,16 @@ const CandidateDetailView: React.FC = () => {
                           The AI's prediction of the likelihood this candidate
                           will drop out of the recruitment process
                         </p>
+                        <p className="text-sm text-gray-500">
+                         Predicted Drop-off Stage: {candidate.predictedDropOffStage}
+                        </p>
                         <div className="flex items-center mt-2">
                           <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div
                               className={`h-2.5 rounded-full ${
-                                candidate.predictedDropOff > 70
+                                parseInt(candidate.predictedDropOff.split(" ")[1]) > 70
                                   ? "bg-red-600"
-                                  : candidate.predictedDropOff > 40
+                                  : parseInt(candidate.predictedDropOff.split(" ")[1]) > 40
                                   ? "bg-yellow-600"
                                   : "bg-green-600"
                               }`}
@@ -669,9 +672,11 @@ const CandidateDetailView: React.FC = () => {
                               }}
                             ></div>
                           </div>
+
                           <span className="ml-2 text-sm font-medium">
                             {candidate.predictedDropOff}%
                           </span>
+                      
                         </div>
                       </div>
                     )}
