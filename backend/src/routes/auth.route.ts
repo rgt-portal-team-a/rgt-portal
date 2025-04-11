@@ -2,6 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import "@/controllers/auth.controller";
 import { Roles } from "@/defaults/role";
+import { UserStatus } from "@/entities/user.entity";
 
 const router = Router();
 
@@ -24,6 +25,11 @@ router.get(
         if (err) {
           return next(err);
         }
+
+        if (user.status === UserStatus.AWAITING) {
+          return res.redirect(`${clientURL}/wait-room`);
+        }
+
         const userRole = user.role.name;
         let redirectPath;
         switch (userRole) {

@@ -4,6 +4,7 @@ import {
   LEAVE_TYPES,
   ROLE_TYPES,
 } from "@/constants";
+import { useMemo } from "react";
 
 export const useEmployeeValidation = () => {
 const validationSchema = Yup.object().shape({
@@ -44,5 +45,35 @@ const validationSchema = Yup.object().shape({
 });
 
 
-  return { validationSchema };
+
+const onboardingValidationSchema = useMemo(() => 
+    Yup.object().shape({
+      department: Yup.object().shape({
+        id: Yup.number().required('Department is required'),
+        name: Yup.string()
+      }),
+      personalEmail: Yup.string()
+        .email('Invalid email'),
+      firstName: Yup.string()
+        .required('First Name Is Required'),
+      lastName: Yup.string()
+        .required('Last Name Is Required '),
+      phone: Yup.string()
+        .matches(/^[0-9]+$/, 'Must be only digits'),
+      employeeType: Yup.string()
+        .oneOf(Object.values(EMPLOYEE_TYPES), 'Invalid employee type')
+        .required('Employee type is required'),
+      roleId: Yup.string()
+        .oneOf(Object.values(ROLE_TYPES), 'Invalid role type')
+        .required('Role is required'),
+      hireDate: Yup.date().required('Start date is required'),
+      homeAddress: Yup.string(),
+      city: Yup.string(),
+      stateId: Yup.number().nullable(),
+      countryId: Yup.number().nullable(),
+      birthDate: Yup.date().nullable()
+    }), [])
+
+
+  return { validationSchema, onboardingValidationSchema };
 };

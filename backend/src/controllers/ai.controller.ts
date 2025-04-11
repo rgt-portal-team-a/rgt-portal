@@ -94,7 +94,7 @@ export class AiController {
       const requestData = [{
         date: formatDate(candidate.createdAt),
         highestDegree: candidate.highestDegree,
-        statusDueDate: formatDate(candidate.statusDueDate || candidate.date),
+        statusDueDate: formatDate(candidate.statusDueDate || candidate.createdAt),
         seniorityLevel: "Mid",
         totalYearsInTech: 2,
         source: candidate.source,
@@ -103,11 +103,14 @@ export class AiController {
 
       console.log(requestData);
 
-      const response = await axios.post(`${process.env.AI_API_ENDPOINT}/predict-dropoff`, requestData); 
+      const response = await axios.post(`${process.env.AI_API_ENDPOINT}/predict-dropoff`, {
+        applicants: requestData
+      }); 
       console.log(response.data);
 
       // update the candidates's predicted dropoff
-      candidate.predictedDropOff = response?.data?.dropoff_probability;
+      candidate.predictedDropOff = `${response?.data?.[0]?.probability}`;
+      candidate.predictedDropOffStage = response?.data?.[0]?.predicted_stage;
       await AppDataSource.getRepository(Recruitment).save(candidate);
 
       return response.data;

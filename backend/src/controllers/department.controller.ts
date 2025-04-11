@@ -138,7 +138,7 @@ export class DepartmentController {
         if (error.message.includes("already exists")) {
           res.status(409).json({
             success: false,
-            message: "Department creation failed",
+            message: "Department creation failed, department with this name already exists",
             error: error.message,
           });
           return;
@@ -146,6 +146,15 @@ export class DepartmentController {
 
         if (error.message.includes("not found")) {
           res.status(404).json({
+            success: false,
+            message: "Department creation failed, manager not found",
+            error: error.message,
+          });
+          return;
+        }
+
+        if (error.message.includes("already a manager for another department")) {
+          res.status(409).json({
             success: false,
             message: "Department creation failed",
             error: error.message,
@@ -541,4 +550,36 @@ export class DepartmentController {
       });
     }
   };
+
+  public updateManager = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const departmentId = parseInt(req.params.id);
+      const { managerId } = req.body as { managerId: number };
+
+      if (isNaN(departmentId) || isNaN(managerId)) {
+        res.status(400).json({
+          success: false,
+          message: "Valid department and manager IDs are required",
+        });
+        return;
+      }
+
+      const department = await this.departmentService.updateManager(departmentId, managerId);
+
+      const response: ApiResponse<typeof department> = {
+        success: true,
+        data: department,
+        message: "Manager updated successfully",
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      this.logger.error("Error updating manager:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update manager",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
 }

@@ -57,7 +57,7 @@ const EmployeePage: React.FC = () => {
   const personalDetailsNode: Node = useMemo(
     () => ({
       id: "personal-details",
-      position: { x: 600, y: 30 },
+      position: { x: 600, y: 13 },
       data: { label: "Personal Details", isHeader: true },
       type: "header",
       draggable: false,
@@ -70,7 +70,7 @@ const EmployeePage: React.FC = () => {
   const workDetailsNode: Node = useMemo(
     () => ({
       id: "work-details",
-      position: { x: 600, y: 370 },
+      position: { x: 600, y: 356 },
       data: { label: "Work Details", isHeader: true },
       type: "header",
       draggable: false,
@@ -87,7 +87,7 @@ const EmployeePage: React.FC = () => {
       const nodes: Node[] = [
         {
           id: "phone",
-          position: { x: -500, y: 100 },
+          position: { x: -500, y: 153 },
           data: {
             label: "Phone",
             value: employee.phone || "Not Available",
@@ -118,7 +118,7 @@ const EmployeePage: React.FC = () => {
         },
         {
           id: "personal-email",
-          position: { x: 300, y: 150 },
+          position: { x: 300, y: 170 },
           data: {
             label: "Personal Email",
             value: employee.contactDetails?.personalEmail || "Not Available",
@@ -134,7 +134,7 @@ const EmployeePage: React.FC = () => {
         },
         {
           id: "work-email",
-          position: { x: 920, y: 150 },
+          position: { x: 920, y: 170 },
           data: {
             label: "Work Email",
             value: employee.user?.email || "Not Available",
@@ -150,7 +150,7 @@ const EmployeePage: React.FC = () => {
         },
         {
           id: "location",
-          position: { x: 1150, y: 130 },
+          position: { x: 1150, y: 170 },
           data: {
             label: "Location",
             value: `${employee.contactDetails?.homeAddress}` || "Not Available",
@@ -166,7 +166,7 @@ const EmployeePage: React.FC = () => {
         },
         {
           id: "skills",
-          position: { x: 1150, y: 460 },
+          position: { x: 1150, y: 500 },
           data: {
             label: "Skills",
             value: employee.skills?.join(", ") || "No skills listed",
@@ -208,7 +208,7 @@ const EmployeePage: React.FC = () => {
       },
       {
         id: "start-date",
-        position: { x: -500, y: 100 },
+        position: { x: -500, y: 144 },
         data: {
           label: "Start Date",
           value: employee.hireDate
@@ -277,7 +277,6 @@ const EmployeePage: React.FC = () => {
       // : initialNodes
   );
 
-  console.log("All Nodes", nodes);
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     // employee ? 

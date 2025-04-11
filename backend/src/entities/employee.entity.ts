@@ -119,34 +119,34 @@ export class Employee {
   @JoinColumn({ name: "user_id" })
   user!: User;
 
-  @ManyToOne(() => Department)
+  @ManyToOne(() => Department, { onDelete: 'SET NULL' })
   @JoinColumn({ name: "department_id" })
   department!: Department | null;
 
   @Column({ nullable: true, type: "int" })
   departmentId!: number | null;
 
-  @OneToMany(() => PtoRequest, (ptoRequest) => ptoRequest.employee)
+  @OneToMany(() => PtoRequest, (ptoRequest) => ptoRequest.employee, { cascade: true })
   ptoRequests!: PtoRequest[];
 
-  @OneToMany(() => ProjectAssignment, (projectAssignment) => projectAssignment.employee)
+  @OneToMany(() => ProjectAssignment, (projectAssignment) => projectAssignment.employee, { cascade: true })
   projectAssignments!: ProjectAssignment[];
 
-  @OneToMany(() => Post, (post) => post.author)
+  @OneToMany(() => Post, (post) => post.author, { cascade: true })
   posts!: Post[];
 
-  @OneToMany("Event", "organizer")
+  @OneToMany("Event", "organizer", { cascade: true })
   organizedEvents!: Event[];
 
-  @OneToMany(() => EventParticipant, (eventParticipant) => eventParticipant.employee)
+  @OneToMany(() => EventParticipant, (eventParticipant) => eventParticipant.employee, { cascade: true })
   eventParticipations!: EventParticipant[];
 
-  @OneToMany(() => AttendanceRecord, (attendanceRecord) => attendanceRecord.employee)
+  @OneToMany(() => AttendanceRecord, (attendanceRecord) => attendanceRecord.employee, { cascade: true })
   attendanceRecords!: AttendanceRecord[];
 
-  @OneToMany(() => Poll, (poll) => poll.createdBy)
+  @OneToMany(() => Poll, (poll) => poll.createdBy, { cascade: true })
   createdPolls!: Poll[];
 
-  @OneToMany(() => PollVote, (vote) => vote.employee)
+  @OneToMany(() => PollVote, (vote) => vote.employee, { cascade: true })
   pollVotes!: PollVote[];
 }

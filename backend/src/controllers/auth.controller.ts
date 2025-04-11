@@ -2,17 +2,14 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { UserService } from "@/services/user.service";
 import { googleConfig } from "@/config/google-oauth.config";
-import { EmployeeService } from "@/services/employee.service";
-import { NotificationPreferenceService } from "@/services/notifications/notification-preference.service";
-import { AppDataSource } from "@/database/data-source";
-import { NotificationPreference } from "@/entities/notification-preference.entity";
 import { QueueService, QueueName, JobType } from "@/services/queue.service";
 import { Roles } from "@/defaults/role";
+import { UserStatus } from "@/entities/user.entity";
+import { Logger } from "@/services/logger.service";
 
 const userService = new UserService();
-const employeeService = new EmployeeService();
-const notificationPreferenceService = new NotificationPreferenceService(AppDataSource.getRepository(NotificationPreference));
 const queueService = QueueService.getInstance();
+const logger = new Logger("AuthController");
 
 passport.use(
   new GoogleStrategy(
@@ -25,7 +22,11 @@ passport.use(
       try {
         const email = profile.emails?.[0].value;
 
-        if (!email || !email.endsWith(googleConfig.allowedDomain)) {
+        // if (!email || !email.endsWith(googleConfig.allowedDomain)) {
+        //   return done(null, false, { message: "Invalid email domain. Please use a @reallygreattech.com email address." });
+        // }
+
+        if (!email) {
           return done(null, false, { message: "Invalid email domain. Please use a @reallygreattech.com email address." });
         }
 
@@ -34,23 +35,17 @@ passport.use(
 
         if (!user) {
           isNewUser = true;
+          // Generate username from email if displayName is not available
+          const username = profile.displayName || email.split('@')[0];
           user = await userService.create({
             email,
-            username: profile.displayName,
+            username,
             profileImage: profile.photos?.[0].value,
             role: { id: googleConfig.defaultRoleId },
+            status: UserStatus.AWAITING
           });
 
-          await employeeService.create({
-            user: { id: user.id },
-            firstName: profile.name?.givenName || profile.displayName.split(" ")[0],
-            lastName: profile.name?.familyName || profile.displayName.split(" ").slice(1).join(" "),
-          });
-
-          // Initialize notification preferences for the new user
-          await notificationPreferenceService.initializeUserPreferences(user.id);
-
-          // send notifications for onboarding
+          // Send notifications to HR for onboarding
           const hrUsers = await userService.findByRole(Roles.HR);
           for (const hrUser of hrUsers) {
             await queueService.addJob(
@@ -66,6 +61,7 @@ passport.use(
 
         return done(null, user);
       } catch (error) {
+        logger.error("Error in Google OAuth strategy", { error });
         return done(error as Error);
       }
     },

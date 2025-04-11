@@ -28,7 +28,8 @@ export interface Recruitment {
   failReason?: string;
   notes?: string;
   predictedScore?: number;
-  predictedDropOff?: number;
+  predictedDropOff?: string;
+  predictedDropOffStage?: string;
   createdAt: string;
   updatedAt: string;
   createdBy?: {
