@@ -110,7 +110,7 @@ const CandidateDetailView: React.FC = () => {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 h-full overflow-auto">
       <div className="flex justify-between items-center mb-6">
         <Button variant="outline" onClick={handleBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -188,7 +188,7 @@ const CandidateDetailView: React.FC = () => {
                 <Mail className="h-5 w-5 text-gray-500 mr-3 mt-0.5" />
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-clip overflow-hidden text-ellipsis max-w-[150px]">
+                  <p className="font-medium overflow-hidden text-ellipsis max-w-[150px]">
                     {candidate.email}
                   </p>
                 </div>

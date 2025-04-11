@@ -74,9 +74,4 @@ export const useDepartmentsData = () => {
     deleteDepartment,
     isDepartmentDeleting: deleteDepartmentMutation.isPending,
   };
-
-  // if (isDepartmentsError && departmentsError) {
-  //   console.log("Unable to load departments..", departmentsError);
-  //   toastService.error("Unable to load Departments");
-  // }
 };

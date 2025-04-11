@@ -26,6 +26,7 @@ interface ISideFormModal<T extends FormikValues> {
   isSubmitting?: boolean;
   back?: boolean;
   backFn?: () => void;
+  disableSubmit?: boolean;
 }
 
 export const SideFormModal = <T extends FormikValues>({
@@ -33,7 +34,7 @@ export const SideFormModal = <T extends FormikValues>({
   children,
   initialFormValues,
   validationSchema,
-  // buttonClassName,
+  buttonClassName,
   formClassName,
   onSubmit,
   submitBtnText = "Create",
@@ -97,7 +98,9 @@ export const SideFormModal = <T extends FormikValues>({
                       !formikProps.isValid
                     }
                     className={`w-1/2 h-full rounded-[12px] bg-rgtpink  text-white cursor-pointer
-                    ${isSubmitting ? "opacity-45" : "hover:bg-pink-500"}`}
+                    ${isSubmitting ? "opacity-45" : "hover:bg-pink-500"} ${
+                      buttonClassName || ""
+                    }`}
                   >
                     {isSubmitting ? (
                       <Loader className="animate-spin" size={20} />

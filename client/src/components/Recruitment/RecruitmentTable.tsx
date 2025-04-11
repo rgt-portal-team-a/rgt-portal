@@ -39,17 +39,113 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-   const [visibleColumns, setVisibleColumns] = useState<string[]>([
-     "name",
-     "phoneNumber",
-     "dateCreated",
-     "cv",
-     "location",
-     "failStage",
-   ]);
-   const [columnSearchTerm, setColumnSearchTerm] = useState("");
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([
+    "name",
+    "phoneNumber",
+    "dateCreated",
+    "cv",
+    "location",
+    "failStage",
+  ]);
+  const [columnSearchTerm, setColumnSearchTerm] = useState("");
 
-   
+  // const [filters, setFilters] = useState({
+  //   status: "",
+  //   source: "",
+  //   position: "",
+  //   university: "",
+  //   failStage: "",
+  // });
+
+  // const handleFilterChange = (filterName: string, value: string) => {
+  //   setFilters((prev) => ({
+  //     ...prev,
+  //     [filterName]: value,
+  //   }));
+  // };
+
+  // const handleResetFilters = () => {
+  //   setFilters({
+  //     status: "",
+  //     source: "",
+  //     position: "",
+  //     university: "",
+  //     failStage: "",
+  //   });
+  // };
+
+  // const filterConfigs: FilterConfig[] = useMemo(() => {
+  //   const commonFilters = [
+  //     {
+  //       type: "select" as const,
+  //       options: [
+  //         { label: "All Statuses", value: "" },
+  //         ...Array.from(new Set(candidates.map((c) => c.currentStatus)))
+  //           .filter(Boolean)
+  //           .map((status) => ({ label: status || "", value: status || "" })),
+  //       ],
+  //       value: filters.status,
+  //       onChange: (value: string) => handleFilterChange("status", value),
+  //       placeholder: "Status",
+  //     },
+  //     {
+  //       type: "select" as const,
+  //       options: [
+  //         { label: "All Sources", value: "" },
+  //         ...Array.from(new Set(candidates.map((c) => c.source)))
+  //           .filter(Boolean)
+  //           .map((source) => ({ label: source || "", value: source || "" })),
+  //       ],
+  //       value: filters.source,
+  //       onChange: (value: string) => handleFilterChange("source", value),
+  //       placeholder: "Source",
+  //     },
+  //   ];
+
+  //   if (type === RecruitmentType.EMPLOYEE) {
+  //     commonFilters.push({
+  //       type: "select" as const,
+  //       options: [
+  //         { label: "All Positions", value: "" },
+  //         ...Array.from(new Set(candidates.map((c) => c.position)))
+  //           .filter(Boolean)
+  //           .map((pos) => ({ label: pos || "", value: pos || "" })),
+  //       ],
+  //       value: filters.position,
+  //       onChange: (value: string) => handleFilterChange("position", value),
+  //       placeholder: "Position",
+  //     });
+  //   } else {
+  //     commonFilters.push({
+  //       type: "select" as const,
+  //       options: [
+  //         { label: "All Universities", value: "" },
+  //         ...Array.from(new Set(candidates.map((c) => c.university)))
+  //           .filter(Boolean)
+  //           .map((uni) => ({ label: uni || "", value: uni || "" })),
+  //       ],
+  //       value: filters.university,
+  //       onChange: (value: string) => handleFilterChange("university", value),
+  //       placeholder: "University",
+  //     });
+  //   }
+
+  //   commonFilters.push({
+  //     type: "select" as const,
+  //     options: [
+  //       { label: "All Fail Stages", value: "" },
+  //       ...Array.from(new Set(candidates.map((c) => c.failStage)))
+  //         .filter(Boolean)
+  //         .map((stage) => ({ label: stage || "", value: stage || "" })),
+  //     ],
+  //     value: filters.failStage,
+  //     onChange: (value: string) => handleFilterChange("failStage", value),
+  //     placeholder: "Fail Stage",
+  //   });
+
+  //   return commonFilters;
+  // }, [candidates, type, filters]);
+
   const toggleArrayState = useCallback(
     <T,>(setState: React.Dispatch<React.SetStateAction<T[]>>, item: T) => {
       setState((prev) =>
@@ -65,8 +161,6 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
     },
     [toggleArrayState]
   );
-
- 
 
   const debouncedSearch = useMemo(
     () =>
@@ -91,7 +185,19 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
     )} ${date.getFullYear()}`;
   };
 
-  const formatedCandidates = candidates.map((candidate) => ({ 
+  // const filteredCandidates = useMemo(() => {
+  //   return candidates.filter((candidate) => {
+  //     return (
+  //       (!filters.status || candidate.currentStatus === filters.status) &&
+  //       (!filters.source || candidate.source === filters.source) &&
+  //       (!filters.position || candidate.position === filters.position) &&
+  //       (!filters.university || candidate.university === filters.university) &&
+  //       (!filters.failStage || candidate.failStage === filters.failStage)
+  //     );
+  //   });
+  // }, [candidates, filters]);
+
+  const formatedCandidates = candidates.map((candidate) => ({
     ...candidate,
     failStage: candidate.failStage || "—",
     failReason: candidate.failReason || "—",
@@ -118,8 +224,12 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
               )}
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-[12.5px] text-[#8A8A8C]">{row.name}</span>
-              <span className="text-[12px] font-normal text-[#8A8A8C]">{row.email}</span>
+              <span className="font-semibold text-[12.5px] text-[#8A8A8C]">
+                {row.name}
+              </span>
+              <span className="text-[12px] font-normal text-[#8A8A8C]">
+                {row.email}
+              </span>
             </div>
           </div>
         ),
@@ -181,43 +291,43 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
         ];
   }, [type]);
 
-   const showAllColumns = useCallback(() => {
-     setVisibleColumns(columns.map((col) => col.key));
-   }, [columns]);
+  const showAllColumns = useCallback(() => {
+    setVisibleColumns(columns.map((col) => col.key));
+  }, [columns]);
 
-   const hideAllColumns = useCallback(() => {
-     setVisibleColumns(["name"]);
-   }, []);
+  const hideAllColumns = useCallback(() => {
+    setVisibleColumns(["name"]);
+  }, []);
 
-   const resetColumns = useCallback(() => {
-     setVisibleColumns([
-       "name",
-       "phoneNumber",
-       "dateCreated",
-       "cv",
-       "location",
-       "failStage",
-     ]);
-   }, []);
+  const resetColumns = useCallback(() => {
+    setVisibleColumns([
+      "name",
+      "phoneNumber",
+      "dateCreated",
+      "cv",
+      "location",
+      "failStage",
+    ]);
+  }, []);
 
-   const filteredColumnOptions = useMemo(() => {
-     return columns.filter((col) =>
-       col.header.toLowerCase().includes(columnSearchTerm.toLowerCase())
-     );
-   }, [columns, columnSearchTerm]);
+  const filteredColumnOptions = useMemo(() => {
+    return columns.filter((col) =>
+      col.header.toLowerCase().includes(columnSearchTerm.toLowerCase())
+    );
+  }, [columns, columnSearchTerm]);
 
-   // Filter columns based on visibility
-   const visibleColumnsData = useMemo(() => {
-     return columns.filter((col) => visibleColumns.includes(col.key));
-   }, [columns, visibleColumns]);
+  // Filter columns based on visibility
+  const visibleColumnsData = useMemo(() => {
+    return columns.filter((col) => visibleColumns.includes(col.key));
+  }, [columns, visibleColumns]);
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full h-full ">
       <div className="flex flex-col gap-2 lg:gap-0 lg:flex-row justify-between lg:items-center mb-4">
         <div>
           <h1 className="text-xl font-semibold text-gray-700">
             {type === RecruitmentType.EMPLOYEE
-              ? "EMPLOYEE CANDIDATES"
+              ? "CANDIDATES"
               : "NSS CANDIDATES"}
           </h1>
           <p className="text-gray-500 text-sm">
@@ -283,7 +393,10 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
                   </button>
                 </div>
                 <div className="relative">
-                  <Search className="absolute left-4 top-3 text-gray-400" size={17} />
+                  <Search
+                    className="absolute left-4 top-3 text-gray-400"
+                    size={17}
+                  />
                   <Input
                     placeholder="Search"
                     className="pl-10 bg-white shadow-none border rounded-md w-full py-5"
@@ -320,6 +433,7 @@ const RecruitmentTable: React.FC<RecruitmentTableProps> = ({
       </div>
 
       <div className="rounded-lg overflow-hidden h-full w-full flex flex-col">
+        {/* <Filters filters={filterConfigs} onReset={handleResetFilters} /> */}
         <DataTable
           columns={visibleColumnsData}
           data={formatedCandidates}

@@ -8,7 +8,7 @@ import ErrorMessage from "@/components/common/ErrorMessage";
 import ProfileAdd from "@/assets/icons/ProfileAdd";
 import LinearRightArrow from "@/assets/icons/LinearRightArrow";
 import DepartmentEmployeeTable from "@/components/Hr/Employees/DepartmentEmployeeTable";
-import {EmployeeSelector} from "@/components/Hr/common/EmployeeSelector";
+import { EmployeeSelector } from "@/components/Hr/common/EmployeeSelector";
 import { SideFormModal } from "@/components/common/Modal";
 import { Field, FieldArray, FormikHelpers, FieldProps } from "formik";
 import * as Yup from "yup";
@@ -139,7 +139,10 @@ const DepartmentPage = () => {
               {department?.name} Department
             </h1>
             <div className="text-sm text-gray-400 flex items-center ">
-              <Link to={"/admin/alldepartments"} className={"hover:text-gray-500"}>
+              <Link
+                to={"/admin/alldepartments"}
+                className={"hover:text-gray-500"}
+              >
                 {" "}
                 All Departments{" "}
               </Link>
@@ -216,9 +219,7 @@ const DepartmentPage = () => {
                                       filterFn={(user) =>
                                         !values.emails.includes(
                                           user.id.toString()
-                                        ) &&
-                                        department?.managerId?.toString() !==
-                                          user.id.toString()
+                                        ) && department.managerId !== user.id
                                       }
                                     />
                                   )}

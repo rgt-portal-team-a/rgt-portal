@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Send, MessageCircle, X } from "lucide-react";
+import { ChevronDown, Send, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useKairoBotQuery } from "@/api/query-hooks/ai.hooks";
 import KairoIcon from "@/assets/icons/KairoIcon";
@@ -155,9 +155,9 @@ const Kairo = () => {
 
 
   return (
-    <div className="fixed bottom-12 right-6 z-50" ref={chatBotRef}>
-      {isOpen && (
-        <div className="bg-[#210D38] rounded-xl shadow-lg mb-4 w-[463px] h-[500px] flex flex-col overflow-hidden">
+    <div className="absolute bottom-12 right-0 z-50 flex flex-col" ref={chatBotRef}>
+      {/* {isOpen && ( */}
+        <div className={`bg-[#210D38] rounded-xl shadow-lg mb-2 mr-3 max-w-[463px] flex flex-col overflow-hidden transition-all duration-300 ease-in max-h-[600px] ${isOpen ? "h-[400px]" : "h-0"}`}>
           {/* Header */}
           <div className="p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ const Kairo = () => {
                 onChange={(e) => setCurrentQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask anything"
-                className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 placeholder-gray-100"
+                className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 focus-visible:ring-0 placeholder:text-white"
               />
               <button
                 onClick={handleSendMessage}
@@ -266,34 +266,34 @@ const Kairo = () => {
             </div>
           </div>
         </div>
-      )}
+      {/* )} */}
 
       {/* Hoverable area */}
       <div
-        className="relative"
+        className="relative flex flex-col items-end"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Message icon */}
-        {!isOpen && isHovered && (
+        {/* {!isOpen && isHovered && (
           <div
-            className="absolute -top-14 right-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-3 shadow-lg animate-fade-in cursor-pointer"
+            className="absolute -top-14 right-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-l-full p-3 shadow-lg animate-fade-in cursor-pointer"
             onClick={() => setIsOpen(true)}
           >
             <MessageCircle className="text-white" size={24} />
           </div>
-        )}
+        )} */}
 
         {/* Main button */}
         <button
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
+          className="p-1 rounded-l-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 w-fit cursor-pointer h-"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
             <X className="text-white" size={24} />
           ) : (
             <div className=" p-1 items-center justify-center">
-              <KairoIcon />
+              <KairoIcon size={24} />
             </div>
           )}
         </button>

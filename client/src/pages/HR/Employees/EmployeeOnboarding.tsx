@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import { useAllAwaitingUsers } from "@/api/query-hooks/onboarding.hooks";
 import StepProgress from "@/components/common/StepProgress";
-import {User} from "@/types/authUser"
+import { User } from "@/types/authUser";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import DeleteRippleIcon from "@/components/common/DeleteRippleIcon";
 import { cn } from "@/lib/utils";
@@ -39,26 +39,18 @@ import { RoleType } from "@/types/employee";
 import CustomCountrySelect from "@/components/Hr/Employees/CustomCountrySelect";
 import CustomStateSelect from "@/components/Hr/Employees/CustomStateSelect";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  EMPLOYEE_TYPES,
-  ROLE_TYPES,
-  ALL_ROLE_NAMES,
-} from "@/constants";
+import { EMPLOYEE_TYPES, ROLE_TYPES} from "@/constants";
 import { CalendarIcon, Home, MapPin, Loader } from "lucide-react";
 import { useDepartments } from "@/api/query-hooks/department.hooks";
-import {useEmployeeOnboardingForm} from "@/hooks/useEmployeeOnboardingForm"
+import { useEmployeeOnboardingForm } from "@/hooks/useEmployeeOnboardingForm";
 import { useEmployeeValidation } from "@/hooks/useEmployeeValidation";
 import { useEmployeeOnboardingSubmission } from "@/hooks/useEmployeeOnboardingSubmission";
-import {changeStatus} from "@/api/query-hooks/onboarding.hooks"
+import { changeStatus } from "@/api/query-hooks/onboarding.hooks";
 import { toast } from "@/hooks/use-toast";
 import { UserStatus } from "@/lib/enums";
 import { Textarea } from "@/components/ui/textarea";
-
-
-
-
-
-
+import Avtr from "@/components/Avtr";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const EmployeeOnboarding: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,36 +63,33 @@ export const EmployeeOnboarding: React.FC = () => {
   const { onboardingValidationSchema } = useEmployeeValidation();
   const changeStatusMutation = changeStatus();
 
-    const {
-        data: departments,
-        isLoading: isDepartmentsLoading,
-        isError: isDepartmentsError,
-        error: departmentsError,
-        refetch: refetchDepartments,
-    } = useDepartments({ includeEmployees: true });
+  const {
+    data: departments,
+    isLoading: isDepartmentsLoading,
+    isError: isDepartmentsError,
+    error: departmentsError,
+    refetch: refetchDepartments,
+  } = useDepartments({ includeEmployees: true });
 
+  const {
+    countries,
+    states,
+    initialValues,
+    selectedCountry,
+    setSelectedCountry,
+  } = useEmployeeOnboardingForm();
 
-    const {
-        countries,
-        states,
-        initialValues,
-        selectedCountry,
-        setSelectedCountry
-    } = useEmployeeOnboardingForm();
+  const { handleSubmit, isSubmitting } = useEmployeeOnboardingSubmission(
+    selectedUser?.id,
+    selectedUser,
+    countries,
+    states
+  );
 
-    const { handleSubmit, isSubmitting } = useEmployeeOnboardingSubmission(
-      selectedUser?.id,
-      selectedUser,
-      countries,
-      states
-    );
-
-
-    const onClose=() => {
-        setSelectedUser(null);
-        setIsEditModalOpen(false);
-    }
-
+  const onClose = () => {
+    setSelectedUser(null);
+    setIsEditModalOpen(false);
+  };
 
   const { data: usersData, isLoading, isError, error } = useAllAwaitingUsers();
 
@@ -116,45 +105,46 @@ export const EmployeeOnboarding: React.FC = () => {
     [usersData?.users, searchQuery]
   );
 
-
   const itemsPerPage = 6;
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-  
   const paginatedUsers = filteredUsers.slice(
-      (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
-    );
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-    
-    const handleDelete = async (user: User) => {
-        setDeleteId(user.id);
-        setSelectedUser(user);
-        setShowDeleteModal(true);
-    };
+  const handleDelete = async (user: User) => {
+    setDeleteId(user.id);
+    setSelectedUser(user);
+    setShowDeleteModal(true);
+  };
 
-    const handleOnboardReject = async () => {
-      try {
-        if(selectedUser){
-          console.log("Deleting Event with Id", selectedUser.id);
-          await changeStatusMutation.mutateAsync({userId: selectedUser?.id, status: UserStatus.INACTIVE, reason: reason});
-          setShowDeleteModal(false);
-        }else{
-          toast({
-            title: "No Onboarding User Selected",
-            description: "Failed To Select Onboarding User" ,
-            variant: "destructive",
-          });
-        }
-      } catch (err) {
-        console.log("Error Deleting Onboarding User", err);
+  const handleOnboardReject = async () => {
+    try {
+      if (selectedUser) {
+        console.log("Deleting Event with Id", selectedUser.id);
+        await changeStatusMutation.mutateAsync({
+          userId: selectedUser?.id,
+          status: UserStatus.INACTIVE,
+          reason: reason,
+        });
+        setShowDeleteModal(false);
+      } else {
         toast({
-          title: "Error Deleting Onboarding User",
-          description: "Failed To Delete Onboarding User" + err,
+          title: "No Onboarding User Selected",
+          description: "Failed To Select Onboarding User",
           variant: "destructive",
         });
       }
-    };
+    } catch (err) {
+      console.log("Error Deleting Onboarding User", err);
+      toast({
+        title: "Error Deleting Onboarding User",
+        description: "Failed To Delete Onboarding User" + err,
+        variant: "destructive",
+      });
+    }
+  };
 
   // Render user card
   const renderUserCard = (user: User) => {
@@ -164,10 +154,10 @@ export const EmployeeOnboarding: React.FC = () => {
         className="bg-white p-4 flex justify-between items-center"
       >
         <div className="flex items-center space-x-4">
-          <img
-            src={user.profileImage || "/default-avatar.png"}
-            alt={user.firstName || "User"}
-            className="w-12 h-12 rounded-full object-cover"
+          <Avtr
+            url={user.profileImage || "/default-avatar.png"}
+            name={user.firstName as string}
+            avtBg="bg-purple-200 text-purple-500"
           />
           <div>
             <div className="font-medium text-gray-500 text-sm">
@@ -196,24 +186,25 @@ export const EmployeeOnboarding: React.FC = () => {
           </Button>
         </div>
       </div>
-    );};
+    );
+  };
 
-    if (isDepartmentsLoading ) {
+  if (isDepartmentsLoading) {
     return (
-        <SideModal
+      <SideModal
         isOpen={isEditModalOpen}
         onOpenChange={onClose}
         title="Loading User Details"
         position="right"
         size="full"
         contentClassName=" min-w-2xl px-6 "
-        >
+      >
         <div className="flex justify-center items-center h-full min-w-2xl  my-auto">
-            <Loader className="animate-spin h-8 w-8" />
+          <Loader className="animate-spin h-8 w-8" />
         </div>
-        </SideModal>
+      </SideModal>
     );
-    }
+  }
 
   // Render loading state
   if (isLoading) {
@@ -229,9 +220,9 @@ export const EmployeeOnboarding: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col animate-pulse">
+        <div className="flex flex-col animate-pulse gap-4">
           {[...Array(7)].map((_, index) => (
-            <div key={index} className="bg-gray-100 rounded-xl h-24 p-4" />
+            <Skeleton key={index} className="bg-gray-200 rounded-xl h-24 p-4" />
           ))}
         </div>
       </div>

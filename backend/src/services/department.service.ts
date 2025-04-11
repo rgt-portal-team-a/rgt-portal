@@ -233,6 +233,12 @@ export class DepartmentService {
         throw new Error("Department not found");
       }
 
+      // remove all department references from employees and managers
+      // await this.employeeRepository.update(department.employees.map((e) => e.id), { departmentId: null });
+      // await this.employeeRepository.update(department.manager.id, { departmentId: null });
+      // await this.employeeRepository.update(department.manager.id, { department: null });
+      
+
       queryRunner = await DatabaseService.createTransaction();
 
       await queryRunner.manager.delete(Department, id);
