@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { User, OnboardUserDto, UpdateUserStatus } from "@/types/authUser";
 import { onboardingService } from "../services/onboarding.service";
 import toastService from "../services/toast.service";
-import { queryClient } from "@/features/data-access/rbacQuery";
 
 
 export const useAllAwaitingUsers = () => {
