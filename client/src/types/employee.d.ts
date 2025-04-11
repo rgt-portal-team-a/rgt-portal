@@ -127,7 +127,7 @@ export interface UserReference {
 
 
 export interface CreateEmployeeInterface {
-  user: UserReference;
+  user?: UserReference;
   firstName?: string | null;
   lastName?: string | null;
   phone?: string | null;

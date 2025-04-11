@@ -38,6 +38,10 @@ export class CreateEmployeeDto {
   contactDetails?: Record<string, any>;
 
   @IsOptional()
+  @IsEnum(EmployeeType, { message: "Employee type must be a valid employee type" })
+  employeeType?: EmployeeType;
+
+  @IsOptional()
   @IsObject({ message: "Agency must be an object" })
   agency?: Agency;
 }

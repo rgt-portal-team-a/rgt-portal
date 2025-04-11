@@ -1,4 +1,5 @@
-import { Employee } from "./employee";
+import { Employee, UpdateEmployeeInterface } from "./employee";
+
 import {
   LEAVE_TYPES,
   WORK_TYPES,
@@ -45,9 +46,23 @@ interface ResponseUser {
   email: string;
   username: string;
   profileImage: string;
-  employee: any | null;
+  employee: Employee ;
   role: ResponseRole;
   createdAt: string;
   updatedAt: string;
   token?: string;
+  status: UserStatus;
+}
+
+
+export interface OnboardUserDto {
+  userId: number;
+  employee: UpdateEmployeeInterface;
+  roleId?: number;
+}
+
+export interface UpdateUserStatus{
+  userId: number;
+  status: UserStatus;
+  reason: string;
 }

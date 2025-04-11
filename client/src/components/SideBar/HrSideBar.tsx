@@ -30,6 +30,11 @@ export const HrSideBar = () => {
           path: "alldepartments",
           icon: EmployeesIcon,
         },
+        {
+          label: "Onboarding Room",
+          path: "onboardingroom",
+          icon: EmployeesIcon,
+        },
       ],
     },
     {

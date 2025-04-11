@@ -30,6 +30,8 @@ import WaitRoom from "./pages/auth/WaitRoom";
 import { ProfilePage } from "./pages/common/Profile";
 import { CookiePermissionBanner } from "./common/CookiePermissionBanner";
 import {ALL_ROLE_NAMES} from "@/constants"
+import { EmployeeOnboarding } from "./pages/HR/Employees/EmployeeOnboarding";
+
 function App() {
 
   return (
@@ -121,6 +123,20 @@ function App() {
                   redirectTo="/admin/dashboard"
                 >
                   <ManageEmployees />
+                </WithPermission>
+              }
+            />
+            
+
+            <Route
+              path="onboardingroom"
+              element={
+                <WithPermission
+                  resource="employeeRecords"
+                  action="edit"
+                  redirectTo="/admin/dashboard"
+                >
+                  <EmployeeOnboarding />
                 </WithPermission>
               }
             />
