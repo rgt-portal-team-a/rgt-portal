@@ -1,7 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { User, OnboardUserDto, UpdateUserStatus } from "@/types/authUser";
 import { onboardingService } from "../services/onboarding.service";
-import { ApiResponse } from "../types";
 import toastService from "../services/toast.service";
 
 

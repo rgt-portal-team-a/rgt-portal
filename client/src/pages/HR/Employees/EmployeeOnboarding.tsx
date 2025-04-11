@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/popover";
 import "react-country-state-city/dist/react-country-state-city.css";
 import { Country, State } from "react-country-state-city/dist/esm/types";
-import { Employee, RoleType } from "@/types/employee";
+import { RoleType } from "@/types/employee";
 import CustomCountrySelect from "@/components/Hr/Employees/CustomCountrySelect";
 import CustomStateSelect from "@/components/Hr/Employees/CustomStateSelect";
 import { Calendar } from "@/components/ui/calendar";
@@ -43,7 +43,7 @@ import {
   ROLE_TYPES,
   ALL_ROLE_NAMES,
 } from "@/constants";
-import { CalendarIcon, Home, MapPin, FileText, Loader } from "lucide-react";
+import { CalendarIcon, Home, MapPin, Loader } from "lucide-react";
 import { useDepartments } from "@/api/query-hooks/department.hooks";
 import {useEmployeeOnboardingForm} from "@/hooks/useEmployeeOnboardingForm"
 import { useEmployeeValidation } from "@/hooks/useEmployeeValidation";
