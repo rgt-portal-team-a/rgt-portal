@@ -35,7 +35,6 @@ passport.use(
 
         if (!user) {
           isNewUser = true;
-          // Generate username from email if displayName is not available
           const username = profile.displayName || email.split('@')[0];
           user = await userService.create({
             email,
