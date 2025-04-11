@@ -69,7 +69,7 @@ const AnnouncementCard: React.FC<IAnnouncementCard> = ({ date, title, id }) => {
         </div>
         <div className="relative flex-shrink-0 pl-2">
           <WithRole
-            roles={["hr", "marketer", "manager"]}
+            roles={["hr", "admin"]}
             userRole={currentUser?.role?.name || ""}
           >
             <MoreVertical
