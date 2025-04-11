@@ -21,7 +21,7 @@ interface FiltersProps {
 
 const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
   return (
-    <div className="flex-wrap lg:flex-nowrap w-full flex gap-3 my-4 md:justify-center">
+    <div className="flex-wrap lg:flex-nowrap w-full flex gap-3 my-4">
       {filters.map((filter, index) => {
         if (filter.type === "select") {
           return (

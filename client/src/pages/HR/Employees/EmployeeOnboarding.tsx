@@ -50,6 +50,7 @@ import { toast } from "@/hooks/use-toast";
 import { UserStatus } from "@/lib/enums";
 import { Textarea } from "@/components/ui/textarea";
 import Avtr from "@/components/Avtr";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const EmployeeOnboarding: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -219,9 +220,9 @@ export const EmployeeOnboarding: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col animate-pulse">
+        <div className="flex flex-col animate-pulse gap-4">
           {[...Array(7)].map((_, index) => (
-            <div key={index} className="bg-gray-100 rounded-xl h-24 p-4" />
+            <Skeleton key={index} className="bg-gray-200 rounded-xl h-24 p-4" />
           ))}
         </div>
       </div>
