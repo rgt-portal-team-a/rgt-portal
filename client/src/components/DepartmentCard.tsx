@@ -18,13 +18,14 @@ import DeleteIcon from "@/assets/icons/DeleteIcon";
 import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 import ConfirmCancelModal from "./common/ConfirmCancelModal";
 import DeleteRippleIcon from "./common/DeleteRippleIcon";
+import WithRole from "@/common/WithRole";
 
 const DepartmentCard: React.FC<IDepartmentCard> = ({
   employees,
   name,
   manager,
   id,
-  path
+  path,
 }) => {
   const maxVisible = 3;
   const extraCount = employees.length - maxVisible;
@@ -101,35 +102,43 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
               {renderDepartmentIcon()}
               <p className="max-w-44 text-nowrap truncate">{name}</p>
             </div>
-            <div
-              className="relative"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowMore(!showMore);
-              }}
+            <WithRole
+              userRole={currentUser?.role.name as string}
+              roles={["hr"]}
             >
-              <MoreVerticalIcon className="transition-colors duration-300 ease-in rounded-full cursor-pointer" color="#CBD5E1" />
-              {showMore && (
-                <div
-                  className="absolute right-0 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-50"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                >
-                  <Popover>
-                    <div
-                      className="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => setShowDeleteModal(true)}
-                    >
-                      <DeleteIcon color="red" />
-                      <p className="text-sm text-red-500">Delete</p>
-                    </div>
-                  </Popover>
-                </div>
-              )}
-            </div>
+              <div
+                className="relative"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowMore(!showMore);
+                }}
+              >
+                <MoreVerticalIcon
+                  className="transition-colors duration-300 ease-in rounded-full cursor-pointer"
+                  color="#CBD5E1"
+                />
+                {showMore && (
+                  <div
+                    className="absolute right-0 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Popover>
+                      <div
+                        className="flex items-center space-x-2 p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => setShowDeleteModal(true)}
+                      >
+                        <DeleteIcon color="red" />
+                        <p className="text-sm text-red-500">Delete</p>
+                      </div>
+                    </Popover>
+                  </div>
+                )}
+              </div>
+            </WithRole>
           </header>
           <div className="flex">
             <div>
@@ -180,8 +189,8 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
           <DeleteRippleIcon />
           <p className="text-lg font-semibold">Delete Department?</p>
           <p className="font-light text-[#535862] text-sm text-center text-wrap w-[300px]">
-            Are you sure you want to delete this department? This action cannot be
-            undone.
+            Are you sure you want to delete this department? This action cannot
+            be undone.
           </p>
         </div>
       </ConfirmCancelModal>

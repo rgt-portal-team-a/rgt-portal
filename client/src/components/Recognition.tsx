@@ -92,11 +92,14 @@ const Recognition = ({
           className="flex-shrink-0 invisible"
           style={{ width: "calc(10% - 50px)" }}
         ></div>
+
         {isRecLoading && (
-          <div className="flex items-center justify-center gap-2 h-20 w-20">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
-              <AvatarSkeleton key={i} />
-            ))}
+          <div className="w-full flex justify-center">
+            <div className="flex items-center justify-center gap-2 h-20 w-20">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
+                <AvatarSkeleton key={i} />
+              ))}
+            </div>
           </div>
         )}
         {recognitions &&

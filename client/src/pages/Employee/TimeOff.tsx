@@ -28,7 +28,7 @@ export default function TimeOff() {
   const [selectedPtoId, setSelectedPtoId] = useState<number | undefined>(
     undefined
   );
-  const {currentUser} = useAuthContextProvider()
+  const { currentUser } = useAuthContextProvider();
   const [selectedType, setSelectedType] = useState<string>("All Types");
   const [selectedStatus, setSelectedStatus] = useState<string>("All Statuses");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -36,7 +36,7 @@ export default function TimeOff() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(5);
 
-  console.log("user requests:", currentUser)
+  console.log("user requests:", currentUser);
   const {
     createPto,
     ptoData,
@@ -296,7 +296,11 @@ export default function TimeOff() {
           back={true}
           isSubmitting={isPtoLoading}
           submitBtnText="Create"
-          buttonClassName="px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpin rounded-md hover:bg-pink-500"
+          buttonClassName={`px-6 py-4 w-1/2 cursor-pointer text-white font-medium bg-rgtpink ${
+            currentUser?.employee.sickDaysBalance === 0
+              ? "opacity-50 pointer-events-none"
+              : ""
+          } rounded-md hover:bg-pink-500`}
         >
           <Field name="type">
             {({
@@ -307,7 +311,7 @@ export default function TimeOff() {
               form: any;
             }) => (
               <div className="pb-1">
-                <label className="block text-xs font-medium pb-1 text-[#737276]">
+                <label className="block text-xs font-medium  pb-1 text-[#737276]">
                   Time off Type
                 </label>
                 <div className="flex gap-4">
