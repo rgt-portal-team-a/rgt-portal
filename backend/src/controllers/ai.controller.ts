@@ -35,11 +35,8 @@ export class AiController {
     }
   }
 
-  // GENERATE REPORT FOR EMPLOYEE OR RECRUITMENT USING THE AI ENDPOINT
   async generateReport(req: Request, res: Response): Promise<void> {
-    console.log('====================================');
-    console.log("ai endpoint", this.aiEndpoint);
-    console.log('====================================');
+
     const { type, format } = req.query;
     try {
       const response = await axios.get<any>(`${this.aiEndpoint}/api/${type}?format=${format || "html"}`);
@@ -49,7 +46,6 @@ export class AiController {
     }
   }
 
-  // KAIRO CHATBOT 
   async kairoChatbot(req: Request, res: Response): Promise<void> {
     try {
       const { query } = req.body;
