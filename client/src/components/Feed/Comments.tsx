@@ -33,8 +33,8 @@ const Comments = ({
 
   // console.log("commentReplies:", commentsReplies);
 
+  console.log("comment.id, comment:", comment.id, comment);
   const handleCommentReply = async () => {
-    // console.log("comment.id, content:", comment.id, content);
     if (!content) return;
     if (comment.id) {
       await replyComment(comment.id, content);
@@ -62,7 +62,7 @@ const Comments = ({
                 comment.author.firstName
                 // + comment.author.lastName
               }
-              <span className="text-[#706D8A] font-[400] text-sm">
+              <span className="text-[#706D8A] font-[400] text-sm pl-2">
                 {comment.content}
               </span>
             </p>

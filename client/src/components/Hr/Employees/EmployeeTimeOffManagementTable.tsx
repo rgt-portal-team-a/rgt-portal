@@ -166,7 +166,8 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
     try {
       if (selectedEmployee && selectedEmployee.id) {
         const updatedPto = {
-          statusReason: currentUser?.role.name === ALL_ROLE_NAMES.MANAGER ? "" : reason,
+          statusReason:
+            currentUser?.role.name === ALL_ROLE_NAMES.MANAGER ? "" : reason,
           status:
             currentUser?.role.name === ALL_ROLE_NAMES.MANAGER
               ? PtoStatusType.MANAGER_DECLINED
@@ -183,18 +184,26 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
     }
   };
 
-  const formattedData = initialData?.map((item) => ({
-    ...item,
-    from: format(new Date(item.startDate), "dd MMM yyyy"),
-    to: format(new Date(item.endDate), "dd MMM yyyy"),
-    status:
-      statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
-    total: `${Math.ceil(
-      (new Date(item.endDate as Date).getTime() -
-        new Date(item.startDate as Date).getTime()) /
-        (1000 * 60 * 60 * 24)
-    )} days`,
-  }));
+  const formattedData = initialData
+    ?.map((item) => ({
+      ...item,
+      from: format(new Date(item.startDate), "dd MMM yyyy"),
+      to: format(new Date(item.endDate), "dd MMM yyyy"),
+      status:
+        statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
+      total: `${
+        Math.ceil(
+          (new Date(item.endDate as Date).getTime() -
+            new Date(item.startDate as Date).getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) + 1
+      } days`,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt as Date).getTime() -
+        new Date(a.createdAt as Date).getTime()
+    );
 
   // Update formattedData to use pagination
   const paginatedData = formattedData?.slice(
@@ -280,7 +289,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
 
   return (
     <>
-      <div className=" flex bg-white flex-col items-center overflow-auto">
+     <div className="flex flex-col justify-between flex-grow">
         {/* Filter Section */}
         <div className="px-[22px] w-full">
           {filters && onReset && (
@@ -288,7 +297,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           )}
         </div>
 
-        <div className="px-[22px] w-full">
+        <div className="px-[22px] w-full h-full">
           <DataTable
             columns={columns}
             data={paginatedData}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Column, ActionObject } from "@/types/tables";
 import { DataTable } from "@/components/common/DataTable";
@@ -42,7 +43,6 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { allPtoData: ptoRequestData } = useRequestPto();
-  const [activeSection, _setActiveSection] = useState<string>("personal");
   const [filter, setFilter] = useState({
     department: "All Departments",
     employmentType: "All Types",

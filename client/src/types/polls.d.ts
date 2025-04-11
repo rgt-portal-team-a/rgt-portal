@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { User } from "./authUser";
+
 interface CreatePollDto {
   description: string;
   options: { id: number; text: string }[];
@@ -11,13 +13,17 @@ interface CreatePollDto {
 }
 
 export interface PollOption {
-  id:number;
+  id: number;
   pollId: number;
   text: string;
   voteCount: number;
   percentage: number;
   hasVoted?: boolean;
   metadata?: Record<string, any>;
+}
+
+interface PollAuthor extends User {
+  user: { profileImage: string };
 }
 
 export interface Poll {
@@ -27,10 +33,12 @@ export interface Poll {
   options: PollOption[];
   voteCount: number;
   hasVoted?: boolean;
-  createdBy: User;
+  createdBy: PollAuthor;
   createdAt: Date;
   endDate?: Date;
   participationRate: number;
   hasVoted?: boolean;
-  // Add other poll properties
+  isAnonymous?: boolean;
+  allowComments?:boolean;
+  status?:string
 }

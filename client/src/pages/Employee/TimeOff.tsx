@@ -43,18 +43,26 @@ export default function TimeOff() {
     isLoading,
   } = useRequestPto();
 
-  const formattedPtoData = ptoData?.map((item) => ({
-    ...item,
-    status:
-      statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
-    type:
-      item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase(),
-    total: `${Math.ceil(
-      (new Date(item.endDate as Date).getTime() -
-        new Date(item.startDate as Date).getTime()) /
-        (1000 * 60 * 60 * 24)
-    )} days`,
-  }));
+  const formattedPtoData = ptoData
+    ?.map((item) => ({
+      ...item,
+      status:
+        statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
+      type:
+        item.type.slice(0, 1).toUpperCase() + item.type.slice(1).toLowerCase(),
+      total: `${
+        Math.ceil(
+          (new Date(item.endDate as Date).getTime() -
+            new Date(item.startDate as Date).getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) + 1
+      } days`,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt as Date).getTime() -
+        new Date(a.createdAt as Date).getTime()
+    );
 
   const initialFormValues = {
     type: "vacation",
@@ -86,6 +94,7 @@ export default function TimeOff() {
     try {
       await createPto(values as PtoLeave);
       setIsModalOpen(false);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error creating PTO:", error);
     } finally {
@@ -216,8 +225,8 @@ export default function TimeOff() {
   ];
 
   return (
-    <main className="bg-white px-4 py-2 rounded-md overflow-auto h-full">
-      <div className="h-full">
+    <main className="bg-white px-4 py-2 rounded-md overflow-auto h-full relative">
+      <div className="h-full flex flex-col">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
             Request Time List
@@ -231,35 +240,36 @@ export default function TimeOff() {
           </Button>
         </header>
 
-        <Filters filters={filters} onReset={handleResetFilters} />
+        <div className="flex flex-col justify-between flex-grow">
+          <Filters filters={filters} onReset={handleResetFilters} />
 
-        <div className="overflow-auto flex-grow">
-          <DataTable
-            columns={timeOffTableColumns}
-            data={paginatedData || []}
-            actionBool={true}
-            actionObj={[
-              {
-                name: "view",
-                action: (rowData) => {
-                  setAppRej(!appRej);
-                  setSelectedPtoId(rowData);
+          <div className="overflow-auto">
+            <DataTable
+              columns={timeOffTableColumns}
+              data={paginatedData || []}
+              actionBool={true}
+              actionObj={[
+                {
+                  name: "view",
+                  action: (rowData) => {
+                    setAppRej(!appRej);
+                    setSelectedPtoId(rowData);
+                  },
                 },
-              },
-              {
-                name: "delete",
-                action: () => setIsDeletePTO(true),
-              },
-            ]}
-            showDelete={isDeletePTO}
-            setShowDelete={setIsDeletePTO}
-            isDeleteLoading={isPtoDeleting}
-            onDelete={deletePto}
-            loading={isLoading}
-          />
-        </div>
+                {
+                  name: "delete",
+                  action: () => setIsDeletePTO(true),
+                },
+              ]}
+              showDelete={isDeletePTO}
+              setShowDelete={setIsDeletePTO}
+              isDeleteLoading={isPtoDeleting}
+              onDelete={deletePto}
+              loading={isLoading}
+            />
+          </div>
         {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
-          <div className="">
+          <div>
             <StepProgress
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -267,6 +277,7 @@ export default function TimeOff() {
             />
           </div>
         )}
+        </div>
       </div>
 
       {/* modal for a new Time off request */}

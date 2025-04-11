@@ -1,23 +1,35 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Employee } from '@/types/employee';
-import { Phone, Mail } from 'lucide-react';
+import Avtr from "@/components/Avtr";
+import { Card, CardContent } from "@/components/ui/card";
+import { Employee } from "@/types/employee";
+import { Phone, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
-
-const EmployeeCard = ({ employee }: { employee: Employee}) => {
+const EmployeeCard = ({ employee }: { employee: Employee }) => {
+  console.log("employee:", employee);
   return (
     <Card className="overflow-hidden w-full md:w-[280px] h-[210px]  rounded-[12px] ">
       <CardContent className="p-6 flex flex-col gap-2">
-        <div className="flex mb-4">
-          <div className="w-[73px] h-[72px] rounded-xl overflow-hidden mr-4">
-            <img
-              src={
-                employee.photoUrl ??
-                "https://gravatar.com/avatar/eefe1679f1e1c3b32ba22719d2f8d0bf?s=400&d=mp&r=x"
-              }
-              alt={employee.firstName ?? "Employee"}
-              className="w-full h-full object-cover"
-            />
+        <div className="flex mb-4 space-x-2">
+          <div className="">
+            {employee.user?.profileImage ? (
+              <div className="">
+                <Avtr
+                  url={employee.user.profileImage}
+                  name={employee.user.firstName as string}
+                  className="w-20 h-full"
+                />
+              </div>
+            ) : (
+              <div className="w-[73px] h-[72px] rounded-xl overflow-hidden">
+                <img
+                  src={
+                    "https://gravatar.com/avatar/eefe1679f1e1c3b32ba22719d2f8d0bf?s=400&d=mp&r=x"
+                  }
+                  alt={employee.firstName ?? "Employee"}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col h-full">

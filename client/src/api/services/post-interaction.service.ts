@@ -11,7 +11,7 @@ export class PostInteractionService {
   static async getStats(id: number): Promise<IStats> {
     try {
       const response = await axios.get(`${API_URL}/${id}/stats`);
-      // console.log("responseStats:", response.data.data);
+      console.log("responseStats:", response.data.data);
       if (!response.data.success) {
         throw new Error("Error fetching post stats");
       }
@@ -94,7 +94,7 @@ export class PostInteractionService {
 
   static async likeComment(commentId: number): Promise<any> {
     try {
-      
+      console.log("commentId:::", commentId)
       const response = await axios.post(
         `${API_URL}/comments/${commentId}/likes`
       );

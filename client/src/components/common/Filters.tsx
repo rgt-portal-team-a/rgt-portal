@@ -21,7 +21,7 @@ interface FiltersProps {
 
 const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
   return (
-    <div className="flex-wrap lg:flex-nowrap w-full flex gap-3 my-4">
+    <div className="flex-wrap lg:flex-nowrap w-full flex gap-3 my-4 md:justify-center">
       {filters.map((filter, index) => {
         if (filter.type === "select") {
           return (
@@ -59,7 +59,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
       })}
       {/* <div className="bg-amber-300  h-full"> */}
         <div
-          className="text-[#8A8A8C] font-semibold text-sm flex items-center py-3 px-5 border flex-1 justify-center hover:bg-slate-200 rounded-[12px] transition-all duration-300 ease-in cursor-pointer bg-slate-100 w-fit h-full "
+          className="text-[#8A8A8C] font-semibold text-sm flex items-center py-3 px-5 border flex- justify-center hover:bg-slate-200 rounded-[12px] transition-all duration-300 ease-in cursor-pointer bg-slate-100 w-fit"
           onClick={onReset}
         >
           <X className="w-4 xl:hidden sm:w-8" />
