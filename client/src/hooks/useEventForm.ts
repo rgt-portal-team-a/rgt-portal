@@ -51,7 +51,7 @@ export type FormValues =
 
 // Specific interfaces for each form type
 interface SpecialEventFormValues {
-  formType: "1"|"2";
+  formType: "1";
   eventType: string;
   holidayName?: string;
   employeeId?: string;
@@ -109,7 +109,7 @@ export const useEventForm = (initialFormType = "1") => {
       default:
         return {
           eventType: specialEventTypes[0].label,
-          employeeId: "",
+          holidayName: "",
           date: new Date(),
         };
     }
@@ -252,7 +252,6 @@ export const useEventForm = (initialFormType = "1") => {
     switch (values.formType) {
       case "1": {
         // Special Event (Holiday or Birthday)
-        console.log("Special Event Values", values);
         const specialEvent = values as SpecialEventFormValues;
         const startOfDay = new Date(specialEvent.date);
         startOfDay.setHours(0, 0, 0, 0);
@@ -260,11 +259,18 @@ export const useEventForm = (initialFormType = "1") => {
         const endOfDay = new Date(specialEvent.date);
         endOfDay.setHours(23, 59, 59, 999);
 
+        const birthdayEmp = users.find((u) => u.id.toString() === specialEvent.employeeId);
+        console.log("Found Birthday Emp", birthdayEmp);
+
         return {
           title:
             specialEvent.eventType === "Holiday"
               ? specialEvent.holidayName || "Holiday Event"
-              : `${specialEvent.employeeId || "Employee"} Birthday`,
+              : `${
+                  birthdayEmp?.firstName || birthdayEmp?.user?.firstName || ""
+                } ${
+                  birthdayEmp?.lastName || birthdayEmp?.user?.lastName || ""
+                }`.trim() + "Birthday" || `Employee ${birthdayEmp?.id || ""} Birthday`,
           description: specialEvent.eventType,
           startTime: startOfDay,
           endTime: endOfDay,
@@ -305,12 +311,7 @@ export const useEventForm = (initialFormType = "1") => {
           throw new Error("No recognition details provided");
         }
 
-        console.log(
-          "Recognition Title",
-          recognition.title,
-          "Recognition",
-          recognition
-        );
+
 
         const currentUserId = getCurrentUserId();
         console.log("CurrentUserId", currentUserId);

@@ -94,11 +94,11 @@ export const CandidateFallouts = () => {
   const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
 
   return (
-    <div className="bg-white rounded-[32px] shadow-sm p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white rounded-[32px] shadow-sm p-6 h-full">
+      <div className="flex flex-col justify-between mb-6 space-y-3 w-full ">
         <h2 className="text-2xl font-bold">Candidate Fallout</h2>
         <div className="flex items-center gap-4">
-          <div className="flex items-center relative">
+          <div className="flex items-center relative w-full">
             <Search className="h-6 w-6 text-gray-400 absolute left-2" />
             <input
               type="text"
@@ -118,7 +118,7 @@ export const CandidateFallouts = () => {
         {currentCandidates.map((candidate) => (
           <div
             key={candidate.id}
-            className="rounded-lg bg-purple-600 text-white p-4 flex items-center justify-between"
+            className="rounded-[32px] bg-purple-600 text-white py-4 px-5 flex items-center justify-between"
           >
             <div>
               <div className="font-bold text-xl">{candidate.name}</div>

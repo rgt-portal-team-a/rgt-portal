@@ -6,14 +6,18 @@ import { DepartureDeploymentReport } from "@/components/Hr/Reports/AdvancedRepor
 
 const AdvancedReports = () => {
   return (
-      <div className="space-y-8 w-full h-full overflow-auto">
-        <StayOrStrayPredictor />
-        <div className=" flex flex-col md:flex-row gap-4">
+    <div className="space-y-8 w-full h-full overflow-auto">
+      <StayOrStrayPredictor />
+      <div className=" flex flex-col md:flex-row gap-4">
+        <div className="w-1/2">
           <JobGeniusMatcher />
+        </div>
+        <div className="w-1/2">
           <CandidateFallouts />
         </div>
-        <DepartureDeploymentReport />
       </div>
+      <DepartureDeploymentReport />
+    </div>
   );
 };
 

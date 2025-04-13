@@ -12,7 +12,6 @@ export const JobGeniusMatcher: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useAllJobMatchResults();
 
-  console.log("Job Match Results", data);
 
   // Prepare candidates data
   const candidates = useMemo(() => {
