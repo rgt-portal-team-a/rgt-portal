@@ -9,34 +9,23 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    # Disable CUDA to reduce memory usage
-    CUDA_VISIBLE_DEVICES="" \
-    # Set memory limits
-    OMP_NUM_THREADS=1 \
-    MKL_NUM_THREADS=1 \
-    NUMEXPR_MAX_THREADS=1 \
     # Web app configuration
     PORT=10000
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
     gcc \
-    g++ \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip
 RUN pip install --upgrade pip setuptools wheel
 
-# Copy requirements file
-COPY requirements.txt .
+# Create a precise requirements file
+RUN echo "dash>=2.0.0\ndash-bootstrap-components>=1.0.0\npsutil>=5.9.0\nSQLAlchemy>=1.4.0\nplotly>=5.0.0\npython-dotenv>=1.0.0\ngunicorn>=20.0.0" > requirements.txt
 
-# Create a minimal requirements file without ML dependencies
-RUN grep -v "torch\|transformers\|huggingface\|sentence-transformers\|langchain\|nvidia\|triton" requirements.txt > minimal_requirements.txt
-
-# Install minimal dependencies first
-RUN pip install --no-cache-dir -r minimal_requirements.txt
+# Install only needed dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
@@ -44,5 +33,5 @@ COPY . .
 # Expose the port
 EXPOSE 10000
 
-# Run using uvicorn for compatibility with Render
-CMD ["uvicorn", "app:server", "--host", "0.0.0.0", "--port", "10000"]
+# Run using uvicorn/gunicorn for compatibility with Render
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--workers", "1", "--timeout", "60", "app:server"]
