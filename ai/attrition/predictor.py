@@ -24,8 +24,7 @@ class PredictionResponse(BaseModel):
     attrition_probability: float
     risk_level: str
     assessment: str
-    r2_score: float
-    accuracy: float
+
 
 # Load the model with metrics if stored
 def load_model(): 
@@ -93,7 +92,5 @@ def predict_attrition(employee: EmployeeData) -> PredictionResponse:
     return PredictionResponse(
         attrition_probability=probability,
         risk_level=risk_level,
-        assessment=assessment,
-        r2_score=r2,
-        accuracy=acc
+        assessment=assessment
     )
