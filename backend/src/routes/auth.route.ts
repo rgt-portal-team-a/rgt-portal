@@ -2,6 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import "@/controllers/auth.controller";
 import { Roles } from "@/defaults/role";
+import { UserStatus } from "@/entities/user.entity";
 
 const router = Router();
 
@@ -15,16 +16,24 @@ router.get(
   (req, res, next) => {
     passport.authenticate("google", (err: Error | null, user: any, info: any) => {
       if (err) {
+        console.error("Google OAuth error", { error: err });
         return next(err);
       }
       if (!user) {
         return res.redirect(`${clientURL}${process.env.FAILURE_REDIRECT}?error=${encodeURIComponent(info?.message || 'Authentication failed')}`);
       }
+
       req.logIn(user, (err) => {
         if (err) {
+          console.error("Login error", { error: err });
           return next(err);
         }
-        const userRole = user.role.name;
+
+        if (user?.status === UserStatus.AWAITING) {
+          return res.redirect(`${clientURL}/wait-room`);
+        }
+
+        const userRole = user?.role?.name;
         let redirectPath;
         switch (userRole) {
           case Roles.ADMIN:
@@ -36,7 +45,7 @@ router.get(
             redirectPath = process.env.EMPLOYEE_REDIRECT;
             break;
           case Roles.HR:
-            redirectPath = process.env.HR_REDIRECT;
+            redirectPath = process.env.ADMIN_REDIRECT;
             break;
           default:
             redirectPath = process.env.USER_REDIRECT;

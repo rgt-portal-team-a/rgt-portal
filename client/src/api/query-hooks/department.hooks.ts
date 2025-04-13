@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useRbacQuery } from '@/features/data-access/rbacQuery';
 import { toast } from '@/hooks/use-toast';
 import { AddEmployeeToDepartmentDTO, AddEmployeesToDepartmentDTO, CreateDepartmentDTO, UpdateDepartmentDTO } from '@/types/department';
 import { departmentService } from '../services/department.service';
-
-
+import toastService from '../services/toast.service';
 
 
 
@@ -60,17 +61,11 @@ export const useCreateDepartment = () => {
         queryKey: ['departments'],
         exact: false
       });
-      toast({
-        title: 'Success',
-        description: 'Department created successfully',
-      })
+      toastService.success("Department created successfully");
     },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      })
+    onError: (error: any) => {
+      console.log("error in create department", error);
+      toastService.error(error.response?.data?.error || "Error creating department");
     }
   });
 };
@@ -90,17 +85,27 @@ export const useUpdateDepartment = () => {
         queryKey: ['departments'],
         exact: false
       });
-      toast({
-        title: 'Success',
-        description: 'Department updated successfully',
-      })
+      toastService.success("Department updated successfully");
     },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      })
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error updating department");
+    }
+  });
+};
+
+export const useUpdateManager = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string, data: { managerId: number } }) => 
+      departmentService.updateManager(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['departments', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+      toastService.success("Manager updated successfully");
+    },
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error updating manager");
     }
   });
 };
@@ -119,15 +124,12 @@ export const useAddEmployeeToDepartment = () => {
         queryKey: ['departments'],
         exact: false 
       });
-      toast({
-        title: 'Success',
-        description: 'Employee Added To Department Successfully',
-      })
+      toastService.success("Employee Added To Department Successfully");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.response?.data?.error || "Error adding employee to department",
         variant: 'destructive',
       })
     }
@@ -153,12 +155,8 @@ export const useRemoveEmployeesFromDepartment = () => {
         description: 'Employee Removed From Department Successfully',
       })
     },
-    onError: (error) => {
-      toast({
-        title: 'Error Removing Employee From Department',
-        description: error.message,
-        variant: 'destructive',
-      })
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error removing employee from department");
     }
   });
 };
@@ -177,17 +175,10 @@ export const useAddEmployeesToDepartment = () => {
         queryKey: ['departments'],
         exact: false
       });
-      toast({
-        title: 'Success',
-        description: 'Employees Added To Department Successfully',
-      })
+      toastService.success("Employees Added To Department Successfully");
     },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      })
+    onError: (error: any) => {
+      toastService.error(error.response?.data?.error || "Error adding employees to department");
     }
   });
 };

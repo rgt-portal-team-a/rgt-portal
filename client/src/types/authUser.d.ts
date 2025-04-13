@@ -1,20 +1,21 @@
-import { Employee } from "./employee";
+import { Employee, UpdateEmployeeInterface } from "./employee";
+
+import {
+  LEAVE_TYPES,
+  WORK_TYPES,
+  EMPLOYEE_TYPES,
+  ROLE_TYPES,
+  ALL_ROLE_NAMES,
+} from "@/constants";
+import { UserStatus } from "@/lib/enums";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type ROLE = "HR" | "MANAGER" | "EMPLOYEE" | "ADMIN" | "MODERATOR" | "MARKETER";
-type lROLE = "hr" | "manager" | "employee" | "admin" | "moderator" | "marketer";
-
-export enum RoleType {
-  HR = "hr",
-  EMPLOYEE = "emp",
-  MANAGER = "manager",
-  ADMIN = "admin",
-  MARKETER = "marketer",
-}
+export type ROLE_NAMES = (typeof ALL_ROLE_NAMES)[keyof typeof ALL_ROLE_NAMES];
 
 interface Role {
   id: number;
-  name: ROLE;
+  name: ROLE_NAMES;
   description: string;
 }
 
@@ -37,6 +38,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   phone?:string
+  status: UserStatus
 }
 
 interface ResponseUser {
@@ -44,9 +46,23 @@ interface ResponseUser {
   email: string;
   username: string;
   profileImage: string;
-  employee: any | null;
+  employee: Employee ;
   role: ResponseRole;
   createdAt: string;
   updatedAt: string;
   token?: string;
+  status: UserStatus;
+}
+
+
+export interface OnboardUserDto {
+  userId: number;
+  employee: UpdateEmployeeInterface;
+  roleId?: number;
+}
+
+export interface UpdateUserStatus{
+  userId: number;
+  status: UserStatus;
+  reason: string;
 }

@@ -91,6 +91,9 @@ export class Recruitment {
   predictedDropOff?: string;
 
   @Column({ nullable: true, type: "varchar" })
+  predictedDropOffStage?: string;
+
+  @Column({ nullable: true, type: "varchar" })
   predictedScore?: string;
 
   @Column({ type: "text", array: true, nullable: true })
@@ -139,7 +142,7 @@ export class Recruitment {
   employee?: Employee;
 
   @OneToMany(() => EmergencyContact, (emergencyContact) => emergencyContact.recruitment)
-  emergencyContacts!: EmergencyContact[];
+  emergencyContacts?: EmergencyContact[];
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Poll } from "@/types/polls";
 import { PollService } from "@/api/services/poll.service";
+import toastService from "@/api/services/toast.service";
 
 export const usePoll = (pollId?: number) => {
   const queryClient = useQueryClient();
@@ -12,12 +13,28 @@ export const usePoll = (pollId?: number) => {
         console.log("polls:", res.data);
         return res.data as Poll[];
       }),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    placeholderData: (previousData) => {
+      return previousData;
+    },
   });
 
   const { data: poll, isLoading } = useQuery<Poll>({
     queryKey: ["poll", pollId],
     queryFn: () =>
       PollService.getPollById(pollId as number).then((res) => res.data as Poll),
+  });
+
+  const deletePollMutation = useMutation({
+    mutationFn: (pollId: number) => PollService.deletePoll(pollId as number),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["polls"] });
+      toastService.success("Poll deleted successfully!");
+    },
+    onError: () => {
+      toastService.error("Failed to delete poll");
+    },
   });
 
   const updatePollData = (newData: Partial<Poll>) => {
@@ -152,6 +169,47 @@ export const usePoll = (pollId?: number) => {
     },
   });
 
+  const updatePollMutation = useMutation({
+    mutationFn: ({
+      pollId,
+      pollData,
+    }: {
+      pollId: number;
+      pollData: Partial<Poll>;
+    }) => PollService.updatePoll(pollId, pollData),
+    onMutate: async ({ pollId, pollData }) => {
+      await queryClient.cancelQueries({ queryKey: ["poll", pollId] });
+
+      const previousPoll = queryClient.getQueryData<Poll>(["poll", pollId]);
+      if (!previousPoll) return;
+
+      // Optimistically update the poll
+      const updatedPoll = { ...previousPoll, ...pollData };
+      queryClient.setQueryData(["poll", pollId], updatedPoll);
+
+      return { previousPoll };
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["poll", variables.pollId] });
+      queryClient.invalidateQueries({ queryKey: ["polls"] });
+      toastService.success("Poll updated successfully!");
+    },
+    onError: (error, variables, context) => {
+      console.error("Update error:", error);
+      if (context?.previousPoll) {
+        queryClient.setQueryData(
+          ["poll", variables.pollId],
+          context.previousPoll
+        );
+      }
+      toastService.error("Failed to update poll");
+    },
+  });
+
+  const updatePoll = async (pollId: number, pollData: Partial<Poll>) => {
+    await updatePollMutation.mutateAsync({ pollId, pollData });
+  };
+
   const handleVote = (optionId: number) => {
     if (!poll) return;
 
@@ -165,6 +223,10 @@ export const usePoll = (pollId?: number) => {
     }
   };
 
+  const deletePoll = async (pollId: number) => {
+    await deletePollMutation.mutateAsync(pollId);
+  };
+
   return {
     polls,
     pollsLoading,
@@ -172,5 +234,9 @@ export const usePoll = (pollId?: number) => {
     isLoading,
     handleVote,
     isVoting: voteMutation.isPending || removeVoteMutation.isPending,
+    deletePoll,
+    isPollDeleting: deletePollMutation.isPending,
+    updatePoll,
+    isPollUpdating: updatePollMutation.isPending,
   };
 };

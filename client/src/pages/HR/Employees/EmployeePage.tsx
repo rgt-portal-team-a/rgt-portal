@@ -25,6 +25,7 @@ import { useParams } from "react-router-dom";
 import EmployeeNotFoundCard from "@/components/common/EmployeeNotFoundCard";
 import { useEmployeeDetails } from "@/api/query-hooks/employee.hooks";
 import {calculateSeniority} from "@/utils/employee-helpers"
+import CalendarIcon from "@/assets/icons/CalendarIcon"
 
 const EmployeePage: React.FC = () => {
   const { id } = useParams();
@@ -56,7 +57,7 @@ const EmployeePage: React.FC = () => {
   const personalDetailsNode: Node = useMemo(
     () => ({
       id: "personal-details",
-      position: { x: 600, y: 30 },
+      position: { x: 600, y: 13 },
       data: { label: "Personal Details", isHeader: true },
       type: "header",
       draggable: false,
@@ -69,7 +70,7 @@ const EmployeePage: React.FC = () => {
   const workDetailsNode: Node = useMemo(
     () => ({
       id: "work-details",
-      position: { x: 600, y: 370 },
+      position: { x: 600, y: 356 },
       data: { label: "Work Details", isHeader: true },
       type: "header",
       draggable: false,
@@ -86,10 +87,16 @@ const EmployeePage: React.FC = () => {
       const nodes: Node[] = [
         {
           id: "phone",
-          position: { x: -500, y: 100 },
+          position: { x: -500, y: 153 },
           data: {
             label: "Phone",
             value: employee.phone || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -111,40 +118,64 @@ const EmployeePage: React.FC = () => {
         },
         {
           id: "personal-email",
-          position: { x: 300, y: 150 },
+          position: { x: 300, y: 170 },
           data: {
             label: "Personal Email",
             value: employee.contactDetails?.personalEmail || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
         },
         {
           id: "work-email",
-          position: { x: 920, y: 150 },
-          data: { 
+          position: { x: 920, y: 170 },
+          data: {
             label: "Work Email",
             value: employee.user?.email || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
         },
         {
           id: "location",
-          position: { x: 1150, y: 130 },
+          position: { x: 1150, y: 170 },
           data: {
             label: "Location",
             value: `${employee.contactDetails?.homeAddress}` || "Not Available",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
         },
         {
           id: "skills",
-          position: { x: 1150, y: 460 },
+          position: { x: 1150, y: 500 },
           data: {
             label: "Skills",
             value: employee.skills?.join(", ") || "No skills listed",
+            icon: CalendarIcon,
+            iconProps: {
+              className: "w-6 h-6 mr-0.5 mb-1 ",
+              containerClassName:
+                "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+            },
           },
           type: "custom",
           style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -177,12 +208,18 @@ const EmployeePage: React.FC = () => {
       },
       {
         id: "start-date",
-        position: { x: -500, y: 100 },
+        position: { x: -500, y: 144 },
         data: {
           label: "Start Date",
           value: employee.hireDate
             ? new Date(employee.hireDate).toLocaleDateString()
             : "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -194,6 +231,12 @@ const EmployeePage: React.FC = () => {
         data: {
           label: "Department",
           value: employee.department?.name || "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -204,6 +247,12 @@ const EmployeePage: React.FC = () => {
         data: {
           label: "Seniority",
           value: calculateSeniority(employee.hireDate) || "Not Available",
+          icon: CalendarIcon,
+          iconProps: {
+            className: "w-6 h-6 mr-0.5 mb-1 ",
+            containerClassName:
+              "bg-[#F9B500] p-0.5  rounded-lg items-center justify-center",
+          },
         },
         type: "custom",
         style: { ...nodeStyles.common, ...nodeStyles.detail },
@@ -228,7 +277,6 @@ const EmployeePage: React.FC = () => {
       // : initialNodes
   );
 
-  console.log("All Nodes", nodes);
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     // employee ? 

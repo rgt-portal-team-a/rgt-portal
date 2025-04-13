@@ -53,13 +53,13 @@ const AnnouncementCard: React.FC<IAnnouncementCard> = ({ date, title, id }) => {
 
   return (
     <>
-      <section className="flex justify-between items-center bg-[#F6F6F9] md:w-[160px] rounded-[6px] w-full h-[70px] px-2">
+      <section className="flex justify-between items-center bg-[#F6F6F9] md:w-[170px] rounded-[6px] w-full h-[70px] px-2">
         <div className="flex space-x-1 flex-1 min-w-0">
           <div className="bg-[#E328AF] text-white p-3 rounded-md flex flex-col items-center justify-center text-sm w-[40px] shrink-0">
             <p>{dayOfWeek}</p>
             <p>{day}</p>
           </div>
-          <div className="flex flex-col items-start justify-center md:space-y-1 text-[#706D8A] flex-1 min-w-0">
+          <div className="flex flex-col items-start justify-center md:space-y-1 text-[#706D8A] flex-1 min-w-0 text-nowrap">
             <p className="text-sm w-full truncate">{title}</p>
             <div className="flex items-center justify-center space-x-1">
               <AlarmClock size={15} />
@@ -69,7 +69,7 @@ const AnnouncementCard: React.FC<IAnnouncementCard> = ({ date, title, id }) => {
         </div>
         <div className="relative flex-shrink-0 pl-2">
           <WithRole
-            roles={["hr", "marketer", "manager"]}
+            roles={["hr", "admin"]}
             userRole={currentUser?.role?.name || ""}
           >
             <MoreVertical

@@ -27,6 +27,8 @@ import {
   aiRoutes,
   queueRoutes,
   employeeAnalyticsRoutes,
+  conversationRoutes,
+  onboardRoutes,
 } from "./routes";
 import { SocketService } from "@/services/notifications/socket.service";
 import { Server as SocketIOServer } from "socket.io";
@@ -99,6 +101,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/employee-analytics", employeeAnalyticsRoutes);
 app.use("/api/queues", queueRoutes);
+app.use("/api/messaging", conversationRoutes);
+app.use("/api/onboard", onboardRoutes);
 
 // UNCAUGHT EXCEPTIONS & UNHANDLED REJECTIONS
 process.on("uncaughtException", (error) => {

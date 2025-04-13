@@ -5,10 +5,16 @@ import toastService from "@/api/services/toast.service";
 
 export const usePost = () => {
   const queryClient = useQueryClient();
+  
 
   const { data: posts, isLoading: postsLoading } = useQuery({
     queryKey: ["posts"],
     queryFn: () => PostService.getPosts().then((res) => res.data as IPost[]),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    placeholderData: (previousData) => {
+      return previousData;
+    },
   });
 
   const deletePostMutation = useMutation({

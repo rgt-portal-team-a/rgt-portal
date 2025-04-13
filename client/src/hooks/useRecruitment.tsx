@@ -28,7 +28,8 @@ export interface Recruitment {
   failReason?: string;
   notes?: string;
   predictedScore?: number;
-  predictedDropOff?: number;
+  predictedDropOff?: string;
+  predictedDropOffStage?: string;
   createdAt: string;
   updatedAt: string;
   createdBy?: {
@@ -232,6 +233,7 @@ export const useUpdateRecruitmentStatus = () => {
     onSuccess: (_, variables) => {
       toastService.success("Recruitment status updated successfully");
       queryClient.invalidateQueries({ queryKey: ["recruitments"] });
+      queryClient.invalidateQueries({ queryKey: ["all-job-match-results"] });
       queryClient.invalidateQueries({
         queryKey: ["recruitment", variables.id],
       });

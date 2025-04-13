@@ -14,9 +14,9 @@ import { useRequestPto } from "@/hooks/usePtoRequests";
 import Filters, { FilterConfig } from "@/components/common/Filters";
 import { useDepartmentsData } from "@/hooks/useDepartmentsData";
 
-
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import StepProgress from "@/components/common/StepProgress";
+import { ALL_ROLE_NAMES } from "@/constants";
 
 export enum PtoStatusType {
   PENDING = "pending",
@@ -71,12 +71,12 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
   const { updatePto, isPtoUpdating } = useRequestPto();
   const { departments } = useDepartmentsData();
 
-
   const isManager =
-    departments?.find((department) => department.id === departmentId)
-      ?.managerId === currentUser?.employee?.id;
+    departments?.find(
+      (department) => Number(department.id) === Number(departmentId)
+    )?.managerId === currentUser?.employee?.id;
 
-  const isHr = currentUser?.role.name === "HR";
+  const isHr = currentUser?.role.name === ALL_ROLE_NAMES.HR;
 
   const isCurrentUserEmployee =
     selectedEmployee?.employee?.id === currentUser?.employee?.id;
@@ -148,7 +148,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
         const updatedPto = {
           statusReason: selectedEmployee.statusReason,
           status:
-            currentUser?.role.name === "MANAGER"
+            currentUser?.role.name === ALL_ROLE_NAMES.MANAGER
               ? PtoStatusType.MANAGER_APPROVED
               : PtoStatusType.HR_APPROVED,
           departmentId: Number(selectedEmployee.departmentId),
@@ -166,9 +166,10 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
     try {
       if (selectedEmployee && selectedEmployee.id) {
         const updatedPto = {
-          statusReason: currentUser?.role.name === "MANAGER" ? "" : reason,
+          statusReason:
+            currentUser?.role.name === ALL_ROLE_NAMES.MANAGER ? "" : reason,
           status:
-            currentUser?.role.name === "MANAGER"
+            currentUser?.role.name === ALL_ROLE_NAMES.MANAGER
               ? PtoStatusType.MANAGER_DECLINED
               : PtoStatusType.HR_DECLINED,
           departmentId: Number(selectedEmployee.departmentId),
@@ -183,18 +184,26 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
     }
   };
 
-  const formattedData = initialData?.map((item) => ({
-    ...item,
-    from: format(new Date(item.startDate), "dd MMM yyyy"),
-    to: format(new Date(item.endDate), "dd MMM yyyy"),
-    status:
-      statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
-    total: `${Math.ceil(
-      (new Date(item.endDate as Date).getTime() -
-        new Date(item.startDate as Date).getTime()) /
-        (1000 * 60 * 60 * 24)
-    )} days`,
-  }));
+  const formattedData = initialData
+    ?.map((item) => ({
+      ...item,
+      from: format(new Date(item.startDate), "dd MMM yyyy"),
+      to: format(new Date(item.endDate), "dd MMM yyyy"),
+      status:
+        statusTextMap[(item.status as PtoStatusType) ?? PtoStatusType.PENDING],
+      total: `${
+        Math.ceil(
+          (new Date(item.endDate as Date).getTime() -
+            new Date(item.startDate as Date).getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) + 1
+      } days`,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt as Date).getTime() -
+        new Date(a.createdAt as Date).getTime()
+    );
 
   // Update formattedData to use pagination
   const paginatedData = formattedData?.slice(
@@ -213,6 +222,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
               <Avtr
                 name={row.employee?.user?.username || row.employee?.firstName}
                 url={row.employee?.user?.profileImage}
+                avtBg="bg-purple-200 text-purple-500"
               />
               <div>
                 <p className="text-[#8A8A8C] font-semibold ">
@@ -279,7 +289,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
 
   return (
     <>
-      <div className=" flex bg-white flex-col items-center max-h[370px] overflow-auto">
+     <div className="flex flex-col justify-between flex-grow">
         {/* Filter Section */}
         <div className="px-[22px] w-full">
           {filters && onReset && (
@@ -287,7 +297,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           )}
         </div>
 
-        <div className="px-[22px] w-full h-[200px] sm:h-[350px] md:h-[370px]">
+        <div className="px-[22px] w-full h-full">
           <DataTable
             columns={columns}
             data={paginatedData}
@@ -297,7 +307,7 @@ const EmployeeTimeOffManagementTable: React.FC<timeOffManagementTableProps> = ({
           />
         </div>
 
-        <div className=" flex justify-center ">
+        <div className="flex justify-center p-2 w-full">
           <StepProgress
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}

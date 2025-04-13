@@ -15,7 +15,7 @@ departmentRouter.post("/", authMiddleware.isAuthenticated, authMiddleware.hasRol
 
 departmentRouter.put("/:id", authMiddleware.isAuthenticated, authMiddleware.hasRole([Roles.ADMIN, Roles.HR]), departmentController.updateDepartment);
 
-departmentRouter.delete("/:id", authMiddleware.isAuthenticated, authMiddleware.hasRole([Roles.ADMIN]), departmentController.deleteDepartment);
+departmentRouter.delete("/:id", authMiddleware.isAuthenticated, authMiddleware.hasRole([Roles.ADMIN, Roles.HR]), departmentController.deleteDepartment);
 
 departmentRouter.get("/:id/stats", departmentController.getDepartmentStats);
 
@@ -47,6 +47,13 @@ departmentRouter.delete(
   // authMiddleware.isAuthenticated,
   // authMiddleware.hasRole([Roles.ADMIN, Roles.HR, Roles.MANAGER]),
   departmentController.removeEmployeeFromDepartment,
+);
+
+departmentRouter.put(
+  "/:id/manager",
+  authMiddleware.isAuthenticated,
+  authMiddleware.hasRole([Roles.ADMIN, Roles.HR]),
+  departmentController.updateManager,
 );
 
 export default departmentRouter;

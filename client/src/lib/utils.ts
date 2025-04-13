@@ -30,7 +30,7 @@ export const buildValidationSchema = (fields: FormField[]) => {
         validator = Yup.array().of(Yup.string()).nullable();
         break;
       case "file":
-        validator = Yup.mixed();
+        validator = Yup.mixed().nullable();
         break;
       default:
         validator = Yup.string().nullable();

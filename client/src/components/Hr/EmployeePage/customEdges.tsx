@@ -21,11 +21,11 @@ export const CustomEdge: React.FC<
     <>
       <path
         id={id}
-        className="react-flow__edge-path"
+        className="react-flow__edge-path "
         d={edgePathString}
         style={style}
       />
-      <circle cx={targetX} cy={targetY} r={4} fill="#FFC233" />
+      {/* <circle cx={targetX} cy={targetY} r={4} fill="#FFC233" /> */}
     </>
   );
 };
@@ -230,41 +230,46 @@ export const CornerEdge: React.FC<CornerEdgeProps> = ({
   data,
 }) => {
   const {
-    strokeColor = "#FFC107",
+    strokeColor = "#FFC233", // Yellow color matching the image
     strokeWidth = 2,
-    cornerRadius = 30, // Default corner radius if not provided
+    cornerRadius = 16, // Smaller corner radius
   } = data || {};
 
-  // Calculate the difference between source and target coordinates
-  const dx = targetX - sourceX;
-  const dy = targetY - sourceY;
+  // Determine if we need to go horizontally first or vertically first
+  // This makes the component adaptable to different source/target positions
+  const horizontalFirst =
+    Math.abs(targetX - sourceX) > Math.abs(targetY - sourceY);
 
-  // Determine the direction of the corner
-  const cornerDirectionX = dx > 0 ? 1 : -1;
-  const cornerDirectionY = dy > 0 ? 1 : -1;
+  let path = "";
 
-  // Calculate the corner point
-  const cornerX = sourceX + cornerDirectionX * cornerRadius;
-  const cornerY = sourceY + cornerDirectionY * cornerRadius;
+  if (horizontalFirst) {
+    // Horizontal then vertical (like in the image)
+    const xDirection = targetX > sourceX ? 1 : -1;
+    const yDirection = targetY > sourceY ? 1 : -1;
 
-  // Calculate the second corner point
-  const secondCornerX = targetX - cornerDirectionX * cornerRadius;
-  const secondCornerY = targetY - cornerDirectionY * cornerRadius;
+    path = `
+      M ${sourceX} ${sourceY}
+      H ${targetX - xDirection * cornerRadius}
+      Q ${targetX} ${sourceY} ${targetX} ${sourceY + yDirection * cornerRadius}
+      V ${targetY}
+    `;
+  } else {
+    // Vertical then horizontal
+    const xDirection = targetX > sourceX ? 1 : -1;
+    const yDirection = targetY > sourceY ? 1 : -1;
 
-  // Construct the path with rounded corners
-  const cornerPath = `
-    M ${sourceX} ${sourceY}
-    L ${cornerX} ${sourceY}
-    Q ${cornerX} ${sourceY} ${cornerX} ${cornerY}
-    L ${cornerX} ${secondCornerY}
-    Q ${cornerX} ${targetY} ${secondCornerX} ${targetY}
-    L ${targetX} ${targetY}
-  `;
+    path = `
+      M ${sourceX} ${sourceY}
+      V ${targetY - yDirection * cornerRadius}
+      Q ${sourceX} ${targetY} ${sourceX + xDirection * cornerRadius} ${targetY}
+      H ${targetX}
+    `;
+  }
 
   return (
     <path
       id={id}
-      d={cornerPath}
+      d={path}
       fill="none"
       stroke={strokeColor}
       strokeWidth={strokeWidth}

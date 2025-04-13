@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import {  MoreVertical, UserCheck, Trash2 } from "lucide-react";
+import { MoreVertical, UserCheck, Trash2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -14,7 +14,7 @@ import { Employee, EmployeeType } from "@/types/employee";
 import { Department } from "@/types/department";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import { useRemoveEmployeeFromDepartment } from "@/api/query-hooks/employee.hooks";
-import { useUpdateDepartment } from "@/api/query-hooks/department.hooks";
+import { useUpdateDepartment, useUpdateManager } from "@/api/query-hooks/department.hooks";
 import Filters from "@/components/common/Filters";
 import Avtr from "@/components/Avtr";
 
@@ -59,6 +59,8 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   const removeEmployeeFromDepartment = useRemoveEmployeeFromDepartment();
   const updateDepartment = useUpdateDepartment();
 
+  const updateManager = useUpdateManager();
+
   const preparedData = useMemo(() => {
     if (!department.employees) return [];
 
@@ -68,7 +70,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
     }));
   }, [department]);
 
-  console.log("DEparatment:", department)
   const filteredData = useMemo(() => {
     if (!department.employees) return [];
 
@@ -133,18 +134,15 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   };
 
   const fetchData = (page: number) => {
-    console.log(`Fetching data for page ${page}`);
     setCurrentPage(page);
   };
 
   const handleDeleteEmployee = async () => {
-    console.log("SelectedEMployeeId", selectedEmployeeId);
-    console.log("Selected DepartmentId", department.id);
     if (selectedEmployeeId && department.id) {
       try {
         await removeEmployeeFromDepartment.mutateAsync({
           id: selectedEmployeeId,
-          departmentId: department.id,
+          departmentId: parseInt(department.id),
         });
 
         setDeleteModalOpen(false);
@@ -238,11 +236,9 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   const handleUpdateManager = async () => {
     if (selectedEmployeeId && department.id) {
       try {
-        await updateDepartment.mutateAsync({
+        await updateManager.mutateAsync({
           id: department.id.toString(),
           data: {
-            name: department.name,
-            description: department.description,
             managerId: selectedEmployeeId,
           },
         });
@@ -250,10 +246,12 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         setManagerModalOpen(false);
         setSelectedEmployeeId(null);
       } catch (error) {
+        
         console.error("Failed to update manager", error);
       }
     }
   };
+
   const handleUpdateEmployee = async () => {
     if (selectedEmployeeId && department.id) {
       try {
@@ -334,92 +332,94 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
   };
 
   return (
-    <div className="rounded-lg bg-white py-6 px-3">
+    <div className="flex flex-col h-full w-full rounded-lg py-2 px-3">
       {/* Filter Section */}
-      <Filters
-        filters={[
-          {
-            type: "select",
-            placeholder: "All Role",
-            options: [
-              { label: "All Role", value: "All Role" },
-              { label: "Manager", value: "manager" },
-              { label: "Member", value: "member" },
-            ],
-            value: filter.role,
-            onChange: (value) => {
-              setFilter((prev) => ({ ...prev, role: value }));
-              setCurrentPage(1);
+      <div className="mb-4">
+        <Filters
+          filters={[
+            {
+              type: "select",
+              options: [
+                { label: "All Role", value: "All Role" },
+                { label: "Manager", value: "manager" },
+                { label: "Member", value: "member" },
+              ],
+              value: filter.role,
+              onChange: (value) => {
+                setFilter((prev) => ({ ...prev, role: value }));
+                setCurrentPage(1);
+              },
             },
-          },
-          {
-            type: "select",
-            placeholder: "All Work Type",
-            options: [
-              { label: "All Work Type", value: "All Work Type" },
-              { label: "Remote", value: "remote" },
-              { label: "Hybrid", value: "hybrid" },
-            ],
-            value: filter.workType,
-            onChange: (value) => {
-              setFilter((prev) => ({ ...prev, workType: value }));
-              setCurrentPage(1);
+            {
+              type: "select",
+              options: [
+                { label: "All Work Type", value: "All Work Type" },
+                { label: "Remote", value: "remote" },
+                { label: "Hybrid", value: "hybrid" },
+              ],
+              value: filter.workType,
+              onChange: (value) => {
+                setFilter((prev) => ({ ...prev, workType: value }));
+                setCurrentPage(1);
+              },
             },
-          },
-          {
-            type: "select",
-            placeholder: "All Employee Type",
-            options: [
-              { label: "All Employee Type", value: "All Employee Type" },
-              { label: "Full Time", value: "full_time" },
-              { label: "Part Time", value: "part_time" },
-              { label: "Contractor", value: "contractor" },
-              { label: "NSP", value: "nsp" },
-            ],
-            value: filter.employeeType,
-            onChange: (value) => {
-              setFilter((prev) => ({ ...prev, employeeType: value }));
-              setCurrentPage(1);
+            {
+              type: "select",
+              options: [
+                { label: "All Employee Type", value: "All Employee Type" },
+                { label: "Full Time", value: "full_time" },
+                { label: "Part Time", value: "part_time" },
+                { label: "Contractor", value: "contractor" },
+                { label: "NSP", value: "nsp" },
+              ],
+              value: filter.employeeType,
+              onChange: (value) => {
+                setFilter((prev) => ({ ...prev, employeeType: value }));
+                setCurrentPage(1);
+              },
             },
-          },
-          {
-            type: "select",
-            placeholder: "All Status",
-            options: [
-              { label: "All Status", value: "All Status" },
-              { label: "Available", value: "Available" },
-              { label: "Busy", value: "Busy" },
-            ],
-            value: filter.status,
-            onChange: (value) => {
-              setFilter((prev) => ({ ...prev, status: value }));
-              setCurrentPage(1);
+            {
+              type: "select",
+              options: [
+                { label: "All Status", value: "All Status" },
+                { label: "Available", value: "Available" },
+                { label: "Busy", value: "Busy" },
+              ],
+              value: filter.status,
+              onChange: (value) => {
+                setFilter((prev) => ({ ...prev, status: value }));
+                setCurrentPage(1);
+              },
             },
-          },
-        ]}
-        onReset={resetFilter}
-      />
+          ]}
+          onReset={resetFilter}
+        />
+      </div>
 
       {paginatedData.length > 0 ? (
-        <>
-          <DataTable
-            columns={columns}
-            data={paginatedData}
-            actionBool={false}
-            // actionObj={actionObj}
-            dividers={false}
-          />
-          <div className="mt-4">
+        <div className="flex flex-col flex-grow h-full">
+          {/* Table Container - Takes most of the space */}
+          <div className="flex-grow overflow-auto">
+            <DataTable
+              columns={columns}
+              data={paginatedData}
+              actionBool={false}
+              dividers={false}
+            />
+          </div>
+
+          {/* Pagination - Fixed height */}
+          <div className="h-12 mt-2 flex items-center justify-center">
             <StepProgress
               currentPage={currentPage}
               setCurrentPage={fetchData}
               totalPages={totalPages}
             />
           </div>
-        </>
+        </div>
       ) : (
         <div className="flex w-full h-full items-center justify-center py-8">
-          No Employees In This Department{" "}
+          No Employees In This Department
         </div>
       )}
 
@@ -516,7 +516,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
             Remove this employee as the department manager?
           </p>
           <p className="text-xs text-gray-400">
-            This will replace the remove the manager
+            This will remove the manager role
           </p>
         </div>
       </ConfirmCancelModal>

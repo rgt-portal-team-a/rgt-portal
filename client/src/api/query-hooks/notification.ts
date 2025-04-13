@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notificationApi } from "../services/notification.service";
 import { Notification, NotificationPreference } from "@/types/notifications";
+import toastService from "../services/toast.service";
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
@@ -51,7 +53,7 @@ export const useNotifications = () => {
       queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
     },
     onError: (error: any) => {
-      console.error("Error marking notification as read:", error);
+      toastService.error(error.response?.data?.error || "Error marking notification as read");
     },
   });
 
@@ -67,7 +69,7 @@ export const useNotifications = () => {
       queryClient.setQueryData(["unreadCount"], 0);
     },
     onError: (error: any) => {
-      console.error("Error marking all notifications as read:", error);
+      toastService.error(error.response?.data?.error || "Error marking all notifications as read");
     },
   });
 
@@ -78,7 +80,7 @@ export const useNotifications = () => {
       queryClient.invalidateQueries({ queryKey: ["notificationPreferences"] });
     },
     onError: (error: any) => {
-      console.error("Error updating notification preferences:", error);
+      toastService.error(error.response?.data?.error || "Error updating notification preferences");
     },
   });
 

@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Column, ActionObject } from "@/types/tables";
 import { DataTable } from "@/components/common/DataTable";
 import StepProgress from "@/components/common/StepProgress";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import EmployeeManagementTableSkeleton from "./EmployeeManagementTableSkeleton";
 import { EditEmployeeForm } from "./EditEmployeeForm";
 import { Employee, EmployeeType } from "@/types/employee";
@@ -11,6 +12,7 @@ import { TeamLeadToggle } from "./TeamLeadToggle";
 import { AgencyCheckboxToggle } from "./AgencyCheckboxToggle";
 import Filters from "@/components/common/Filters";
 import { useRequestPto } from "@/hooks/usePtoRequests";
+import Avtr from "@/components/Avtr";
 
 const employeeTypeLabels: Record<EmployeeType, string> = {
   full_time: "FT",
@@ -41,7 +43,6 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const { allPtoData: ptoRequestData } = useRequestPto();
-  const [activeSection, _setActiveSection] = useState<string>("personal");
   const [filter, setFilter] = useState({
     department: "All Departments",
     employmentType: "All Types",
@@ -50,17 +51,19 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
   const approvedPtoEmployeeIds = useMemo(() => {
     return new Set(
-      ptoRequestData?.filter((request) => request.status === "approved").map((request) => request?.employee?.id)
+      ptoRequestData
+        ?.filter((request) => request.status === "approved")
+        .map((request) => request?.employee?.id)
     );
   }, [ptoRequestData]);
 
   const [itemsPerPage, setItemsPerPage] = useState<number>(
-    window.innerWidth >= 768 ? 4 : 2
+    window.innerWidth >= 768 ? 5 : 4
   );
 
   useEffect(() => {
     const handleResize = () => {
-      setItemsPerPage(window.innerWidth >= 768 ? 4 : 2);
+      setItemsPerPage(window.innerWidth >= 768 ? 5 : 4);
     };
 
     window.addEventListener("resize", handleResize);
@@ -182,7 +185,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     }
 
     // Apply filters
-    let result = employees.filter((employee) => {
+    const result = employees.filter((employee) => {
       // Department filter
       if (
         filter.department !== "All Departments" &&
@@ -223,7 +226,14 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     });
 
     setFilteredEmployees(result);
-  }, [filter, employees, searchTerm, searchByField, getEmployeeFieldValue, isOnLeave]);
+  }, [
+    filter,
+    employees,
+    searchTerm,
+    searchByField,
+    getEmployeeFieldValue,
+    isOnLeave,
+  ]);
 
   // Load employee data
   useEffect(() => {
@@ -241,14 +251,14 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       key: "name",
       header: "Employee Name",
       render: (row) => (
-        <Link to={`/hr/manageemployees/employee/${row.id}`}>
+        <Link to={`/admin/manageemployees/employee/${row.id}`}>
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden mr-2 bg-gray-200">
-              {row.photoUrl ? (
-                <img
-                  src={row.photoUrl}
-                  alt={`${row.firstName} ${row.lastName}`}
-                  className="w-full h-full object-cover"
+              {row.user.profileImage ? (
+                <Avtr
+                  url={row.user.profileImage}
+                  name={row.user.username}
+                  avtBg="bg-purple-200 text-purple-700"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-purple-200 text-purple-700">
@@ -428,13 +438,13 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
   ];
 
   return (
-    <div className="flex bg-white flex-col items-center w-full overflow-auto px-4 pt-2 h-[450px] md:h-[500px]">
+    <div className="flex bg-white flex-col items-center w-full h-[100%] rounded-3xl overflow-auto px-4 pt-4">
       <div className="w-full">
-        <div className="flex justify-between items-center">
+        {/* <div className="flex ">
           <h1 className="text-lg sm:text-xl font-medium text-gray-700">
             Employee Management
           </h1>
-        </div>
+        </div> */}
 
         {/* Filter Section */}
         <div className="w-full">
@@ -486,7 +496,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
       {loading ? (
         <EmployeeManagementTableSkeleton />
       ) : (
-        <div className="w-full h-[200px] sm:h-[300px] lg:h-[333px]">
+        <div className="w-full flex-grow ">
           <DataTable
             columns={visibleColumnsData}
             data={paginationData.paginatedData}
@@ -499,7 +509,7 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
 
       {/* Step Progress (Pagination) */}
       {!loading && (
-        <div className="w-full">
+        <div className="w-full p-4">
           <StepProgress
             currentPage={paginationData.currentPage}
             setCurrentPage={setCurrentPage}

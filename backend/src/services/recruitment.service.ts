@@ -232,47 +232,42 @@ export class RecruitmentService {
 
   async update(id: string, data: UpdateRecruitmentDto): Promise<Recruitment> {
     const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
     try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-
       const recruitment = await this.findById(id);
       if (!recruitment) {
         throw new Error("Recruitment not found");
       }
 
-      if (data.assignees) {
-        const assignees = await this.employeeRepository.find({ where: { id: In(data.assignees) } });
-        if (assignees.length !== data.assignees.length) {
-          throw new Error("Assigned employees not found");
-        }
-      }
-
-      Object.assign(recruitment, data);
-
-      await queryRunner.manager.save(recruitment);
-
       if (data.emergencyContacts) {
-        if (recruitment.emergencyContacts?.length > 0) {
-          await queryRunner.manager.remove(recruitment.emergencyContacts);
+     
+        if (recruitment.emergencyContacts?.length) {
+          await this.emergencyContactRepository.delete({ recruitment: { id } });
         }
 
         const emergencyContacts = data.emergencyContacts.map((contact) =>
           this.emergencyContactRepository.create({
             ...contact,
-            recruitment,
+            recruitment: { id },
           }),
         );
-
         await queryRunner.manager.save(emergencyContacts);
       }
+
+      const { emergencyContacts: _, ...updateData } = data;
+
+      if (updateData.assignees) {
+        updateData.assignees = updateData.assignees.map(Number);
+      }
+
+      await queryRunner.manager.update(Recruitment, id, updateData);
 
       await queryRunner.commitTransaction();
 
       return this.findById(id) as Promise<Recruitment>;
     } catch (error) {
-      this.logger.error(`Error updating recruitment with ID ${id}:`, error);
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
@@ -288,7 +283,7 @@ export class RecruitmentService {
       }
 
       const updateData: Partial<Recruitment> = {
-        currentStatus: status
+        currentStatus: status,
       };
 
       if (status === RecruitmentStatus.NOT_HIRED && failStage) {
@@ -443,7 +438,7 @@ export class RecruitmentService {
         });
       }
 
-      const agencyData = await queryBuilder
+      let agencyData = await queryBuilder
         .select("recruitment.source", "name")
         .addSelect("COUNT(recruitment.id)", "value")
         .addSelect("COUNT(CASE WHEN recruitment.currentStatus = :hiredStatus THEN 1 END) * 100.0 / COUNT(recruitment.id)", "percent")
@@ -452,15 +447,51 @@ export class RecruitmentService {
         .getRawMany();
 
       const nspCountData = await queryBuilder
-        .select("to_char(recruitment.createdAt, 'YYYY')", "year")
+        .select("to_char(recruitment.date, 'YYYY')", "year")
         .addSelect("COUNT(recruitment.id)", "value")
         .groupBy("year")
         .orderBy("year", "ASC")
         .getRawMany();
+      
+      let codeInCount = 0;
+      let websiteCount = 0;
+      agencyData.forEach((item) => {
+        if (item.name === "Codeln") {
+          item.name = "CodeIn";
+          codeInCount = codeInCount + parseInt(item.value);
+        }
+
+        if (item.name === "CodeIn") {
+          codeInCount = codeInCount + parseInt(item.value);
+        }
+
+        if (item.name === "website") {
+          item.name = "Website";
+          websiteCount = websiteCount + parseInt(item.value);
+        }
+
+        if (item.name === "Website") {
+          websiteCount = websiteCount + parseInt(item.value);
+        }
+        
+        
+
+      });
+
+      agencyData = agencyData.filter((item, index, self) =>
+        index === self.findIndex((t) => t.name === item.name),
+      );
+
+      // remove the website from the agencyData array
+      // agencyData = agencyData.filter((item) => item.name !== "Website" || item.name !== "website");
+
+      // agencyData.push({ name: "Website", value: websiteCount.toString(), percent: 0 });
+
 
       return {
         agencyData: agencyData.map((item) => ({
           ...item,
+          value: item?.name === "CodeIn" ? codeInCount.toString() : item?.name === "Website" ? websiteCount.toString() : item?.value,
           color: this.getRandomColor(item.name),
         })),
         nspCountData,

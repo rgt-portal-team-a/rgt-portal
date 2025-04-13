@@ -28,13 +28,13 @@ jobs:
         include:
           - service: ai
             dockerfile: ./ai/Dockerfile
-            ecr_repo: rgt-portal-team-a/ai
+            #ecr_repo: rgt-portal-team-a/ai
           - service: backend
             dockerfile: ./backend/Dockerfile
-            ecr_repo: rgt-portal-team-a/backend
+            #ecr_repo: rgt-portal-team-a/backend
           - service: client
             dockerfile: ./client/Dockerfile
-            ecr_repo: rgt-portal-team-a/client
+            #ecr_repo: rgt-portal-team-a/client
 
     steps:
       - name: Checkout Code
@@ -56,16 +56,18 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Set Image Tag Based on Branch
-        id: set-tag
+      - name: Set ECR Repository and Tags Based on Branch
+        id: set-repo
         run: |
           BRANCH_NAME=${{ github.ref_name }}
           if [[ "$BRANCH_NAME" == "main" ]]; then
-            echo "IMAGE_TAG=${{ matrix.service }}-latest" >> $GITHUB_ENV
+            echo "ECR_REPO=rgt-portal-team-a/${{ matrix.service }}" >> $GITHUB_ENV
+            echo "IMAGE_TAG=latest" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "dev" ]]; then
-            echo "IMAGE_TAG=${{ matrix.service }}-dev" >> $GITHUB_ENV
+            echo "ECR_REPO=rgt-portal-team-a-dev" >> $GITHUB_ENV
+            echo "IMAGE_TAG=${{matrix.service}}-dev-latest" >> $GITHUB_ENV
           else
-            # Convert feature branch names to valid tags (replace / with -)
+            echo "ECR_REPO=rgt-portal-team-a-dev" >> $GITHUB_ENV
             SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
             echo "IMAGE_TAG=${{ matrix.service }}-$SANITIZED_BRANCH" >> $GITHUB_ENV
           fi
@@ -74,9 +76,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}
+          images: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}
           tags: |
-            ${{ env.IMAGE_TAG }}
+            type=raw,value=${{ env.IMAGE_TAG }}
 
       - name: Build and Push Docker Image to ECR
         uses: docker/build-push-action@v6
@@ -85,14 +87,33 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           builder: ${{ steps.buildx.outputs.name }}
-          tags: ${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ env.IMAGE_TAG }}
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
 
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: '${{ env.ECR_REGISTRY }}/${{ matrix.ecr_repo }}:${{ env.IMAGE_TAG }}'
+          image-ref: '${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}'
           format: 'table'
           exit-code: '0'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+
+      - name: Notify slack on failure
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,workflow
+          custom_payload: |
+            {
+              "attachments": [
+                {
+                  "title": "Job Notification",
+                  "text": "Service: *${{ matrix.service }}*\nStatus: *${{ job.status }}*\nBranch: *${{ github.ref_name }}*",
+                  "color": "${{ job.status == 'success' && '#36a64f' || '#FF0000' }}"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

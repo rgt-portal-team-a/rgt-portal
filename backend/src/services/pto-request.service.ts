@@ -65,9 +65,7 @@ export class PtoRequestService {
   }
 
   async create(ptoData: CreatePtoRequestDto, employee: any): Promise<PtoRequest> {
-    console.log('====================================');
-    console.log("Employee in create", employee);
-    console.log('====================================');
+
     if (!employee) {
       throw new Error("Employee not found");
     }
@@ -251,5 +249,18 @@ export class PtoRequestService {
     });
 
     return daysOffByType;
+  }
+
+  async resetPtoBalance(): Promise<Employee[]> {
+    const employees = await this.employeeRepository.find();
+    for (const employee of employees) {
+      employee.annualDaysOff = 30;
+      employee.sickDaysBalance = 15;
+      employee.vacationDaysBalance = 15;
+    }
+  
+    const savedEmployees = await this.employeeRepository.save(employees);
+
+    return savedEmployees;
   }
 }

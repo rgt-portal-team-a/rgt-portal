@@ -20,6 +20,7 @@ import LogoutIcon from "@/assets/icons/LogoutIcon";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import HrMobileBottomBar from "@/components/SideBar/HrMobileBottomBar";
 import Kairo from "@/components/KairoChatbot/Kairo";
+import { ALL_ROLE_NAMES } from "@/constants";
 
 export const BaseLayout = () => {
   const { currentUser: user, logout } = useAuthContextProvider();
@@ -116,7 +117,9 @@ export const BaseLayout = () => {
           {/* Mobile profile dropdown */}
           <div
             className={`${
-              user?.role.name === "HR" ? "sm:ml-4 pr-1 w-full" : "sm:hidden"
+              user?.role.name === ALL_ROLE_NAMES.HR
+                ? "sm:ml-4 pr-1 w-full"
+                : "sm:hidden"
             } relative`}
             ref={profileDropdownRef}
           >
@@ -144,7 +147,7 @@ export const BaseLayout = () => {
                 )}
               </div>
               <div className="text-nowrap hidden sm:block pl-1">
-                <p className="text-[#706D8A] font-semibold sm:text-xl">
+                <p className="text-[#706D8A] font-semibold sm:text-xl text-nowrap">
                   Hello {user?.employee?.firstName}!
                 </p>
                 <p className="text-xs font-semibold text text-slate-500">
@@ -167,7 +170,6 @@ export const BaseLayout = () => {
                 </button>
                 <button
                   onClick={() => {
-                    // logout();
                     setProfileDropdownOpen(false);
                     setLogoutModal(true);
                   }}
@@ -184,21 +186,23 @@ export const BaseLayout = () => {
         <div className="flex w-full justify-end gap-3">
           <div className="relative w-full flex justify-end gap-1">
             {/* Center section with search */}
-            <div className="relative w-full md:w-[400px] flex items-center">
-              <Search className="absolute left-2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search employees..."
-                className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none w-full"
-                value={searchQuery}
-                onChange={handleOnChange}
-                onFocus={() => setIsDropdownVisible(!!searchQuery)}
-                onBlur={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                    setIsDropdownVisible(false);
-                  }
-                }}
-              />
+            <div className="relative w-full flex items-center lg:justify-end ">
+              <div className="lg:w-[40%] w-full relative">
+                <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search employees..."
+                  className="pl-10 py-5 bg-gray-50 border-1 outline-none shadow-none w-full"
+                  value={searchQuery}
+                  onChange={handleOnChange}
+                  onFocus={() => setIsDropdownVisible(!!searchQuery)}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                      setIsDropdownVisible(false);
+                    }
+                  }}
+                />
+              </div>
               {/* Dropdown for search results */}
               {isDropdownVisible && (
                 <div
@@ -269,14 +273,9 @@ export const BaseLayout = () => {
           </div>
         </div>
       </header>
-      <div className="flex w-screen h-screen px-[13px] gap-[17px]">
-        <div
-          className="h-screen text-center sm:py-[78px] hidden sm:block overflow-y-scroll"
-          style={{
-            scrollbarWidth: "none" /* Firefox */,
-            msOverflowStyle: "none" /* IE and Edge */,
-          }}
-        >
+      {/* sm:h-[695px] */}
+      <div className="flex w-screen h-screen px-[13px] gap-[17px] pb-2 bg-amber-40">
+        <div className="text-center sm:pt-[78px] hidden sm:block">
           <WithRole
             roles={["hr", "admin"]}
             userRole={user?.role.name as string}
@@ -292,7 +291,7 @@ export const BaseLayout = () => {
         </div>
 
         <div
-          className="pt-[78px] flex-1 h-screen overflow-y-auto relative pb-[60px] sm:pb-0"
+          className="pt-[78px] flex-1 overflow-hidden relative h-full pb-[60px] sm:pb-0"
           style={{
             scrollbarWidth: "none" /* Firefox */,
             msOverflowStyle: "none" /* IE and Edge */,
@@ -314,7 +313,6 @@ export const BaseLayout = () => {
         isOpen={notificationsOpen}
         onOpenChange={setNotificationsOpen}
       />
-
       {/* Logging out modal */}
       <ConfirmCancelModal
         isOpen={showLogoutModal}
@@ -336,8 +334,9 @@ export const BaseLayout = () => {
           </p>
         </div>
       </ConfirmCancelModal>
-
-      <Kairo />
+      <WithRole roles={["hr", "admin"]} userRole={user?.role.name as string}>
+        <Kairo />
+      </WithRole>
     </div>
   );
 };

@@ -10,12 +10,12 @@ notificationRoutes.use(authMiddleware.isAuthenticated);
 
 notificationRoutes.get("/", notificationController.getUserNotifications);
 notificationRoutes.get("/unread-count", notificationController.getUnreadCount);
+notificationRoutes.put("/all/mark-as-read", notificationController.markAllAsRead);
 notificationRoutes.put("/:notificationId/read", notificationController.markAsRead);
 
 notificationRoutes.get("/preferences", notificationController.getUserPreferences);
 notificationRoutes.put("/preferences", notificationController.updatePreference);
 notificationRoutes.post("/preferences/initialize", notificationController.initializePreferences);
 
-notificationRoutes.put("/all/read", notificationController.markAllAsRead);
 
 export default notificationRoutes;

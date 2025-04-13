@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Send, MessageCircle, X } from "lucide-react";
+import { ChevronDown, Send, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import KairoIcon from "@/assets/icons/KairoIcon"
+import { useKairoBotQuery } from "@/api/query-hooks/ai.hooks";
+import KairoIcon from "@/assets/icons/KairoIcon";
+import { toast } from "@/hooks/use-toast";
+import "./Kairo.css"
 
 interface ChatMessage {
   type: "user" | "bot";
@@ -20,35 +24,85 @@ const Kairo = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { type: "bot", content: "How can I help you today?" },
   ]);
-  const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatBotRef = useRef<HTMLDivElement>(null);
 
+  const { mutate: sendQuery, isPending: isLoading } = useKairoBotQuery();
+
   const possibleQueries: PossibleQuery[] = [
-    { id: "q1", text: "How many candidates failed this 1st interview" },
-    { id: "q2", text: "What's the average employee tenure?" },
-    { id: "q3", text: "Show me upcoming birthdays" },
-    { id: "q4", text: "How many leave requests are pending?" },
+    { id: "q1", text: "Show candidates by status" },
+    { id: "q2", text: "What are our top recruitment sources" },
+    { id: "q3", text: "How many candidates applied each month" },
+    { id: "q4", text: "Show candidates with programming skills" },
+    { id: "q5", text: " what role was applied for the most" },
   ];
+
+
+  const extractQueryResults = (html: string): string => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const errorHeading = doc.querySelector("h1");
+    if (errorHeading?.textContent?.toLowerCase() === "error") {
+      const errorMessage = doc.querySelector("p strong")?.textContent;
+      const errorDetails = doc.querySelector("pre code")?.textContent;
+      return `Error: ${errorMessage || "Unknown error"}\n${errorDetails || ""}`;
+    }
+
+    // Find all h2 elements
+    const headings = doc.querySelectorAll("h2");
+    let resultsContent = "No results found";
+
+    // Iterate through headings to find the Results section
+    headings.forEach((heading) => {
+      if (heading.textContent?.toLowerCase().includes("results")) {
+        // Get the next sibling element
+        const nextElement = heading.nextElementSibling;
+        if (nextElement) {
+          resultsContent = nextElement.textContent || "No results found";
+        }
+      }
+    });
+
+    return resultsContent;
+  };
+
+
 
   const handleSendMessage = async () => {
     if (!currentQuery.trim()) return;
 
+    // Add user message
     setMessages((prev) => [...prev, { type: "user", content: currentQuery }]);
     setCurrentQuery("");
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          type: "bot",
-          content: `I've received your question about "${currentQuery}". I'm working on getting you an answer.`,
+    sendQuery(
+      { query: currentQuery },
+      {
+        onSuccess: (response) => {
+          // const results = extractQueryResults(response.queryResponse);
+          // setMessages((prev) => [...prev, { type: "bot", content: results }]);
+          setMessages((prev) => [...prev, { type: "bot", content: response.queryResponse }]);
         },
-      ]);
-      setIsLoading(false);
-    }, 1500);
+        onError: (error) => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              type: "bot",
+              content:
+                "Sorry, I couldn't process your request. Please try again.",
+            },
+          ]);
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
+
 
   const handleQueryClick = (query: string) => {
     setCurrentQuery(query);
@@ -85,15 +139,30 @@ const Kairo = () => {
     }
   };
 
+  const sanitizeHtml = (html:any) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    
+    // Remove problematic elements or add classes
+    const tables = doc.querySelectorAll("table");
+    tables.forEach(table => {
+      table.classList.add("chat-table");
+    });
+    
+    return doc.body.innerHTML;
+  };
+
+
+
   return (
-    <div className="fixed bottom-12 right-6 z-50" ref={chatBotRef}>
-      {isOpen && (
-        <div className="bg-[#210D38] rounded-xl shadow-lg mb-4 w-[463px] h-[500px] flex flex-col overflow-hidden">
+    <div className="absolute bottom-12 right-0 z-50 flex flex-col" ref={chatBotRef}>
+      {/* {isOpen && ( */}
+        <div className={`bg-[#210D38] rounded-xl shadow-lg mb-2 mr-3 max-w-[463px] flex flex-col overflow-hidden transition-all duration-300 ease-in max-h-[600px] ${isOpen ? "h-[400px]" : "h-0"}`}>
           {/* Header */}
           <div className="p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 p-1 rounded-md bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center ">
-                <KairoIcon/>
+                <KairoIcon />
               </div>
               <div className="text-white font-bold">
                 Kairo1{" "}
@@ -128,7 +197,14 @@ const Kairo = () => {
                       : "bg-purple-800 text-white"
                   }`}
                 >
-                  {msg.content}
+                {msg.type === "user" ? (
+                  msg.content
+                ) : (
+                  <div
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(msg.content) || "" }}
+                    className="p-4 chat-content"
+                  />
+                )}
                 </div>
               </div>
             ))}
@@ -179,7 +255,7 @@ const Kairo = () => {
                 onChange={(e) => setCurrentQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask anything"
-                className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 placeholder-gray-100"
+                className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 focus-visible:ring-0 placeholder:text-white"
               />
               <button
                 onClick={handleSendMessage}
@@ -190,33 +266,35 @@ const Kairo = () => {
             </div>
           </div>
         </div>
-      )}
+      {/* )} */}
 
       {/* Hoverable area */}
       <div
-        className="relative"
+        className="relative flex flex-col items-end"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Message icon */}
-        {!isOpen && isHovered && (
+        {/* {!isOpen && isHovered && (
           <div
-            className="absolute -top-14 right-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-3 shadow-lg animate-fade-in cursor-pointer"
+            className="absolute -top-14 right-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-l-full p-3 shadow-lg animate-fade-in cursor-pointer"
             onClick={() => setIsOpen(true)}
           >
             <MessageCircle className="text-white" size={24} />
           </div>
-        )}
+        )} */}
 
         {/* Main button */}
         <button
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
+          className="p-1 rounded-l-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 w-fit cursor-pointer h-"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
             <X className="text-white" size={24} />
           ) : (
-            <div className=" p-1 items-center justify-center"><KairoIcon/></div>
+            <div className=" p-1 items-center justify-center">
+              <KairoIcon size={24} />
+            </div>
           )}
         </button>
       </div>

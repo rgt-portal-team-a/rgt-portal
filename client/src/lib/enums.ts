@@ -38,3 +38,9 @@ export enum RelationshipType {
   RELATIVE = "Relative",
   FRIEND = "Friend",
 }
+
+export enum UserStatus {
+  AWAITING = "awaiting",
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}

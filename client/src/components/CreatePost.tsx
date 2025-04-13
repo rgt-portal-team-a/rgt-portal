@@ -28,7 +28,7 @@ export interface UploadStatus {
 const CreatePost = () => {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<{
-    employee: { id: number; firstName: string; lastName: string };
+    employee: { id: number; firstName: string | null; lastName: string | null };
     profileImage?: string;
   } | null>(null);
   console.log("user:", user);
@@ -198,6 +198,8 @@ const CreatePost = () => {
 
   const handlePollClick = () => {
     setPoll(!poll);
+    setPollInfo(initialPollData);
+    setError(null);
     setMessage("");
     setImages([]);
     setVideos([]);
@@ -368,8 +370,15 @@ const CreatePost = () => {
           </>
         ) : (
           <div className="w-full space-y-2">
-            <div>
-              <label className="font-semibold text-sm">Question</label>
+            <div className="w-full">
+              <div className="flex justify-between  pb-2">
+                <label className="font-semibold text-sm">Question</label>
+                <X
+                  size={24}
+                  className="transition-all duration-300 ease-in p-1 cursor-pointer bg-pink-200 text-rgtpink rounded-md"
+                  onClick={handlePollClick}
+                />
+              </div>
               <Input
                 placeholder="Write poll question..."
                 className="shadow-none w-full border-1 border-rgtpink"
@@ -485,7 +494,7 @@ const CreatePost = () => {
                         ? "multiple_choice"
                         : ""
                     }
-                    className="w-fit h-full border-2 rounded-sm bg-slate-200 p-2"
+                    className="w-fit h-full border rounded-sm bg-white text-black p-2"
                     onChange={(value) =>
                       setPollInfo({
                         ...pollInfo,

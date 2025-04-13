@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const EventsPageSkeleton = () => {
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 bg-gray-50">
+    <div className="w-full mx-auto p-4 bg-gray-50">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

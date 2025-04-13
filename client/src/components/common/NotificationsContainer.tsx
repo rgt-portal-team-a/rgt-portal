@@ -107,7 +107,7 @@ export const NotificationContainer: React.FC<NotificationContainerProps> = ({
 
   return (
     <SideModal
-      showCloseButton={false}
+      showCloseButton={true}
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       position="right"

@@ -277,4 +277,18 @@ export class NotificationTemplates {
       },
     };
   }
+
+  static newUserSignup(newUser: User): NotificationPayload {
+    return {
+      type: NotificationType.EMPLOYEE_RECOGNITION,
+      recipientId: 0,
+      title: "New User Signup",
+      content: `A new user ${newUser.username} (${newUser.email}) has signed up and needs to be onboarded.`,
+      data: {
+        userId: newUser.id,
+        username: newUser.username,
+        email: newUser.email
+      }
+    };
+  }
 }

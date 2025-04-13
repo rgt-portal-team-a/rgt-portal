@@ -49,7 +49,7 @@ const Recognition = ({
 
   return (
     <section
-      className="bg-rgtpurple min-h-32 rounded-[20px] text-white flex flex-col  w-full p-3 space-y-1 items-center justify-center"
+      className="bg-rgtpurple min-h-32 rounded-[20px] text-white flex flex-col  w-full p-3 space-y-1 items-center justify-center "
       style={{
         backgroundImage: `url(${confetti})`,
         backgroundSize: "contain",
@@ -58,14 +58,20 @@ const Recognition = ({
       }}
     >
       {recognitions && recognitions.length > 0 ? (
-        <header className="">
-          <p className="font-semibold text-xl md:text-2xl text-center">
-            Employees of the Week!!
-          </p>
-          <p className="font-semibold text-xs sm:text-sm text-center">
-            Theme of the week: Dedication... Let's Lock in
-          </p>
-        </header>
+        <div className="relative">
+          <header className="">
+            <p className="font-semibold text-xl md:text-2xl text-center">
+              Employees of the Week!!
+            </p>
+            <p className="font-semibold text-xs sm:text-sm text-center">
+              Theme of the week: Dedication... Let's Lock in
+            </p>
+          </header>
+
+          {/* <div className="bg-rgtpurple cursor-pointer absolute top-0 -right-20 p-2 rounded-lg text-sm font-semibold border">
+            <p>See all</p>
+          </div> */}
+        </div>
       ) : (
         !isRecLoading && (
           <div className="flex items-center w-full font-bold justify-center h-20">
@@ -75,24 +81,25 @@ const Recognition = ({
       )}
 
       <div
-        className="w-full flex gap-4 overflow-x-scroll"
+        className="flex gap-2 w-full px-4 py-2 relative"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
+          overflowX: "auto",
         }}
       >
-        <style>
-          {`
-                .hide-scrollbar::-webkit-scrollbar {
-                display: none; /* Chrome, Safari, and Opera */
-              }
-              `}
-        </style>
+        <div
+          className="flex-shrink-0 invisible"
+          style={{ width: "calc(10% - 50px)" }}
+        ></div>
+
         {isRecLoading && (
-          <div className="flex items-center justify-center gap-2 h-20 w-20">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
-              <AvatarSkeleton key={i} />
-            ))}
+          <div className="w-full flex justify-center">
+            <div className="flex items-center justify-center gap-2 h-20 w-20">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, i) => (
+                <AvatarSkeleton key={i} />
+              ))}
+            </div>
           </div>
         )}
         {recognitions &&
@@ -106,7 +113,6 @@ const Recognition = ({
                   className="flex flex-col items-center justify-center"
                   key={index}
                 >
-                  {/* <p className="font-bold text-sm text-gold-600">{item.project}</p> */}
                   <div
                     className={`border-3 rounded-full p-1 flex w-fit items-center justify-center relative ${
                       randomColor.name === "pink"
@@ -125,7 +131,8 @@ const Recognition = ({
                         (item.recognizedEmployee?.user?.username as string) ??
                         `#${index}`
                       }
-                      className={`w-[50px] h-[50px] bg-rgtpurple`}
+                      className={`w-[50px] h-[50px]`}
+                      avtBg="bg-rgtpurple"
                     />
 
                     <span
@@ -137,12 +144,16 @@ const Recognition = ({
                   </div>
                   <p className="font-semibold text-xs  sm:text-sm text-nowrap text-center">
                     {item.recognizedEmployee?.firstName ?? `User #${index}`} -
-                     <span className="text-orange-500">{item.project}</span>
+                    <span className="text-orange-500">{item.project}</span>
                   </p>
                 </div>
               );
             }
           )}
+        <div
+          className="flex-shrink-0 invisible"
+          style={{ width: "calc(10% - 50px)" }}
+        ></div>
       </div>
     </section>
   );

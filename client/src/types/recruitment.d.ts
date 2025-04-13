@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RecruitmentType } from "@/lib/enums";
 
 interface Recruitment {

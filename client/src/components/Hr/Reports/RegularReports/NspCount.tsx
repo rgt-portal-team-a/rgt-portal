@@ -1,26 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { Button } from "@/components/ui/button";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useGetHiringLadder } from "@/api/query-hooks/reports.hooks";
 
 const NspCount: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useGetHiringLadder();
 
+  const [selectedYear, setSelectedYear] = useState<string | null>(
+    data?.nspCountData?.[0]?.year || null
+  );
+
+  const availableYears = data?.nspCountData?.map((item) => item.year) || [];
+
+  // Find selected year's count
+  const selectedYearCount =
+    data?.nspCountData?.find((item) => item.year === selectedYear)?.value ||
+    "0";
+
   // Render Loading State
   if (isLoading) {
     return (
       <Card className="w-full max-w-4xl mx-auto">
-        <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Hired NSP Count</CardTitle>
           <Button variant="outline" disabled>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -41,7 +51,7 @@ const NspCount: React.FC = () => {
   if (isError) {
     return (
       <Card className="w-full max-w-4xl mx-auto border-destructive/50">
-        <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-destructive">Data Fetch Error</CardTitle>
           <Button
             variant="destructive"
@@ -74,7 +84,7 @@ const NspCount: React.FC = () => {
   if (!data || !data.nspCountData || data.nspCountData.length === 0) {
     return (
       <Card className="w-full max-w-4xl mx-auto">
-        <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Hired NSP Count</CardTitle>
           <Button
             variant="outline"
@@ -99,31 +109,31 @@ const NspCount: React.FC = () => {
     );
   }
 
-  // Calculate total NSP count
-  const totalNspCount = data.nspCountData.reduce(
-    (sum, item) => sum + Number(item.value),
-    0
-  );
-
-  // Render Normal State
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="flex flex-col sm:flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Hired NSP Count</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-lg font-bold flex flex-col sm:flex-row gap-4 mb-4">
-          <span>Total Count: {totalNspCount}</span>
+        <div className="flex items-center space-x-4">
+          <Select value={selectedYear || ""} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Range" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <div className="w-full h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.nspCountData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="year" />
-              <Tooltip />
-              <Bar dataKey="value" fill="#E328AF" />
-            </BarChart>
-          </ResponsiveContainer>
+      </CardHeader>
+      <CardContent className="flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-3xl font-bold text-primary mb-2">
+            {selectedYearCount}
+          </div>
+          <div className="text-sm text-muted-foreground">Hired NSP Count</div>
         </div>
       </CardContent>
     </Card>

@@ -23,6 +23,31 @@ export class PollService {
     }
   }
 
+  // Delete poll
+  public static async deletePoll(pollId: number): Promise<any> {
+    try {
+      const response = await axios.delete(`${this.baseUrl}/${pollId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting poll:", error);
+      throw error;
+    }
+  }
+
+  // Updating poll
+  public static async updatePoll(
+    pollId: number,
+    pollData: Partial<Poll>
+  ): Promise<ApiResponse<Poll>> {
+    try {
+      const response = await axios.put(`${this.baseUrl}/${pollId}`, pollData);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating poll:", error);
+      throw error;
+    }
+  }
+
   // Fetch all polls
   public static async getPolls(): Promise<ApiResponse<Poll[]>> {
     try {
@@ -42,7 +67,7 @@ export class PollService {
   // Fetch a single poll by ID
   public static async getPollById(pollId: number): Promise<any> {
     try {
-      if (!pollId) return 
+      if (!pollId) return;
       const response = await axios.get(`${this.baseUrl}/${pollId}`, {
         params: {
           withStats: true,
@@ -56,12 +81,9 @@ export class PollService {
     }
   }
 
-  public static async votePoll(
-    pollId: number,
-    optionId: number
-  ): Promise<any> {
+  public static async votePoll(pollId: number, optionId: number): Promise<any> {
     try {
-      if (!pollId) return; 
+      if (!pollId) return;
       await axios.post(`${this.baseUrl}/${pollId}/vote`, { optionId });
       return this.getPollById(pollId);
     } catch (error) {
@@ -71,7 +93,7 @@ export class PollService {
   }
 
   public static async refreshPoll(pollId: number): Promise<any> {
-    if (!pollId) return; 
+    if (!pollId) return;
     return this.getPollById(pollId);
   }
 
@@ -80,7 +102,7 @@ export class PollService {
     optionId: number
   ): Promise<any> {
     try {
-      if (!pollId) return; 
+      if (!pollId) return;
       await axios.delete(`${this.baseUrl}/${pollId}/vote/${optionId}`, {
         params: {
           optionId: optionId,
