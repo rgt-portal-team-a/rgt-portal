@@ -9,8 +9,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    # Set Python path to include the project root
-    PYTHONPATH=/app \
     # Web app configuration
     PORT=10000
 
@@ -23,17 +21,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Upgrade pip
 RUN pip install --upgrade pip setuptools wheel
 
+# Create a non-root user
+RUN useradd --create-home appuser
+RUN chown -R appuser:appuser /app
+
 # Create a precise requirements file
-RUN echo "dash>=2.0.0\ndash-bootstrap-components>=1.0.0\npsutil>=5.9.0\nSQLAlchemy>=1.4.0\nplotly>=5.0.0\npython-dotenv>=1.0.0\ngunicorn>=20.0.0" > requirements.txt
+RUN echo "dash>=2.0.0\ndash-bootstrap-components>=1.0.0\npsutil>=5.9.0\nSQLAlchemy>=1.4.0\nplotly>=5.0.0\npython-dotenv>=1.0.0\ngunicorn>=20.0.0" > /app/requirements.txt
 
 # Install only needed dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy application code
 COPY . .
 
+# Fix ownership
+RUN chown -R appuser:appuser /app
+
 # Expose the port
 EXPOSE 10000
 
-# Run dash app from the monitoring.app_scripts directory
-CMD ["python", "-m", "monitoring.app_scripts.dash_app"]
+# Switch to non-root user
+USER appuser
+
+# Run the app directly from its directory to fix import issues
+WORKDIR /app/monitoring/app_scripts
+CMD ["python", "dash_app.py"]
