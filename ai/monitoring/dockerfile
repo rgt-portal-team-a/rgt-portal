@@ -1,11 +1,20 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # Set working directory in the container
-WORKDIR /dash_app
+WORKDIR /app
 
 # Copy requirements file
 COPY requirements.txt .
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -20,4 +29,4 @@ EXPOSE 8050
 ENV PYTHONUNBUFFERED=1
 
 # Run the application when the container launches
-CMD ["python", "dash_app.py"]
+CMD ["python", "app.py"]
