@@ -9,6 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # Set Python path to include the project root
+    PYTHONPATH=/app \
     # Web app configuration
     PORT=10000
 
@@ -33,5 +35,5 @@ COPY . .
 # Expose the port
 EXPOSE 10000
 
-# Run using uvicorn/gunicorn for compatibility with Render
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--workers", "1", "--timeout", "60", "app:server"]
+# Run dash app from the monitoring.app_scripts directory
+CMD ["python", "-m", "monitoring.app_scripts.dash_app"]
