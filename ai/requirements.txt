@@ -14,7 +14,7 @@ cycler==0.12.1
 dataclasses-json==0.6.7
 distro==1.9.0
 dash
-dash-bootsrap-components
+dash-bootstrap-components
 et_xmlfile==2.0.0
 fastapi==0.115.12
 filelock==3.18.0
