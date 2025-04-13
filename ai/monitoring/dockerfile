@@ -1,32 +1,48 @@
-# Use an official Python runtime as a parent image
+# Use Python 3.10 as base image
 FROM python:3.10-slim
 
-# Set working directory in the container
+# Set working directory
 WORKDIR /app
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # Disable CUDA to reduce memory usage
+    CUDA_VISIBLE_DEVICES="" \
+    # Set memory limits
+    OMP_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    NUMEXPR_MAX_THREADS=1 \
+    # Web app configuration
+    PORT=10000
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --upgrade pip setuptools wheel
 
 # Copy requirements file
 COPY requirements.txt .
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libc6-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Create a minimal requirements file without ML dependencies
+RUN grep -v "torch\|transformers\|huggingface\|sentence-transformers\|langchain\|nvidia\|triton" requirements.txt > minimal_requirements.txt
 
-# Upgrade pip
-RUN pip install --no-cache-dir --upgrade pip
+# Install minimal dependencies first
+RUN pip install --no-cache-dir -r minimal_requirements.txt
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the current directory contents into the container
+# Copy application code
 COPY . .
 
-# Make port 8050 available to the world outside this container
-EXPOSE 8050
+# Expose the port
+EXPOSE 10000
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-
-# Run the application when the container launches
-CMD ["python", "app.py"]
+# Run using uvicorn for compatibility with Render
+CMD ["uvicorn", "app:server", "--host", "0.0.0.0", "--port", "10000"]
