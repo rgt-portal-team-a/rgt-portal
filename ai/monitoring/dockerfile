@@ -27,7 +27,17 @@ RUN useradd --create-home appuser
 RUN chown -R appuser:appuser /app
 
 # Create a precise requirements file
-RUN echo "dash>=2.0.0\ndash-bootstrap-components>=1.0.0\npsutil>=5.9.0\nSQLAlchemy>=1.4.0\npandas>=2.2.3\npsycopg2-binary>=2.9.3\nnumpy\nplotly>=5.0.0\npython-dotenv>=1.0.0\ngunicorn>=20.0.0\n\statsmodels" > /app/requirements.txt
+RUN echo "dash>=2.0.0
+dash-bootstrap-components>=1.0.0
+psutil>=5.9.0
+SQLAlchemy>=1.4.0
+pandas>=2.2.3
+psycopg2-binary>=2.9.3
+numpy
+plotly>=5.0.0
+python-dotenv>=1.0.0
+gunicorn>=20.0.0
+statsmodels" > /app/requirements.txt
 
 # Install only needed dependencies
 RUN pip install --no-cache-dir -r /app/requirements.txt
