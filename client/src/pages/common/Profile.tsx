@@ -178,10 +178,13 @@ export function ProfilePage() {
                   </Avatar>
                   {isEditing && (
                     <>
-                      <label htmlFor="profileImage" className="cursor-pointer">
-                        <Button variant="outline" className="w-full">
-                          Change Photo
-                        </Button>
+                      <label
+                        htmlFor="profileImage"
+                        className="cursor-pointer underline hover:text-rgtpurple transition-all duration-0 ease-in"
+                      >
+                        {/* <Button variant="outline" className="w-full"> */}
+                        Change Photo
+                        {/* </Button> */}
                         <input
                           id="profileImage"
                           type="file"
