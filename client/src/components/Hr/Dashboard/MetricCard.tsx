@@ -17,25 +17,25 @@ const colors = {
     footerBg: "bg-purple-600",
     iconBg: "bg-purple-600",
     iconColor: "text-purple-100",
-    chartColor: "#9333ea",
+    chartColor: "#6418C3",
   },
   pink: {
     footerBg: "bg-pink-500",
     iconBg: "bg-pink-500",
     iconColor: "text-pink-100",
-    chartColor: "#ec4899",
+    chartColor: "#E328AF",
   },
   blue: {
     footerBg: "bg-sky-400",
     iconBg: "bg-sky-400",
     iconColor: "text-sky-100",
-    chartColor: "#38bdf8",
+    chartColor: "#5DCFFF",
   },
   yellow: {
     footerBg: "bg-amber-400",
     iconBg: "bg-amber-400",
     iconColor: "text-amber-100",
-    chartColor: "#fbbf24",
+    chartColor: "#F8C74F",
   },
 };
 
@@ -136,7 +136,7 @@ export const MetricCard = ({
             )}
           </h2>
           {/* <ChartLine /> */}
-          <StatLine/>
+          <StatLine color={selectedColor.chartColor}/>
         </div>
       </CardContent>
 
