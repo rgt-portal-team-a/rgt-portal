@@ -54,7 +54,7 @@ export class NotificationTemplates {
     };
   }
 
-  static commentReplied(sender: User, parentCommentAuthorId: number, commentContent: string, postId: number): NotificationPayload {
+  static commentReplied(sender: User, parentCommentAuthorId: number, commentContent: string, commentId: number): NotificationPayload {
     return {
       type: NotificationType.COMMENT_REPLIED,
       recipientId: parentCommentAuthorId,
@@ -62,13 +62,13 @@ export class NotificationTemplates {
       title: "New Reply to Your Comment",
       content: `${sender.username} replied to your comment: "${commentContent?.substring(0, 50)}${commentContent?.length > 50 ? "..." : ""}"`,
       data: {
-        postId,
+        commentId,
         commentContent,
       },
     };
   }
 
-  static commentLiked(sender: User, commentAuthorId: number, commentContent: string, postId: number): NotificationPayload {
+  static commentLiked(sender: User, commentAuthorId: number, commentContent: string, commentId: number): NotificationPayload {
     return {
       type: NotificationType.COMMENT_LIKED,
       recipientId: commentAuthorId,
@@ -76,7 +76,7 @@ export class NotificationTemplates {
       title: "New Like on Your Comment",
       content: `${sender.username} liked your comment: "${commentContent?.substring(0, 50)}${commentContent?.length > 50 ? "..." : ""}"`,
       data: {
-        postId,
+        commentId,
         commentContent,
       },
     };

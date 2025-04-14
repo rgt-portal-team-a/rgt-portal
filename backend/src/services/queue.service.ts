@@ -420,10 +420,10 @@ export class QueueService {
     sender: User;
     parentCommentAuthorId: number;
     commentContent: string;
-    postId: number;
+    commentId: number;
   }): Promise<void> {
     await this.notificationService.createNotification(
-      NotificationTemplates.commentReplied(payload.sender, payload.parentCommentAuthorId, payload.commentContent, payload.postId),
+      NotificationTemplates.commentReplied(payload.sender, payload.parentCommentAuthorId, payload.commentContent, payload.commentId),
     );
   }
 
@@ -431,10 +431,10 @@ export class QueueService {
     sender: User;
     commentAuthorId: number;
     commentContent: string;
-    postId: number;
+    commentId: number;
   }): Promise<void> {
     await this.notificationService.createNotification(
-      NotificationTemplates.commentLiked(payload.sender, payload.commentAuthorId, payload.commentContent, payload.postId),
+      NotificationTemplates.commentLiked(payload.sender, payload.commentAuthorId, payload.commentContent, payload.commentId),
     );
   }
 

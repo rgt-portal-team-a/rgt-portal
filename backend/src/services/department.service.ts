@@ -187,11 +187,11 @@ export class DepartmentService {
         throw new Error("Department not found");
       }
 
-      const manager = await this.employeeRepository.findOne({ 
+      const manager = await this.employeeRepository.findOne({
         where: { id: managerId },
-        relations: ["user", "user.role"]
+        relations: ["user", "user.role"],
       });
-      
+
       if (!manager) {
         throw new Error("Manager not found");
       }
@@ -202,9 +202,16 @@ export class DepartmentService {
 
       queryRunner = await DatabaseService.createTransaction();
 
-      await queryRunner.manager.update(Department, id, { 
+      if (department.manager) {
+        const role = await this.roleRepository.findOne({ where: { name: Roles.EMPLOYEE } });
+        if (role) {
+          await queryRunner.manager.update(User, department.manager.user.id, { role: { id: role.id } });
+        }
+      }
+
+      await queryRunner.manager.update(Department, id, {
         managerId,
-        manager: { id: managerId }
+        manager: { id: managerId },
       });
 
       const role = await this.roleRepository.findOne({ where: { name: Roles.MANAGER } });
