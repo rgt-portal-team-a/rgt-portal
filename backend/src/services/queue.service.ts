@@ -444,7 +444,29 @@ export class QueueService {
   }
 
   private async processPtoRequestStatusNotification(payload: { ptoRequest: PtoRequest; updatedBy: User }): Promise<void> {
-    await this.notificationService.createNotification(NotificationTemplates.ptoRequestStatusUpdate(payload.ptoRequest, payload.updatedBy));
+    // Load the PTO request with all required relations
+    const ptoRequest = await AppDataSource.getRepository(PtoRequest).findOne({
+      where: { id: payload.ptoRequest.id },
+      relations: ["employee", "employee.user", "approver", "approver.user"]
+    });
+
+    if (!ptoRequest) {
+      this.logger.error(`PTO request ${payload.ptoRequest.id} not found for notification`);
+      return;
+    }
+
+    // Load the updatedBy user with employee relation
+    const updatedBy = await AppDataSource.getRepository(User).findOne({
+      where: { id: payload.updatedBy.id },
+      relations: ["employee", "employee.user"]
+    });
+
+    if (!updatedBy) {
+      this.logger.error(`User ${payload.updatedBy.id} not found for notification`);
+      return;
+    }
+
+    await this.notificationService.createNotification(NotificationTemplates.ptoRequestStatusUpdate(ptoRequest, updatedBy));
   }
 
   // Employee related notification methods
