@@ -42,12 +42,16 @@ export class CommentReplyService {
       where: {
         id: reply.id,
       },
-      relations: ["author", "author.user", "comment", "parentReply", "likes", "likes.employee"],
+      relations: ["author", "author.user", "comment", "comment.author", "parentReply",  "likes", "likes.employee"],
     });
+
+    console.log('====================================');
+    console.log(savedReply);
+    console.log('====================================');
 
     await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.COMMENT_REPLIED, {
       sender: savedReply?.author.user,
-      parentCommentAuthorId: savedReply?.parentReply?.authorId,
+      parentCommentAuthorId: savedReply?.parentReply?.authorId || savedReply?.comment.authorId,
       commentContent: savedReply?.content,
       commentId: savedReply?.comment.id,
     });
