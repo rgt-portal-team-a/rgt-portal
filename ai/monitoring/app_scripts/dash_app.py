@@ -29,4 +29,4 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))  # Default to port 10000
     
     print(f"Starting server on {host}:{port}")
-    app.run_server(debug=False, host=host, port=port)
+    app.run(debug=False, host=host, port=port)
