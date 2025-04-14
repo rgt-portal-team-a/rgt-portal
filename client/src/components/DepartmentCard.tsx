@@ -28,7 +28,7 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
   path,
 }) => {
 
-  console.log("manager:",manager)
+  // console.log("manager:",manager)
   const maxVisible = 3;
   const extraCount = employees.length - maxVisible;
   const [showMore, setShowMore] = useState(false);
@@ -94,7 +94,7 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
       <NavLink
         to={`${path}`}
         key={id}
-        className={`relative flex flex-col space-y-2 bg-white rounded-[12px] p-2 lg:min-w-64 lg:w-[23%]  w-full h-[150px] shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden ${
+        className={`relative flex flex-col space-y-2 bg-white rounded-[12px] p-2 lg:min-w-64 lg:w-[32%]  w-full h-[150px] shadow-md hover:shadow-gray-400 transition-all duration-300 ease-in overflow-hidden ${
           isInDepartment ? "border-[#E328AF] border-[2px]" : ""
         }`}
       >

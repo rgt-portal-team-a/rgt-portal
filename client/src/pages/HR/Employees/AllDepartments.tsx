@@ -45,6 +45,11 @@ export const AllDepartments = () => {
   const { data: users } = useAllEmployees({});
   const { departments, isDepartmentsLoading } = useDepartmentsData();
 
+
+    useEffect(() => {
+      console.log("isModalOpen:", isModalOpen);
+    }, [isModalOpen]);
+
   useEffect(() => {
     if (!departments || departments.length <= 0) {
       setFilteredDepartments([]);
@@ -60,7 +65,7 @@ export const AllDepartments = () => {
     setFilteredDepartments(filtered);
   }, [departments, searchQuery]);
 
-  console.log("Filtered Departments: ", filteredDepartments);
+  // console.log("Filtered Departments: ", filteredDepartments);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -92,7 +97,7 @@ export const AllDepartments = () => {
   }
 
 
-  console.log("")
+
 
   return (
     <>
@@ -122,9 +127,9 @@ export const AllDepartments = () => {
               </div>
               <Button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-rgtviolet hover:bg-violet-900 rounded-lg py-6"
+                className="bg-rgtviolet hover:bg-violet-900 rounded-lg py-6 cursor-pointer"
               >
-                Add A New Department
+                Create a New Department
               </Button>
             </div>
           </section>
@@ -174,7 +179,7 @@ export const AllDepartments = () => {
             <div className="md:flex md:flex-row h-full flex-col">
               <Button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-rgtviolet hover:bg-violet-900 rounded-xl h-full"
+                className="bg-rgtviolet hover:bg-violet-900 rounded-xl h-full cursor-pointer"
               >
                 Create a New Department
               </Button>
@@ -266,7 +271,11 @@ export const AllDepartments = () => {
                 users={users || []}
                 placeholder="Select a manager for the department"
                 showEmail={true}
-                filterFn={(user) => user?.user?.role?.name === ALL_ROLE_NAMES.MANAGER}
+                filterFn={(user) =>
+                  user?.user?.role?.name !== ALL_ROLE_NAMES.MANAGER &&
+                  user?.user?.role?.name !== ALL_ROLE_NAMES.ADMIN &&
+                  user?.user?.role?.name !== ALL_ROLE_NAMES.HR
+                }
               />
             )}
           </Field>

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Send, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useKairoBotQuery } from "@/api/query-hooks/ai.hooks";
 import KairoIcon from "@/assets/icons/KairoIcon";
@@ -272,7 +272,7 @@ const Kairo = () => {
               onChange={(e) => setCurrentQuery(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Ask anything"
-              className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 focus-visible:ring-0 placeholder:text-white h-full w-full bg-amber-500"
+              className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 focus-visible:ring-0 placeholder:text-white h-full w-full"
             />
             {/* <button
               onClick={handleSendMessage}

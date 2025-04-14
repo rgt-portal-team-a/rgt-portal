@@ -101,6 +101,8 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
     });
   };
 
+  console.log("emplooyees:", employees);
+
   // Calculate seniority based on hireDate
   const calculateSeniority = useCallback((date: Date | null): string => {
     if (!date) return "N/A";
