@@ -20,5 +20,13 @@ app.layout = create_layout()
 # Register all callbacks
 register_callbacks(app)
 
+# Get server for WSGI deployment
+server = app.server
+
 if __name__ == '__main__':
-    app.run(debug=False, port=8050)
+    # Get host and port from environment variables or use defaults
+    host = os.environ.get("HOST", "0.0.0.0")  # Default to all interfaces
+    port = int(os.environ.get("PORT", 10000))  # Default to port 10000
+    
+    print(f"Starting server on {host}:{port}")
+    app.run_server(debug=False, host=host, port=port)
