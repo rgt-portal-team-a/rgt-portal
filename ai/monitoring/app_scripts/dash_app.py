@@ -6,15 +6,15 @@ import dash_bootstrap_components as dbc
 import sys
 import os
 
-# Enable better path resolution for local development
+# Enable better path resolution
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Initialize the Dash app with dark theme
 app = dash.Dash(
     __name__, 
     external_stylesheets=[dbc.themes.DARKLY],
-    # Development settings - suppress callback exceptions for easier debugging
-    suppress_callback_exceptions=True
+    # Disable callback exceptions in production
+    suppress_callback_exceptions=False
 )
 app.title = "API Metrics Dashboard"
 
@@ -28,17 +28,15 @@ register_callbacks(app)
 server = app.server
 
 if __name__ == '__main__':
-    # Development mode configuration
-    host = os.environ.get("HOST", "127.0.0.1")  # Default to localhost for development
-    port = int(os.environ.get("PORT", 8050))    # Default to Dash's standard port
+    # Production mode configuration
+    host = os.environ.get("HOST", "0.0.0.0")  # Default to all interfaces for production
+    port = int(os.environ.get("PORT", 10000))  # Default to PORT 10000 for production
     
-    print(f"Starting development server on {host}:{port}")
-    print("Debug mode: ON")
-    print("Hot reloading: ON")
+    print(f"Starting production server on {host}:{port}")
     app.run(
-        debug=True,               # Enable debug mode for development
-        dev_tools_hot_reload=True, # Enable hot reloading
-        dev_tools_ui=True,        # Show dev tools UI
+        debug=False,             # Disable debug mode for production
+        dev_tools_hot_reload=False, # Disable hot reloading
+        dev_tools_ui=False,      # Hide dev tools UI
         host=host, 
         port=port
     )
