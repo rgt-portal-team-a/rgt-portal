@@ -3,6 +3,7 @@ from pydantic import ValidationError, Field, BaseModel
 import pandas as pd
 from models.profile import JobRequest
 from models.nsp import NSPDataDirectInput
+from monitoring.metrics import metrics_collector
 from config.settings import api_key
 from utils.profiles import format_profile
 from smart_match.predict import match_jobs_to_applicant, df
@@ -14,6 +15,7 @@ from typing import List, Optional, Union, Optional
 from utils.db import get_db_connection, get_db_cursor
 import os
 import logging
+import time
 
 router = APIRouter(tags=["Recruitment"])
 logger = logging.getLogger(__name__)
@@ -135,7 +137,7 @@ async def generate_report_endpoint(input_data: NSPDataDirectInput):
                         {
                             "predicted_stage": "Hired",
                             "probability": 85.3,
-                            "confidence": "High",
+                            "confidence": 0.85,
                             "warning": "Used default values for missing data"
                         }
                     ]
@@ -197,7 +199,8 @@ async def predict_dropoff_endpoint(
             }
         }
     )
-):
+):  
+    start_time = time.time()
     try:
         # Convert Pydantic model to dict or list of dicts
         if isinstance(applicant, list):
@@ -218,6 +221,7 @@ async def predict_dropoff_endpoint(
         # Get predictions with defaults for any missing data
         predictions = predictor.predict_from_raw(candidates)
         return predictions
+                   
 
     except Exception as e:
         logger.error(f"Error in predict_dropoff_endpoint: {str(e)}", exc_info=True)
@@ -225,31 +229,7 @@ async def predict_dropoff_endpoint(
         return [PredictionResult(
             predicted_stage="CV Review",
             probability=50.0,
-            confidence="Low",
+            confidence=0.5,
             warning=f"Error processing request: {str(e)}; Using default prediction"
         )]
-
-# Keeping the original endpoint signature but updating implementation
-@router.post("/predict-dropoff-original", response_model=List[PredictionResult])
-def predict_dropoff_original_endpoint(request: DropoffRequest):
-    try:
-        candidates = []
-        
-        # Simply pass all applicants directly to the predictor
-        # The predictor will handle all missing values and defaults
-        for applicant_data in request.applicants:
-            candidates.append(applicant_data)
-        
-        # Get predictions with defaults for any missing data
-        predictions = predictor.predict_from_raw(candidates)
-        return predictions
-    except Exception as e:
-        logger.error(f"Error in predict_dropoff_original_endpoint: {str(e)}", exc_info=True)
-        # Instead of failing, return a default prediction with warning
-        return [PredictionResult(
-            predicted_stage="CV Review",
-            probability=50.0,
-            confidence="Low",
-            warning=f"Error processing request: {str(e)}; Using default prediction"
-        )]
-
+    

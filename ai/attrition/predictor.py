@@ -2,7 +2,7 @@ import pickle
 import pandas as pd
 from typing import List
 from pydantic import BaseModel, validator
-from sklearn.metrics import r2_score, accuracy_score
+
 
 # Pydantic model for input data validation
 class EmployeeData(BaseModel):
@@ -24,6 +24,7 @@ class PredictionResponse(BaseModel):
     attrition_probability: float
     risk_level: str
     assessment: str
+    confidence: float
 
 
 # Load the model with metrics if stored
@@ -58,13 +59,9 @@ def predict_attrition(employee: EmployeeData) -> PredictionResponse:
     if isinstance(model_bundle, dict):
         # If model_bundle is a dictionary
         model = model_bundle.get("model")
-        r2 = model_bundle.get("r2", 0.0)
-        acc = model_bundle.get("accuracy", 0.0)
     else:
         # If model_bundle is the model itself
         model = model_bundle
-        r2 = getattr(model, "r2_score", 0.0)
-        acc = getattr(model, "accuracy", 0.0)
 
     input_data = preprocess_data(employee)
     
@@ -76,9 +73,10 @@ def predict_attrition(employee: EmployeeData) -> PredictionResponse:
         try:
             raw_prediction = model.predict(input_data)[0]
             probability = 100.0 if raw_prediction > 0.5 else 0.0
+            probability =  (float(probability)).__round__(2)
         except:
             raise Exception("Failed to make prediction with model")
-
+    confidence = (float(probability) * 0.01).__round__(2)
     if probability >= 75:
         risk_level = "High Risk"
         assessment = "This employee has a high probability of leaving the organization soon."
@@ -92,5 +90,6 @@ def predict_attrition(employee: EmployeeData) -> PredictionResponse:
     return PredictionResponse(
         attrition_probability=probability,
         risk_level=risk_level,
-        assessment=assessment
+        assessment=assessment,
+        confidence=confidence
     )

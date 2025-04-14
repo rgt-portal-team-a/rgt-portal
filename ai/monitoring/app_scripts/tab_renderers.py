@@ -161,7 +161,7 @@ def render_endpoint_tab(data):
                 ], md=6),
                 dbc.Col([
                     dbc.Card([
-                        dbc.CardHeader("Average Response Time by Endpoint", className="fw-bold"),
+                        dbc.CardHeader("Average Response Time by Endpoint (ms)", className="fw-bold"),
                         dbc.CardBody(dcc.Graph(figure=fig2))
                     ], style={
                         'backgroundColor': card_bg_color,
@@ -210,7 +210,7 @@ def render_endpoint_tab(data):
                 ], md=6),
                 dbc.Col([
                     dbc.Card([
-                        dbc.CardHeader("Response Time Over Time", className="fw-bold"),
+                        dbc.CardHeader("Response Time Over Time (ms)", className="fw-bold"),
                         dbc.CardBody(dcc.Graph(figure=fig4))
                     ], style={
                         'backgroundColor': card_bg_color,

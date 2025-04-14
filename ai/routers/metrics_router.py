@@ -8,7 +8,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get("/")
+@router.get("/all metrics")
 async def get_all_metrics(hours: int = 24) -> Dict:
     """Get all metrics including endpoint, system and model metrics"""
     return {
