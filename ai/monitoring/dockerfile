@@ -26,8 +26,10 @@ RUN pip install --upgrade pip setuptools wheel
 RUN useradd --create-home appuser
 RUN chown -R appuser:appuser /app
 
+# Copy requirements file first
+COPY requirements.txt /app/
 
-# Install only needed dependencies
+# Install dependencies
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy application code
