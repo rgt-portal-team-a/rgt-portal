@@ -14,7 +14,10 @@ import { Employee, EmployeeType } from "@/types/employee";
 import { Department } from "@/types/department";
 import ConfirmCancelModal from "@/components/common/ConfirmCancelModal";
 import { useRemoveEmployeeFromDepartment } from "@/api/query-hooks/employee.hooks";
-import { useUpdateDepartment, useUpdateManager } from "@/api/query-hooks/department.hooks";
+import {
+  useUpdateDepartment,
+  useUpdateManager,
+} from "@/api/query-hooks/department.hooks";
 import Filters from "@/components/common/Filters";
 import Avtr from "@/components/Avtr";
 
@@ -246,7 +249,6 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
         setManagerModalOpen(false);
         setSelectedEmployeeId(null);
       } catch (error) {
-        
         console.error("Failed to update manager", error);
       }
     }

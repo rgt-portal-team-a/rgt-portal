@@ -130,7 +130,7 @@ export const AllDepartments = () => {
           </section>
 
           {filteredDepartments.length > 0 ? (
-            <div className="flex flex-wrap gap-4 h-[100%] md:h-[53%] overflow-auto pb-5 ">
+            <div className="flex flex-wrap gap-4 overflow-auto pb-5 ">
               {filteredDepartments.map((department) => (
                 <DepartmentCard
                   key={department.id}

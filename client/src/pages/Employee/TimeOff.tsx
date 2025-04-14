@@ -244,32 +244,34 @@ export default function TimeOff() {
         </header>
 
         <div className="flex flex-col justify-between flex-grow">
-          <Filters filters={filters} onReset={handleResetFilters} />
+          <div>
+            <Filters filters={filters} onReset={handleResetFilters} />
 
-          <div className="overflow-auto">
-            <DataTable
-              columns={timeOffTableColumns}
-              data={paginatedData || []}
-              actionBool={true}
-              actionObj={[
-                {
-                  name: "view",
-                  action: (rowData) => {
-                    setAppRej(!appRej);
-                    setSelectedPtoId(rowData);
+            <div className="overflow-auto">
+              <DataTable
+                columns={timeOffTableColumns}
+                data={paginatedData || []}
+                actionBool={true}
+                actionObj={[
+                  {
+                    name: "view",
+                    action: (rowData) => {
+                      setAppRej(!appRej);
+                      setSelectedPtoId(rowData);
+                    },
                   },
-                },
-                {
-                  name: "delete",
-                  action: () => setIsDeletePTO(true),
-                },
-              ]}
-              showDelete={isDeletePTO}
-              setShowDelete={setIsDeletePTO}
-              isDeleteLoading={isPtoDeleting}
-              onDelete={deletePto}
-              loading={isLoading}
-            />
+                  {
+                    name: "delete",
+                    action: () => setIsDeletePTO(true),
+                  },
+                ]}
+                showDelete={isDeletePTO}
+                setShowDelete={setIsDeletePTO}
+                isDeleteLoading={isPtoDeleting}
+                onDelete={deletePto}
+                loading={isLoading}
+              />
+            </div>
           </div>
           {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
             <div>

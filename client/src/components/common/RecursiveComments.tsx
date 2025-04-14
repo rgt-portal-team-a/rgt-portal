@@ -30,8 +30,8 @@ const RecursiveComments = ({
     setReply(false);
   };
 
-  console.log("replyReplies:", replyReplies);
-  console.log("comment:", comment);
+  // console.log("replyReplies:", replyReplies);
+  // console.log("comment:", comment);
 
   const isLiked = comment?.likes?.find(
     (item) => item.employeeId === currentUser?.employee.id
@@ -42,7 +42,7 @@ const RecursiveComments = ({
       <Avtr
         url={comment?.author.profileImage ?? ""}
         name={comment?.author.firstName ?? ""}
-        avtBg="#94A3B8"
+        avtBg="bg-purple-200 text-purple-500 text-xs"
         className="text-xs font-semibold text-white"
       />
       <div className="w-full flex items-center">
@@ -53,7 +53,7 @@ const RecursiveComments = ({
                 comment?.author.firstName
                 // + comment?.author.lastName
               }
-              <span className="text-[#706D8A] font-[400] text-sm">
+              <span className="text-[#706D8A] font-[400] text-sm pl-2">
                 {comment?.content}
               </span>
             </p>

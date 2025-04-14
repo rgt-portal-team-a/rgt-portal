@@ -254,10 +254,10 @@ const EmployeeManagementTable: React.FC<EmployeeManagementTableProps> = ({
         <Link to={`/admin/manageemployees/employee/${row.id}`}>
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden mr-2 bg-gray-200">
-              {row.user.profileImage ? (
+              {row.user?.profileImage ? (
                 <Avtr
-                  url={row.user.profileImage}
-                  name={row.user.username}
+                  url={row.user?.profileImage}
+                  name={row.user?.username}
                   avtBg="bg-purple-200 text-purple-700"
                 />
               ) : (
