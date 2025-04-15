@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const EmployeesTableSkeleton = () => {
   return (
-    <div className="w-full max-w-7xl mx-auto p-4">
+    <div className="w-full mx-auto p-4">
       {/* Header */}
       <div className="mb-8">
         <Skeleton className="h-10 w-64" />

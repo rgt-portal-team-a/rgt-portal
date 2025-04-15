@@ -17,6 +17,8 @@ const Feed = () => {
   const { data: recognitions, isLoading: recsLoading } =
     useGetAllRecognitions();
 
+    console.log("recognition data:", recognitions)
+
   const { polls, pollsLoading } = usePoll();
   const { posts, postsLoading } = usePost();
 

@@ -19,16 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  CalendarIcon,
-  Home,
-  MapPin,
-  FileText,
-  Loader
-} from "lucide-react";
-import {
-  useEmployeeDetails,
-} from "@/api/query-hooks/employee.hooks";
+import { CalendarIcon, Home, MapPin, FileText, Loader } from "lucide-react";
+import { useEmployeeDetails } from "@/api/query-hooks/employee.hooks";
 import { SideModal } from "@/components/ui/side-dialog";
 import { format } from "date-fns";
 import {
@@ -43,7 +35,7 @@ import { useDepartments } from "@/api/query-hooks/department.hooks";
 import "react-country-state-city/dist/react-country-state-city.css";
 import { Country, State } from "react-country-state-city/dist/esm/types";
 import SkillsSelector from "./SkillsSelector";
-import {useEmployeeForm} from "@/hooks/useEmployeeForm"
+import { useEmployeeForm } from "@/hooks/useEmployeeForm";
 import { useEmployeeValidation } from "@/hooks/useEmployeeValidation";
 import { useEmployeeSubmission } from "@/hooks/useEmployeeSubmission";
 import {
@@ -53,14 +45,10 @@ import {
   ALL_ROLE_NAMES,
 } from "@/constants";
 import { toast } from "@/hooks/use-toast";
-import {Employee, RoleType} from "@/types/employee"
-import CustomCountrySelect from "./CustomCountrySelect"
-import CustomStateSelect from "./CustomStateSelect"
+import { Employee, RoleType } from "@/types/employee";
+import CustomCountrySelect from "./CustomCountrySelect";
+import CustomStateSelect from "./CustomStateSelect";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
-
-
-
-
 
 interface EditEmployeeFormProps {
   employeeId: number;
@@ -73,70 +61,80 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
   isOpen,
   onClose,
 }) => {
-    const { currentUser } = useAuthContextProvider();
-    const {
-      data: departments,
-      isLoading: isDepartmentsLoading,
-      isError: isDepartmentsError,
-      error: departmentsError,
-      refetch: refetchDepartments,
-    } = useDepartments({ includeEmployees: true });
-    const { data: employeeData, isLoading:isEmployeeLoading, isError:isEmployeeError, error:getEmployeeError } = useEmployeeDetails(employeeId.toString());
-    const employee = employeeData || {} as Employee;
-    console.log("EMPLOYEE", employee);
-    const { validationSchema } = useEmployeeValidation();
+  const { currentUser } = useAuthContextProvider();
+  const {
+    data: departments,
+    isLoading: isDepartmentsLoading,
+    isError: isDepartmentsError,
+    error: departmentsError,
+    refetch: refetchDepartments,
+  } = useDepartments({ includeEmployees: true });
+  const {
+    data: employeeData,
+    isLoading: isEmployeeLoading,
+    isError: isEmployeeError,
+    error: getEmployeeError,
+  } = useEmployeeDetails(employeeId.toString());
+  const employee = employeeData || ({} as Employee);
+  console.log("EMPLOYEE", employee);
+  const { validationSchema } = useEmployeeValidation();
 
-    const { 
-        countries, 
-        states, 
-        initialValues,
-        selectedState,
-        selectedCountry, 
-        setSelectedCountry 
-    } = useEmployeeForm(employee);
+  const {
+    countries,
+    states,
+    initialValues,
+    selectedState,
+    selectedCountry,
+    setSelectedCountry,
+  } = useEmployeeForm(employee);
 
-    const { 
-        handleSubmit, 
-        isSubmitting 
-    } = useEmployeeSubmission(employeeId, employee, countries, states);
+  const { handleSubmit, isSubmitting } = useEmployeeSubmission(
+    employeeId,
+    employee,
+    countries,
+    states
+  );
 
+  if (!employee || isEmployeeError) {
+    console.log("Cannot Get Employee By Id");
+    toast({
+      title: "Error Editing Employee",
+      description:
+        "Failed To Get Employee By ID" +
+        employeeId.toString() +
+        ". Error" +
+        getEmployeeError,
+      variant: "destructive",
+    });
+    return;
+  }
 
-    if(!employee || isEmployeeError ){
-        console.log("Cannot Get Employee By Id");
-        toast({
-            title: "Error Editing Employee",
-            description: "Failed To Get Employee By ID" + employeeId.toString() + ". Error" + getEmployeeError,
-            variant: "destructive",
-        });
-        return;
-    }
+  if (!departments || isDepartmentsError) {
+    console.log("Cannot Get Departments");
+    toast({
+      title: "Error Getting Departments",
+      description: "Failed To Get Departments" + departmentsError,
+      variant: "destructive",
+    });
+    return;
+  }
 
-    if(!departments || isDepartmentsError ){
-        console.log("Cannot Get Departments");
-        toast({
-            title: "Error Getting Departments",
-            description: "Failed To Get Departments" + departmentsError,
-            variant: "destructive",
-        });
-        return;
-    }
-
-    if (isEmployeeLoading || isDepartmentsLoading) {
-      return (
-        <SideModal
-          isOpen={isOpen}
-          onOpenChange={onClose}
-          title="Loading Employee Details"
-          position="right"
-          size="full"
-          contentClassName=" min-w-2xl px-6 "
-        >
-          <div className="flex justify-center items-center h-full min-w-2xl  my-auto">
-            <Loader className="animate-spin h-8 w-8" />
-          </div>
-        </SideModal>
-      );
-    }
+  if (isEmployeeLoading || isDepartmentsLoading) {
+    return (
+      <SideModal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        title="Loading Employee Details"
+        position="right"
+        size="full"
+        contentClassName=" min-w-2xl px-6 "
+      >
+        <div className="flex justify-center items-center h-full min-w-2xl  my-auto">
+          <Loader className="animate-spin h-8 w-8" />
+        </div>
+      </SideModal>
+    );
+  }
 
   return (
     <>
@@ -144,7 +142,7 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
         isOpen={isOpen}
         onOpenChange={() => {
           console.log("Before Closing The Modal. Befre isSubmitting");
-          if (!isSubmitting) { 
+          if (!isSubmitting) {
             console.log("About to Close The Modal");
             onClose();
           }
@@ -334,31 +332,36 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                                   </div>
                                 )}
                             </div>
-                          );}}
+                          );
+                        }}
                       </Field>
                     </div>
 
                     {/* Employee Agency Field */}
                     <div className="space-y-2">
                       <Field name="agencyName">
-                        {({ field, form:{touched, errors} }: {
+                        {({
+                          field,
+                          form: { touched, errors },
+                        }: {
                           field: FieldInputProps<string>;
-                          form: any;}) => (
+                          form: any;
+                        }) => (
                           <div className="space-y-2">
                             <Label className="text-sm font-medium">
                               Agency
                             </Label>
-                              <Input
-                                id="agencyName"
-                                type="email"
-                                placeholder="Enter agency name"
-                                {...field}
-                                className={`w-full py-6 px-4 ${
-                                  touched.agencyName && errors.agencyName
-                                    ? "border-red-500"
-                                    : ""
-                                }`}
-                              />
+                            <Input
+                              id="agencyName"
+                              type="email"
+                              placeholder="Enter agency name"
+                              {...field}
+                              className={`w-full py-6 px-4 ${
+                                touched.agencyName && errors.agencyName
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
+                            />
                             {touched.agencyName && errors.agencyName && (
                               <div className="text-red-500 text-sm mt-1">
                                 {errors.agencyName}
@@ -853,7 +856,6 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                       </Label>
                       <Field name="countryId">
                         {({ form, meta }: FieldProps) => {
-                          
                           return (
                             <div className="space-y-2">
                               <div className="relative">
@@ -867,7 +869,7 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                                     form.setFieldValue("stateId", null);
                                     form.setFieldValue("city", "");
                                   }}
-                                  selectedCountry={selectedCountry} 
+                                  selectedCountry={selectedCountry}
                                   placeHolder="Select Country"
                                   containerClassName="w-full "
                                   inputClassName="w-full py-6 border rounded-md px-3"
@@ -879,7 +881,8 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                                 )}
                               </div>
                             </div>
-                          );}}
+                          );
+                        }}
                       </Field>
                     </div>
 
@@ -916,7 +919,8 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                                 </div>
                               )}
                             </div>
-                          );}}
+                          );
+                        }}
                       </Field>
                     </div>
 
@@ -986,7 +990,8 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                   </button>
                 </div>
               </>
-            );}}
+            );
+          }}
         </Formik>
       </SideModal>
     </>

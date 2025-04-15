@@ -28,7 +28,7 @@ const DepartmentCard: React.FC<IDepartmentCard> = ({
   path,
 }) => {
 
-  console.log("manager:",manager)
+  // console.log("manager:",manager)
   const maxVisible = 3;
   const extraCount = employees.length - maxVisible;
   const [showMore, setShowMore] = useState(false);

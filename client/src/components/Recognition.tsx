@@ -81,7 +81,7 @@ const Recognition = ({
       )}
 
       <div
-        className="flex gap-2 w-full px-4 py-2 relative"
+        className="flex gap-2 w-full px-4 py-2 relative justify-center"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -90,7 +90,7 @@ const Recognition = ({
       >
         <div
           className="flex-shrink-0 invisible"
-          style={{ width: "calc(10% - 50px)" }}
+          style={{ width: "calc(20% - 100px)" }}
         ></div>
 
         {isRecLoading && (
@@ -152,7 +152,7 @@ const Recognition = ({
           )}
         <div
           className="flex-shrink-0 invisible"
-          style={{ width: "calc(10% - 50px)" }}
+          style={{ width: "calc(20% - 100px)" }}
         ></div>
       </div>
     </section>

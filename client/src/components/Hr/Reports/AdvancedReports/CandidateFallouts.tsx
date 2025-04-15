@@ -94,8 +94,8 @@ export const CandidateFallouts = () => {
   const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
 
   return (
-    <div className="bg-white rounded-[32px] shadow-sm p-6 h-full">
-      <div className="flex flex-col justify-between mb-6 space-y-3 w-full ">
+    <div className="bg-white rounded-[32px] shadow-sm p-6 md:w-[400px]">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Candidate Fallout</h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center relative w-full">

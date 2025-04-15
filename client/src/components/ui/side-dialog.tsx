@@ -174,7 +174,7 @@ export const SideModal = ({
 
         {showCloseButton && (
           <Dialog.Close asChild>
-            <div className={`z-1030 ${getCloseButtonPosition()}`}>
+            <div className={`z-1030 w-full ${getCloseButtonPosition()}`}>
               <img
                 src="/Down 2.svg"
                 className={`${getCloseButtonRotation()} bg-white p-2 w-12 h-12 rounded-full shadow-gray shadow-sm border hover:bg-slate-100 transition-all duration-300 ease-in cursor-pointer`}
