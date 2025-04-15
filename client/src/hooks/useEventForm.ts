@@ -260,7 +260,6 @@ export const useEventForm = (initialFormType = "1") => {
         endOfDay.setHours(23, 59, 59, 999);
 
         const birthdayEmp = users.find((u) => u.id.toString() === specialEvent.employeeId);
-        console.log("Found Birthday Emp", birthdayEmp);
 
         return {
           title:
@@ -314,7 +313,6 @@ export const useEventForm = (initialFormType = "1") => {
 
 
         const currentUserId = getCurrentUserId();
-        console.log("CurrentUserId", currentUserId);
 
         const recognitionDtos: CreateRecognitionDto[] =
           recognition.recognitionList.map((item) => {
@@ -331,7 +329,6 @@ export const useEventForm = (initialFormType = "1") => {
             };
           });
 
-        console.log("Recognition", recognitionDtos);
         return recognitionDtos.length === 1
           ? recognitionDtos[0]
           : recognitionDtos;
@@ -345,10 +342,8 @@ export const useEventForm = (initialFormType = "1") => {
     data: CreateEventDto
   ): Promise<CreateEventResult> => {
     try {
-      console.log("Calling Create event Submit", data);
 
       const response = await createEventMutation.mutateAsync({ data: data });
-      console.log("Logging Create event response", response);
 
       if (!response.success) {
         return {
@@ -376,7 +371,6 @@ export const useEventForm = (initialFormType = "1") => {
     data: CreateRecognitionDto | CreateRecognitionDto[]
   ): Promise<CreateRecognitionResult> => {
     try {
-      console.log("Creating Recognition(s):", data);
 
       let response: EmployeeRecognition | EmployeeRecognition[];
 
@@ -398,7 +392,6 @@ export const useEventForm = (initialFormType = "1") => {
         error: null,
       };
     } catch (error) {
-      console.error("Recognition Creation Error:", error);
 
       return {
         success: false,
@@ -414,7 +407,6 @@ export const useEventForm = (initialFormType = "1") => {
   ) => {
     try {
       setSubmitting(true);
-      console.log("Before Submiting", values);
 
       const transformedData = transformFormValuesToEventDto(
         values,
@@ -422,12 +414,10 @@ export const useEventForm = (initialFormType = "1") => {
         users
       );
 
-      console.log("After Transforming", transformedData);
 
       let result;
 
       if (values.formType === "3") {
-        console.log("About to create recognition");
         result = await createRecognition(
           transformedData as CreateRecognitionDto | CreateRecognitionDto[]
         );
@@ -439,11 +429,11 @@ export const useEventForm = (initialFormType = "1") => {
         throw result.error;
       }
 
-      toastService.success(
-        `${
-          values.formType === "3" ? "Recognition" : "Event"
-        } created successfully`
-      );
+      // toastService.success(
+      //   `${
+      //     values.formType === "3" ? "Recognition" : "Event"
+      //   } created successfully`
+      // );
 
       resetForm();
       // onClose();

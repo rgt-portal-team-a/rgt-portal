@@ -287,7 +287,7 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-[200px] p-2 space-y-1">
-          {!row.isDepartmentManager ? (
+          {!row.isDepartmentManager && (
             <Button
               variant="ghost"
               className="w-full justify-start"
@@ -300,20 +300,22 @@ const DepartmentEmployeeTable: React.FC<DepartmentEmployeeTableProps> = ({
               <UserCheck className="mr-2 h-4 w-4" />
               Make Manager
             </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              className="w-full justify-start"
-              onClick={() => {
-                setSelectedEmployeeId(row.id);
-                setEmployeeModalOpen(true);
-                setIsOpen(false);
-              }}
-            >
-              <UserCheck className="mr-2 h-4 w-4" />
-              Make Employee
-            </Button>
-          )}
+          ) 
+          // : (
+            // <Button
+            //   variant="ghost"
+            //   className="w-full justify-start"
+            //   onClick={() => {
+            //     setSelectedEmployeeId(row.id);
+            //     setEmployeeModalOpen(true);
+            //     setIsOpen(false);
+            //   }}
+            // >
+            //   <UserCheck className="mr-2 h-4 w-4" />
+            //   Make Employee
+            // </Button>
+          // )
+          }
           <Button
             variant="ghost"
             className="w-full justify-start text-destructive hover:text-destructive"

@@ -21,7 +21,6 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
           <div className="w-16 h-16 rounded-full overflow-hidden bg-purple-200 flex items-center justify-center">
             <User size={32} className="text-purple-600" />
           </div>
-
           {/* Employee name and title */}
           <div>
             <div className="flex items-center gap-2">
@@ -32,10 +31,11 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
                 {employee.workType}
               </span>
             </div>
-            <p className="text-slate-500">{employee.role?.name.toUpperCase()}</p>
+            <p className="text-slate-500">
+              {employee.role?.name.toUpperCase()}
+            </p>
           </div>
         </div>
-
         {/* Tabs */}
         <div className="relative">
           <div className="absolute inset-0 bg-purple-50 h-12"></div>
@@ -48,24 +48,32 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
               onClick={() => setActiveTab("details")}
             >
               {activeTab === "details" && (
-                <div
-                  className="absolute -bottom-6 left-0 right-0 h-12 bg-white"
-                  style={{
-                    borderTopLeftRadius: "60px",
-                    borderTopRightRadius: "60px",
-                    width: "100%",
-                    left: "0%",
-                    bottom: "-70px",
-                    height: "100px",
-                    zIndex: -1,
-                  }}
-                ></div>
+                <svg
+                  className="absolute left-1/2 -top-1/2 transform -translate-x-1/2 "
+                  width="300"
+                  height="118"
+                  viewBox="0 0 600 300"
+                >
+                  <path
+                    d="
+                      M0,300 
+                      L60,300 
+                      C120,300 160,260 180,220 
+                      C200,180 220,160 300,140 
+                      L310,140  
+                      C380,160 400,180 420,220 
+                      C440,260 480,300 540,300 
+                      L600,300 
+                      Z
+                    "
+                    fill="white"
+                  />
+                </svg>
               )}
               <span className="relative z-10 pt-10 px-8 text-sm block">
                 Details
               </span>
             </div>
-
             {/* Activity Tab */}
             <div
               className={`relative cursor-pointer ${
@@ -74,18 +82,27 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
               onClick={() => setActiveTab("activity")}
             >
               {activeTab === "activity" && (
-                <div
-                  className="absolute -bottom-6 left-0 right-0 h-12 bg-white"
-                  style={{
-                    borderTopLeftRadius: "60px",
-                    borderTopRightRadius: "60px",
-                    width: "120%",
-                    left: "0%",
-                    bottom: "-70px",
-                    height: "100px",
-                    zIndex: -1,
-                  }}
-                ></div>
+                <svg
+                  className="absolute left-1/2 -top-1/2 transform -translate-x-1/2 "
+                  width="300"
+                  height="118"
+                  viewBox="0 0 600 300"
+                >
+                  <path
+                    d="
+                      M0,300 
+                      L60,300 
+                      C120,300 160,260 180,220 
+                      C200,180 220,160 300,140 
+                      L310,140  
+                      C380,160 400,180 420,220 
+                      C440,260 480,300 540,300 
+                      L600,300 
+                      Z
+                    "
+                    fill="white"
+                  />
+                </svg>
               )}
               <span className="relative z-10 pt-10 px-8 text-sm block">
                 Activity
@@ -93,7 +110,6 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({
             </div>
           </div>
         </div>
-
         <button className="text-purple-500 hover:text-purple-700 p-4">
           <Edit size={18} />
         </button>

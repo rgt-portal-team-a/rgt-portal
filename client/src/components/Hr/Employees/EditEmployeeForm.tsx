@@ -74,13 +74,13 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
   onClose,
 }) => {
     const { currentUser } = useAuthContextProvider();
-      const {
-        data: departments,
-        isLoading: isDepartmentsLoading,
-        isError: isDepartmentsError,
-        error: departmentsError,
-        refetch: refetchDepartments,
-      } = useDepartments({ includeEmployees: true });
+    const {
+      data: departments,
+      isLoading: isDepartmentsLoading,
+      isError: isDepartmentsError,
+      error: departmentsError,
+      refetch: refetchDepartments,
+    } = useDepartments({ includeEmployees: true });
     const { data: employeeData, isLoading:isEmployeeLoading, isError:isEmployeeError, error:getEmployeeError } = useEmployeeDetails(employeeId.toString());
     const employee = employeeData || {} as Employee;
     console.log("EMPLOYEE", employee);
@@ -436,12 +436,17 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                       <Field name="roleId">
                         {({ field, form, meta }: FieldProps) => {
                           return (field.value === "2" &&
-                            currentUser?.role?.name === ALL_ROLE_NAMES.HR) ||
+                            currentUser?.role?.name === ALL_ROLE_NAMES.HR &&
+                            Number(currentUser.id) === employeeId) ||
                             (field.value === "4" &&
-                              currentUser?.role?.name === ALL_ROLE_NAMES.ADMIN) ? (
-                              <div className="border border-gray-200 text-gray-500 text-sm shadow-xs rounded-md py-[14px] px-4">You cannot change your own role</div>
+                              currentUser?.role?.name ===
+                                ALL_ROLE_NAMES.ADMIN &&
+                              Number(currentUser.id) === employeeId) ? (
+                            <div className="border border-gray-200 text-gray-500 text-sm shadow-xs rounded-md py-[14px] px-4">
+                              You cannot change your own role
+                            </div>
                           ) : (
-                              <div className="relative">
+                            <div className="relative">
                               <Select
                                 onValueChange={(value) =>
                                   form.setFieldValue(field.name, value)
@@ -463,12 +468,17 @@ export const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({
                                     <SelectItem value={ROLE_TYPES.EMPLOYEE}>
                                       Employee
                                     </SelectItem>
-                                    <SelectItem value={ROLE_TYPES.HR}>
-                                      Hr
-                                    </SelectItem>
-                                    <SelectItem value={ROLE_TYPES.MANAGER}>
-                                      Manager
-                                    </SelectItem>
+                                    {employee.user?.role?.name !==
+                                      ALL_ROLE_NAMES.MANAGER && (
+                                      <>
+                                        <SelectItem value={ROLE_TYPES.HR}>
+                                          Hr
+                                        </SelectItem>
+                                        <SelectItem value={ROLE_TYPES.MANAGER}>
+                                          Manager
+                                        </SelectItem>
+                                      </>
+                                    )}
                                     <SelectItem value={ROLE_TYPES.MARKETER}>
                                       Marketer
                                     </SelectItem>

@@ -266,7 +266,11 @@ export const AllDepartments = () => {
                 users={users || []}
                 placeholder="Select a manager for the department"
                 showEmail={true}
-                filterFn={(user) => user?.user?.role?.name === ALL_ROLE_NAMES.MANAGER}
+                filterFn={(user) =>
+                  user?.user?.role?.name !== ALL_ROLE_NAMES.MANAGER &&
+                  user?.user?.role?.name !== ALL_ROLE_NAMES.ADMIN &&
+                  user?.user?.role?.name !== ALL_ROLE_NAMES.HR
+                }
               />
             )}
           </Field>
