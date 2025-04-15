@@ -28,12 +28,12 @@ export class Post {
   @JoinColumn({ name: "author_id" })
   author!: Employee;
 
-  @OneToMany(() => PostLike, (like) => like.post)
+  @OneToMany(() => PostLike, (like) => like.post, { cascade: true, onDelete: "CASCADE" })
   likes!: PostLike[];
 
-  @OneToMany(() => PostReaction, (reaction) => reaction.post)
+  @OneToMany(() => PostReaction, (reaction) => reaction.post, { cascade: true, onDelete: "CASCADE" })
   reactions!: PostReaction[];
 
-  @OneToMany(() => PostComment, (comment) => comment.post)
+  @OneToMany(() => PostComment, (comment) => comment.post, { cascade: true, onDelete: "CASCADE" })
   comments!: PostComment[];
 }

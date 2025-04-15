@@ -44,11 +44,18 @@ export class CommentLikeService {
 
     const like = this.likeRepository.create(likeDto);
 
+    const savedLike = await this.likeRepository.findOne({
+      where: {
+        id: like.id,
+      },
+      relations: ["employee", "employee.user", "comment", "reply"],
+    });
+
     await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.COMMENT_LIKED, {
-      sender: like.employee,
-      commentAuthorId: like.comment?.authorId,
-      commentContent: like.comment?.content,
-      postId: like.comment?.post.id,
+      sender: savedLike?.employee.user,
+      commentAuthorId: savedLike?.comment?.authorId,
+      commentContent: savedLike?.comment?.content,
+      commentId: savedLike?.comment?.id,
     });
 
     return this.likeRepository.save(like);

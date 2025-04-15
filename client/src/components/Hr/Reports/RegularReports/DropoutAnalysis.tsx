@@ -27,8 +27,6 @@ const DropoutAnalysis: React.FC = () => {
   const { data, isLoading, isError, error, refetch, isFetching } =
     useDropOutRateByStage();
 
-  console.log("Dropout Data", data?.dropoutData);
-
   const total =
     data?.dropoutData?.reduce((sum, item) => sum + Number(item.value), 0) || 0;
 
@@ -149,7 +147,7 @@ const DropoutAnalysis: React.FC = () => {
 
   // Render Normal State
   return (
-    <Card className="border-none shadow-none relative">
+    <Card className=" relative">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Dropout Analysis</CardTitle>
       </CardHeader>
@@ -159,7 +157,7 @@ const DropoutAnalysis: React.FC = () => {
             <Pie
               data={data.dropoutData.map((item) => ({
                 ...item,
-                value: Number(item.value), // Convert string to number
+                value: Number(item.value), 
               }))}
               cx="50%"
               cy="50%"

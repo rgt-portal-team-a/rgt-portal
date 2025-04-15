@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { specialEventTypes } from "@/hooks/useEventForm";
 
@@ -8,18 +8,21 @@ interface SpecialEventTypeSelectorProps {
 }
 
 export const SpecialEventTypeSelector = React.memo(
-  ({ selectedType, onSelect }: SpecialEventTypeSelectorProps) => (
-    <div className="mb-2">
-      <div className="flex space-x-2">
-        {specialEventTypes.map((eventType) => (
-          <Button
-            key={eventType.id}
-            type="button"
-            onClick={() => {
-              console.log("Selecting An Event With Id", eventType.id, eventType.label)
-              onSelect(eventType.id)
-            }}
-            className={`
+  ({ selectedType, onSelect }: SpecialEventTypeSelectorProps) => {
+    const eventTypeButtons = useMemo(() => {
+      return specialEventTypes.map((eventType) => (
+        <Button
+          key={eventType.id}
+          type="button"
+          onClick={() => {
+            console.log(
+              "Selecting An Event With Id",
+              eventType.id,
+              eventType.label
+            );
+            onSelect(eventType.id);
+          }}
+          className={`
             ${
               selectedType === eventType.id
                 ? "bg-[#E328AF] text-white hover:bg-[#E328AF]"
@@ -27,12 +30,18 @@ export const SpecialEventTypeSelector = React.memo(
             }
             px-4 py-[10px] rounded-[8px] transition-colors
           `}
-          >
-            {eventType.label}
-          </Button>
-        ))}
+        >
+          {eventType.label}
+        </Button>
+      ));
+    }, [selectedType, onSelect]);
+
+    return (
+      <div className="mb-2">
+        <div className="flex space-x-2">{eventTypeButtons}</div>
       </div>
-    </div>
-  )
+    );
+  }
 );
+
 SpecialEventTypeSelector.displayName = "SpecialEventTypeSelector";

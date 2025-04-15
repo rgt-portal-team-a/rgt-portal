@@ -38,12 +38,24 @@ export class CommentReplyService {
   async create(createReplyDto: CreateCommentReplyDto): Promise<CommentReply> {
     const reply = this.replyRepository.create(createReplyDto);
 
-    await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.COMMENT_REPLIED, {
-      sender: reply.author,
-      parentCommentAuthorId: reply.parentReply?.authorId,
-      commentContent: reply.content,
-      postId: reply.comment.post.id,
+    const savedReply = await this.replyRepository.findOne({
+      where: {
+        id: reply.id,
+      },
+      relations: ["author", "author.user", "comment", "comment.author", "parentReply",  "likes", "likes.employee"],
     });
+
+    console.log('====================================');
+    console.log(savedReply);
+    console.log('====================================');
+
+    await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.COMMENT_REPLIED, {
+      sender: savedReply?.author.user,
+      parentCommentAuthorId: savedReply?.parentReply?.authorId || savedReply?.comment.authorId,
+      commentContent: savedReply?.content,
+      commentId: savedReply?.comment.id,
+    });
+
     return this.replyRepository.save(reply);
   }
 

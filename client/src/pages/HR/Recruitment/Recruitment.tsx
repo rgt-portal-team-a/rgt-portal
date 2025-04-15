@@ -22,6 +22,9 @@ interface RecruitmentPageProps {
   type: RecruitmentType;
 }
 
+
+
+
 const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -159,6 +162,7 @@ const RecruitmentPage: React.FC<RecruitmentPageProps> = ({ type }) => {
           <span className="text-sm">Refreshing...</span>
         </div>
       )}
+
 
       <RecruitmentTable
         candidates={data?.recruitments || []}

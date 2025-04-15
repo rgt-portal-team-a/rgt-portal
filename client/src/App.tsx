@@ -155,6 +155,7 @@ function App() {
             />
             <Route path="events" element={<Events />} />
 
+
             {/* Advanced Report routes - accessible by HR and ADMIN */}
             <Route path="reports">
               <Route path="regularreport" element={<RegularReports />} />

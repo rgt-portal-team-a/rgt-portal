@@ -9,7 +9,7 @@ export class PostComment {
   @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
-  @ManyToOne(() => Post, (post) => post.comments)
+  @ManyToOne(() => Post, (post) => post.comments, { onDelete: "CASCADE" })
   @JoinColumn({ name: "post_id" })
   post!: Post;
 
@@ -26,9 +26,9 @@ export class PostComment {
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;
 
-  @OneToMany(() => CommentReply, (reply) => reply.comment)
+  @OneToMany(() => CommentReply, (reply) => reply.comment, { cascade: true, onDelete: "CASCADE" })
   replies!: CommentReply[];
 
-  @OneToMany(() => CommentLike, (like) => like.comment)
+  @OneToMany(() => CommentLike, (like) => like.comment, { cascade: true, onDelete: "CASCADE" })
   likes!: CommentLike[];
 }
