@@ -150,11 +150,19 @@ export class PtoRequestService {
   }
 
   async update(id: number, updateData: UpdatePtoRequestDto): Promise<PtoRequest> {
-    const ptoRequest = await this.findById(id);
-    const employee = await this.employeeRepository.findOne({ where: { id: ptoRequest?.employee.id } });
+    const ptoRequest = await this.ptoRequestRepository.findOne({
+      where: { id },
+      relations: ["employee", "employee.user", "approver"]
+    });
+
     if (!ptoRequest) {
       throw new Error("PTO request not found");
     }
+
+    const employee = await this.employeeRepository.findOne({
+      where: { id: ptoRequest.employee.id },
+      relations: ["user"]
+    });
 
     if (!employee) {
       throw new Error("Employee not found");
@@ -163,21 +171,19 @@ export class PtoRequestService {
     const updatedRequest = await this.ptoRequestRepository.update(id, updateData);
 
     if ([PtoStatusType.HR_APPROVED].includes(updateData.status)) {
-      const employee = ptoRequest.employee;
-      if (employee) {
-        const startDate = new Date(ptoRequest.startDate);
-        const endDate = new Date(ptoRequest.endDate);
-        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-        if (ptoRequest.type === "vacation") {
-          employee.vacationDaysBalance -= diffDays;
-        } else if (ptoRequest.type === "sick") {
-          employee.sickDaysBalance -= diffDays;
-        }
-
-        await this.employeeRepository.save(employee);
+      const startDate = new Date(ptoRequest.startDate);
+      const endDate = new Date(ptoRequest.endDate);
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      employee.annualDaysOff = employee.annualDaysOff - diffDays;
+      if (ptoRequest.type === "vacation") {
+        employee.vacationDaysBalance = employee.vacationDaysBalance - diffDays;
+      } else if (ptoRequest.type === "sick") {
+        employee.sickDaysBalance = employee.sickDaysBalance - diffDays;
       }
+
+      await this.employeeRepository.save(employee);
     }
 
     if (updateData.status !== PtoStatusType.PENDING) {
