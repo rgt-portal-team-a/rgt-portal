@@ -8,14 +8,14 @@ export class CommentLike {
   @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
-  @ManyToOne(() => PostComment, (comment) => comment.likes, { nullable: true })
+  @ManyToOne(() => PostComment, (comment) => comment.likes, { nullable: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "comment_id" })
   comment?: PostComment;
 
   @Column({ nullable: true, type: "bigint" })
   commentId?: number;
 
-  @ManyToOne(() => CommentReply, (reply) => reply.likes, { nullable: true })
+  @ManyToOne(() => CommentReply, (reply) => reply.likes, { nullable: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "reply_id" })
   reply?: CommentReply;
 

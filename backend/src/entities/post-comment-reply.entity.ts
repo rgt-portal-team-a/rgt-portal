@@ -8,21 +8,21 @@ export class CommentReply {
   @PrimaryGeneratedColumn({ type: "bigint" })
   id!: number;
 
-  @ManyToOne(() => PostComment, (comment) => comment.replies)
+  @ManyToOne(() => PostComment, (comment) => comment.replies, { onDelete: "CASCADE" })
   @JoinColumn({ name: "comment_id" })
   comment!: PostComment;
 
   @Column({ nullable: true, type: "bigint" })
   commentId!: number;
 
-  @ManyToOne(() => CommentReply, (reply) => reply.childReplies, { nullable: true })
+  @ManyToOne(() => CommentReply, (reply) => reply.childReplies, { nullable: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "parent_reply_id" })
   parentReply?: CommentReply;
 
   @Column({ nullable: true, type: "bigint" })
   parentReplyId?: number;
 
-  @OneToMany(() => CommentReply, (reply) => reply.parentReply)
+  @OneToMany(() => CommentReply, (reply) => reply.parentReply, { cascade: true, onDelete: "CASCADE" })
   childReplies!: CommentReply[];
 
   @ManyToOne(() => Employee)
@@ -38,6 +38,6 @@ export class CommentReply {
   @CreateDateColumn({ type: "timestamp" })
   createdAt!: Date;
 
-  @OneToMany(() => CommentLike, (like) => like.reply)
+  @OneToMany(() => CommentLike, (like) => like.reply, { cascade: true, onDelete: "CASCADE" })
   likes!: CommentLike[];
 }
