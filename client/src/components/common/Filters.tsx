@@ -31,14 +31,14 @@ const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
               options={filter.options || []}
               value={filter.value}
               onChange={filter.onChange}
-              className={`bg-[#F6F6F9] w-full border-1 sm:w-[48%]  xl:w-[320px] text-xs sm:text-sm font-semibold text-nowrap rounded-[12px] px-3 h-[50px] text-slate-500 ${filter.className}`}
+              className={`bg-[#F6F6F9] w-full border-1 sm:w-[48%] text-xs sm:text-sm font-semibold text-nowrap rounded-[12px] px-3 h-[50px] text-slate-500 ${filter.className}`}
             />
           );
         } else if (filter.type === "date") {
           return (
             <DatePicker
               key={index}
-              className={`border-1 bg-[#F6F6F9] w-[50%] md:w-[320px] text-xs h-[50px] sm:text-sm font-semibold rounded-[12px] ${filter.className}`}
+              className={`border-1 bg-[#F6F6F9] w-[48%]  text-xs h-[50px] sm:text-sm font-semibold rounded-[12px] ${filter.className}`}
               selected={filter.value}
               onChange={(date) => filter.onChange(date ?? null)}
             />
@@ -51,20 +51,20 @@ const Filters: React.FC<FiltersProps> = ({ filters, onReset }) => {
               placeholder={filter.placeholder}
               value={filter.value || ""}
               onChange={(e) => filter.onChange(e.target.value)}
-              className={`bg-[#F6F6F9] border-1 w-full sm:w-[48%]  xl:w-[320px] text-xs sm:text-sm font-semibold rounded-[12px] px-3 text-slate-500 ${filter.className} h-[50px]`}
+              className={`bg-[#F6F6F9] border-1  w-[48%]  text-xs sm:text-sm font-semibold rounded-[12px] px-3 text-slate-500 ${filter.className} h-[50px]`}
             />
           );
         }
         return null;
       })}
       {/* <div className="bg-amber-300  h-full"> */}
-        <div
-          className="text-[#8A8A8C] font-semibold text-sm flex items-center py-3 px-5 border flex- justify-center hover:bg-slate-200 rounded-[12px] transition-all duration-300 ease-in cursor-pointer bg-slate-100 w-fit"
-          onClick={onReset}
-        >
-          <X className="w-4 xl:hidden sm:w-8" />
-          <p className="hidden sm:block">Reset</p>
-        </div>
+      <div
+        className="text-[#8A8A8C] font-semibold text-sm flex items-center py-3 px-5 border flex- justify-center hover:bg-slate-200 rounded-[12px] transition-all duration-300 ease-in cursor-pointer bg-slate-100 w-fit"
+        onClick={onReset}
+      >
+        <X className="w-4 xl:hidden sm:w-8" />
+        <p className="hidden sm:block">Reset</p>
+      </div>
       {/* </div> */}
     </div>
   );

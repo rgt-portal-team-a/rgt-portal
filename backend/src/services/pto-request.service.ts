@@ -65,7 +65,6 @@ export class PtoRequestService {
   }
 
   async create(ptoData: CreatePtoRequestDto, employee: any): Promise<PtoRequest> {
-
     if (!employee) {
       throw new Error("Employee not found");
     }
@@ -80,6 +79,8 @@ export class PtoRequestService {
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
+    console.log("diffTime:", diffTime);
+    console.log("diffDays:", diffDays);
     // balance based on PTO type
     if (ptoData.type === "vacation") {
       if (employee.vacationDaysBalance < diffDays) {
@@ -119,14 +120,10 @@ export class PtoRequestService {
       // Send notifications to all admins and HRs using queue service
       for (const user of adminAndHrUsers) {
         if (user.employee) {
-          await this.queueService.addJob(
-            QueueName.NOTIFICATIONS,
-            JobType.PTO_REQUEST_CREATED,
-            {
-              ptoRequest: savedRequestWithEmployee,
-              recipientId: user.id
-            }
-          );
+          await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.PTO_REQUEST_CREATED, {
+            ptoRequest: savedRequestWithEmployee,
+            recipientId: user.id,
+          });
         }
       }
     }
@@ -135,14 +132,10 @@ export class PtoRequestService {
       const department = await this.departmentService.findById(employee.departmentId, ["manager", "manager.user"]);
       if (department?.manager?.user) {
         // Send notification to department manager using queue service
-        await this.queueService.addJob(
-          QueueName.NOTIFICATIONS,
-          JobType.PTO_REQUEST_CREATED,
-          {
-            ptoRequest: savedRequestWithEmployee,
-            recipientId: department.manager.user.id
-          }
-        );
+        await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.PTO_REQUEST_CREATED, {
+          ptoRequest: savedRequestWithEmployee,
+          recipientId: department.manager.user.id,
+        });
       }
     }
 
@@ -201,14 +194,10 @@ export class PtoRequestService {
         });
 
         if (approver?.user) {
-          await this.queueService.addJob(
-            QueueName.NOTIFICATIONS,
-            JobType.PTO_REQUEST_STATUS,
-            {
-              ptoRequest: updatedPtoRequest,
-              updatedBy: approver.user
-            }
-          );
+          await this.queueService.addJob(QueueName.NOTIFICATIONS, JobType.PTO_REQUEST_STATUS, {
+            ptoRequest: updatedPtoRequest,
+            updatedBy: approver.user,
+          });
         }
       }
     }
@@ -264,7 +253,7 @@ export class PtoRequestService {
       employee.sickDaysBalance = 15;
       employee.vacationDaysBalance = 15;
     }
-  
+
     const savedEmployees = await this.employeeRepository.save(employees);
 
     return savedEmployees;

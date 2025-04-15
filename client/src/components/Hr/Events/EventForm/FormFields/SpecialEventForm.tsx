@@ -5,6 +5,8 @@ import { EmployeePopover } from "../common/EmployeePopover";
 import { SpecialEventTypeSelector } from "../common/SpecialEventTypeSelector";
 import { IEventForm } from "../types";
 import { FieldInputProps } from "formik";
+import { useEffect } from "react"; 
+import { specialEventTypes } from "@/hooks/useEventForm";
 
 interface SpecialEventFormProps
   extends Pick<
@@ -27,6 +29,15 @@ export const SpecialEventForm = ({
   toggleEmployeePopover,
 }: SpecialEventFormProps) => {
   const birthdayPopoverIndex = 0;
+
+  useEffect(() => {
+    const selectedType = specialEventTypes.find(
+      (type) => type.id === selectedSpecialEventType
+    );
+    if (selectedType) {
+      formik.setFieldValue("eventType", selectedType.label);
+    }
+  }, [selectedSpecialEventType, formik.setFieldValue]);
 
   return (
     <>

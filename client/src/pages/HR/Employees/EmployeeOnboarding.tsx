@@ -189,27 +189,27 @@ export const EmployeeOnboarding: React.FC = () => {
     );
   };
 
-  if (isDepartmentsLoading) {
-    return (
-      <SideModal
-        isOpen={isEditModalOpen}
-        onOpenChange={onClose}
-        title="Loading User Details"
-        position="right"
-        size="full"
-        contentClassName=" min-w-2xl px-6 "
-      >
-        <div className="flex justify-center items-center h-full min-w-2xl  my-auto">
-          <Loader className="animate-spin h-8 w-8" />
-        </div>
-      </SideModal>
-    );
-  }
+  // if (isDepartmentsLoading) {
+  //   return (
+  //     <SideModal
+  //       isOpen={isEditModalOpen}
+  //       onOpenChange={onClose}
+  //       title="Loading User Details"
+  //       position="right"
+  //       size="full"
+  //       contentClassName=" min-w-2xl px-6 "
+  //     >
+  //       <div className="flex justify-center items-center h-full min-w-2xl  my-auto">
+  //         <Loader className="animate-spin h-8 w-8" />
+  //       </div>
+  //     </SideModal>
+  //   );
+  // }
 
   // Render loading state
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-[15px] pt-[10px] h-full">
+      <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white p-4 rounded-md">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-medium text-gray-600">
@@ -220,7 +220,7 @@ export const EmployeeOnboarding: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col animate-pulse gap-4">
+        <div className="flex flex-col animate-pulse gap-4 overflow-auto h-full">
           {[...Array(7)].map((_, index) => (
             <Skeleton key={index} className="bg-gray-200 rounded-xl h-24 p-4" />
           ))}
@@ -287,7 +287,7 @@ export const EmployeeOnboarding: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-[15px] pt-[10px] h-full">
+      <div className="flex flex-col gap-[15px] pt-[10px] h-full bg-white p-4 rounded-md">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-medium text-gray-600">

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Send, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Send, X } from "lucide-react";
 import { useKairoBotQuery } from "@/api/query-hooks/ai.hooks";
 import KairoIcon from "@/assets/icons/KairoIcon";
 import { toast } from "@/hooks/use-toast";
-import "./Kairo.css"
+import "./Kairo.css";
+import { Textarea } from "../ui/textarea";
 
 interface ChatMessage {
   type: "user" | "bot";
@@ -37,7 +37,6 @@ const Kairo = () => {
     { id: "q5", text: " what role was applied for the most" },
   ];
 
-
   const extractQueryResults = (html: string): string => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
@@ -67,8 +66,6 @@ const Kairo = () => {
     return resultsContent;
   };
 
-
-
   const handleSendMessage = async () => {
     if (!currentQuery.trim()) return;
 
@@ -82,7 +79,10 @@ const Kairo = () => {
         onSuccess: (response) => {
           // const results = extractQueryResults(response.queryResponse);
           // setMessages((prev) => [...prev, { type: "bot", content: results }]);
-          setMessages((prev) => [...prev, { type: "bot", content: response.queryResponse }]);
+          setMessages((prev) => [
+            ...prev,
+            { type: "bot", content: response.queryResponse },
+          ]);
         },
         onError: (error) => {
           setMessages((prev) => [
@@ -102,7 +102,6 @@ const Kairo = () => {
       }
     );
   };
-
 
   const handleQueryClick = (query: string) => {
     setCurrentQuery(query);
@@ -139,138 +138,170 @@ const Kairo = () => {
     }
   };
 
-  const sanitizeHtml = (html:any) => {
+  const sanitizeHtml = (html: any) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    
+
     // Remove problematic elements or add classes
     const tables = doc.querySelectorAll("table");
-    tables.forEach(table => {
+    tables.forEach((table) => {
       table.classList.add("chat-table");
     });
-    
+
     return doc.body.innerHTML;
   };
 
-
-
   return (
-    <div className="absolute bottom-12 right-0 z-50 flex flex-col" ref={chatBotRef}>
+    <div
+      className={`absolute bottom-12 right-0 z-50 flex flex-col  max-h-[1000px] justify-end overflow-hidden transition-all duration-300 ease-in ${
+        isOpen ? "h-[85%]" : "h-0"
+      } `}
+      ref={chatBotRef}
+      style={{ zIndex: "1210" }}
+    >
       {/* {isOpen && ( */}
-        <div className={`bg-[#210D38] rounded-xl shadow-lg mb-2 mr-3 max-w-[463px] flex flex-col overflow-hidden transition-all duration-300 ease-in max-h-[600px] ${isOpen ? "h-[400px]" : "h-0"}`}>
-          {/* Header */}
-          <div className="p-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 p-1 rounded-md bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center ">
-                <KairoIcon />
-              </div>
-              <div className="text-white font-bold">
-                Kairo1{" "}
-                <span className="bg-yellow-500 text-xs px-1 rounded text-white">
-                  Beta
-                </span>
-              </div>
+      <div
+        className={`bg-[#210D38] rounded-xl shadow-lg mb-2 mr-3 max-w-[463px] flex flex-col h-full`}
+      >
+        {/* Header */}
+        <div className="p-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 p-1 rounded-md bg-gradient-to-r flex items-center justify-center ">
+              <KairoIcon />
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-purple-700 rounded-full p-1"
-            >
-              <ChevronDown size={24} />
-            </button>
+            <div className="text-white font-extrabold text-[20px] flex items-start gap-1">
+              Kairo1{" "}
+              <span className="bg-yellow-500 text-xs px-1 rounded text-white">
+                Beta
+              </span>
+            </div>
           </div>
+          <button onClick={() => setIsOpen(false)} className="cursor-pointer">
+            <svg
+              width="23"
+              height="19"
+              viewBox="0 0 23 19"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20.75 2L17.4738 5.30557C14.8611 7.94169 13.5547 9.25976 11.9625 9.46271C11.5724 9.51243 11.1776 9.51243 10.7875 9.46271C9.19527 9.25976 7.88891 7.94169 5.2762 5.30557L2 2M20.75 9.5L17.4738 12.8056C14.8611 15.4417 13.5547 16.7598 11.9625 16.9627C11.5724 17.0124 11.1776 17.0124 10.7875 16.9627C9.19527 16.7598 7.88891 15.4417 5.2762 12.8056L2 9.5"
+                stroke="white"
+                stroke-width="2.8125"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
 
-          {/* Message area */}
-          <div
-            ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-4 text-white"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {messages.map((msg, index) => (
+        {/* Message area */}
+        <div
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto p-4 text-white w-full"
+          // style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`mb-4 flex  w-full ${
+                msg.type === "user" ? "text-right justify-end" : ""
+              }`}
+            >
               <div
-                key={index}
-                className={`mb-4 ${msg.type === "user" ? "text-right " : ""}`}
+                className={`p-2 rounded-lg text-sm  text-wrap ${
+                  msg.type === "user"
+                    ? "bg-purple-600 text-white border-1 border-gray-100"
+                    : ""
+                }`}
               >
-                <div
-                  className={`inline-block p-3 rounded-lg text-sm ${
-                    msg.type === "user"
-                      ? "bg-purple-600 text-white border-1 border-gray-100"
-                      : "bg-purple-800 text-white"
-                  }`}
-                >
                 {msg.type === "user" ? (
-                  msg.content
+                  <p className="text-wrap w-full">{msg.content}</p>
+                ) : msg.content.includes("How can I help") ? (
+                  <div
+                    className="text-[#C0AFFF] text-[32px] font-extrabold text-nowrap text-center"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeHtml(msg.content) || "",
+                    }}
+                  />
                 ) : (
                   <div
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(msg.content) || "" }}
-                    className="p-4 chat-content"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeHtml(msg.content) || "",
+                    }}
+                    className="p-2 rounded-lg bg-purple-600 chat-content "
                   />
                 )}
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex justify-start mb-4">
+              <div className="bg-purple-800 p-3 rounded-lg">
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 rounded-full bg-white animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 rounded-full bg-white animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 rounded-full bg-white animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
                 </div>
               </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start mb-4">
-                <div className="bg-purple-800 p-3 rounded-lg">
-                  <div className="flex gap-2">
-                    <div className="w-2 h-2 rounded-full bg-white animate-bounce"></div>
-                    <div
-                      className="w-2 h-2 rounded-full bg-white animate-bounce"
-                      style={{ animationDelay: "0.2s" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 rounded-full bg-white animate-bounce"
-                      style={{ animationDelay: "0.4s" }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input area */}
+        <div className="p-4">
+          <div className="bg-[#6418C3] border-1 border-gray-100 rounded-[30px] h-[127px] relative">
+            <Textarea
+              value={currentQuery}
+              onChange={(e) => {
+                setCurrentQuery(e.target.value);
+              }}
+              onKeyDown={handleKeyPress}
+              className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 focus-visible:ring-0 placeholder:text-white h-full w-full py-5"
+            />
+
+            {!currentQuery && (
+              <p className="absolute top-5 text-[#C0AFFF] font-medium left-4">
+                Ask anything
+              </p>
             )}
-          </div>
-
-          {/* Query suggestions */}
-          <div className="px-4 py-2">
-            <p className="text-gray-200 text-sm mb-2">Possible queries</p>
-            <div
-              className="flex overflow-x-auto gap-2 pb-2"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            <button
+              onClick={handleSendMessage}
+              className="ml-2 text-white hover:text-purple-300 absolute top-6 right-4 cursor-pointer"
             >
-              {possibleQueries.map((query) => (
-                <button
-                  key={query.id}
-                  onClick={() => handleQueryClick(query.text)}
-                  className="whitespace-nowrap bg-purple-800 hover:bg-purple-700 text-white text-sm rounded-full px-4 py-2 flex-shrink-0"
-                >
-                  {query.text}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Input area */}
-          <div className="p-4">
-            <div className="bg-purple-700 border-1 border-gray-100 rounded-[30px] flex items-center px-4 py-2">
-              <Input
-                type="text"
-                value={currentQuery}
-                onChange={(e) => setCurrentQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask anything"
-                className="flex-1 bg-transparent border-none shadow-none text-white focus:ring-0 focus-visible:ring-0 placeholder:text-white"
-              />
-              <button
-                onClick={handleSendMessage}
-                className="ml-2 text-white hover:text-purple-300"
-              >
-                <Send size={18} />
-              </button>
-            </div>
+              <Send size={18} />
+            </button>
           </div>
         </div>
-      {/* )} */}
+
+        {/* Query suggestions */}
+        <div className="px-4 py-2">
+          <p className="text-gray-200 text-[12px] mb-2">Possible queries</p>
+          <div
+            className="flex overflow-x-auto gap-2 pb-2"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {possibleQueries.map((query) => (
+              <button
+                key={query.id}
+                onClick={() => handleQueryClick(query.text)}
+                className="whitespace-nowrap bg-purple-800 hover:bg-purple-700 text-white text-sm rounded-full px-4 py-2 flex-shrink-0"
+              >
+                {query.text}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Hoverable area */}
       <div
-        className="relative flex flex-col items-end"
+        className=" flex flex-col items-end w-fit fixed right-0"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -290,9 +321,9 @@ const Kairo = () => {
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
-            <X className="text-white" size={24} />
+            <X className="text-white p-1" size={32} />
           ) : (
-            <div className=" p-1 items-center justify-center">
+            <div className=" p-1">
               <KairoIcon size={24} />
             </div>
           )}

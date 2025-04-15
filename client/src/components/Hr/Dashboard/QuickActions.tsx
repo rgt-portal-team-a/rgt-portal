@@ -9,17 +9,20 @@ const quickActions = [
   {
     title: "Recognition",
     description: "Create the new list for the applause corner",
-    color: "bg-yellow-100 text-yellow-600",
+    bg: "bg-[#FFEBCC]",
+    color: "#F9B500",
   },
   {
     title: "Special Events",
     description: "App upcoming events for the week for the employees",
-    color: "bg-pink-100 text-pink-600",
+    bg: "bg-[#FFD0E5]",
+    color: "#E328AF",
   },
   {
     title: "Announcements",
     description: "Add new announcements for the employees",
-    color: "bg-blue-100 text-blue-600",
+    bg: "bg-[#EEF2FF]",
+    color: "#6418C3",
   },
 ];
 
@@ -36,8 +39,8 @@ export default function QuickActions() {
 
   return (
     <>
-      <Card className="rounded-2xl shadow-sm h-fit w-full p-4">
-        <CardTitle className="text-lg font-semibold text-gray-700 pb-4">
+      <Card className="rounded-[20px] shadow-none border-0  h-fit w-full px-8 py-10">
+        <CardTitle className="text-lg font-semibold text-[#706D8A] pb-4">
           Quick Actions
         </CardTitle>
         <CardContent className="p-0 space-y-8 w-full">
@@ -48,23 +51,28 @@ export default function QuickActions() {
             >
               <div className="flex gap-3">
                 <div
-                  className={`w-15 h-14 flex items-center justify-center rounded-lg ${action.color}`}
+                  className={`px-3 h-12 flex items-center justify-center rounded-lg ${action.bg}`}
                 >
                   <RewardIcon color={action.color} size={24} />
                 </div>
-                <div className="text-left flex flex-col lg:w-44">
-                  <h3 className="text-md font-semibold text-gray-700 text-nowrap">
+                <div className="text-left flex flex-col">
+                  <h3 className="text-[18px] font-semibold text-[#706D8A] text-nowrap">
                     {action.title}
                   </h3>
-                  <p className="text-xs font-normal text-gray-500 ">{action.description}</p>
+                  <p className="text-xs font-light min-w-[230px] text-[#706D8A]">
+                    {action.description}
+                  </p>
                 </div>
               </div>
               <div
                 // variant={"ghost"}
-                className="bg-transparent border-none shadow-none transition duration-300 "
+                className="bg-transparent transition duration-300 "
                 onClick={() => handleActionClick(action.title)}
               >
-                <Plus size={24} className="cursor-pointer hover:text-gray-600 transition duration-300" />
+                <Plus
+                  size={24}
+                  className="cursor-pointer text-[#706D8A] transition duration-300"
+                />
               </div>
             </div>
           ))}

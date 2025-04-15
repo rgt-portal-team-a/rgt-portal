@@ -18,7 +18,7 @@ postRouter.post("/", authMiddleware.isAuthenticated, authMiddleware.hasRole([Rol
 postRouter.put(
   "/:id",
   authMiddleware.isAuthenticated,
-  authMiddleware.hasRoleOrIsAuthor([Roles.MODERATOR, Roles.ADMIN], async (req) => {
+  authMiddleware.hasRoleOrIsAuthor([Roles.MODERATOR, Roles.ADMIN, Roles.HR, Roles.MARKETER], async (req) => {
     const post = await postController.findPostById(parseInt(req.params.id));
     return post?.authorId || -1;
   }),
@@ -42,7 +42,7 @@ postRouter.delete(
   "/:id",
   authMiddleware.isAuthenticated,
   // Proper middleware chaining
-  authMiddleware.hasRoleOrIsAuthor([Roles.MODERATOR, Roles.ADMIN], async (req) => {
+  authMiddleware.hasRoleOrIsAuthor([Roles.MODERATOR, Roles.ADMIN, Roles.HR, Roles.MARKETER], async (req) => {
     const post = await postController.findPostById(parseInt(req.params.id));
     return post?.authorId || -1;
   }),

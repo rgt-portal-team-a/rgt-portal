@@ -228,7 +228,7 @@ export default function TimeOff() {
   ];
 
   return (
-    <main className="bg-white px-4 py-4 rounded-md overflow-auto h-full relative">
+    <main className="bg-white px-4 py-4 rounded-[16px] overflow-auto h-full relative">
       <div className="h-full flex flex-col">
         <header className="flex sm:flex-row flex-col justify-between sm:items-center">
           <h1 className="text-xl font-semibold mb-4 text-[#706D8A] ">
@@ -244,32 +244,34 @@ export default function TimeOff() {
         </header>
 
         <div className="flex flex-col justify-between flex-grow">
-          <Filters filters={filters} onReset={handleResetFilters} />
+          <div>
+            <Filters filters={filters} onReset={handleResetFilters} />
 
-          <div className="overflow-auto">
-            <DataTable
-              columns={timeOffTableColumns}
-              data={paginatedData || []}
-              actionBool={true}
-              actionObj={[
-                {
-                  name: "view",
-                  action: (rowData) => {
-                    setAppRej(!appRej);
-                    setSelectedPtoId(rowData);
+            <div className="overflow-auto">
+              <DataTable
+                columns={timeOffTableColumns}
+                data={paginatedData || []}
+                actionBool={true}
+                actionObj={[
+                  {
+                    name: "view",
+                    action: (rowData) => {
+                      setAppRej(!appRej);
+                      setSelectedPtoId(rowData);
+                    },
                   },
-                },
-                {
-                  name: "delete",
-                  action: () => setIsDeletePTO(true),
-                },
-              ]}
-              showDelete={isDeletePTO}
-              setShowDelete={setIsDeletePTO}
-              isDeleteLoading={isPtoDeleting}
-              onDelete={deletePto}
-              loading={isLoading}
-            />
+                  {
+                    name: "delete",
+                    action: () => setIsDeletePTO(true),
+                  },
+                ]}
+                showDelete={isDeletePTO}
+                setShowDelete={setIsDeletePTO}
+                isDeleteLoading={isPtoDeleting}
+                onDelete={deletePto}
+                loading={isLoading}
+              />
+            </div>
           </div>
           {!isLoading && filteredPtoData && filteredPtoData.length > 0 && (
             <div>
