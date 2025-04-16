@@ -92,14 +92,14 @@ jobs:
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: '${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}'
-          format: 'table'
-          exit-code: '0'
+          image-ref: "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}"
+          format: "table"
+          exit-code: "0"
           ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
-      - name: Notify slack on failure
+      - name: Notify Slack
         if: always()
         uses: 8398a7/action-slack@v3
         with:
@@ -110,8 +110,15 @@ jobs:
               "attachments": [
                 {
                   "title": "Job Notification",
-                  "text": "Service: *${{ matrix.service }}*\nStatus: *${{ job.status }}*\nBranch: *${{ github.ref_name }}*",
-                  "color": "${{ job.status == 'success' && '#36a64f' || '#FF0000' }}"
+                  "text": "Service: *${{ matrix.service }}*\nStatus: *${{ job.status }}*\nBranch: *${{ github.ref_name }}*\nCommit: *${{ github.sha }}*\nTriggered by: *${{ github.actor }}*",
+                  "color": "${{ job.status == 'success' && '#36a64f' || '#FF0000' }}",
+                  "actions":[
+                    {
+                      "type": "button",
+                      "text": "View Workflow Run",
+                      "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
                 }
               ]
             }
