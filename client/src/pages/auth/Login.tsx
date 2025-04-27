@@ -59,7 +59,6 @@ const Login = () => {
     const params = new URLSearchParams(location.search);
     const error = params.get("error");
     if (error) {
-      console.log("Error from URL:", error);
       setLoginError(error);
       toastService.error(`${error}`);
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -67,7 +66,8 @@ const Login = () => {
   }, [location]);
 
   if (currentUser && currentUser.status === UserStatus.AWAITING) {
-    return navigate("/wait-room", { replace: true });
+    navigate("/wait-room", { replace: true });
+    return;
   }
 
   if (currentUser && currentUser.status === UserStatus.ACTIVE) {
