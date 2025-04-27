@@ -10,7 +10,7 @@ export class ConversationParticipant {
   @Column({ type: "bigint" })
   userId!: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "SET NULL" })
   @JoinColumn({ name: "user_id" })
   user!: User;
 
