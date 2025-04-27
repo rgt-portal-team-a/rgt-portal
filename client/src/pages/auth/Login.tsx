@@ -13,6 +13,7 @@ import rgtpatternimg1 from "@/assets/images/rgtpatternimg1.svg";
 import loginMainImg from "@/assets/images/WomanAndBackground.png";
 import { useAuthContextProvider } from "@/hooks/useAuthContextProvider";
 import toastService from "@/api/services/toast.service";
+import { UserStatus } from "@/lib/enums";
 
 interface FormValues {
   email: string;
@@ -65,7 +66,11 @@ const Login = () => {
     }
   }, [location]);
 
-  if (currentUser) {
+  if (currentUser && currentUser.status === UserStatus.AWAITING) {
+    return navigate("/wait-room", { replace: true });
+  }
+
+  if (currentUser && currentUser.status === UserStatus.ACTIVE) {
     const from = location.state?.from?.pathname || "/emp/feed";
     navigate(from, { replace: true });
     return;

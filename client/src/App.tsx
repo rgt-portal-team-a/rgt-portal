@@ -44,6 +44,7 @@ function App() {
         <Route path="/set-password" element={<CreatePassword />} />
 
 
+        <Route path="/wait-room" element={<WaitRoom />} />
 
         {/* Employee routes - accessible by all roles */}
         <Route
@@ -59,7 +60,6 @@ function App() {
             />
           }
         >
-          <Route path="/wait-room" element={<WaitRoom />} />
           <Route path="/emp" element={<BaseLayout />}>
             <Route index path="feed" element={<Feed />} />
             <Route path="events-calendar" element={<EventsCalendar />} />

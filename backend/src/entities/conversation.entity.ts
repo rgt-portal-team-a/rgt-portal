@@ -37,7 +37,7 @@ export class Conversation {
   @Column({ type: "bigint" })
   createdById!: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "created_by_id" })
   createdBy!: User;
 

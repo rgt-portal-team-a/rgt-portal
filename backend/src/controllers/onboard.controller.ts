@@ -62,7 +62,8 @@ export class OnboardController {
       // Then create the employee
       const employeeEntity = this.employeeRepository.create({
         ...employee,
-        user: { id: userId }
+        user: { id: userId },
+        department: { id: employee.departmentId }
       });
       const createdEmployee = await this.employeeRepository.save(employeeEntity);
 

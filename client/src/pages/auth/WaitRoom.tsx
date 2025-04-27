@@ -16,6 +16,11 @@ const WaitRoom = () => {
       const from = location.state?.from?.pathname || "/emp/feed";
       navigate(from, { replace: true });
     }
+
+    if (!currentUser) {
+      navigate("/login", { replace: true });
+    }
+
   }, [currentUser, location.state?.from?.pathname, navigate]);
 
   return (

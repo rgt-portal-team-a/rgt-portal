@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { useAuthContextProvider } from "../../hooks/useAuthContextProvider";
-import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import { useNavigate, useLocation, Outlet, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ROLE, ROLE_NAMES } from "@/types/authUser";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { UserStatus } from "@/lib/enums";
 
 type ProtectedRouteProps = {
   allowedRoles: ROLE_NAMES[];
@@ -56,6 +57,11 @@ const ProtectedRoute = ({
   // Bypass checks if coming from verification
   if (location.state?.fromVerify && currentUser) {
     return <Outlet />;
+  }
+
+  // if current user is awaiting, redirect to onboarding
+  if (currentUser && currentUser?.status === UserStatus.AWAITING) {
+    return <Navigate to="/wait-room" replace />;
   }
 
   const hasRequiredRole =

@@ -44,10 +44,10 @@ export class User {
   @UpdateDateColumn({ type: "timestamp" })
   updatedAt!: Date;
 
-  @ManyToOne(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: "CASCADE" })
   @JoinColumn({ name: "role_id" })
   role!: Role;
 
-  @OneToOne(() => Employee, (employee) => employee.user)
+  @OneToOne(() => Employee, (employee) => employee.user, { onDelete: "CASCADE" })
   employee!: Employee;
 }
