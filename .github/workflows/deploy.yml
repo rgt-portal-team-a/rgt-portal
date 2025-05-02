@@ -24,17 +24,10 @@ jobs:
 
     strategy:
       matrix:
-        service: [ai, backend, client]
+        service: [ai]
         include:
           - service: ai
             dockerfile: ./ai/Dockerfile
-            #ecr_repo: rgt-portal-team-a/ai
-          - service: backend
-            dockerfile: ./backend/Dockerfile
-            #ecr_repo: rgt-portal-team-a/backend
-          - service: client
-            dockerfile: ./client/Dockerfile
-            #ecr_repo: rgt-portal-team-a/client
 
     steps:
       - name: Checkout Code
@@ -92,12 +85,12 @@ jobs:
       - name: Scan Docker Image for Vulnerabilities
         uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: '${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}'
-          format: 'table'
-          exit-code: '0'
+          image-ref: "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}"
+          format: "table"
+          exit-code: "0"
           ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
       - name: Notify slack on failure
         if: always()
