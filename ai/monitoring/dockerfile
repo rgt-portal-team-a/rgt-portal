@@ -1,0 +1,49 @@
+# Use Python 3.10 as base image
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # Web app configuration
+    PORT=10000
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --upgrade pip setuptools wheel
+
+# Create a non-root user
+RUN useradd --create-home appuser
+RUN chown -R appuser:appuser /app
+
+# Copy requirements file first
+COPY requirements.txt /app/
+
+# Install dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Copy application code
+COPY . .
+
+# Fix ownership
+RUN chown -R appuser:appuser /app
+
+# Expose the port
+EXPOSE 10000
+
+# Switch to non-root user
+USER appuser
+
+# Run the app directly from its directory to fix import issues
+WORKDIR /app/monitoring/app_scripts
+CMD ["python", "dash_app.py"]
