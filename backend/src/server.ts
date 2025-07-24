@@ -129,7 +129,7 @@ const startServer = async () => {
       socketService.initialize();
       setSocketService(socketService);
 
-      await schedulerService.startSchedulers();
+      // await schedulerService.startSchedulers();
       logger.info("Scheduler service initialized successfully");
 
       setupBullBoard(app);
