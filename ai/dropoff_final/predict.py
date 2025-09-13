@@ -24,7 +24,6 @@ STAGE_LABELS_REVERSE = {v: k for k, v in FAIL_STAGE_LABELS.items()}
 
 
 class RawCandidateData(BaseModel):
-    # All fields have defaults, so none are required
     date: Optional[str] = Field(None, description="Application date in YYYY-MM-DD format")
     highestDegree: Optional[str] = Field(None, description="Highest education level")
     statusDueDate: Optional[str] = Field(None, description="Status due date in YYYY-MM-DD format")
@@ -135,8 +134,8 @@ class PredictionResult(BaseModel):
     predicted_stage: str
     probability: float = Field(..., ge=0, le=100,
                                description="Prediction probability percentage")
-    confidence: str = Field(...,
-                            description="Confidence level (Low/Medium/High)")
+    confidence: float = Field(...,
+                            description="Confidence level")
     warning: Optional[str] = Field(None, description="Any warnings about the input data")
 
 
@@ -414,7 +413,7 @@ class DropoffPredictor:
             return [PredictionResult(
                 predicted_stage="CV Review",
                 probability=50.0,
-                confidence="Low",
+                confidence= 0.5,
                 warning=f"Validation errors: {'; '.join(errors)}; Using fallback prediction"
             )]
         except Exception as e:
@@ -424,7 +423,7 @@ class DropoffPredictor:
             return [PredictionResult(
                 predicted_stage="CV Review",
                 probability=50.0,
-                confidence="Low",
+                confidence=0.5,
                 warning=f"Prediction error: {str(e)}; Using fallback prediction"
             )]
 
@@ -458,7 +457,7 @@ class DropoffPredictor:
                 max_prob = 1.0
                 prob_percent = 100.0
 
-            confidence = "High" if max_prob > 0.75 else "Medium" if max_prob > 0.5 else "Low"
+            confidence = max_prob
 
             results.append(PredictionResult(
                 predicted_stage=STAGE_LABELS_REVERSE.get(pred, "Unknown"),
